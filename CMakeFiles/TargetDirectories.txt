@@ -1,3 +1,0 @@
-/home/lucas/github/sdl_week1/CMakeFiles/sdl_week1.dir
-/home/lucas/github/sdl_week1/CMakeFiles/edit_cache.dir
-/home/lucas/github/sdl_week1/CMakeFiles/rebuild_cache.dir
