@@ -4,15 +4,20 @@
 
 class Renderer{
 private:
+    // SDL_Rendererオブジェクト
     SDL_Renderer* renderer;
 
 public:
+    // コンストラクタ・デストラクタ
     Renderer(SDL_Window* window);
     ~Renderer();
 
+    // 描画処理関数
     void clear();
     void present();
+    void drawRect(const SDL_Rect& rect, SDL_Color color);
 
+    // rendererオブジェクト返却用
     SDL_Renderer* get() const{
         return renderer;
     }
