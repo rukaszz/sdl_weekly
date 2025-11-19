@@ -10,6 +10,7 @@ private:
     Renderer renderer;
     Player player;
     bool running;
+    double fps;
 
 public:
     Game();

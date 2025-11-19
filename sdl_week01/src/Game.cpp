@@ -19,14 +19,13 @@ Game::Game()
  * 
  */
 void Game::run(){
-    Uint32 last = SDL_GetTicks();
-
+    Uint32 fps_timer_end = SDL_GetTicks();
     while(running){
         processEvents();
 
-        Uint32 now = SDL_GetTicks();
-        double delta = (now - last) / 1000.0;
-        last= now;
+        Uint32 fps_timer_start = SDL_GetTicks();
+        double delta = (fps_timer_start - fps_timer_end) / 1000.0;
+        fps_timer_end = fps_timer_start;
 
         update(delta);
         render();

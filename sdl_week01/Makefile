@@ -57,10 +57,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/lucas/github/sdl_week1
+CMAKE_SOURCE_DIR = /home/lucas/sdl-weekly/sdl_week01
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/lucas/github/sdl_week1
+CMAKE_BINARY_DIR = /home/lucas/sdl-weekly/sdl_week01
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -87,9 +87,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/lucas/github/sdl_week1/CMakeFiles /home/lucas/github/sdl_week1//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/lucas/sdl-weekly/sdl_week01/CMakeFiles /home/lucas/sdl-weekly/sdl_week01//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/lucas/github/sdl_week1/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/lucas/sdl-weekly/sdl_week01/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -117,24 +117,72 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named sdl_week1
+# Target rules for targets named sdl_week01
 
 # Build rule for target.
-sdl_week1: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 sdl_week1
-.PHONY : sdl_week1
+sdl_week01: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 sdl_week01
+.PHONY : sdl_week01
 
 # fast build rule for target.
-sdl_week1/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week1.dir/build.make CMakeFiles/sdl_week1.dir/build
-.PHONY : sdl_week1/fast
+sdl_week01/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week01.dir/build.make CMakeFiles/sdl_week01.dir/build
+.PHONY : sdl_week01/fast
+
+src/Game.o: src/Game.cpp.o
+.PHONY : src/Game.o
+
+# target to build an object file
+src/Game.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week01.dir/build.make CMakeFiles/sdl_week01.dir/src/Game.cpp.o
+.PHONY : src/Game.cpp.o
+
+src/Game.i: src/Game.cpp.i
+.PHONY : src/Game.i
+
+# target to preprocess a source file
+src/Game.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week01.dir/build.make CMakeFiles/sdl_week01.dir/src/Game.cpp.i
+.PHONY : src/Game.cpp.i
+
+src/Game.s: src/Game.cpp.s
+.PHONY : src/Game.s
+
+# target to generate assembly for a file
+src/Game.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week01.dir/build.make CMakeFiles/sdl_week01.dir/src/Game.cpp.s
+.PHONY : src/Game.cpp.s
+
+src/Player.o: src/Player.cpp.o
+.PHONY : src/Player.o
+
+# target to build an object file
+src/Player.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week01.dir/build.make CMakeFiles/sdl_week01.dir/src/Player.cpp.o
+.PHONY : src/Player.cpp.o
+
+src/Player.i: src/Player.cpp.i
+.PHONY : src/Player.i
+
+# target to preprocess a source file
+src/Player.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week01.dir/build.make CMakeFiles/sdl_week01.dir/src/Player.cpp.i
+.PHONY : src/Player.cpp.i
+
+src/Player.s: src/Player.cpp.s
+.PHONY : src/Player.s
+
+# target to generate assembly for a file
+src/Player.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week01.dir/build.make CMakeFiles/sdl_week01.dir/src/Player.cpp.s
+.PHONY : src/Player.cpp.s
 
 src/Renderer.o: src/Renderer.cpp.o
 .PHONY : src/Renderer.o
 
 # target to build an object file
 src/Renderer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week1.dir/build.make CMakeFiles/sdl_week1.dir/src/Renderer.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week01.dir/build.make CMakeFiles/sdl_week01.dir/src/Renderer.cpp.o
 .PHONY : src/Renderer.cpp.o
 
 src/Renderer.i: src/Renderer.cpp.i
@@ -142,7 +190,7 @@ src/Renderer.i: src/Renderer.cpp.i
 
 # target to preprocess a source file
 src/Renderer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week1.dir/build.make CMakeFiles/sdl_week1.dir/src/Renderer.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week01.dir/build.make CMakeFiles/sdl_week01.dir/src/Renderer.cpp.i
 .PHONY : src/Renderer.cpp.i
 
 src/Renderer.s: src/Renderer.cpp.s
@@ -150,7 +198,7 @@ src/Renderer.s: src/Renderer.cpp.s
 
 # target to generate assembly for a file
 src/Renderer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week1.dir/build.make CMakeFiles/sdl_week1.dir/src/Renderer.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week01.dir/build.make CMakeFiles/sdl_week01.dir/src/Renderer.cpp.s
 .PHONY : src/Renderer.cpp.s
 
 src/Window.o: src/Window.cpp.o
@@ -158,7 +206,7 @@ src/Window.o: src/Window.cpp.o
 
 # target to build an object file
 src/Window.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week1.dir/build.make CMakeFiles/sdl_week1.dir/src/Window.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week01.dir/build.make CMakeFiles/sdl_week01.dir/src/Window.cpp.o
 .PHONY : src/Window.cpp.o
 
 src/Window.i: src/Window.cpp.i
@@ -166,7 +214,7 @@ src/Window.i: src/Window.cpp.i
 
 # target to preprocess a source file
 src/Window.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week1.dir/build.make CMakeFiles/sdl_week1.dir/src/Window.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week01.dir/build.make CMakeFiles/sdl_week01.dir/src/Window.cpp.i
 .PHONY : src/Window.cpp.i
 
 src/Window.s: src/Window.cpp.s
@@ -174,7 +222,7 @@ src/Window.s: src/Window.cpp.s
 
 # target to generate assembly for a file
 src/Window.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week1.dir/build.make CMakeFiles/sdl_week1.dir/src/Window.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week01.dir/build.make CMakeFiles/sdl_week01.dir/src/Window.cpp.s
 .PHONY : src/Window.cpp.s
 
 src/main.o: src/main.cpp.o
@@ -182,7 +230,7 @@ src/main.o: src/main.cpp.o
 
 # target to build an object file
 src/main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week1.dir/build.make CMakeFiles/sdl_week1.dir/src/main.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week01.dir/build.make CMakeFiles/sdl_week01.dir/src/main.cpp.o
 .PHONY : src/main.cpp.o
 
 src/main.i: src/main.cpp.i
@@ -190,7 +238,7 @@ src/main.i: src/main.cpp.i
 
 # target to preprocess a source file
 src/main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week1.dir/build.make CMakeFiles/sdl_week1.dir/src/main.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week01.dir/build.make CMakeFiles/sdl_week01.dir/src/main.cpp.i
 .PHONY : src/main.cpp.i
 
 src/main.s: src/main.cpp.s
@@ -198,7 +246,7 @@ src/main.s: src/main.cpp.s
 
 # target to generate assembly for a file
 src/main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week1.dir/build.make CMakeFiles/sdl_week1.dir/src/main.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week01.dir/build.make CMakeFiles/sdl_week01.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
 # Help Target
@@ -209,7 +257,13 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... sdl_week1"
+	@echo "... sdl_week01"
+	@echo "... src/Game.o"
+	@echo "... src/Game.i"
+	@echo "... src/Game.s"
+	@echo "... src/Player.o"
+	@echo "... src/Player.i"
+	@echo "... src/Player.s"
 	@echo "... src/Renderer.o"
 	@echo "... src/Renderer.i"
 	@echo "... src/Renderer.s"
