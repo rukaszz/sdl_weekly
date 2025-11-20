@@ -16,6 +16,7 @@ public:
     void clear();
     void present();
     void drawRect(const SDL_Rect& rect, SDL_Color color);
+    SDL_Point getOutputSize() const;
 
     // rendererオブジェクト返却用
     SDL_Renderer* get() const{

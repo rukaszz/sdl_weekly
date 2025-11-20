@@ -78,7 +78,7 @@ void Game::processEvents(){
  */
 void Game::update(double delta){
     const Uint8* keystate = SDL_GetKeyboardState(NULL);
-    player.update(delta, keystate, window.getDrawableSize());
+    player.update(delta, keystate, renderer.getOutputSize());
 }
 
 /**

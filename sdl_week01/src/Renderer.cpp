@@ -43,13 +43,6 @@ void Renderer::present(){
     SDL_RenderPresent(renderer);
 }
 
-/*
-* 矩形描画関数
-* SDLの矩形オブジェクトと色を受け取って生成する
-* @param rect: SDL_Rectオブジェクト
-* @param color: 矩形を塗りつぶす色を指定(List型)※RGB+alpha
-*/
-
 /**
  * @brief 矩形描画関数
  * SDLの矩形オブジェクトと色を受け取って生成する
@@ -60,4 +53,21 @@ void Renderer::present(){
 void Renderer::drawRect(const SDL_Rect& rect, SDL_Color color){
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(renderer, &rect);
+}
+
+/**
+ * @brief 描画可能範囲を返す関数
+ * windowでこの機能を実現するなら，SDL_GL_GetDrawableSize()を使う
+ * 現システムはrendererを使っているのでRendererに責務をもたせる
+ * 
+ * @return SDL_Point: x, y(double)
+ */
+SDL_Point Renderer::getOutputSize() const {
+    SDL_Point p{0, 0};
+    // rendererオブジェクトの存在チェック
+    if(!renderer){
+        return p;
+    }
+    SDL_GetRendererOutputSize(renderer, &p.x, &p.y);
+    return p;
 }

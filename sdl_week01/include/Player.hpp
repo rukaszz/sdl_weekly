@@ -15,7 +15,7 @@ public:
     Player(double startX = 100, double startY = 100)
         : x(startX), y(startY), speed(200.0) {}
 
-    void update(double delta, const Uint8* keystate, SDL_Point windowSize);
+    void update(double delta, const Uint8* keystate, SDL_Point drawableSize);
 
     // 矩形を返すオブジェクト
     SDL_Rect getRect() const{
