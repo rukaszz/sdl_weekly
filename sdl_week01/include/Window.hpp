@@ -17,6 +17,8 @@ public:
     SDL_Window* get() const{
         return window;
     }
+
+    SDL_Point getDrawableSize() const;
 };
 
 #endif // WINDOW_H

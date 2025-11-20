@@ -2,10 +2,6 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 
-constexpr inline const int GameConst::TARGET_FPS = 60;
-// 16ms
-constexpr inline const int GameConst::FRAME_DELAY = 1000 / GameConst::TARGET_FPS;
-
 /**
  * @brief Construct a new Game:: Game object
  * 
@@ -45,20 +41,20 @@ void Game::run(){
             fpsTimer = timer_start;
         }
         // fpsキャップ(最大60fps)
-        fpsCap(timer_start);
+        fpsFrameRate(timer_start);
     }
 }
 
 /**
- * @brief fpsキャップを実装
+ * @brief fpsキャップを実装(fpsを固定化するため)
  * 
  * @param fps_timer_start: 計測点
  */
-void Game::fpsCap(double fps_timer_start){
+void Game::fpsFrameRate(Uint32 fps_timer_start){
     Uint32 frame_duration = SDL_GetTicks() - fps_timer_start;
     
-    if(frame_duration < GameConst::FRAME_DELAY){
-        SDL_Delay(GameConst::FRAME_DELAY - frame_duration);
+    if(frame_duration < Game::FRAME_DELAY){
+        SDL_Delay(Game::FRAME_DELAY - frame_duration);
     }
 }
 
@@ -82,7 +78,7 @@ void Game::processEvents(){
  */
 void Game::update(double delta){
     const Uint8* keystate = SDL_GetKeyboardState(NULL);
-    player.update(delta, keystate);
+    player.update(delta, keystate, window.getDrawableSize());
 }
 
 /**

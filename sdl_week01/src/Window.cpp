@@ -45,3 +45,16 @@ Window::~Window(){
     SDL_Quit();
 }
 
+SDL_Point Window::getDrawableSize() const {
+    SDL_Point p{0, 0};
+    // windowオブジェクトの存在確認
+    if(!window){
+        return p;
+    }
+    int w = 0, h = 0;
+    SDL_GL_GetDrawableSize(window, &w, &h);
+    p.x = w;
+    p.y = h;
+
+    return p;
+}
