@@ -1,9 +1,11 @@
 #include "Renderer.hpp"
 #include <stdexcept>
 
-/*
-* Rendererクラスは描画に関する処理の窓口になるように
-*/
+/**
+ * Renderer: SDL_Renderer の RAII ラッパ。
+ * 描画処理（クリア、描画、Present）を Window から切り離し、
+ * SDL に依存する処理をこのクラスに集約する。
+ */
 
 /**
  * @brief Construct a new Renderer:: Renderer object
@@ -62,7 +64,7 @@ void Renderer::drawRect(const SDL_Rect& rect, SDL_Color color){
  * 
  * @return SDL_Point: x, y(double)
  */
-SDL_Point Renderer::getOutputSize() const {
+SDL_Point Renderer::getOutputSize() const{
     SDL_Point p{0, 0};
     // rendererオブジェクトの存在チェック
     if(!renderer){

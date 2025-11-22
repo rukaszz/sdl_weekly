@@ -15,20 +15,19 @@
  * @param keystate: キーの入力状態
  */
 void Player::update(double delta, const Uint8* keystate, SDL_Point drawableSize){
-    if(keystate[SDL_SCANCODE_LEFT]) {
+    if(keystate[SDL_SCANCODE_LEFT]){
         x -= speed * delta;
-        x = std::clamp(x, 0.0, drawableSize.x - Player::SIZE);
     }
-    if(keystate[SDL_SCANCODE_RIGHT]) {
+    if(keystate[SDL_SCANCODE_RIGHT]){
         x += speed * delta;
-        x = std::clamp(x, 0.0, drawableSize.x - Player::SIZE);
     }
-    if(keystate[SDL_SCANCODE_UP]) {
+    if(keystate[SDL_SCANCODE_UP]){
         y -= speed * delta;
-        y = std::clamp(y, 0.0, drawableSize.y - Player::SIZE);
     }
-    if(keystate[SDL_SCANCODE_DOWN]) {
+    if(keystate[SDL_SCANCODE_DOWN]){
         y += speed * delta;
-        y = std::clamp(y, 0.0, drawableSize.y - Player::SIZE);
     }
+
+    x = std::clamp(x, 0.0, drawableSize.x - static_cast<double>(Player::SIZE));
+    y = std::clamp(y, 0.0, drawableSize.y - static_cast<double>(Player::SIZE));
 }

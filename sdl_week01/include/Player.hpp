@@ -10,7 +10,7 @@ private:
 
 public:
     // 定数
-    static inline constexpr double SIZE = 50.0;
+    static inline constexpr int SIZE = 50;
 
     Player(double startX = 100, double startY = 100)
         : x(startX), y(startY), speed(200.0) {}
@@ -19,7 +19,7 @@ public:
 
     // 矩形を返すオブジェクト
     SDL_Rect getRect() const{
-        return SDL_Rect{(int)x, (int)y, (int)SIZE, (int)SIZE};
+        return SDL_Rect{(int)x, (int)y, SIZE, SIZE};
     }
 };
 

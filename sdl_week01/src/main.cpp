@@ -10,7 +10,8 @@
 * 最小限の処理を記述するmain関数
 * ここはGameを呼ぶだけ
 */
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]){
     Game game;
     game.run();
+    return 0;
 }

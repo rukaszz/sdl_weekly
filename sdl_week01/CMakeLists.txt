@@ -16,6 +16,7 @@ add_executable(sdl_week01
     include/Game.hpp
     src/Game.cpp
 )
+target_compile_options(sdl_week01 PRIVATE -Wall -Wextra -Wpedantic)
 target_include_directories(sdl_week01 PRIVATE ${SDL2_INCLUDE_DIRS})
 target_include_directories(sdl_week01 PRIVATE ./include)
 target_link_libraries(sdl_week01 PRIVATE ${SDL2_LIBRARIES})

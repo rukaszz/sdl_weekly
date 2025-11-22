@@ -2,3 +2,4 @@
 *.make
 /CMakeFiles/*
 /build/*
+*.log
