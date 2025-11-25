@@ -72,3 +72,18 @@ Create basic classes and functions.
 - RAIIを意識したWindowとRendererを作成
 - SDLになるべく依存しないPlayer/Gameの実装
 - ゲームループを作成
+
+## week02
+
+### 設計について
+
+SpriteとTextureを追加．ただし，Rendererとの参照関係は明確にして，循環参照にならないように注意する．
+現状の関係は次の通り：
+
+- Texture  ---依存---> SDL_Texture*
+- Sprite   ---依存---> Texture（参照）
+- Player   ---依存---> Sprite
+- Renderer ---依存---> SDL_Renderer*
+- Game     ---依存---> Texture / Player / Renderer
+
+TextureはRendererに依存してはならない．
