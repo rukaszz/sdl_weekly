@@ -19,6 +19,8 @@ add_executable(${PROJECT_NAME}
     src/main.cpp
     src/Window.cpp
     src/Renderer.cpp
+    src/Sprite.cpp
+    src/Texture.cpp
     src/Player.cpp
     src/Game.cpp
 )

@@ -1,3 +1,7 @@
+#include "Window.hpp"
+#include "Renderer.hpp"
+#include "Texture.hpp"
+#include "Player.hpp"
 #include "Game.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -10,10 +14,17 @@
 Game::Game()
     : window("Test", 400, 500), 
       renderer(window.get()), 
-      player(100, 100), 
       running(true)
 {
+    // Texture読み込み
+    playerTexture = new Texture(renderer.get(), "assets/rhb.png");
+    // playerの作成
+    player = new Player(*playerTexture);
+}
 
+Game::~Game(){
+    delete player;
+    delete playerTexture;
 }
 
 /**
@@ -34,11 +45,6 @@ void Game::run(){
         processEvents();
         update(delta);
         render();
-        // PNGロードテスト
-        SDL_Surface* surf = IMG_Load("assets/rhb.png");
-        SDL_Texture* tex = SDL_CreateTextureFromSurface(renderer.get(), surf);
-        SDL_FreeSurface(surf);
-        // PNGロードテスト
         // フレームレートの計算とfps計測
         ++fpsCounter;
         if(nowTime - fpsTimer >= 1000){
@@ -84,7 +90,7 @@ void Game::processEvents(){
  */
 void Game::update(double delta){
     const Uint8* keystate = SDL_GetKeyboardState(NULL);
-    player.update(delta, keystate, renderer.getOutputSize());
+    player->update(delta, keystate, renderer.getOutputSize());
 }
 
 /**
@@ -93,6 +99,6 @@ void Game::update(double delta){
  */
 void Game::render(){
     renderer.clear();
-    renderer.drawRect(player.getRect(), SDL_Color{255, 255, 255, 255});
+    player->draw(renderer);
     renderer.present();
 }

@@ -2,13 +2,15 @@
 #define GAME_H
 #include "Window.hpp"
 #include "Renderer.hpp"
+#include "Texture.hpp"
 #include "Player.hpp"
 
 class Game{
 private:
     Window window;
     Renderer renderer;
-    Player player;
+    Texture* playerTexture;
+    Player* player;
     bool running;
 
 public:
@@ -17,6 +19,7 @@ public:
     static inline constexpr int FRAME_DELAY = 1000 / TARGET_FPS;
 
     Game();
+    ~Game();
     void run();
 
 private:
