@@ -16,7 +16,10 @@
  * @param tex 
  */
 Player::Player(Texture& tex)
-    : x(100), y(100), speed(200.0), sprite(tex)
+    : x(100)
+    , y(100)
+    , speed(200.0)
+    , sprite(tex, 85, 110)
 {
 
 }
@@ -42,8 +45,17 @@ void Player::update(double delta, const Uint8* keystate, SDL_Point drawableSize)
         y += speed * delta;
     }
 
-    // x = std::clamp(x, 0.0, drawableSize.x - static_cast<double>(Player::SIZE));
-    // y = std::clamp(y, 0.0, drawableSize.y - static_cast<double>(Player::SIZE));
+    x = std::clamp(x, 0.0, drawableSize.x - static_cast<double>(sprite.getFrameWidth()));
+    y = std::clamp(y, 0.0, drawableSize.y - static_cast<double>(sprite.getFrameHeight()));
+
+    // アニメーション処理(仮)
+    frameTimer += delta;
+    if(frameTimer >= frameInterval){
+        frame = (frame + 1) % NUM_FRAMES;
+        frameTimer -= frameInterval;
+        // srcRect.xの更新
+        sprite.setFrame(frame);
+    }
 }
 
 /**

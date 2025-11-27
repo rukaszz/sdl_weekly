@@ -47,18 +47,6 @@ void Renderer::present(){
 }
 
 /**
- * @brief 矩形描画関数
- * SDLの矩形オブジェクトと色を受け取って生成する
- * 
- * @param rect: SDL_Rectオブジェクトを受け取る 
- * @param color: RGB+alphaをListで受け取る 
- */
-void Renderer::drawRect(const SDL_Rect& rect, SDL_Color color){
-    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-    SDL_RenderFillRect(renderer, &rect);
-}
-
-/**
  * @brief レンダラーに描画元のテクスチャを引数の位置へ貼り付ける
  * srcとdstのサイズが異なっている場合調整される．
  * 

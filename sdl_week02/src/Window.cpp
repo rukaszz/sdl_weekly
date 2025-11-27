@@ -1,5 +1,8 @@
 #include "Window.hpp"
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+
+#include <string>
 #include <stdexcept>
 
 /*
@@ -16,13 +19,6 @@
  */
 
 Window::Window(const std::string& title, int width, int height){
-    // 初期化
-    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0){
-        throw std::runtime_error("SDL_Init failed. ");
-    }
-    if(!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)){
-        throw std::runtime_error("IMG_Init failed. ");
-    }
     // windowオブジェクト生成
     window = SDL_CreateWindow(
         title.c_str(), 
@@ -35,7 +31,7 @@ Window::Window(const std::string& title, int width, int height){
     // 生成がうまくいかなかったら終了
     if(!window){
         SDL_Quit();
-        throw std::runtime_error("SDL_CreateWindow failed. ");
+        throw std::runtime_error(std::string("SDL_CreateWindow failed. ") + SDL_GetError());
     }
 }
 
@@ -46,5 +42,14 @@ Window::Window(const std::string& title, int width, int height){
 Window::~Window(){
     // Windowオブジェクト破棄
     SDL_DestroyWindow(window);
-    SDL_Quit();
+}
+
+SDL_Point Window::getWindowSize() const{
+    SDL_Point p{0, 0};
+    // windowオブジェクトの存在チェック
+    if(!window){
+        return p;
+    }
+    SDL_GetWindowSize(window, &p.x, &p.y);
+    return p;
 }

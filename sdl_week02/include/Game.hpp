@@ -4,13 +4,14 @@
 #include "Renderer.hpp"
 #include "Texture.hpp"
 #include "Player.hpp"
+#include <memory>
 
 class Game{
 private:
-    Window window;
-    Renderer renderer;
-    Texture* playerTexture;
-    Player* player;
+    std::unique_ptr<Window> window;
+    std::unique_ptr<Renderer> renderer;
+    std::unique_ptr<Texture> playerTexture;
+    std::unique_ptr<Player> player;
     bool running;
 
 public:

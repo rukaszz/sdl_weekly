@@ -13,6 +13,9 @@ public:
     Window(const std::string& title, int width, int height);
     ~Window();
 
+    // windowサイズ返却
+    SDL_Point getWindowSize() const;
+
     // windowオブジェクト取得用
     SDL_Window* get() const{
         return window;

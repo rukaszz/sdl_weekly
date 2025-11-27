@@ -3,28 +3,39 @@
 #include "Texture.hpp"
 #include "Player.hpp"
 #include "Game.hpp"
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <iostream>
+#include <memory>
 
 /**
  * @brief Construct a new Game:: Game object
  * 
  */
-Game::Game()
-    : window("Test", 400, 500), 
-      renderer(window.get()), 
-      running(true)
-{
-    // Texture読み込み
-    playerTexture = new Texture(renderer.get(), "assets/rhb.png");
-    // playerの作成
-    player = new Player(*playerTexture);
+Game::Game(){
+    // SDL初期化
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0){
+        throw std::runtime_error(SDL_GetError());
+    }
+
+    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)){
+        throw std::runtime_error(IMG_GetError());
+    }
+
+    // SDL_Init 後に Window / Renderer を作る
+    window = std::make_unique<Window>("Test", 400, 500);
+    renderer = std::make_unique<Renderer>(window->get());
+    playerTexture = std::make_unique<Texture>(renderer->get(), "assets/rhb.png");
+    player = std::make_unique<Player>(*playerTexture);
+
+    running = true;
 }
 
 Game::~Game(){
-    delete player;
-    delete playerTexture;
+    // Renderer→Window→SDLの順で破棄
+    IMG_Quit();
+    SDL_Quit();
 }
 
 /**
@@ -62,8 +73,8 @@ void Game::run(){
  * 
  * @param fps_nowTime: 計測点
  */
-void Game::capFrameRate(Uint32 fps_nowTime){
-    Uint32 frame_duration = SDL_GetTicks() - fps_nowTime;
+void Game::capFrameRate(Uint32 frameStart){
+    Uint32 frame_duration = SDL_GetTicks() - frameStart;
     
     if(frame_duration < Game::FRAME_DELAY){
         SDL_Delay(Game::FRAME_DELAY - frame_duration);
@@ -90,7 +101,7 @@ void Game::processEvents(){
  */
 void Game::update(double delta){
     const Uint8* keystate = SDL_GetKeyboardState(NULL);
-    player->update(delta, keystate, renderer.getOutputSize());
+    player->update(delta, keystate, window->getWindowSize());
 }
 
 /**
@@ -98,7 +109,7 @@ void Game::update(double delta){
  * 
  */
 void Game::render(){
-    renderer.clear();
-    player->draw(renderer);
-    renderer.present();
+    renderer->clear();
+    player->draw(*renderer);
+    renderer->present();
 }

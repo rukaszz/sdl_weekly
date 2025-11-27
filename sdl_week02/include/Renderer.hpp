@@ -15,7 +15,6 @@ public:
     // 描画処理関数
     void clear();
     void present();
-    void drawRect(const SDL_Rect& rect, SDL_Color color);
     void drawTexture(SDL_Texture* tex, const SDL_Rect* src, SDL_Rect* dst);
     SDL_Point getOutputSize() const;
 
