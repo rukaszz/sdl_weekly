@@ -20,7 +20,7 @@ public:
     Sprite(Texture& tex, int fw, int fh);
 
     void setPosition(int x, int y);
-    void setSize(int w, int h);
+    void setDrawSize(int w, int h);
     void setSrcRect(int x, int y, int w, int h);
     void draw(Renderer& renderer);
     void setFrame(int frameIndex);

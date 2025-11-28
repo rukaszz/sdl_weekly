@@ -22,9 +22,9 @@ private:
 
 public:
     // 定数
-    static inline constexpr int NUM_FRAMES = 15;
+    static inline constexpr int NUM_FRAMES = 8;
 
-    Player(Texture& tex);
+    Player(Texture& tex, int fw, int fh);
 
     void update(double delta, const Uint8* keystate, SDL_Point drawableSize);
     void draw(Renderer& renderer);

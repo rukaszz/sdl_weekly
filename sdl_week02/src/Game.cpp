@@ -27,7 +27,7 @@ Game::Game(){
     window = std::make_unique<Window>("Test", 400, 500);
     renderer = std::make_unique<Renderer>(window->get());
     playerTexture = std::make_unique<Texture>(renderer->get(), "assets/rhb.png");
-    player = std::make_unique<Player>(*playerTexture);
+    player = std::make_unique<Player>(*playerTexture, 85, 110);
 
     running = true;
 }

@@ -87,3 +87,7 @@ SpriteとTextureを追加．ただし，Rendererとの参照関係は明確に�
 - Game     ---依存---> Texture / Player / Renderer
 
 TextureはRendererに依存してはならない．
+
+## アセット
+
+- Red Hat Boy

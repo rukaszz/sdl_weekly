@@ -15,13 +15,13 @@
  * 
  * @param tex 
  */
-Player::Player(Texture& tex)
+Player::Player(Texture& tex, int fw, int fh)
     : x(100)
     , y(100)
     , speed(200.0)
-    , sprite(tex, 85, 110)
+    , sprite(tex, fw, fh)
 {
-
+    sprite.setFrame(0);
 }
 
 /**
@@ -45,8 +45,8 @@ void Player::update(double delta, const Uint8* keystate, SDL_Point drawableSize)
         y += speed * delta;
     }
 
-    x = std::clamp(x, 0.0, drawableSize.x - static_cast<double>(sprite.getFrameWidth()));
-    y = std::clamp(y, 0.0, drawableSize.y - static_cast<double>(sprite.getFrameHeight()));
+    x = std::clamp(x, 0.0, drawableSize.x - static_cast<double>(sprite.getWidth()));
+    y = std::clamp(y, 0.0, drawableSize.y - static_cast<double>(sprite.getHeight()));
 
     // アニメーション処理(仮)
     frameTimer += delta;

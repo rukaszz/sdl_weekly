@@ -21,7 +21,7 @@ Sprite::Sprite(Texture& tex, int fw, int fh)
  * テクスチャへのレンダラー上のコピー先の矩形の座標をセットする
  * 
  * @param x 
- * @param y 
+ * @param y
  */
 void Sprite::setPosition(int x, int y){
     dst.x = x;
@@ -34,7 +34,7 @@ void Sprite::setPosition(int x, int y){
  * @param w 
  * @param h 
  */
-void Sprite::setSize(int w, int h){
+void Sprite::setDrawSize(int w, int h){
     dst.w = w;
     dst.h = h;
 }
