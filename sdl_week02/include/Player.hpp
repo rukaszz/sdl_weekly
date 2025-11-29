@@ -1,6 +1,11 @@
 #ifndef PLAYER_H
 #define PLAYER_H
+
+// 定数
+#include "PlayerConfig.hpp"
+
 #include "Sprite.hpp"
+
 #include <SDL2/SDL.h>
 
 class Sprite;
@@ -22,7 +27,7 @@ private:
 
 public:
     // 定数
-    static inline constexpr int NUM_FRAMES = 8;
+    static inline constexpr int NUM_FRAMES = PlayerConfig::NUM_FRAMES;
 
     Player(Texture& tex, int fw, int fh);
 

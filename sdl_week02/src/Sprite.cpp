@@ -58,12 +58,3 @@ void Sprite::setFrame(int frameIndex){
     src.w = frameWidth;
     src.h = frameHeight;
 }
-
-/**
- * @brief テクスチャのデータをレンダラーへ描画させる
- * 
- * @param renderer: レンダラークラスのオブジェクト 
- */
-void Sprite::draw(Renderer& renderer){
-    renderer.drawTexture(texture.get(), &src, &dst);
-}

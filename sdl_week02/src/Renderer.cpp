@@ -1,4 +1,6 @@
 #include "Renderer.hpp"
+#include "Sprite.hpp"
+
 #include <SDL2/SDL.h>
 #include <stdexcept>
 
@@ -56,6 +58,27 @@ void Renderer::present(){
  */
 void Renderer::drawTexture(SDL_Texture* tex, const SDL_Rect* src, SDL_Rect* dst){
     SDL_RenderCopy(renderer, tex, src, dst);
+}
+
+/**
+ * @brief スプライトが参照しているテクスチャをレンダラーへ描画(コピー)する
+ * SpriteがRendererを呼ばないように，Rendererからスプライトを参照する
+ * 
+ * SDL_Copyの引数: 
+ * SDL_Renderer: レンダラーのアドレス
+ * SDL_Texture: テクスチャのアドレス
+ * SDL_Rect(const): テクスチャの領域を示すアドレス(NULLならテクスチャ全域)
+ * SDL_Rect(const): 描画対象物の領域．描画するテクスチャはこの領域に合わせられる 
+ * 
+ * @param sprite 描画したいスプライト
+ */
+void Renderer::drawSprite(const Sprite& sprite){
+    SDL_RenderCopy(
+        renderer, 
+        sprite.getTexture(),
+        &sprite.getSrcRect(),
+        const_cast<SDL_Rect*>(&sprite.getDstRect())
+    );
 }
 
 /**

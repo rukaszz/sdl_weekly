@@ -2,6 +2,8 @@
 #define RENDERER_H
 #include <SDL2/SDL.h>
 
+class Sprite;
+
 class Renderer{
 private:
     // SDL_Rendererオブジェクト
@@ -16,6 +18,7 @@ public:
     void clear();
     void present();
     void drawTexture(SDL_Texture* tex, const SDL_Rect* src, SDL_Rect* dst);
+    void drawSprite(const Sprite& sprite);
     SDL_Point getOutputSize() const;
 
     // rendererオブジェクト返却用

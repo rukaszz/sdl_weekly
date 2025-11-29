@@ -1,3 +1,6 @@
+// 定数
+#include "PlayerConfig.hpp"
+
 #include "Window.hpp"
 #include "Renderer.hpp"
 #include "Texture.hpp"
@@ -8,6 +11,8 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 #include <memory>
+
+
 
 /**
  * @brief Construct a new Game:: Game object
@@ -27,7 +32,7 @@ Game::Game(){
     window = std::make_unique<Window>("Test", 400, 500);
     renderer = std::make_unique<Renderer>(window->get());
     playerTexture = std::make_unique<Texture>(renderer->get(), "assets/rhb.png");
-    player = std::make_unique<Player>(*playerTexture, 85, 110);
+    player = std::make_unique<Player>(*playerTexture, PlayerConfig::FRAME_W, PlayerConfig::FRAME_H);
 
     running = true;
 }

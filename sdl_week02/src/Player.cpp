@@ -1,6 +1,7 @@
 #include "Renderer.hpp"
 #include "Texture.hpp"
 #include "Player.hpp"
+
 #include <SDL2/SDL.h>
 #include <algorithm>
 
@@ -65,5 +66,5 @@ void Player::update(double delta, const Uint8* keystate, SDL_Point drawableSize)
  */
 void Player::draw(Renderer& renderer){
     sprite.setPosition(static_cast<int>(x), static_cast<int>(y));
-    sprite.draw(renderer);
+    renderer.drawSprite(sprite);
 }

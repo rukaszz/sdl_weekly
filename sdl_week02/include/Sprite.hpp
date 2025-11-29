@@ -1,9 +1,9 @@
 #ifndef SPRITE_H
 #define SPRITE_H
 
+#include "Texture.hpp"
 #include <SDL2/SDL.h>
 
-class Texture;
 class Renderer;
 
 class Sprite{
@@ -22,9 +22,19 @@ public:
     void setPosition(int x, int y);
     void setDrawSize(int w, int h);
     void setSrcRect(int x, int y, int w, int h);
-    void draw(Renderer& renderer);
     void setFrame(int frameIndex);
 
+    // src, dstのgetter
+    const SDL_Rect& getSrcRect() const{
+        return src;
+    }
+    const SDL_Rect& getDstRect() const{
+        return dst;
+    }
+    // Textureのgetter
+    SDL_Texture* getTexture() const{
+        return texture.get();
+    }
     // 幅，高さgetter
     int getWidth() const{
         return dst.w;
