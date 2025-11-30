@@ -1,9 +1,9 @@
 #ifndef SPRITE_H
 #define SPRITE_H
 
-#include "Texture.hpp"
 #include <SDL2/SDL.h>
 
+class Texture;
 class Renderer;
 
 class Sprite{
@@ -31,15 +31,12 @@ public:
     const SDL_Rect& getDstRect() const{
         return dst;
     }
-    // Textureのgetter
-    SDL_Texture* getTexture() const{
-        return texture.get();
-    }
-    // 幅，高さgetter
-    int getWidth() const{
+    
+    // 描画するときの幅，高さgetter
+    int getDrawWidth() const{
         return dst.w;
     }
-    int getHeight() const{
+    int getDrawHeight() const{
         return dst.h;
     }
     // 1フレーム中の幅と高さgetter

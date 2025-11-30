@@ -12,6 +12,12 @@ class Sprite;
 class Texture;
 class Renderer;
 
+// Playerの向き管理
+enum class Direction{
+    Left, 
+    Right
+};
+
 class Player{
 private:
     // 画面の座標(左上が0, 0)
@@ -22,6 +28,8 @@ private:
     int frame = 0;
     double frameTimer = 0.0;
     const double frameInterval = 0.1;
+    // 初期向きは右
+    Direction dir = Direction::Right;
 
     Sprite sprite;
 

@@ -33,23 +33,40 @@ Player::Player(Texture& tex, int fw, int fh)
  * @param keystate: キーの入力状態
  */
 void Player::update(double delta, const Uint8* keystate, SDL_Point drawableSize){
+    // 移動中以外はfalse
+    bool moving = false;
+    
     if(keystate[SDL_SCANCODE_LEFT]){
         x -= speed * delta;
+        dir = Direction::Left;
+        moving = true;
     }
     if(keystate[SDL_SCANCODE_RIGHT]){
         x += speed * delta;
+        dir = Direction::Right;
+        moving = true;
     }
     if(keystate[SDL_SCANCODE_UP]){
         y -= speed * delta;
+        moving = true;
     }
     if(keystate[SDL_SCANCODE_DOWN]){
         y += speed * delta;
+        moving = true;
     }
 
-    x = std::clamp(x, 0.0, drawableSize.x - static_cast<double>(sprite.getWidth()));
-    y = std::clamp(y, 0.0, drawableSize.y - static_cast<double>(sprite.getHeight()));
+    x = std::clamp(x, 0.0, drawableSize.x - static_cast<double>(sprite.getDrawWidth()));
+    y = std::clamp(y, 0.0, drawableSize.y - static_cast<double>(sprite.getDrawHeight()));
 
-    // アニメーション処理(仮)
+    // アニメーション処理
+    // 動いていないときはスプライトシートのフレームを動かさない
+    if(!moving){
+        frame = 0;
+        frameTimer = 0.0;
+        sprite.setFrame(frame);
+        return;
+    }
+    // フレームを動かして描画
     frameTimer += delta;
     if(frameTimer >= frameInterval){
         frame = (frame + 1) % NUM_FRAMES;
@@ -66,5 +83,5 @@ void Player::update(double delta, const Uint8* keystate, SDL_Point drawableSize)
  */
 void Player::draw(Renderer& renderer){
     sprite.setPosition(static_cast<int>(x), static_cast<int>(y));
-    renderer.drawSprite(sprite);
+    renderer.drawSpriteFlip(sprite, dir == Direction::Left);
 }

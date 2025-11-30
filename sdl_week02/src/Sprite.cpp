@@ -1,6 +1,5 @@
 #include "Sprite.hpp"
 #include "Texture.hpp"
-#include "Renderer.hpp"
 
 /**
  * @brief Construct a new Sprite:: Sprite object
@@ -12,6 +11,9 @@ Sprite::Sprite(Texture& tex, int fw, int fh)
     , frameWidth(fw)
     , frameHeight(fh)
 {
+    // スプライトシート差し替え時の事故防止
+    assert(fw <= tex.w);
+    assert(fh <= tex.h);
     src = {0, 0, fw, fh};
     dst = {0, 0, fw, fh};
 }
@@ -42,6 +44,9 @@ void Sprite::setDrawSize(int w, int h){
 /**
  * @brief スプライトシートの表示領域切り替え用の入口
  * 
+ * 任意のスプライト領域を手動で設定する．
+ * setFrame()で毎フレームsrcを上書きするため，アニメーション中の使用は禁止
+ * 
  * @param x 
  * @param y 
  * @param w 
@@ -51,10 +56,24 @@ void Sprite::setSrcRect(int x, int y, int w, int h){
     src = {x, y, w, h};
 }
 
-
+/**
+ * @brief スプライトが横並びであることを前提として，フレームを切り替える
+ * 
+ * @param frameIndex: frameWidthに従って1, 2, ...とずれていくための添字
+ */
 void Sprite::setFrame(int frameIndex){
     src.x = frameIndex * frameWidth;
     src.y = 0;
     src.w = frameWidth;
     src.h = frameHeight;
+}
+
+/**
+ * @brief Get the Texture object
+ * Sprite.hppでTextureクラスを知ってはいけないので分離
+ * 
+ * @return SDL_Texture* 
+ */
+SDL_Texture* getTexture() const{
+    return texture.get();
 }

@@ -61,24 +61,97 @@ void Renderer::drawTexture(SDL_Texture* tex, const SDL_Rect* src, SDL_Rect* dst)
 }
 
 /**
+ * @brief SDL_RenderCopyExのラッパ(テクスチャ版)
+ * 
+ * SDL_RenderCopyExの引数:
+ * SDL_Renderer*: レンダラーのアドレス
+ * SDL_Texture*: コピー元テクスチャのアドレス
+ * SDL_Rect* src(const): コピー元SDL_Rect(NULLなら全域) 
+ * SDL_Rect* dst(const): コピー先SDL_Rect(NULLなら全域)．この領域に合わせる 
+ * double angle: dstをコピーするときの画像の角度(半時計回り・度数法)
+ * SDL_Point*: dstをコピーするときの画像の回転の中心(NULLならdst.w/2とdsy.h/2)
+ * SDL_RendererFlip: テクスチャの上下左右反転を表す
+ * 
+ * @param tex: コピー元テクスチャ 
+ * @param src: コピー元SDL_Rect(NULLなら全域) 
+ * @param dst: コピー先SDL_Rect(NULLなら全域)．この領域に合わせる 
+ * @param flip: テクスチャの上下左右反転を表す
+ */
+void Renderer::drawTextureEx(SDL_Texture* tex, const SDL_Rect* src, SDL_Rect* dst, SDL_RendererFlip flip){
+    SDL_RenderCopyEx(
+        renderer, 
+        tex, 
+        src, 
+        dst, 
+        0.0, 
+        nullptr, 
+        flip
+    );
+}
+
+/**
  * @brief スプライトが参照しているテクスチャをレンダラーへ描画(コピー)する
  * SpriteがRendererを呼ばないように，Rendererからスプライトを参照する
  * 
  * SDL_Copyの引数: 
  * SDL_Renderer: レンダラーのアドレス
  * SDL_Texture: テクスチャのアドレス
- * SDL_Rect(const): テクスチャの領域を示すアドレス(NULLならテクスチャ全域)
- * SDL_Rect(const): 描画対象物の領域．描画するテクスチャはこの領域に合わせられる 
+ * SDL_Rect* src(const): テクスチャの領域を示すアドレス(NULLならテクスチャ全域)
+ * SDL_Rect* dst(const): 描画対象物の領域．描画するテクスチャはこの領域に合わせられる 
  * 
  * @param sprite 描画したいスプライト
  */
 void Renderer::drawSprite(const Sprite& sprite){
+    const SDL_Rect& src = sprite.getSrcRect();
+    const SDL_Rect& dst = sprite.getDstRect();
     SDL_RenderCopy(
         renderer, 
         sprite.getTexture(),
-        &sprite.getSrcRect(),
-        const_cast<SDL_Rect*>(&sprite.getDstRect())
+        &src,
+        &dst
     );
+}
+
+/**
+ * @brief SDL_RenderCopyExのラッパ(スプライト版)
+ * 
+ * SDL_RenderCopyExの引数:
+ * SDL_Renderer*: レンダラーのアドレス
+ * SDL_Texture*: コピー元テクスチャのアドレス
+ * SDL_Rect* src(const): コピー元SDL_Rect(NULLなら全域) 
+ * SDL_Rect* dst(const): コピー先SDL_Rect(NULLなら全域)．この領域に合わせる 
+ * double angle: dstをコピーするときの画像の角度(半時計回り・度数法)
+ * SDL_Point*: dstをコピーするときの画像の回転の中心(NULLならdst.w/2とdsy.h/2)
+ * SDL_RendererFlip: テクスチャの上下左右反転を表す
+ * 
+ * @param tex: コピー元テクスチャ 
+ * @param src: コピー元SDL_Rect(NULLなら全域) 
+ * @param dst: コピー先SDL_Rect(NULLなら全域)．この領域に合わせる 
+ * @param flip: テクスチャの上下左右反転を表す
+ */
+void Renderer::drawSpriteEx(const Sprite& sprite, SDL_RendererFlip flip){
+    const SDL_Rect& src = sprite.getSrcRect();
+    const SDL_Rect& dst = sprite.getDstRect();
+    SDL_RenderCopyEx(
+        renderer, 
+        sprite.getTexture(), 
+        &src, 
+        &dst, 
+        0.0, 
+        nullptr, 
+        flip
+    );
+}
+
+/**
+ * @brief SDLに依存してはならないクラスで左右反転を実施する関数
+ * 
+ * @param s 
+ * @param flipX: dir == Direction::Leftのように渡ってくる真理値 
+ */
+void Renderer::drawSpriteFlip(const Sprite& s, bool flipX){
+    SDL_RendererFlip f = flipX ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+    drawSpriteEx(s, f);
 }
 
 /**

@@ -18,7 +18,10 @@ public:
     void clear();
     void present();
     void drawTexture(SDL_Texture* tex, const SDL_Rect* src, SDL_Rect* dst);
+    void drawTextureEx(SDL_Texture* tex, const SDL_Rect* src, SDL_Rect* dst, SDL_RendererFlip flip);
     void drawSprite(const Sprite& sprite);
+    void drawSpriteEx(const Sprite& sprite, SDL_RendererFlip flip);
+    void drawSpriteFlip(const Sprite& s, bool flipX);
     SDL_Point getOutputSize() const;
 
     // rendererオブジェクト返却用
