@@ -19,6 +19,14 @@
  */
 
 Window::Window(const std::string& title, int width, int height){
+    // SDL初期化
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0){
+        throw std::runtime_error(SDL_GetError());
+    }
+
+    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)){
+        throw std::runtime_error(IMG_GetError());
+    }
     // windowオブジェクト生成
     window = SDL_CreateWindow(
         title.c_str(), 
@@ -42,6 +50,8 @@ Window::Window(const std::string& title, int width, int height){
 Window::~Window(){
     // Windowオブジェクト破棄
     SDL_DestroyWindow(window);
+    IMG_Quit();
+    SDL_Quit();
 }
 
 SDL_Point Window::getWindowSize() const{

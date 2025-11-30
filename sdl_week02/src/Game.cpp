@@ -19,15 +19,7 @@
  * 
  */
 Game::Game(){
-    // SDL初期化
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0){
-        throw std::runtime_error(SDL_GetError());
-    }
-
-    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)){
-        throw std::runtime_error(IMG_GetError());
-    }
-
+    // 初期化はWindowでする
     // SDL_Init 後に Window / Renderer を作る
     window = std::make_unique<Window>("Test", 400, 500);
     renderer = std::make_unique<Renderer>(window->get());
@@ -39,8 +31,9 @@ Game::Game(){
 
 Game::~Game(){
     // Renderer→Window→SDLの順で破棄
-    IMG_Quit();
-    SDL_Quit();
+    // ここでIMG_Quit();, SDL_Quit();
+    // をするとTextureが二重破棄されるっぽいので，Window側で破棄する
+    // DBusのリークはSDL_Linux側の問題なので無視
 }
 
 /**

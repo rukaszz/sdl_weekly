@@ -1,6 +1,8 @@
 #include "Sprite.hpp"
 #include "Texture.hpp"
 
+#include <cassert>
+
 /**
  * @brief Construct a new Sprite:: Sprite object
  * 
@@ -74,6 +76,6 @@ void Sprite::setFrame(int frameIndex){
  * 
  * @return SDL_Texture* 
  */
-SDL_Texture* getTexture() const{
+SDL_Texture* Sprite::getTexture() const{
     return texture.get();
 }

@@ -24,6 +24,8 @@ public:
     void setSrcRect(int x, int y, int w, int h);
     void setFrame(int frameIndex);
 
+    SDL_Texture* getTexture() const;
+
     // src, dstのgetter
     const SDL_Rect& getSrcRect() const{
         return src;
