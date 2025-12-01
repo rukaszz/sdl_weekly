@@ -1,17 +1,19 @@
 // 定数
 #include "PlayerConfig.hpp"
+#include "EnemyConfig.hpp"
 
 #include "Window.hpp"
 #include "Renderer.hpp"
 #include "Texture.hpp"
 #include "Player.hpp"
+#include "Enemy.hpp"
 #include "Game.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <iostream>
 #include <memory>
-
+#include <vector>
 
 
 /**
@@ -19,21 +21,29 @@
  * 
  */
 Game::Game(){
-    // 初期化はWindowでする
     // SDL_Init 後に Window / Renderer を作る
     window = std::make_unique<Window>("Test", 400, 500);
     renderer = std::make_unique<Renderer>(window->get());
     playerTexture = std::make_unique<Texture>(renderer->get(), "assets/rhb.png");
     player = std::make_unique<Player>(*playerTexture, PlayerConfig::FRAME_W, PlayerConfig::FRAME_H);
+    
+    enemyTexture = std::make_unique<Texture>(renderer->get(), "assets/dark_rhb.png");
+    auto enemyTex = enemyTexture.get();
+    enemies.push_back(std::make_unique<Enemy>(*enemyTex, EnemyConfig::FRAME_W, EnemyConfig::FRAME_H));
+    enemies.push_back(std::make_unique<Enemy>(*enemyTex, EnemyConfig::FRAME_W, EnemyConfig::FRAME_H));
 
     running = true;
 }
 
 Game::~Game(){
-    // Renderer→Window→SDLの順で破棄
-    // ここでIMG_Quit();, SDL_Quit();
-    // をするとTextureが二重破棄されるっぽいので，Window側で破棄する
-    // DBusのリークはSDL_Linux側の問題なので無視
+    /*
+     * Renderer→Window→SDLの順で破棄
+     * ここでIMG_Quit();, SDL_Quit();
+     * をするとSDL内部でRenderer/Textureが破棄され
+     * スマートポインタがSDL_DestroyTextureを呼んで二重破棄となるので
+     * Window側で破棄する
+     * DBusのリークはSDL_Linux側の問題なので無視
+     */
 }
 
 /**
@@ -100,6 +110,7 @@ void Game::processEvents(){
 void Game::update(double delta){
     const Uint8* keystate = SDL_GetKeyboardState(NULL);
     player->update(delta, keystate, window->getWindowSize());
+    for(auto& e : enemies) e->update(delta);
 }
 
 /**
@@ -109,5 +120,6 @@ void Game::update(double delta){
 void Game::render(){
     renderer->clear();
     player->draw(*renderer);
+    for(auto& e : enemies) e->draw(*renderer);
     renderer->present();
 }

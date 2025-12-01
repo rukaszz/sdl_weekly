@@ -1,6 +1,11 @@
 #include "AnimationController.hpp"
 
 /**
+ * @brief オブジェクトからアニメーション処理を引き剥がす
+ * 
+ */
+
+/**
  * @brief Construct a new Animation Controller:: Animation Controller object
  * 
  * @param maxFrames 
@@ -9,7 +14,9 @@
 AnimationController::AnimationController(int maxFrames, double interval)
     : maxFrames(maxFrames), interval(interval)
 {
-
+    // スプライトシート差し替え時の事故防止
+    assert(maxFrames <= 0);
+    assert(interval <= 0);
 }
 
 /**

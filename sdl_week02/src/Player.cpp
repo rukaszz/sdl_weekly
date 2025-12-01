@@ -20,6 +20,7 @@ Player::Player(Texture& tex, int fw, int fh)
     : x(100)
     , y(100)
     , speed(200.0)
+    , anim(8, 0.1)
     , sprite(tex, fw, fh)
 {
     sprite.setFrame(0);
@@ -38,12 +39,12 @@ void Player::update(double delta, const Uint8* keystate, SDL_Point drawableSize)
     
     if(keystate[SDL_SCANCODE_LEFT]){
         x -= speed * delta;
-        dir = Direction::Left;
+        dir = PlayerDirection::Left;
         moving = true;
     }
     if(keystate[SDL_SCANCODE_RIGHT]){
         x += speed * delta;
-        dir = Direction::Right;
+        dir = PlayerDirection::Right;
         moving = true;
     }
     if(keystate[SDL_SCANCODE_UP]){
@@ -60,20 +61,27 @@ void Player::update(double delta, const Uint8* keystate, SDL_Point drawableSize)
 
     // アニメーション処理
     // 動いていないときはスプライトシートのフレームを動かさない
+    // if(!moving){
+    //     frame = 0;
+    //     frameTimer = 0.0;
+    //     sprite.setFrame(frame);
+    //     return;
+    // }
     if(!moving){
-        frame = 0;
-        frameTimer = 0.0;
-        sprite.setFrame(frame);
+        anim.reset();
+        sprite.setFrame(anim.getFrame());
         return;
     }
     // フレームを動かして描画
-    frameTimer += delta;
-    if(frameTimer >= frameInterval){
-        frame = (frame + 1) % NUM_FRAMES;
-        frameTimer -= frameInterval;
-        // srcRect.xの更新
-        sprite.setFrame(frame);
-    }
+    // frameTimer += delta;
+    // if(frameTimer >= frameInterval){
+    //     frame = (frame + 1) % NUM_FRAMES;
+    //     frameTimer -= frameInterval;
+    //     // srcRect.xの更新
+    //     sprite.setFrame(frame);
+    // }
+    anim.update(delta);
+    sprite.setFrame(anim.getFrame());
 }
 
 /**
@@ -83,5 +91,5 @@ void Player::update(double delta, const Uint8* keystate, SDL_Point drawableSize)
  */
 void Player::draw(Renderer& renderer){
     sprite.setPosition(static_cast<int>(x), static_cast<int>(y));
-    renderer.drawSpriteFlip(sprite, dir == Direction::Left);
+    renderer.drawSpriteFlip(sprite, dir == PlayerDirection::Left);
 }

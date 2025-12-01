@@ -2,8 +2,6 @@
 #include "Renderer.hpp"
 #include "Texture.hpp"
 
-
-#include <SDL2/SDL.h>
 #include <algorithm>
 
 /**
@@ -21,30 +19,29 @@ Enemy::Enemy(Texture& tex, int fw, int fh)
     : x(0)
     , y(0)
     , speed(100.0)
-    , anim(10, 0.1)
+    , anim(8, 0.1)
     , sprite(tex, fw, fh)
 {
     sprite.setFrame(0);
 }
 
 /**
- * @brief キーの入力に対して，差分をふまえて更新する
+ * @brief Enemyの動きを記述する(※現状は左右に動くだけ)
  * ウィンドウの描画範囲を超えないように画面内に座標を抑える
  * 
  * @param delta: 差分
- * @param keystate: キーの入力状態
  */
 void Enemy::update(double delta){
     const double leftBound = 50;
-    const double rightBound = 350;
+    const double rightBound = 300;
 
-    if(dir == Direction::Right)
+    if(dir == EnemyDirection::Right)
         x += speed * delta;
     else
         x -= speed * delta;
 
-    if(x < leftBound)  dir = Direction::Right;
-    if(x > rightBound) dir = Direction::Left;
+    if(x < leftBound)  dir = EnemyDirection::Right;
+    if(x > rightBound) dir = EnemyDirection::Left;
     // アニメーション処理
     anim.update(delta);
     sprite.setFrame(anim.getFrame());
@@ -57,5 +54,5 @@ void Enemy::update(double delta){
  */
 void Enemy::draw(Renderer& renderer){
     sprite.setPosition(static_cast<int>(x), static_cast<int>(y));
-    renderer.drawSpriteFlip(sprite, dir == Direction::Left);
+    renderer.drawSpriteFlip(sprite, dir == EnemyDirection::Left);
 }

@@ -108,18 +108,22 @@ Rendererの責務を分離し，描画処理を抽象化した．主に実装し
 ### IMG_QuitとSDL_Quit
 
 week01ではWindowクラスで初期化処理とSDLの終了処理を任せていたが，Gameクラスで管理を集中させるために，初期化/終了処理を移管した．
-しかしながら，Valgrindでメモリリークのテストをしたところ，終了時にTextureの二重破棄によるメモリリークが生じた(valgrind_exe2.log)．これはTextureがRendererやWindowクラスのは気に巻き込まれてたと考えられる．TextureはRendererが生存中は破棄されてはならないが，Window→Renderer→Textureの破棄順序がGameのデストラクタの呼び出しでは守られない様子．
+しかしながら，Valgrindでメモリリークのテストをしたところ，終了時にTextureの二重破棄によるメモリリークが生じた(valgrind_exe2.log)．これはTextureがRendererクラスの破棄に巻き込まれてたと考えられる．TextureはRendererが生存中は破棄されてはならないが，Window→Renderer→Textureの破棄順序がGameのデストラクタの呼び出しでは守られない様子．
 
-week01の設計の通り，Windowクラスの破棄によってWindow→Renderer→Textureの破棄の順序を安定させることで，IMG_QuitとSDL_Quitを安全に実行するようにした．これによって，Textureの破棄に関するメモリリークが解消された(valgrind_exe3.log)
+week01の設計の通り，Windowクラスの破棄によってWindow→Renderer→Textureの破棄の順序を安定させることで，IMG_QuitとSDL_Quitを安全に実行するようにした．これによって，Textureの破棄に関するメモリリークが解消された(valgrind_exe3.log)．
+
+SDLの生APIの依存がWindowとRendererに分散しているので，Gameクラスで初期化および終了を管理させたい．week03のタイミングで，SDLのライフサイクルに関する責任を一箇所で管理するリファクタリングを実施する予定．
 
 ### DBusのリーク
 
-DBusはどうやらdbus_shutdown()を呼び出す際に，他のライブラリがdbusを使用しているとクラッシュする可能性があるため，あえてdbus_shutdown()を呼んでないらしいです．
+DBusはどうやらdbus_shutdown()を呼び出す際に，他のライブラリがdbusを使用しているとクラッシュする可能性があるため，あえてdbus_shutdown()を呼んでいない．そのためにDBusでリークが生じている模様．
 
-競合が発生する可能性があるため，dbus_shutdown()を呼び出すのは推奨されていないらしいです．デバッグ用にヒント(SDL_HINT_SHUTDOWN_DBUS_ON_QUIT)を使うことはあるそうです．
+競合が発生する可能性があるため，dbus_shutdown()を呼び出すのは推奨されていないため，このリークに関しては許容する．デバッグ用にヒント(SDL_HINT_SHUTDOWN_DBUS_ON_QUIT)を使うことで一応回避はできる．
 
 [https://github.com/libsdl-org/SDL/issues/8272](https://github.com/libsdl-org/SDL/issues/8272)
 
 ## アセット
+
+詳細はATTRIBUTIONを参照．
 
 - Red Hat Boy

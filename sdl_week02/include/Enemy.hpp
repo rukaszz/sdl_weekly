@@ -7,13 +7,11 @@
 #include "AnimationController.hpp"
 #include "Sprite.hpp"
 
-#include <SDL2/SDL.h>
-
 class Texture;
 class Renderer;
 
 // Enemyの向き管理
-enum class Direction{
+enum class EnemyDirection{
     Left, 
     Right
 };
@@ -25,7 +23,7 @@ private:
     // 移動速度
     double speed;
     // 初期向きは右
-    Direction dir = Direction::Right;
+    EnemyDirection dir = EnemyDirection::Right;
     AnimationController anim;
     Sprite sprite;
 

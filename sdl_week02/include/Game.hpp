@@ -1,10 +1,14 @@
 #ifndef GAME_H
 #define GAME_H
+
 #include "Window.hpp"
 #include "Renderer.hpp"
 #include "Texture.hpp"
 #include "Player.hpp"
+#include "Enemy.hpp"
+
 #include <memory>
+#include <vector>
 
 class Game{
 private:
@@ -12,6 +16,8 @@ private:
     std::unique_ptr<Renderer> renderer;
     std::unique_ptr<Texture> playerTexture;
     std::unique_ptr<Player> player;
+    std::unique_ptr<Texture> enemyTexture;
+    std::vector<std::unique_ptr<Enemy>> enemies;
     bool running;
 
 public:

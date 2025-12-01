@@ -21,10 +21,10 @@ public:
     int getFrame() const{
         return frame;
     }
-    void setFrame(double f){
+    void setFrame(int f){
         frame = f;
     }
-    int getTimer() const{
+    double getTimer() const{
         return timer;
     }
     void setTimer(double t){

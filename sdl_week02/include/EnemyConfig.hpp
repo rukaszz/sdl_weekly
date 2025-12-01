@@ -1,7 +1,7 @@
 #ifndef ENEMYCONFIG_H
 #define ENEMYCONFIG_H
 
-// Player用定数
+// Enemy用定数
 struct EnemyConfig{
     static inline constexpr int FRAME_W = 114;
     static inline constexpr int FRAME_H = 110;

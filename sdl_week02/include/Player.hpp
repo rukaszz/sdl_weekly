@@ -4,6 +4,7 @@
 // 定数
 #include "PlayerConfig.hpp"
 
+#include "AnimationController.hpp"
 #include "Sprite.hpp"
 
 #include <SDL2/SDL.h>
@@ -12,7 +13,7 @@ class Texture;
 class Renderer;
 
 // Playerの向き管理
-enum class Direction{
+enum class PlayerDirection{
     Left, 
     Right
 };
@@ -24,12 +25,12 @@ private:
     // 移動速度
     double speed;
     // アニメーション描画用変数
-    int frame = 0;
-    double frameTimer = 0.0;
-    const double frameInterval = 0.1;
+    // int frame = 0;
+    // double frameTimer = 0.0;
+    // const double frameInterval = 0.1;
     // 初期向きは右
-    Direction dir = Direction::Right;
-
+    PlayerDirection dir = PlayerDirection::Right;
+    AnimationController anim;
     Sprite sprite;
 
 public:
