@@ -23,6 +23,8 @@ add_executable(${PROJECT_NAME}
     src/Texture.cpp
     src/Player.cpp
     src/Game.cpp
+    src/Enemy.cpp
+    src/AnimationController.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

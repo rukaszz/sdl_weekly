@@ -8,7 +8,6 @@
 
 #include <SDL2/SDL.h>
 
-class Sprite;
 class Texture;
 class Renderer;
 

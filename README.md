@@ -26,7 +26,7 @@ Create basic classes and functions.
 - RAIIを軸としてリソース管理を徹底する
 - 次週(スプライトやシーン管理)を見据えた，SDLの依存範囲を抑えた設計にする
 
-### 設計について
+### week01の設計について
 
 ゲームロジックとSDLへの依存は分離させなければならない．SDLに関わる処理はWindowとRendererへ集約させ，PlayerとGameは極力SDLに依存させない．
 また，オブジェクトの寿命をRAIIを軸に明確化して，描画・更新・イベント処理を分けてメインループへ実装する．
@@ -75,7 +75,7 @@ Create basic classes and functions.
 
 ## week02
 
-### 設計について
+### week02の設計について
 
 SpriteとTextureを追加．ただし，Rendererとの参照関係は明確にして，循環参照にならないように注意する．
 現状の関係は次の通り：
@@ -87,6 +87,38 @@ SpriteとTextureを追加．ただし，Rendererとの参照関係は明確に�
 - Game     ---依存---> Texture / Player / Renderer
 
 TextureはRendererに依存してはならない．
+
+Rendererの責務を分離し，描画処理を抽象化した．主に実装したものは次の通り：
+
+- Texture：GPUへアップロードされる画像データそのもの
+  - 役割：
+    - スプライトが取り扱う画像を保持する参照先
+    - ファイルではなくグラフィックのリソースとして扱うために変換・配置されたデータを管理する
+  - 理由：
+    - レンダラーはテクスチャを指定する命令者，スプライトは指定されたテクスチャのどの領域を矩形として切り取るかをみる単位
+    - テクスチャという単位でグラフィカルなリソースを取り扱う
+- Sprite：テクスチャの一部で論理的な描画対象
+  - 役割：
+    - Textureへアップしたデータをオブジェクト単位であつかう
+    - スプライトシートのようにコマ送りの画像があるとき，それをフレーム単位で動かす
+  - 理由：
+    - テクスチャは画像をGPUへ読み込み，スプライトはその読み込んだ画像を取り扱う矩形
+    - アニメーションを実施するためにフレーム単位であつかう
+
+### IMG_QuitとSDL_Quit
+
+week01ではWindowクラスで初期化処理とSDLの終了処理を任せていたが，Gameクラスで管理を集中させるために，初期化/終了処理を移管した．
+しかしながら，Valgrindでメモリリークのテストをしたところ，終了時にTextureの二重破棄によるメモリリークが生じた(valgrind_exe2.log)．これはTextureがRendererやWindowクラスのは気に巻き込まれてたと考えられる．TextureはRendererが生存中は破棄されてはならないが，Window→Renderer→Textureの破棄順序がGameのデストラクタの呼び出しでは守られない様子．
+
+week01の設計の通り，Windowクラスの破棄によってWindow→Renderer→Textureの破棄の順序を安定させることで，IMG_QuitとSDL_Quitを安全に実行するようにした．これによって，Textureの破棄に関するメモリリークが解消された(valgrind_exe3.log)
+
+### DBusのリーク
+
+DBusはどうやらdbus_shutdown()を呼び出す際に，他のライブラリがdbusを使用しているとクラッシュする可能性があるため，あえてdbus_shutdown()を呼んでないらしいです．
+
+競合が発生する可能性があるため，dbus_shutdown()を呼び出すのは推奨されていないらしいです．デバッグ用にヒント(SDL_HINT_SHUTDOWN_DBUS_ON_QUIT)を使うことはあるそうです．
+
+[https://github.com/libsdl-org/SDL/issues/8272](https://github.com/libsdl-org/SDL/issues/8272)
 
 ## アセット
 

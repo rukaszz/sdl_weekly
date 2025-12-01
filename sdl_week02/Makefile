@@ -129,6 +129,54 @@ sdl_week02/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week02.dir/build.make CMakeFiles/sdl_week02.dir/build
 .PHONY : sdl_week02/fast
 
+src/AnimationController.o: src/AnimationController.cpp.o
+.PHONY : src/AnimationController.o
+
+# target to build an object file
+src/AnimationController.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week02.dir/build.make CMakeFiles/sdl_week02.dir/src/AnimationController.cpp.o
+.PHONY : src/AnimationController.cpp.o
+
+src/AnimationController.i: src/AnimationController.cpp.i
+.PHONY : src/AnimationController.i
+
+# target to preprocess a source file
+src/AnimationController.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week02.dir/build.make CMakeFiles/sdl_week02.dir/src/AnimationController.cpp.i
+.PHONY : src/AnimationController.cpp.i
+
+src/AnimationController.s: src/AnimationController.cpp.s
+.PHONY : src/AnimationController.s
+
+# target to generate assembly for a file
+src/AnimationController.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week02.dir/build.make CMakeFiles/sdl_week02.dir/src/AnimationController.cpp.s
+.PHONY : src/AnimationController.cpp.s
+
+src/Enemy.o: src/Enemy.cpp.o
+.PHONY : src/Enemy.o
+
+# target to build an object file
+src/Enemy.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week02.dir/build.make CMakeFiles/sdl_week02.dir/src/Enemy.cpp.o
+.PHONY : src/Enemy.cpp.o
+
+src/Enemy.i: src/Enemy.cpp.i
+.PHONY : src/Enemy.i
+
+# target to preprocess a source file
+src/Enemy.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week02.dir/build.make CMakeFiles/sdl_week02.dir/src/Enemy.cpp.i
+.PHONY : src/Enemy.cpp.i
+
+src/Enemy.s: src/Enemy.cpp.s
+.PHONY : src/Enemy.s
+
+# target to generate assembly for a file
+src/Enemy.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week02.dir/build.make CMakeFiles/sdl_week02.dir/src/Enemy.cpp.s
+.PHONY : src/Enemy.cpp.s
+
 src/Game.o: src/Game.cpp.o
 .PHONY : src/Game.o
 
@@ -306,6 +354,12 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... sdl_week02"
+	@echo "... src/AnimationController.o"
+	@echo "... src/AnimationController.i"
+	@echo "... src/AnimationController.s"
+	@echo "... src/Enemy.o"
+	@echo "... src/Enemy.i"
+	@echo "... src/Enemy.s"
 	@echo "... src/Game.o"
 	@echo "... src/Game.i"
 	@echo "... src/Game.s"
