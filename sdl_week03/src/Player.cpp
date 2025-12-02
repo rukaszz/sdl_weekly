@@ -1,0 +1,95 @@
+#include "Renderer.hpp"
+#include "Texture.hpp"
+#include "Player.hpp"
+
+#include <SDL2/SDL.h>
+#include <algorithm>
+
+/**
+ * Playerクラスは操作するオブジェクトを管理する
+ * 描画に関する処理はしない
+ * SDLへの依存は最小限にする
+ */
+
+/**
+ * @brief Construct a new Player:: Player object
+ * 
+ * @param tex 
+ */
+Player::Player(Texture& tex, int fw, int fh)
+    : x(100)
+    , y(100)
+    , speed(200.0)
+    , anim(8, 0.1)
+    , sprite(tex, fw, fh)
+{
+    sprite.setFrame(0);
+}
+
+/**
+ * @brief キーの入力に対して，差分をふまえて更新する
+ * ウィンドウの描画範囲を超えないように画面内に座標を抑える
+ * 
+ * @param delta: 差分
+ * @param keystate: キーの入力状態
+ */
+void Player::update(double delta, const Uint8* keystate, SDL_Point drawableSize){
+    // 移動中以外はfalse
+    bool moving = false;
+    
+    if(keystate[SDL_SCANCODE_LEFT]){
+        x -= speed * delta;
+        dir = PlayerDirection::Left;
+        moving = true;
+    }
+    if(keystate[SDL_SCANCODE_RIGHT]){
+        x += speed * delta;
+        dir = PlayerDirection::Right;
+        moving = true;
+    }
+    if(keystate[SDL_SCANCODE_UP]){
+        y -= speed * delta;
+        moving = true;
+    }
+    if(keystate[SDL_SCANCODE_DOWN]){
+        y += speed * delta;
+        moving = true;
+    }
+
+    x = std::clamp(x, 0.0, drawableSize.x - static_cast<double>(sprite.getDrawWidth()));
+    y = std::clamp(y, 0.0, drawableSize.y - static_cast<double>(sprite.getDrawHeight()));
+
+    // アニメーション処理
+    // 動いていないときはスプライトシートのフレームを動かさない
+    // if(!moving){
+    //     frame = 0;
+    //     frameTimer = 0.0;
+    //     sprite.setFrame(frame);
+    //     return;
+    // }
+    if(!moving){
+        anim.reset();
+        sprite.setFrame(anim.getFrame());
+        return;
+    }
+    // フレームを動かして描画
+    // frameTimer += delta;
+    // if(frameTimer >= frameInterval){
+    //     frame = (frame + 1) % NUM_FRAMES;
+    //     frameTimer -= frameInterval;
+    //     // srcRect.xの更新
+    //     sprite.setFrame(frame);
+    // }
+    anim.update(delta);
+    sprite.setFrame(anim.getFrame());
+}
+
+/**
+ * @brief スプライトオブジェクトが持っている画像をレンダラーへ描画する
+ * 
+ * @param renderer: Rendererクラスのオブジェクト
+ */
+void Player::draw(Renderer& renderer){
+    sprite.setPosition(static_cast<int>(x), static_cast<int>(y));
+    renderer.drawSpriteFlip(sprite, dir == PlayerDirection::Left);
+}
