@@ -75,22 +75,28 @@ Create basic classes and functions.
 
 ## week02
 
+### 目的
+
+Separate certain rendering responsibilities from the Renderer．
+
+Sprite/Textureを導入し，スプライトシートを用いてゲームのオブジェクトを画像で表現する．SpriteはRendererの責務を受け持つクラスであり，SpriteがRendererを参照するような循環参照にならないようにする．
+
 ### week02の設計について
 
 SpriteとTextureを追加．ただし，Rendererとの参照関係は明確にして，循環参照にならないように注意する．
 現状の関係は次の通り：
 
 - Texture  ---依存---> SDL_Texture*
-- Sprite   ---依存---> Texture（参照）
-- Player   ---依存---> Sprite
+- Sprite   ---関節依存---> Texture（参照）
+- Player   ---依存---> Sprite/Renderer(静的)
 - Renderer ---依存---> SDL_Renderer*
 - Game     ---依存---> Texture / Player / Renderer
 
-TextureはRendererに依存してはならない．
+TextureはRendererに依存してはならない．また，PlayerはSDLへの依存を排除しているが，Rendererへ静的に依存する．SpriteはRendererが呼び出す論理的な描画対象だが，Spriteの内部処理を知っている動的な依存状態である．
 
 Rendererの責務を分離し，描画処理を抽象化した．主に実装したものは次の通り：
 
-- Texture：GPUへアップロードされる画像データそのもの
+- Texture：GPUへアップロードされる画像データ
   - 役割：
     - スプライトが取り扱う画像を保持する参照先
     - ファイルではなくグラフィックのリソースとして扱うために変換・配置されたデータを管理する
@@ -105,22 +111,33 @@ Rendererの責務を分離し，描画処理を抽象化した．主に実装し
     - テクスチャは画像をGPUへ読み込み，スプライトはその読み込んだ画像を取り扱う矩形
     - アニメーションを実施するためにフレーム単位であつかう
 
-### IMG_QuitとSDL_Quit
+### IMG_QuitとSDL_Quit(SDLライフサイクル)
 
 week01ではWindowクラスで初期化処理とSDLの終了処理を任せていたが，Gameクラスで管理を集中させるために，初期化/終了処理を移管した．
-しかしながら，Valgrindでメモリリークのテストをしたところ，終了時にTextureの二重破棄によるメモリリークが生じた(valgrind_exe2.log)．これはTextureがRendererクラスの破棄に巻き込まれてたと考えられる．TextureはRendererが生存中は破棄されてはならないが，Window→Renderer→Textureの破棄順序がGameのデストラクタの呼び出しでは守られない様子．
+しかしながら，Valgrindでメモリリークのテストをしたところ，終了時にTextureの二重破棄によるメモリリークが生じた(valgrind_exe2.log)．これはTextureの破棄より先にSDL_Quitが呼ばれていたために生じたと考えられる．
 
-week01の設計の通り，Windowクラスの破棄によってWindow→Renderer→Textureの破棄の順序を安定させることで，IMG_QuitとSDL_Quitを安全に実行するようにした．これによって，Textureの破棄に関するメモリリークが解消された(valgrind_exe3.log)．
+つまりSDL_Quitは内部Renderer/Textureを破棄する処理が呼ばれる，その後，unique_ptr\<Texture\>::~Texture()が更にSDL_DestroyTexture()を呼ぶ．これによって二重破棄となってしまう．
+TextureはRendererが生存中は破棄されてはならないが，Window→Renderer→Textureの破棄順序がGameのデストラクタの呼び出しでは守られない様子．
 
-SDLの生APIの依存がWindowとRendererに分散しているので，Gameクラスで初期化および終了を管理させたい．week03のタイミングで，SDLのライフサイクルに関する責任を一箇所で管理するリファクタリングを実施する予定．
+week01の設計に戻し，Windowクラスの破棄によってWindow→Renderer→Textureの破棄の順序を安定させることで，IMG_QuitとSDL_Quitを安全に実行するようにした．これによって，Textureの破棄に関するメモリリークが解消された(valgrind_exe3.log)．
+
+SDLのライフサイクルはGameクラスに最終的には管理させるが，現在はWindowクラスに管理させる．理由としては，SDLの生APIの依存がWindowとRendererに分散しているので，Gameクラスで初期化および終了を管理させ一元化する．week03のタイミングで，SDLのライフサイクルに関する責任を一箇所で管理するリファクタリングを実施する予定．
 
 ### DBusのリーク
 
-DBusはどうやらdbus_shutdown()を呼び出す際に，他のライブラリがdbusを使用しているとクラッシュする可能性があるため，あえてdbus_shutdown()を呼んでいない．そのためにDBusでリークが生じている模様．
-
-競合が発生する可能性があるため，dbus_shutdown()を呼び出すのは推奨されていないため，このリークに関しては許容する．デバッグ用にヒント(SDL_HINT_SHUTDOWN_DBUS_ON_QUIT)を使うことで一応回避はできる．
+DBusはどうやらdbus_shutdown()を呼び出す際に，他のライブラリがdbusを使用しているとクラッシュする可能性があるらしく，あえてdbus_shutdown()を呼んでいない．そのためにvalgrind上でDBusによるリークが生じている模様．これはSDL側の問題として無視する．
 
 [https://github.com/libsdl-org/SDL/issues/8272](https://github.com/libsdl-org/SDL/issues/8272)
+
+## week03
+
+### 目的
+
+設計の修正(リファクタリング)．
+
+PlayerクラスとEnemyクラスは共通箇所が多いが，将来的には個別の実装が生じる．そのため，抽象基底クラスCharacterを用意して共通部分を抜き出す．
+
+Windowで管理していたSDLライフサイクルをGameクラスが管理するように修正する．
 
 ## アセット
 

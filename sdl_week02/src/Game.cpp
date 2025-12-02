@@ -42,6 +42,7 @@ Game::~Game(){
      * をするとSDL内部でRenderer/Textureが破棄され
      * スマートポインタがSDL_DestroyTextureを呼んで二重破棄となるので
      * Window側で破棄する
+     * ->week03でリファクタリングする
      * DBusのリークはSDL_Linux側の問題なので無視
      */
 }

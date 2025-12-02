@@ -1,5 +1,7 @@
 #include "AnimationController.hpp"
 
+#include <cassert>
+
 /**
  * @brief オブジェクトからアニメーション処理を引き剥がす
  * 
@@ -12,11 +14,12 @@
  * @param interval 
  */
 AnimationController::AnimationController(int maxFrames, double interval)
-    : maxFrames(maxFrames), interval(interval)
+    : maxFrames(maxFrames > 0 ? maxFrames : 1)
+    , interval(interval > 0.0 ? interval : 0.1)
 {
     // スプライトシート差し替え時の事故防止
-    assert(maxFrames <= 0);
-    assert(interval <= 0);
+    // assert(maxFrames <= 0);
+    // assert(interval <= 0);
 }
 
 /**

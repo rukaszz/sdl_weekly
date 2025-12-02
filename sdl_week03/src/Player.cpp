@@ -16,12 +16,12 @@
  * 
  * @param tex 
  */
-Player::Player(Texture& tex, int fw, int fh)
+Player::Player(Texture& tex)
     : x(100)
-    , y(100)
+    , y(250)
     , speed(200.0)
-    , anim(8, 0.1)
-    , sprite(tex, fw, fh)
+    , anim(NUM_FRAMES, 0.1)
+    , sprite(tex, PlayerConfig::FRAME_W, PlayerConfig::FRAME_H)
 {
     sprite.setFrame(0);
 }

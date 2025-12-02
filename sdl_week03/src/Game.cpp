@@ -25,13 +25,17 @@ Game::Game(){
     window = std::make_unique<Window>("Test", 400, 500);
     renderer = std::make_unique<Renderer>(window->get());
     playerTexture = std::make_unique<Texture>(renderer->get(), "assets/rhb.png");
-    player = std::make_unique<Player>(*playerTexture, PlayerConfig::FRAME_W, PlayerConfig::FRAME_H);
+    player = std::make_unique<Player>(*playerTexture);
     
     enemyTexture = std::make_unique<Texture>(renderer->get(), "assets/dark_rhb.png");
     auto enemyTex = enemyTexture.get();
-    enemies.push_back(std::make_unique<Enemy>(*enemyTex, EnemyConfig::FRAME_W, EnemyConfig::FRAME_H));
-    enemies.push_back(std::make_unique<Enemy>(*enemyTex, EnemyConfig::FRAME_W, EnemyConfig::FRAME_H));
-
+    auto e1 = std::make_unique<Enemy>(*enemyTex);
+    auto e2 = std::make_unique<Enemy>(*enemyTex);
+    e1->setEnemyPosition(50, 50);
+    e2->setEnemyPosition(250, 250);
+    enemies.push_back(std::move(e1));
+    enemies.push_back(std::move(e2));
+    
     running = true;
 }
 
@@ -42,6 +46,7 @@ Game::~Game(){
      * をするとSDL内部でRenderer/Textureが破棄され
      * スマートポインタがSDL_DestroyTextureを呼んで二重破棄となるので
      * Window側で破棄する
+     * ->week03でリファクタリングする
      * DBusのリークはSDL_Linux側の問題なので無視
      */
 }

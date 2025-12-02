@@ -37,7 +37,7 @@ public:
     // 定数
     static inline constexpr int NUM_FRAMES = PlayerConfig::NUM_FRAMES;
 
-    Player(Texture& tex, int fw, int fh);
+    Player(Texture& tex);
 
     void update(double delta, const Uint8* keystate, SDL_Point drawableSize);
     void draw(Renderer& renderer);

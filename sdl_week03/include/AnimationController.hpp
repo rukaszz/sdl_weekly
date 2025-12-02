@@ -21,15 +21,7 @@ public:
     int getFrame() const{
         return frame;
     }
-    void setFrame(int f){
-        frame = f;
-    }
-    double getTimer() const{
-        return timer;
-    }
-    void setTimer(double t){
-        timer = t;
-    }
+
     void reset(){
         frame = 0;
         timer = 0.0;

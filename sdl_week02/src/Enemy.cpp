@@ -1,3 +1,6 @@
+// 定数
+#include "EnemyConfig.hpp"
+
 #include "Enemy.hpp"
 #include "Renderer.hpp"
 #include "Texture.hpp"
@@ -19,7 +22,7 @@ Enemy::Enemy(Texture& tex, int fw, int fh)
     : x(0)
     , y(0)
     , speed(100.0)
-    , anim(8, 0.1)
+    , anim(EnemyConfig::NUM_FRAMES, 0.1)
     , sprite(tex, fw, fh)
 {
     sprite.setFrame(0);
@@ -40,8 +43,14 @@ void Enemy::update(double delta){
     else
         x -= speed * delta;
 
-    if(x < leftBound)  dir = EnemyDirection::Right;
-    if(x > rightBound) dir = EnemyDirection::Left;
+    if(x < leftBound)  {
+        x = leftBound;
+        dir = EnemyDirection::Right;
+    }
+    if(x > rightBound) {
+        x = rightBound;
+        dir = EnemyDirection::Left;
+    }
     // アニメーション処理
     anim.update(delta);
     sprite.setFrame(anim.getFrame());

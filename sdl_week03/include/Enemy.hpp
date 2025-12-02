@@ -31,10 +31,11 @@ public:
     // 定数
     static inline constexpr int NUM_FRAMES = EnemyConfig::NUM_FRAMES;
 
-    Enemy(Texture& tex, int fw, int fh);
+    Enemy(Texture& tex);
 
     void update(double delta);
     void draw(Renderer& renderer);
+    void setEnemyPosition(int coorX, int coorY);
 
 };
 

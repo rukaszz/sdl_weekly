@@ -15,12 +15,12 @@
  * 
  * @param tex 
  */
-Enemy::Enemy(Texture& tex, int fw, int fh)
+Enemy::Enemy(Texture& tex)
     : x(0)
     , y(0)
     , speed(100.0)
-    , anim(8, 0.1)
-    , sprite(tex, fw, fh)
+    , anim(NUM_FRAMES, 0.1)
+    , sprite(tex, EnemyConfig::FRAME_W, EnemyConfig::FRAME_H)
 {
     sprite.setFrame(0);
 }
@@ -40,8 +40,14 @@ void Enemy::update(double delta){
     else
         x -= speed * delta;
 
-    if(x < leftBound)  dir = EnemyDirection::Right;
-    if(x > rightBound) dir = EnemyDirection::Left;
+    if(x < leftBound) {
+        x = leftBound;
+        dir = EnemyDirection::Right;
+    }
+    if(x > rightBound) {
+        x = rightBound;
+        dir = EnemyDirection::Left;
+    }
     // アニメーション処理
     anim.update(delta);
     sprite.setFrame(anim.getFrame());
@@ -56,3 +62,15 @@ void Enemy::draw(Renderer& renderer){
     sprite.setPosition(static_cast<int>(x), static_cast<int>(y));
     renderer.drawSpriteFlip(sprite, dir == EnemyDirection::Left);
 }
+
+/**
+ * @brief Enemyオブジェクトのx座標とy座標を変更する
+ * 
+ * @param coorX 
+ * @param coorY 
+ */
+void Enemy::setEnemyPosition(int coorX, int coorY){
+    x = coorX;
+    y = coorY;
+}
+
