@@ -153,6 +153,30 @@ src/AnimationController.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week03.dir/build.make CMakeFiles/sdl_week03.dir/src/AnimationController.cpp.s
 .PHONY : src/AnimationController.cpp.s
 
+src/Character.o: src/Character.cpp.o
+.PHONY : src/Character.o
+
+# target to build an object file
+src/Character.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week03.dir/build.make CMakeFiles/sdl_week03.dir/src/Character.cpp.o
+.PHONY : src/Character.cpp.o
+
+src/Character.i: src/Character.cpp.i
+.PHONY : src/Character.i
+
+# target to preprocess a source file
+src/Character.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week03.dir/build.make CMakeFiles/sdl_week03.dir/src/Character.cpp.i
+.PHONY : src/Character.cpp.i
+
+src/Character.s: src/Character.cpp.s
+.PHONY : src/Character.s
+
+# target to generate assembly for a file
+src/Character.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week03.dir/build.make CMakeFiles/sdl_week03.dir/src/Character.cpp.s
+.PHONY : src/Character.cpp.s
+
 src/Enemy.o: src/Enemy.cpp.o
 .PHONY : src/Enemy.o
 
@@ -357,6 +381,9 @@ help:
 	@echo "... src/AnimationController.o"
 	@echo "... src/AnimationController.i"
 	@echo "... src/AnimationController.s"
+	@echo "... src/Character.o"
+	@echo "... src/Character.i"
+	@echo "... src/Character.s"
 	@echo "... src/Enemy.o"
 	@echo "... src/Enemy.i"
 	@echo "... src/Enemy.s"

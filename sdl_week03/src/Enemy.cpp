@@ -1,6 +1,6 @@
-#include "Enemy.hpp"
 #include "Renderer.hpp"
 #include "Texture.hpp"
+#include "Enemy.hpp"
 
 #include <algorithm>
 
@@ -16,11 +16,17 @@
  * @param tex 
  */
 Enemy::Enemy(Texture& tex)
-    : x(0)
-    , y(0)
-    , speed(100.0)
-    , anim(NUM_FRAMES, 0.1)
-    , sprite(tex, EnemyConfig::FRAME_W, EnemyConfig::FRAME_H)
+    : Character(
+        0, 0,                               // 初期座標
+        100.0,                              // speed
+        Direction::Right,                   // dir
+        tex,                                // texture
+        EnemyConfig::FRAME_W, 
+        EnemyConfig::FRAME_H, 
+        EnemyConfig::NUM_FRAMES,            // maxFrames
+        0.1                                 // animInterval
+    )
+    
 {
     sprite.setFrame(0);
 }
@@ -29,24 +35,26 @@ Enemy::Enemy(Texture& tex)
  * @brief Enemyの動きを記述する(※現状は左右に動くだけ)
  * ウィンドウの描画範囲を超えないように画面内に座標を抑える
  * 
- * @param delta: 差分
+ * @param delta: 差分 
+ * @param drawableSize: 描画可能範囲 
  */
-void Enemy::update(double delta){
-    const double leftBound = 50;
-    const double rightBound = 300;
+void Enemy::update(double delta, SDL_Point drawableSize){
+    double leftBound = 0.0;
+    double rightBound = drawableSize.x - static_cast<double>(sprite.getDrawWidth());
 
-    if(dir == EnemyDirection::Right)
+    if(dir == Direction::Right){
         x += speed * delta;
-    else
+    } else {
         x -= speed * delta;
+    }
 
     if(x < leftBound) {
         x = leftBound;
-        dir = EnemyDirection::Right;
+        dir = Direction::Right;
     }
     if(x > rightBound) {
         x = rightBound;
-        dir = EnemyDirection::Left;
+        dir = Direction::Left;
     }
     // アニメーション処理
     anim.update(delta);
@@ -60,7 +68,7 @@ void Enemy::update(double delta){
  */
 void Enemy::draw(Renderer& renderer){
     sprite.setPosition(static_cast<int>(x), static_cast<int>(y));
-    renderer.drawSpriteFlip(sprite, dir == EnemyDirection::Left);
+    renderer.draw(sprite, dir == Direction::Left);
 }
 
 /**

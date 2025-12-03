@@ -113,9 +113,8 @@ void Game::processEvents(){
  * @param delta: 前フレームとの差分
  */
 void Game::update(double delta){
-    const Uint8* keystate = SDL_GetKeyboardState(NULL);
-    player->update(delta, keystate, window->getWindowSize());
-    for(auto& e : enemies) e->update(delta);
+    player->update(delta, window->getWindowSize());
+    for(auto& e : enemies) e->update(delta, window->getWindowSize());
 }
 
 /**

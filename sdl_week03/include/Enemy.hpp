@@ -4,39 +4,29 @@
 // 定数
 #include "EnemyConfig.hpp"
 
+#include "Character.hpp"
 #include "AnimationController.hpp"
 #include "Sprite.hpp"
+
+#include <SDL2/SDL.h>
 
 class Texture;
 class Renderer;
 
-// Enemyの向き管理
-enum class EnemyDirection{
-    Left, 
-    Right
-};
-
-class Enemy{
+class Enemy : public Character{
 private:
-    // 画面の座標(左上が0, 0)
-    double x, y;
-    // 移動速度
-    double speed;
     // 初期向きは右
-    EnemyDirection dir = EnemyDirection::Right;
-    AnimationController anim;
-    Sprite sprite;
-
+    Direction dir = Direction::Right;
 public:
     // 定数
     static inline constexpr int NUM_FRAMES = EnemyConfig::NUM_FRAMES;
 
     Enemy(Texture& tex);
 
-    void update(double delta);
+    void update(double delta, SDL_Point drawableSize) override;
     void draw(Renderer& renderer);
     void setEnemyPosition(int coorX, int coorY);
 
 };
 
-#endif  //ENEMY_H
+#endif  // ENEMY_H

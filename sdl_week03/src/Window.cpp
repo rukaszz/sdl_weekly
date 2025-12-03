@@ -54,6 +54,11 @@ Window::~Window(){
     SDL_Quit();
 }
 
+/**
+ * @brief ウィンドウのサイズ(描画範囲)を返却する
+ * 
+ * @return SDL_Point 
+ */
 SDL_Point Window::getWindowSize() const{
     SDL_Point p{0, 0};
     // windowオブジェクトの存在チェック

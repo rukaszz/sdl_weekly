@@ -17,11 +17,16 @@
  * @param tex 
  */
 Player::Player(Texture& tex)
-    : x(100)
-    , y(250)
-    , speed(200.0)
-    , anim(NUM_FRAMES, 0.1)
-    , sprite(tex, PlayerConfig::FRAME_W, PlayerConfig::FRAME_H)
+    : Character(
+        100, 250,                           // 初期座標
+        200.0,                              // speed
+        Direction::Right,                   // dir
+        tex,                                // texture
+        PlayerConfig::FRAME_W, 
+        PlayerConfig::FRAME_H,
+        PlayerConfig::NUM_FRAMES,           // maxFrames
+        0.1                                 // animInterval
+    )
 {
     sprite.setFrame(0);
 }
@@ -33,18 +38,19 @@ Player::Player(Texture& tex)
  * @param delta: 差分
  * @param keystate: キーの入力状態
  */
-void Player::update(double delta, const Uint8* keystate, SDL_Point drawableSize){
+void Player::update(double delta, SDL_Point drawableSize){
+    const Uint8* keystate = SDL_GetKeyboardState(NULL);
     // 移動中以外はfalse
     bool moving = false;
     
     if(keystate[SDL_SCANCODE_LEFT]){
         x -= speed * delta;
-        dir = PlayerDirection::Left;
+        dir = Direction::Left;
         moving = true;
     }
     if(keystate[SDL_SCANCODE_RIGHT]){
         x += speed * delta;
-        dir = PlayerDirection::Right;
+        dir = Direction::Right;
         moving = true;
     }
     if(keystate[SDL_SCANCODE_UP]){
@@ -60,26 +66,12 @@ void Player::update(double delta, const Uint8* keystate, SDL_Point drawableSize)
     y = std::clamp(y, 0.0, drawableSize.y - static_cast<double>(sprite.getDrawHeight()));
 
     // アニメーション処理
-    // 動いていないときはスプライトシートのフレームを動かさない
-    // if(!moving){
-    //     frame = 0;
-    //     frameTimer = 0.0;
-    //     sprite.setFrame(frame);
-    //     return;
-    // }
     if(!moving){
         anim.reset();
         sprite.setFrame(anim.getFrame());
         return;
     }
     // フレームを動かして描画
-    // frameTimer += delta;
-    // if(frameTimer >= frameInterval){
-    //     frame = (frame + 1) % NUM_FRAMES;
-    //     frameTimer -= frameInterval;
-    //     // srcRect.xの更新
-    //     sprite.setFrame(frame);
-    // }
     anim.update(delta);
     sprite.setFrame(anim.getFrame());
 }
@@ -91,5 +83,5 @@ void Player::update(double delta, const Uint8* keystate, SDL_Point drawableSize)
  */
 void Player::draw(Renderer& renderer){
     sprite.setPosition(static_cast<int>(x), static_cast<int>(y));
-    renderer.drawSpriteFlip(sprite, dir == PlayerDirection::Left);
+    renderer.draw(sprite, dir == Direction::Left);
 }

@@ -90,30 +90,8 @@ void Renderer::drawTextureEx(SDL_Texture* tex, const SDL_Rect* src, SDL_Rect* ds
 }
 
 /**
- * @brief スプライトが参照しているテクスチャをレンダラーへ描画(コピー)する
- * SpriteがRendererを呼ばないように，Rendererからスプライトを参照する
- * 
- * SDL_Copyの引数: 
- * SDL_Renderer: レンダラーのアドレス
- * SDL_Texture: テクスチャのアドレス
- * SDL_Rect* src(const): テクスチャの領域を示すアドレス(NULLならテクスチャ全域)
- * SDL_Rect* dst(const): 描画対象物の領域．描画するテクスチャはこの領域に合わせられる 
- * 
- * @param sprite 描画したいスプライト
- */
-void Renderer::drawSprite(const Sprite& sprite){
-    const SDL_Rect& src = sprite.getSrcRect();
-    const SDL_Rect& dst = sprite.getDstRect();
-    SDL_RenderCopy(
-        renderer, 
-        sprite.getTexture(),
-        &src,
-        &dst
-    );
-}
-
-/**
- * @brief SDL_RenderCopyExのラッパ(スプライト版)
+ * @brief 描画処理を担う反転可能な描画関数
+ * SDL_RenderCopyExを呼び出す
  * 
  * SDL_RenderCopyExの引数:
  * SDL_Renderer*: レンダラーのアドレス
@@ -124,14 +102,14 @@ void Renderer::drawSprite(const Sprite& sprite){
  * SDL_Point*: dstをコピーするときの画像の回転の中心(NULLならdst.w/2とdsy.h/2)
  * SDL_RendererFlip: テクスチャの上下左右反転を表す
  * 
- * @param tex: コピー元テクスチャ 
- * @param src: コピー元SDL_Rect(NULLなら全域) 
- * @param dst: コピー先SDL_Rect(NULLなら全域)．この領域に合わせる 
- * @param flip: テクスチャの上下左右反転を表す
+ * @param sprite 
+ * @param flipX: dir == Direction::Leftのように渡ってくる真理値  
  */
-void Renderer::drawSpriteEx(const Sprite& sprite, SDL_RendererFlip flip){
+void Renderer::draw(const Sprite& sprite, bool flipX){
+    SDL_RendererFlip flip = flipX ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
     const SDL_Rect& src = sprite.getSrcRect();
     const SDL_Rect& dst = sprite.getDstRect();
+    
     SDL_RenderCopyEx(
         renderer, 
         sprite.getTexture(), 
@@ -141,17 +119,6 @@ void Renderer::drawSpriteEx(const Sprite& sprite, SDL_RendererFlip flip){
         nullptr, 
         flip
     );
-}
-
-/**
- * @brief SDLに依存してはならないクラスで左右反転を実施する関数
- * 
- * @param s 
- * @param flipX: dir == Direction::Leftのように渡ってくる真理値 
- */
-void Renderer::drawSpriteFlip(const Sprite& s, bool flipX){
-    SDL_RendererFlip f = flipX ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-    drawSpriteEx(s, f);
 }
 
 /**

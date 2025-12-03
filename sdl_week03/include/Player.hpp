@@ -4,6 +4,7 @@
 // 定数
 #include "PlayerConfig.hpp"
 
+#include "Character.hpp"
 #include "AnimationController.hpp"
 #include "Sprite.hpp"
 
@@ -12,26 +13,8 @@
 class Texture;
 class Renderer;
 
-// Playerの向き管理
-enum class PlayerDirection{
-    Left, 
-    Right
-};
-
-class Player{
+class Player : public Character{
 private:
-    // 画面の座標(左上が0, 0)
-    double x, y;
-    // 移動速度
-    double speed;
-    // アニメーション描画用変数
-    // int frame = 0;
-    // double frameTimer = 0.0;
-    // const double frameInterval = 0.1;
-    // 初期向きは右
-    PlayerDirection dir = PlayerDirection::Right;
-    AnimationController anim;
-    Sprite sprite;
 
 public:
     // 定数
@@ -39,7 +22,7 @@ public:
 
     Player(Texture& tex);
 
-    void update(double delta, const Uint8* keystate, SDL_Point drawableSize);
+    void update(double delta, SDL_Point drawableSize) override;
     void draw(Renderer& renderer);
 
 };
