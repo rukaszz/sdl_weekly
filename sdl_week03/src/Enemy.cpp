@@ -38,9 +38,9 @@ Enemy::Enemy(Texture& tex)
  * @param delta: 差分 
  * @param drawableSize: 描画可能範囲 
  */
-void Enemy::update(double delta, SDL_Point drawableSize){
+void Enemy::update(double delta, DrawBounds bounds){
     double leftBound = 0.0;
-    double rightBound = drawableSize.x - static_cast<double>(sprite.getDrawWidth());
+    double rightBound = bounds.drawableWidth - static_cast<double>(sprite.getDrawWidth());
 
     if(dir == Direction::Right){
         x += speed * delta;
@@ -70,6 +70,16 @@ void Enemy::draw(Renderer& renderer){
     sprite.setPosition(static_cast<int>(x), static_cast<int>(y));
     renderer.draw(sprite, dir == Direction::Left);
 }
+
+/**
+ * @brief Enemyのスプライトを返す関数
+ * 
+ * @return const Sprite& 
+ */
+const Sprite& Enemy::getSprite() const {
+    return sprite; 
+}
+
 
 /**
  * @brief Enemyオブジェクトのx座標とy座標を変更する

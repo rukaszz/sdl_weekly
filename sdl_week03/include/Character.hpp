@@ -7,10 +7,24 @@
 class Texture;
 class Renderer;
 
+// キャラクタの向き
 enum class Direction{
     Left, 
     Right
 };
+
+// 描画境界
+struct DrawBounds{
+    double drawableWidth;
+    double drawableHeight;
+};
+
+// キャラクタのサイズ(矩形)
+struct CharaBounds
+{
+    double x, y, w, h;
+};
+
 
 class Character{
 protected:
@@ -36,8 +50,9 @@ public:
         double animInterval
     );
     virtual ~Character();
-    virtual void update(double delta, SDL_Point drawableSize) = 0;
+    virtual void update(double delta, DrawBounds bounds) = 0;
     virtual void draw(Renderer& renderer);
+    virtual const Sprite& getSprite() const;
     
 };
 

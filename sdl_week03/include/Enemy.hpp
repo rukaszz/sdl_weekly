@@ -15,16 +15,16 @@ class Renderer;
 
 class Enemy : public Character{
 private:
-    // 初期向きは右
-    Direction dir = Direction::Right;
+
 public:
     // 定数
     static inline constexpr int NUM_FRAMES = EnemyConfig::NUM_FRAMES;
 
     Enemy(Texture& tex);
 
-    void update(double delta, SDL_Point drawableSize) override;
-    void draw(Renderer& renderer);
+    void update(double delta, DrawBounds bounds) override;
+    void draw(Renderer& renderer) override;
+    const Sprite& getSprite() const override;
     void setEnemyPosition(int coorX, int coorY);
 
 };

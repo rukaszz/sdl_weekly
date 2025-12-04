@@ -45,3 +45,12 @@ void Character::draw(Renderer& renderer){
     renderer.draw(sprite, dir == Direction::Left);
 }
 
+/**
+ * @brief Spriteを読み取り専用で参照を返す
+ * 
+ * @return const Sprite& 
+ */
+const Sprite& Character::getSprite() const{
+    return sprite;
+}
+

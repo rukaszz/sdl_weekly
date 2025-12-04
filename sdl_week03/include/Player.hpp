@@ -22,8 +22,9 @@ public:
 
     Player(Texture& tex);
 
-    void update(double delta, SDL_Point drawableSize) override;
-    void draw(Renderer& renderer);
+    void update(double delta, DrawBounds bounds) override;
+    void draw(Renderer& renderer) override;
+    const Sprite& getSprite() const override;
 
 };
 

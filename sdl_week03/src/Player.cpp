@@ -38,7 +38,7 @@ Player::Player(Texture& tex)
  * @param delta: 差分
  * @param keystate: キーの入力状態
  */
-void Player::update(double delta, SDL_Point drawableSize){
+void Player::update(double delta, DrawBounds bounds){
     const Uint8* keystate = SDL_GetKeyboardState(NULL);
     // 移動中以外はfalse
     bool moving = false;
@@ -62,8 +62,8 @@ void Player::update(double delta, SDL_Point drawableSize){
         moving = true;
     }
 
-    x = std::clamp(x, 0.0, drawableSize.x - static_cast<double>(sprite.getDrawWidth()));
-    y = std::clamp(y, 0.0, drawableSize.y - static_cast<double>(sprite.getDrawHeight()));
+    x = std::clamp(x, 0.0, bounds.drawableWidth - static_cast<double>(sprite.getDrawWidth()));
+    y = std::clamp(y, 0.0, bounds.drawableHeight - static_cast<double>(sprite.getDrawHeight()));
 
     // アニメーション処理
     if(!moving){
@@ -84,4 +84,13 @@ void Player::update(double delta, SDL_Point drawableSize){
 void Player::draw(Renderer& renderer){
     sprite.setPosition(static_cast<int>(x), static_cast<int>(y));
     renderer.draw(sprite, dir == Direction::Left);
+}
+
+/**
+ * @brief Playerのスプライトを返す関数
+ * 
+ * @return const Sprite& 
+ */
+const Sprite& Player::getSprite() const {
+    return sprite; 
 }

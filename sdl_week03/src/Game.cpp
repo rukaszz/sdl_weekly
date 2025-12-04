@@ -5,9 +5,11 @@
 #include "Window.hpp"
 #include "Renderer.hpp"
 #include "Texture.hpp"
+#include "Character.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
 #include "Game.hpp"
+#include "GameUtil.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -113,8 +115,18 @@ void Game::processEvents(){
  * @param delta: 前フレームとの差分
  */
 void Game::update(double delta){
-    player->update(delta, window->getWindowSize());
-    for(auto& e : enemies) e->update(delta, window->getWindowSize());
+    SDL_Point p = window->getWindowSize();
+    DrawBounds b = {static_cast<double>(p.x), static_cast<double>(p.y)};
+    // 更新
+    player->update(delta, b);
+    for(auto& e : enemies) e->update(delta, b);
+    
+    // 衝突判定
+    for(auto& e : enemies){
+        if(GameUtil::intersects(player->getSprite(), e->getSprite())){
+            std::cout << "Collision!!" << std::endl;
+        }
+    }
 }
 
 /**

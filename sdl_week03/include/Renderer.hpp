@@ -8,6 +8,9 @@ class Renderer{
 private:
     // SDL_Rendererオブジェクト
     SDL_Renderer* renderer;
+    // デバッグ用
+    void drawTexture(SDL_Texture* tex, const SDL_Rect* src, SDL_Rect* dst);
+    void drawTextureEx(SDL_Texture* tex, const SDL_Rect* src, SDL_Rect* dst, SDL_RendererFlip flip);
 
 public:
     // コンストラクタ・デストラクタ
@@ -17,8 +20,6 @@ public:
     // 描画処理関数
     void clear();
     void present();
-    void drawTexture(SDL_Texture* tex, const SDL_Rect* src, SDL_Rect* dst);
-    void drawTextureEx(SDL_Texture* tex, const SDL_Rect* src, SDL_Rect* dst, SDL_RendererFlip flip);
     void draw(const Sprite& s, bool flipX);
     SDL_Point getOutputSize() const;
 
