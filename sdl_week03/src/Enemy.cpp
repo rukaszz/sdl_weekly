@@ -87,7 +87,7 @@ const Sprite& Enemy::getSprite() const {
  * @param coorX 
  * @param coorY 
  */
-void Enemy::setEnemyPosition(int coorX, int coorY){
+void Enemy::setPosition(int coorX, int coorY){
     x = coorX;
     y = coorY;
 }

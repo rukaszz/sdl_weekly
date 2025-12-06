@@ -25,6 +25,7 @@ public:
     void update(double delta, DrawBounds bounds) override;
     void draw(Renderer& renderer) override;
     const Sprite& getSprite() const override;
+    void setPosition(int coorX, int coorY) override;
 
 };
 

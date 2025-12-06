@@ -10,6 +10,12 @@
 #include <memory>
 #include <vector>
 
+// ゲームの状態管理
+enum class GameState{
+    Playing, 
+    GameOver, 
+};
+
 class Game{
 private:
     std::unique_ptr<Window> window;
@@ -19,6 +25,7 @@ private:
     std::unique_ptr<Texture> enemyTexture;
     std::vector<std::unique_ptr<Enemy>> enemies;
     bool running;
+    GameState state = GameState::Playing;
 
 public:
     // 定数
@@ -34,6 +41,7 @@ private:
     void capFrameRate(Uint32 nowTime);
     void update(double delta);
     void render();
+    void reset();
 
 };
 

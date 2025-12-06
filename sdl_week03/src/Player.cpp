@@ -94,3 +94,14 @@ void Player::draw(Renderer& renderer){
 const Sprite& Player::getSprite() const {
     return sprite; 
 }
+
+/**
+ * @brief Playerオブジェクトのx座標とy座標を変更する
+ * 
+ * @param coorX 
+ * @param coorY 
+ */
+void Player::setPosition(int coorX, int coorY){
+    x = coorX;
+    y = coorY;
+}

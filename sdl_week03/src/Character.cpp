@@ -54,3 +54,13 @@ const Sprite& Character::getSprite() const{
     return sprite;
 }
 
+/**
+ * @brief Playerオブジェクトのx座標とy座標を変更する
+ * 
+ * @param coorX 
+ * @param coorY 
+ */
+void Character::setPosition(int coorX, int coorY){
+    x = coorX;
+    y = coorY;
+}

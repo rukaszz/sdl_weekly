@@ -53,6 +53,7 @@ public:
     virtual void update(double delta, DrawBounds bounds) = 0;
     virtual void draw(Renderer& renderer);
     virtual const Sprite& getSprite() const;
+    virtual void setPosition(int coorX, int coorY);
     
 };
 
