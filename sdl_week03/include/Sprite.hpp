@@ -9,6 +9,7 @@ class Renderer;
 class Sprite{
 private:
     Texture& texture;
+    // SDL_Texture& sdl_texture;
     SDL_Rect src;   // 元画像の切り出し領域
     SDL_Rect dst;   // 描画サイズ(可変)
 
@@ -18,6 +19,7 @@ private:
 
 public:
     Sprite(Texture& tex, int fw, int fh);
+    // Sprite(SDL_Texture& tex, int fw, int fh);
 
     void setPosition(int x, int y);
     void setDrawSize(int w, int h);

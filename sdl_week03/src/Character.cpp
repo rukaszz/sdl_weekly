@@ -55,7 +55,7 @@ const Sprite& Character::getSprite() const{
 }
 
 /**
- * @brief Playerオブジェクトのx座標とy座標を変更する
+ * @brief Characterオブジェクトのx座標とy座標を変更する
  * 
  * @param coorX 
  * @param coorY 
@@ -63,4 +63,14 @@ const Sprite& Character::getSprite() const{
 void Character::setPosition(int coorX, int coorY){
     x = coorX;
     y = coorY;
+}
+
+/**
+ * @brief 画面外へはみ出さないように補正する処理
+ * 
+ * @param b 
+ */
+void Character::clampToBounds(const DrawBounds& b){
+    x = std::clamp(x, 0.0, b.drawableWidth - sprite.getDrawWidth());
+    y = std::clamp(y, 0.0, b.drawableHeight - sprite.getDrawHeight());
 }

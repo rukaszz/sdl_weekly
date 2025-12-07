@@ -6,6 +6,7 @@
 #include "Texture.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
+#include "Text.hpp"
 
 #include <memory>
 #include <vector>
@@ -24,6 +25,7 @@ private:
     std::unique_ptr<Player> player;
     std::unique_ptr<Texture> enemyTexture;
     std::vector<std::unique_ptr<Enemy>> enemies;
+    std::unique_ptr<Text> text; // テキスト表示用
     bool running;
     GameState state = GameState::Playing;
 
@@ -42,6 +44,7 @@ private:
     void update(double delta);
     void render();
     void reset();
+    void displayText(const std::string& dispStr, const std::string& color);
 
 };
 

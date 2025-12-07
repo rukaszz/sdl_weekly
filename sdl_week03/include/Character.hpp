@@ -54,6 +54,7 @@ public:
     virtual void draw(Renderer& renderer);
     virtual const Sprite& getSprite() const;
     virtual void setPosition(int coorX, int coorY);
+    virtual void clampToBounds(const DrawBounds& b);
     
 };
 

@@ -13,7 +13,7 @@ find_package(PkgConfig REQUIRED)
 # SDL2
 pkg_check_modules(SDL2 REQUIRED sdl2)
 pkg_check_modules(SDL2IMAGE REQUIRED SDL2_image)
-
+pkg_check_modules(SDL2TTF REQUIRED SDL2_ttf)
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
@@ -26,17 +26,20 @@ add_executable(${PROJECT_NAME}
     src/Game.cpp
     src/Enemy.cpp
     src/AnimationController.cpp
+    src/Text.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/include
     ${SDL2_INCLUDE_DIRS}
     ${SDL2IMAGE_INCLUDE_DIRS}
+    ${SDL2TTF_INCLUDE_DIRS}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     ${SDL2_LIBRARIES}
     ${SDL2IMAGE_LIBRARIES}
+    ${SDL2TTF_LIBRARIES}
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)

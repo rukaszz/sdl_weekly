@@ -137,3 +137,17 @@ SDL_Point Renderer::getOutputSize() const{
     SDL_GetRendererOutputSize(renderer, &p.x, &p.y);
     return p;
 }
+
+/**
+ * @brief Text描画用処理．Renderer側でTextを描画する専用のAPIを用意する
+ * 
+ * @param tex: SDL_Texture* 
+ * @param x 
+ * @param y 
+ * @param w 
+ * @param h 
+ */
+void Renderer::drawText(SDL_Texture* tex, int x, int y, int w, int h){
+    SDL_Rect dst{x, y, w, h};
+    SDL_RenderCopy(renderer, tex, nullptr, &dst);
+}

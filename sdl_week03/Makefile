@@ -297,6 +297,30 @@ src/Sprite.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week03.dir/build.make CMakeFiles/sdl_week03.dir/src/Sprite.cpp.s
 .PHONY : src/Sprite.cpp.s
 
+src/Text.o: src/Text.cpp.o
+.PHONY : src/Text.o
+
+# target to build an object file
+src/Text.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week03.dir/build.make CMakeFiles/sdl_week03.dir/src/Text.cpp.o
+.PHONY : src/Text.cpp.o
+
+src/Text.i: src/Text.cpp.i
+.PHONY : src/Text.i
+
+# target to preprocess a source file
+src/Text.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week03.dir/build.make CMakeFiles/sdl_week03.dir/src/Text.cpp.i
+.PHONY : src/Text.cpp.i
+
+src/Text.s: src/Text.cpp.s
+.PHONY : src/Text.s
+
+# target to generate assembly for a file
+src/Text.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week03.dir/build.make CMakeFiles/sdl_week03.dir/src/Text.cpp.s
+.PHONY : src/Text.cpp.s
+
 src/Texture.o: src/Texture.cpp.o
 .PHONY : src/Texture.o
 
@@ -399,6 +423,9 @@ help:
 	@echo "... src/Sprite.o"
 	@echo "... src/Sprite.i"
 	@echo "... src/Sprite.s"
+	@echo "... src/Text.o"
+	@echo "... src/Text.i"
+	@echo "... src/Text.s"
 	@echo "... src/Texture.o"
 	@echo "... src/Texture.i"
 	@echo "... src/Texture.s"

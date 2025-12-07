@@ -22,6 +22,7 @@ public:
     void present();
     void draw(const Sprite& s, bool flipX);
     SDL_Point getOutputSize() const;
+    void drawText(SDL_Texture* tex, int x, int y, int w, int h);
 
     // rendererオブジェクト返却用
     SDL_Renderer* get() const{

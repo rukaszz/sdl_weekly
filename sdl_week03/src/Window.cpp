@@ -1,6 +1,7 @@
 #include "Window.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 
 #include <string>
 #include <stdexcept>
@@ -20,12 +21,15 @@
 
 Window::Window(const std::string& title, int width, int height){
     // SDL初期化
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0){
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0){
         throw std::runtime_error(SDL_GetError());
     }
-
-    if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)){
+    // SDL_IMG初期化
+    if(!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)){
         throw std::runtime_error(IMG_GetError());
+    }
+    if((TTF_Init() != 0)){
+        throw std::runtime_error(SDL_GetError());
     }
     // windowオブジェクト生成
     window = SDL_CreateWindow(

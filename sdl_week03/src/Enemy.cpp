@@ -61,34 +61,44 @@ void Enemy::update(double delta, DrawBounds bounds){
     sprite.setFrame(anim.getFrame());
 }
 
-/**
- * @brief スプライトオブジェクトが持っている画像をレンダラーへ描画する
- * 
- * @param renderer: Rendererクラスのオブジェクト
- */
-void Enemy::draw(Renderer& renderer){
-    sprite.setPosition(static_cast<int>(x), static_cast<int>(y));
-    renderer.draw(sprite, dir == Direction::Left);
-}
+// /**
+//  * @brief スプライトオブジェクトが持っている画像をレンダラーへ描画する
+//  * 
+//  * @param renderer: Rendererクラスのオブジェクト
+//  */
+// void Enemy::draw(Renderer& renderer){
+//     sprite.setPosition(static_cast<int>(x), static_cast<int>(y));
+//     renderer.draw(sprite, dir == Direction::Left);
+// }
 
-/**
- * @brief Enemyのスプライトを返す関数
- * 
- * @return const Sprite& 
- */
-const Sprite& Enemy::getSprite() const {
-    return sprite; 
-}
+// /**
+//  * @brief Enemyのスプライトを返す関数
+//  * 
+//  * @return const Sprite& 
+//  */
+// const Sprite& Enemy::getSprite() const {
+//     return sprite; 
+// }
 
 
-/**
- * @brief Enemyオブジェクトのx座標とy座標を変更する
- * 
- * @param coorX 
- * @param coorY 
- */
-void Enemy::setPosition(int coorX, int coorY){
-    x = coorX;
-    y = coorY;
-}
+// /**
+//  * @brief Enemyオブジェクトのx座標とy座標を変更する
+//  * 
+//  * @param coorX 
+//  * @param coorY 
+//  */
+// void Enemy::setPosition(int coorX, int coorY){
+//     x = coorX;
+//     y = coorY;
+// }
+
+// /**
+//  * @brief 画面外へはみ出さないように補正する処理
+//  * 
+//  * @param b 
+//  */
+// void Character::clampToBounds(const DrawBounds& b){
+//     x = std::clamp(x, 0.0, b.drawableWidth - sprite.getDrawWidth());
+//     y = std::clamp(y, 0.0, b.drawableHeight - sprite.getDrawHeight());
+// }
 

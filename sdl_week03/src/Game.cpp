@@ -1,4 +1,5 @@
 // 定数
+#include "GameConfig.hpp"
 #include "PlayerConfig.hpp"
 #include "EnemyConfig.hpp"
 
@@ -10,33 +11,40 @@
 #include "Enemy.hpp"
 #include "Game.hpp"
 #include "GameUtil.hpp"
+#include "Text.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+
 #include <iostream>
+#include <string>
 #include <memory>
 #include <vector>
-
+#include <unordered_map>
 
 /**
  * @brief Construct a new Game:: Game object
  * 
  */
 Game::Game(){
-    window = std::make_unique<Window>("Test", 800, 800);
+    window = std::make_unique<Window>("Test", GameConfig::WINDOW_WIDTH, GameConfig::WINDOW_HEIGHT);
     renderer = std::make_unique<Renderer>(window->get());
+    
     playerTexture = std::make_unique<Texture>(renderer->get(), "assets/image/rhb.png");
     player = std::make_unique<Player>(*playerTexture);
+    player->setPosition(GameConfig::PLAYER_START_X, GameConfig::PLAYER_START_Y);
     
     enemyTexture = std::make_unique<Texture>(renderer->get(), "assets/image/dark_rhb.png");
     auto enemyTex = enemyTexture.get();
     auto e1 = std::make_unique<Enemy>(*enemyTex);
     auto e2 = std::make_unique<Enemy>(*enemyTex);
-    e1->setPosition(300, 50);
-    e2->setPosition(400, 250);
+    e1->setPosition(GameConfig::ENEMY1_START_X, GameConfig::ENEMY1_START_Y);
+    e2->setPosition(GameConfig::ENEMY2_START_X, GameConfig::ENEMY2_START_Y);
     enemies.push_back(std::move(e1));
     enemies.push_back(std::move(e2));
+
+    text = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
     
     running = true;
 }
@@ -153,14 +161,37 @@ void Game::render(){
         for(auto& e : enemies) e->draw(*renderer);    
     } else {
         // GameOverの表示
-        std::cout << "GameOver!!" << std::endl;
+        // std::cout << "GameOver!!" << std::endl;
+        displayText("GameOver", "white");
     }
     renderer->present();
 }
 
 
 void Game::reset(){
-    player->setPosition(100, 250);
-    enemies[0]->setPosition(50, 50);
-    enemies[1]->setPosition(250, 650);
+    player->setPosition(GameConfig::PLAYER_START_X, GameConfig::PLAYER_START_Y);
+    enemies[0]->setPosition(GameConfig::ENEMY1_START_X, GameConfig::ENEMY1_START_Y);
+    enemies[1]->setPosition(GameConfig::ENEMY2_START_X, GameConfig::ENEMY2_START_Y);
+}
+
+
+void Game::displayText(const std::string& dispStr, const std::string& color){
+    static const std::unordered_map<std::string, SDL_Color> colorMap = {
+        {"white", {255, 255, 255, 255}}, 
+        {"black", {0, 0, 0, 255}}, 
+        {"red", {255, 0, 0, 255}}, 
+        {"green", {0, 255, 0, 255}}, 
+        {"blue", {0, 0, 255, 255}}, 
+    };
+    int w, h;
+
+    auto it = colorMap.find(color);
+    
+    if(it != colorMap.end()){
+        SDL_Texture* tex = text->renderText(renderer->get(), dispStr, w, h, it->second);
+        renderer->drawText(tex, GameConfig::WINDOW_WIDTH/2 - w/2, GameConfig::WINDOW_HEIGHT/2 - h/2, w, h);
+        if(tex){
+            SDL_DestroyTexture(tex);
+        }
+    }
 }
