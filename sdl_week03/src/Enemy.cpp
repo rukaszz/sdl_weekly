@@ -3,6 +3,7 @@
 #include "Enemy.hpp"
 
 #include <algorithm>
+#include <random>
 
 /**
  * Enemyクラスは操作するオブジェクトを管理する
@@ -29,6 +30,15 @@ Enemy::Enemy(Texture& tex)
     
 {
     sprite.setFrame(0);
+    // 乱数生成器
+    static std::random_device rd;  // 非決定的なシード
+    static std::mt19937 gen(rd());
+    // 乱数：位置(y軸のみ)
+    std::uniform_int_distribution<> posY(50, 700);
+    y = posY(gen);
+    // 乱数：speed
+    std::uniform_real_distribution<> dist(10, 90);
+    speed = speed - dist(gen);
 }
 
 /**
@@ -60,45 +70,4 @@ void Enemy::update(double delta, DrawBounds bounds){
     anim.update(delta);
     sprite.setFrame(anim.getFrame());
 }
-
-// /**
-//  * @brief スプライトオブジェクトが持っている画像をレンダラーへ描画する
-//  * 
-//  * @param renderer: Rendererクラスのオブジェクト
-//  */
-// void Enemy::draw(Renderer& renderer){
-//     sprite.setPosition(static_cast<int>(x), static_cast<int>(y));
-//     renderer.draw(sprite, dir == Direction::Left);
-// }
-
-// /**
-//  * @brief Enemyのスプライトを返す関数
-//  * 
-//  * @return const Sprite& 
-//  */
-// const Sprite& Enemy::getSprite() const {
-//     return sprite; 
-// }
-
-
-// /**
-//  * @brief Enemyオブジェクトのx座標とy座標を変更する
-//  * 
-//  * @param coorX 
-//  * @param coorY 
-//  */
-// void Enemy::setPosition(int coorX, int coorY){
-//     x = coorX;
-//     y = coorY;
-// }
-
-// /**
-//  * @brief 画面外へはみ出さないように補正する処理
-//  * 
-//  * @param b 
-//  */
-// void Character::clampToBounds(const DrawBounds& b){
-//     x = std::clamp(x, 0.0, b.drawableWidth - sprite.getDrawWidth());
-//     y = std::clamp(y, 0.0, b.drawableHeight - sprite.getDrawHeight());
-// }
 

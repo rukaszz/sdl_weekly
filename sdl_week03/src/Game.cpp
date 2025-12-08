@@ -22,6 +22,7 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
+#include <random>
 
 /**
  * @brief Construct a new Game:: Game object
@@ -37,12 +38,15 @@ Game::Game(){
     
     enemyTexture = std::make_unique<Texture>(renderer->get(), "assets/image/dark_rhb.png");
     auto enemyTex = enemyTexture.get();
-    auto e1 = std::make_unique<Enemy>(*enemyTex);
-    auto e2 = std::make_unique<Enemy>(*enemyTex);
-    e1->setPosition(GameConfig::ENEMY1_START_X, GameConfig::ENEMY1_START_Y);
-    e2->setPosition(GameConfig::ENEMY2_START_X, GameConfig::ENEMY2_START_Y);
-    enemies.push_back(std::move(e1));
-    enemies.push_back(std::move(e2));
+    for(int i = 0;i < 5; ++i){
+        enemies.push_back(std::make_unique<Enemy>(*enemyTex));
+    }
+    // auto e1 = std::make_unique<Enemy>(*enemyTex);
+    // auto e2 = std::make_unique<Enemy>(*enemyTex);
+    // e1->setPosition(GameConfig::ENEMY1_START_X, GameConfig::ENEMY1_START_Y);
+    // e2->setPosition(GameConfig::ENEMY2_START_X, GameConfig::ENEMY2_START_Y);
+    // enemies.push_back(std::move(e1));
+    // enemies.push_back(std::move(e2));
 
     text = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
     
@@ -85,6 +89,10 @@ void Game::run(){
             std::cout << "FPS: " << fpsCounter << std::endl;
             fpsCounter = 0;
             fpsTimer = nowTime;
+            // 1フレーム生存=1点
+            if(state == GameState::Playing){
+                ++score;
+            } 
         }
         // fpsキャップ(最大60fps)
         capFrameRate(nowTime);
@@ -129,6 +137,7 @@ void Game::update(double delta){
         if(k[SDL_SCANCODE_RETURN]){
             reset();    // PlayerとEnemyを元の位置へ戻す
             state = GameState::Playing;
+            score = 0;
         }
         return;
     }
@@ -162,20 +171,33 @@ void Game::render(){
     } else {
         // GameOverの表示
         // std::cout << "GameOver!!" << std::endl;
-        displayText("GameOver", "white");
+        displayText("GameOver! Score: " + std::to_string(score), "white");
     }
     renderer->present();
 }
 
-
+/**
+ * @brief ゲームの状態をリセットする関数
+ * 現状はPlayer/Enemyの位置を初期位置にセットするのみ
+ * 
+ */
 void Game::reset(){
     player->setPosition(GameConfig::PLAYER_START_X, GameConfig::PLAYER_START_Y);
     enemies[0]->setPosition(GameConfig::ENEMY1_START_X, GameConfig::ENEMY1_START_Y);
     enemies[1]->setPosition(GameConfig::ENEMY2_START_X, GameConfig::ENEMY2_START_Y);
 }
 
-
+/**
+ * @brief 画面に文字を表示する関数
+ * 文字の出現位置は現状画面中央．
+ * 
+ * @param dispStr: 表示する文字列
+ * @param color: 文字列の色．処理内のマッピングのどれかを指定する． 
+ */
 void Game::displayText(const std::string& dispStr, const std::string& color){
+    // 表示する文字の幅と高さ
+    int w, h;
+    // 色のマッピング
     static const std::unordered_map<std::string, SDL_Color> colorMap = {
         {"white", {255, 255, 255, 255}}, 
         {"black", {0, 0, 0, 255}}, 
@@ -183,10 +205,9 @@ void Game::displayText(const std::string& dispStr, const std::string& color){
         {"green", {0, 255, 0, 255}}, 
         {"blue", {0, 0, 255, 255}}, 
     };
-    int w, h;
-
+    // 引数から色を調べるイテレータ
     auto it = colorMap.find(color);
-    
+    // TextのRenderText呼び出し
     if(it != colorMap.end()){
         SDL_Texture* tex = text->renderText(renderer->get(), dispStr, w, h, it->second);
         renderer->drawText(tex, GameConfig::WINDOW_WIDTH/2 - w/2, GameConfig::WINDOW_HEIGHT/2 - h/2, w, h);

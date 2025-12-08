@@ -28,6 +28,8 @@ private:
     std::unique_ptr<Text> text; // テキスト表示用
     bool running;
     GameState state = GameState::Playing;
+    // 仮のスコア(生存時間=スコアになる簡易的なもの)
+    uint32_t score = 0;
 
 public:
     // 定数

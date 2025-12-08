@@ -22,18 +22,6 @@ Sprite::Sprite(Texture& tex, int fw, int fh)
     dst = {0, 0, fw, fh};
 }
 
-// Sprite::Sprite(SDL_Texture& tex, int fw, int fh)
-//     : sdl_texture(tex)
-//     , frameWidth(fw)
-//     , frameHeight(fh)
-// {
-//     // スプライトシート差し替え時の事故防止
-//     assert(fw <= 0);
-//     assert(fh <= 0);
-//     src = {0, 0, fw, fh};
-//     dst = {0, 0, fw, fh};
-// }
-
 /**
  * @brief Set the Position object
  * テクスチャへのレンダラー上のコピー先の矩形の座標をセットする
