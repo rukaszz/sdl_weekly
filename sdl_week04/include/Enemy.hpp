@@ -23,7 +23,7 @@ public:
     Enemy(Texture& tex);
 
     void update(double delta, DrawBounds bounds) override;
-
+    SDL_Rect getCollisionRect() const override;
 };
 
 #endif  // ENEMY_H

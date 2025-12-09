@@ -71,3 +71,12 @@ void Enemy::update(double delta, DrawBounds bounds){
     sprite.setFrame(anim.getFrame());
 }
 
+/**
+ * @brief 衝突判定を返す関数
+ * 衝突処理(ゲームロジック)をspriteから分離させる
+ * 
+ * @return SDL_Rect 
+ */
+SDL_Rect Enemy::getCollisionRect() const{
+    return {(int)x+10, (int)y+10, sprite.getDrawWidth()-20, sprite.getDrawHeight()-20};
+}

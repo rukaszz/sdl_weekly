@@ -66,12 +66,28 @@ Game::Game(){
         enemies.push_back(std::make_unique<Enemy>(*enemyTex));
     }
 
+    // テキスト
     text = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
+    // プロンプト
+    titleText = std::make_unique<TextTexture>(renderer->get(), text.get(), SDL_Color{255, 255, 255, 255});
+    titleText->setText("Press ENTER to Start");
+    // タイトル
+    gameTitleText = std::make_unique<TextTexture>(renderer->get(), text.get(), SDL_Color{255, 255, 255, 255});
+    gameTitleText->setText("My Game");
+    // スコア
     scoreText = std::make_unique<TextTexture>(renderer->get(), text.get(), SDL_Color{255, 255, 255, 255});
     scoreText->setText("Score: 0");
+    // ゲームオーバー
     gameOverText = std::make_unique<TextTexture>(renderer->get(), text.get(), SDL_Color{255, 255, 255, 255});
     gameOverText->setText("GameOver");
     running = true;
+
+    // 乱数生成器
+    static std::random_device rd;  // 非決定的なシード
+    static std::mt19937 gen(rd());
+    // 乱数：位置
+    std::uniform_int_distribution<> posX(50, 700);
+    std::uniform_int_distribution<> posY(50, 700);
 }
 
 Game::~Game(){
@@ -111,9 +127,9 @@ void Game::run(){
             std::cout << "FPS: " << fpsCounter << std::endl;
             fpsCounter = 0;
             fpsTimer = nowTime;
-            // 1フレーム生存=1点
             if(state == GameState::Playing){
-                ++score;
+                score += delta * GameConfig::SCORE_RATE;  // 生存時間に重点
+                scoreText->setText("Score: " + std::to_string(static_cast<int>(score)));
             } 
         }
         // fpsキャップ(最大60fps)
@@ -144,6 +160,14 @@ void Game::processEvents(){
         if(e.type == SDL_QUIT){
             running = false;
         }
+        if(state == GameState::Title){
+            const Uint8* k = SDL_GetKeyboardState(NULL);
+            if(k[SDL_SCANCODE_RETURN]){
+                state = GameState::Playing;
+                score = 0;
+                reset();
+            }
+        }
     }
 }
 
@@ -154,6 +178,9 @@ void Game::processEvents(){
  */
 void Game::update(double delta){
     /* ----- GameOver状態 ----- */
+    if(state == GameState::Title){
+        return;   // ← 動かさない
+    }
     if(state == GameState::GameOver){
         const Uint8* k = SDL_GetKeyboardState(NULL);
         if(k[SDL_SCANCODE_RETURN]){
@@ -187,21 +214,37 @@ void Game::update(double delta){
 void Game::render(){
     renderer->clear();
     // ゲームの状態で分岐
-    if(state == GameState::Playing){
+    switch(state){
+    case GameState::Title:
+        // 中央にタイトル
+        gameTitleText->draw(
+            *renderer,
+            GameConfig::WINDOW_WIDTH/2 - gameTitleText->getWidth()/2,
+            GameConfig::WINDOW_HEIGHT/3 - gameTitleText->getHeight()/2
+        );
+
+        // 下に「Press ENTER to Start」
+        titleText->draw(
+            *renderer,
+            GameConfig::WINDOW_WIDTH/2 - titleText->getWidth()/2,
+            GameConfig::WINDOW_HEIGHT/2 - titleText->getHeight()/2
+        );
+        break;
+    case GameState::Playing:
+        scoreText->draw(*renderer, 20, 20);
         player->draw(*renderer);
-        for(auto& e : enemies) e->draw(*renderer);    
-    } else {
-        // GameOverの表示
-        // std::cout << "GameOver!!" << std::endl;
-        // displayText("GameOver! Score: " + std::to_string(score), "white");
-        scoreText->setText("Score: " + std::to_string(score));
+        for(auto& e : enemies) e->draw(*renderer);
+        break;
+    case GameState::GameOver:
         scoreText->draw(*renderer, 20, 20);
         gameOverText->draw(
-            *renderer, 
+            *renderer,
             GameConfig::WINDOW_WIDTH/2 - gameOverText->getWidth()/2,
             GameConfig::WINDOW_HEIGHT/2 - gameOverText->getHeight()/2
         );
+        break;
     }
+   
     renderer->present();
 }
 
@@ -212,8 +255,13 @@ void Game::render(){
  */
 void Game::reset(){
     player->setPosition(GameConfig::PLAYER_START_X, GameConfig::PLAYER_START_Y);
-    enemies[0]->setPosition(GameConfig::ENEMY1_START_X, GameConfig::ENEMY1_START_Y);
-    enemies[1]->setPosition(GameConfig::ENEMY2_START_X, GameConfig::ENEMY2_START_Y);
+    // for(auto& e : enemies){
+    //     x = posX(gen);
+    //     y = posY(gen);
+    //     e->setPosition(x, y);
+    // }
+    // enemies[0]->setPosition(GameConfig::ENEMY1_START_X, GameConfig::ENEMY1_START_Y);
+    // enemies[1]->setPosition(GameConfig::ENEMY2_START_X, GameConfig::ENEMY2_START_Y);
 }
 
 /**

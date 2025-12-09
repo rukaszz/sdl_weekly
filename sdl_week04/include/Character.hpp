@@ -51,6 +51,7 @@ public:
     );
     virtual ~Character();
     virtual void update(double delta, DrawBounds bounds) = 0;
+    virtual SDL_Rect getCollisionRect() const = 0;
     virtual void draw(Renderer& renderer);
     virtual const Sprite& getSprite() const;
     virtual void setPosition(int coorX, int coorY);

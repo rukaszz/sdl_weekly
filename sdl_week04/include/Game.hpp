@@ -14,6 +14,7 @@
 
 // ゲームの状態管理
 enum class GameState{
+    Title, 
     Playing, 
     GameOver, 
 };
@@ -29,11 +30,13 @@ private:
     std::vector<std::unique_ptr<Enemy>> enemies;
     // テキスト表示用
     std::unique_ptr<Text> text; 
+    std::unique_ptr<TextTexture> titleText;
+    std::unique_ptr<TextTexture> gameTitleText;
     std::unique_ptr<TextTexture> scoreText;
     std::unique_ptr<TextTexture> gameOverText;
 
     bool running = true;
-    GameState state = GameState::Playing;
+    GameState state = GameState::Title;
     // 仮のスコア(生存時間=スコアになる簡易的なもの)
     uint32_t score = 0;
 
