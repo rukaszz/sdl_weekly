@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <vector>
+#include <random>
 
 // ゲームの状態管理
 enum class GameState{
@@ -39,6 +40,13 @@ private:
     GameState state = GameState::Title;
     // 仮のスコア(生存時間=スコアになる簡易的なもの)
     uint32_t score = 0;
+    // メルセンヌツイスタ
+    std::mt19937 rd{std::random_device{}()};
+    // 乱数(x, y座標)
+    std::uniform_real_distribution<double> posX;
+    std::uniform_real_distribution<double> posY;
+    // speed
+    std::uniform_real_distribution<double> randSpd;
 
 public:
     // 定数
@@ -51,8 +59,6 @@ public:
 
 private:
     void initSDL();
-    void quitSDL();
-    void shutdown();
     void processEvents();
     void capFrameRate(Uint32 nowTime);
     void update(double delta);

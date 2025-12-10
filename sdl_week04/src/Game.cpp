@@ -39,12 +39,6 @@ void Game::initSDL(){
     }
 }
 
-void Game::quitSDL(){
-    TTF_Quit();
-    IMG_Quit();
-    SDL_Quit();
-}
-
 /**
  * @brief Construct a new Game:: Game object
  * 
@@ -82,12 +76,10 @@ Game::Game(){
     gameOverText->setText("GameOver");
     running = true;
 
-    // 乱数生成器
-    static std::random_device rd;  // 非決定的なシード
-    static std::mt19937 gen(rd());
-    // 乱数：位置
-    std::uniform_int_distribution<> posX(50, 700);
-    std::uniform_int_distribution<> posY(50, 700);
+    // 乱数
+    posX = std::uniform_real_distribution<double>(GameConfig::WINDOW_WIDTH/2, GameConfig::WINDOW_WIDTH);
+    posY = std::uniform_real_distribution<double>(50, GameConfig::WINDOW_HEIGHT - 50);
+    randSpd = std::uniform_real_distribution<double>(50, 150);
 }
 
 /**
@@ -156,14 +148,6 @@ void Game::processEvents(){
         if(e.type == SDL_QUIT){
             running = false;
         }
-        if(state == GameState::Title){
-            const Uint8* k = SDL_GetKeyboardState(NULL);
-            if(k[SDL_SCANCODE_RETURN]){
-                state = GameState::Playing;
-                score = 0;
-                reset();
-            }
-        }
     }
 }
 
@@ -175,6 +159,12 @@ void Game::processEvents(){
 void Game::update(double delta){
     /* ----- GameOver状態 ----- */
     if(state == GameState::Title){
+        const Uint8* k = SDL_GetKeyboardState(NULL);
+        if(k[SDL_SCANCODE_RETURN]){
+            state = GameState::Playing;
+            score = 0;
+            reset();
+        }
         return;   // 画面のオブジェクトの更新はしない
     }
     if(state == GameState::GameOver){
@@ -182,7 +172,7 @@ void Game::update(double delta){
         if(k[SDL_SCANCODE_RETURN]){
             reset();    // PlayerとEnemyを元の位置へ戻す
             state = GameState::Playing;
-            score = 0;
+            
         }
         return;
     }
@@ -192,14 +182,14 @@ void Game::update(double delta){
     DrawBounds b = {static_cast<double>(p.x), static_cast<double>(p.y)};
     // スコア計算
     score += delta * GameConfig::SCORE_RATE;  // 生存時間に重点
+    std::cout << "score: " << score << std::endl;
     scoreText->setText("Score: " + std::to_string(static_cast<int>(score)));
     // 更新
     player->update(delta, b);
     for(auto& e : enemies) e->update(delta, b);
-    
     // 衝突判定
     for(auto& e : enemies){
-        if(GameUtil::intersects(player->getSprite(), e->getSprite())){
+        if(GameUtil::intersects(player->getCollisionRect(), e->getCollisionRect())){
             state = GameState::GameOver;
         }
     }
@@ -248,18 +238,21 @@ void Game::render(){
 
 /**
  * @brief ゲームの状態をリセットする関数
- * 現状はPlayer/Enemyの位置を初期位置にセットするのみ
+ * Playerは初期位置
+ * Enemyはランダムに配置，スピードも変化
+ * animationControllerのフレームのリセット
+ * scoreもリセット
  * 
  */
 void Game::reset(){
+    score = 0;
     player->setPosition(GameConfig::PLAYER_START_X, GameConfig::PLAYER_START_Y);
-    // for(auto& e : enemies){
-    //     x = posX(gen);
-    //     y = posY(gen);
-    //     e->setPosition(x, y);
-    // }
-    // enemies[0]->setPosition(GameConfig::ENEMY1_START_X, GameConfig::ENEMY1_START_Y);
-    // enemies[1]->setPosition(GameConfig::ENEMY2_START_X, GameConfig::ENEMY2_START_Y);
+    player->callAnimReset();
+    for(auto& e : enemies){
+        e->setPosition(posX(rd), posY(rd));
+        e->setSpeed(randSpd(rd));
+        e->callAnimReset();
+    }
 }
 
 /**

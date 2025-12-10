@@ -18,7 +18,7 @@ struct GameConfig{
     static constexpr int ENEMY2_START_Y = 650;
 
     // 得点用係数
-    static constexpr double SCORE_RATE = 10.0;
+    static constexpr double SCORE_RATE = 100.0;
 
 };
 

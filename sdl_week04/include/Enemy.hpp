@@ -24,6 +24,10 @@ public:
 
     void update(double delta, DrawBounds bounds) override;
     SDL_Rect getCollisionRect() const override;
+
+    void setSpeed(double v){
+        speed = v;
+    }
 };
 
 #endif  // ENEMY_H

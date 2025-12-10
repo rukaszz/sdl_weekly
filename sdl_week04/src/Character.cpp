@@ -60,7 +60,7 @@ const Sprite& Character::getSprite() const{
  * @param coorX 
  * @param coorY 
  */
-void Character::setPosition(int coorX, int coorY){
+void Character::setPosition(double coorX, double coorY){
     x = coorX;
     y = coorY;
 }
@@ -73,4 +73,12 @@ void Character::setPosition(int coorX, int coorY){
 void Character::clampToBounds(const DrawBounds& b){
     x = std::clamp(x, 0.0, b.drawableWidth - sprite.getDrawWidth());
     y = std::clamp(y, 0.0, b.drawableHeight - sprite.getDrawHeight());
+}
+
+/**
+ * @brief animのフレームをリセットする関数
+ * 
+ */
+void Character::callAnimReset(){
+    anim.reset();
 }

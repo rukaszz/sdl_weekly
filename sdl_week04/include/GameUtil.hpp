@@ -9,7 +9,7 @@
  * 
  */
 
-#include "Sprite.hpp"
+#include <SDL2/SDL.h>
 
 /**
  * @brief Axis-Aligned Bounding Box(AABB)衝突判定関数
@@ -21,14 +21,11 @@
  * @return false 
  */
 namespace GameUtil{
-    inline bool intersects(const Sprite& a, const Sprite& b){
-        const auto& ra = a.getDstRect();
-        const auto& rb = b.getDstRect();
-        
-        return !(ra.x + ra.w <= rb.x || // 矩形aがbの左にある
-                 rb.x + rb.w <= ra.x || // 矩形bがaの左にある
-                 ra.y + ra.h <= rb.y || // 矩形aがbの上にある
-                 rb.y + ra.h <= ra.y    // 矩形bがaの上にある
+    inline bool intersects(const SDL_Rect a, const SDL_Rect b){       
+        return !(a.x + a.w <= b.x || // 矩形aがbの左にある
+                 b.x + b.w <= a.x || // 矩形bがaの左にある
+                 a.y + a.h <= b.y || // 矩形aがbの上にある
+                 b.y + a.h <= a.y    // 矩形bがaの上にある
                 );
     }
 }
