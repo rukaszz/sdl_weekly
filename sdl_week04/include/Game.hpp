@@ -52,6 +52,7 @@ public:
 private:
     void initSDL();
     void quitSDL();
+    void shutdown();
     void processEvents();
     void capFrameRate(Uint32 nowTime);
     void update(double delta);

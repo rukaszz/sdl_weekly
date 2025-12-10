@@ -32,5 +32,7 @@ Texture::Texture(SDL_Renderer* renderer, const std::string& path){
  * 
  */
 Texture::~Texture(){
-    SDL_DestroyTexture(tex);
+    if(tex){
+        SDL_DestroyTexture(tex);
+    }
 }

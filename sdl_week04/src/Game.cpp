@@ -90,17 +90,17 @@ Game::Game(){
     std::uniform_int_distribution<> posY(50, 700);
 }
 
+/**
+ * @brief Destroy the Game:: Game object
+ * 
+ */
 Game::~Game(){
     /*
-     * Renderer→Window→SDLの順で破棄
-     * ここでIMG_Quit();, SDL_Quit();
-     * をするとSDL内部でRenderer/Textureが破棄され
-     * スマートポインタがSDL_DestroyTextureを呼んで二重破棄となるので
-     * Window側で破棄する
-     * ->week03でリファクタリングする
+     * Gameオブジェクトが破棄されたあとにSDLの終了処理を実施する
+     * →リーク回避のため
      * DBusのリークはSDL_Linux側の問題なので無視
      */
-    quitSDL();
+    // quitSDL();
 }
 
 /**
@@ -127,10 +127,6 @@ void Game::run(){
             std::cout << "FPS: " << fpsCounter << std::endl;
             fpsCounter = 0;
             fpsTimer = nowTime;
-            if(state == GameState::Playing){
-                score += delta * GameConfig::SCORE_RATE;  // 生存時間に重点
-                scoreText->setText("Score: " + std::to_string(static_cast<int>(score)));
-            } 
         }
         // fpsキャップ(最大60fps)
         capFrameRate(nowTime);
@@ -179,7 +175,7 @@ void Game::processEvents(){
 void Game::update(double delta){
     /* ----- GameOver状態 ----- */
     if(state == GameState::Title){
-        return;   // ← 動かさない
+        return;   // 画面のオブジェクトの更新はしない
     }
     if(state == GameState::GameOver){
         const Uint8* k = SDL_GetKeyboardState(NULL);
@@ -194,6 +190,9 @@ void Game::update(double delta){
     // ウィンドウサイズ変換
     SDL_Point p = window->getWindowSize();
     DrawBounds b = {static_cast<double>(p.x), static_cast<double>(p.y)};
+    // スコア計算
+    score += delta * GameConfig::SCORE_RATE;  // 生存時間に重点
+    scoreText->setText("Score: " + std::to_string(static_cast<int>(score)));
     // 更新
     player->update(delta, b);
     for(auto& e : enemies) e->update(delta, b);
@@ -201,7 +200,6 @@ void Game::update(double delta){
     // 衝突判定
     for(auto& e : enemies){
         if(GameUtil::intersects(player->getSprite(), e->getSprite())){
-            std::cout << "Collision!!" << std::endl;
             state = GameState::GameOver;
         }
     }

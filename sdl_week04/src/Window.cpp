@@ -1,7 +1,5 @@
 #include "Window.hpp"
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
 
 #include <string>
 #include <stdexcept>
@@ -46,8 +44,6 @@ Window::~Window(){
     if(window){
         SDL_DestroyWindow(window);
     }
-    // IMG_Quit();
-    // SDL_Quit();
 }
 
 /**

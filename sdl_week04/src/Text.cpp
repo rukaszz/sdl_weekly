@@ -28,6 +28,7 @@ Text::Text(const std::string& fontPath, int fontSize){
 Text::~Text(){
     if(font){
         TTF_CloseFont(font);
+        font = nullptr;
     }
 }
 
