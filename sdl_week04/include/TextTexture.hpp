@@ -24,6 +24,7 @@ public:
     ~TextTexture();
     void setText(const std::string& str);
     void draw(Renderer& r, int x, int y);
+    void setAlpha(Uint8 alpha);
 
     int getWidth() const{
         return width;

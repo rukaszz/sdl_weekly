@@ -1,7 +1,12 @@
+// 定数
+#include "GameConfig.hpp"
+#include "EnemyConfig.hpp"
+
 #include "Renderer.hpp"
 #include "Texture.hpp"
 #include "Enemy.hpp"
 
+#include <iostream>
 #include <algorithm>
 #include <random>
 
@@ -30,15 +35,7 @@ Enemy::Enemy(Texture& tex)
     
 {
     sprite.setFrame(0);
-    // 乱数生成器
-    static std::random_device rd;  // 非決定的なシード
-    static std::mt19937 gen(rd());
-    // 乱数：位置(y軸のみ)
-    std::uniform_int_distribution<> posY(50, 700);
-    y = posY(gen);
-    // 乱数：speed
-    std::uniform_real_distribution<> dist(10, 90);
-    speed = speed - dist(gen);
+
 }
 
 /**
@@ -79,4 +76,16 @@ void Enemy::update(double delta, DrawBounds bounds){
  */
 SDL_Rect Enemy::getCollisionRect() const{
     return {(int)x+10, (int)y+10, sprite.getDrawWidth()-20, sprite.getDrawHeight()-20};
+}
+
+
+void Enemy::reset(std::mt19937& rd,
+                  std::uniform_real_distribution<double>& dx,
+                  std::uniform_real_distribution<double>& dy,
+                  std::uniform_real_distribution<double>& ds)
+{
+    setPosition(dx(rd), dy(rd));
+    setSpeed(ds(rd));
+    dir = (rand()%2 == 0 ? Direction::Left : Direction::Right);
+    anim.reset();
 }

@@ -22,6 +22,7 @@ enum class GameState{
 
 class Game{
 private:
+    // スマートポインタ
     std::unique_ptr<Window> window;
     std::unique_ptr<Renderer> renderer;
     // Characterオブジェクト
@@ -34,8 +35,10 @@ private:
     std::unique_ptr<TextTexture> titleText;
     std::unique_ptr<TextTexture> gameTitleText;
     std::unique_ptr<TextTexture> scoreText;
+    std::unique_ptr<TextTexture> fpsText;
     std::unique_ptr<TextTexture> gameOverText;
 
+    // 変数系
     bool running = true;
     GameState state = GameState::Title;
     // 仮のスコア(生存時間=スコアになる簡易的なもの)
@@ -43,10 +46,14 @@ private:
     // メルセンヌツイスタ
     std::mt19937 rd{std::random_device{}()};
     // 乱数(x, y座標)
-    std::uniform_real_distribution<double> posX;
-    std::uniform_real_distribution<double> posY;
+    std::uniform_real_distribution<double> distX;
+    std::uniform_real_distribution<double> distY;
     // speed
-    std::uniform_real_distribution<double> randSpd;
+    std::uniform_real_distribution<double> distSpeed;
+    // タイトル処理
+    double titleFade = 0.0; // 0.0 .. 1.0
+    double blinkTimer = 0.0;
+    bool blinkVisible= true;
 
 public:
     // 定数
@@ -62,6 +69,7 @@ private:
     void processEvents();
     void capFrameRate(Uint32 nowTime);
     void update(double delta);
+    void updateTitle(double delta);
     void render();
     void reset();
     void displayText(const std::string& dispStr, const std::string& color);

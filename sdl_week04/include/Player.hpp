@@ -24,6 +24,7 @@ public:
 
     void update(double delta, DrawBounds bounds) override;
     SDL_Rect getCollisionRect() const override;
+    void reset();
 };
 
 #endif  // PLAYER_H

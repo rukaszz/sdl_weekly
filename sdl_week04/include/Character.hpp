@@ -56,7 +56,6 @@ public:
     virtual const Sprite& getSprite() const;
     virtual void setPosition(double coorX, double coorY);
     virtual void clampToBounds(const DrawBounds& b);
-    virtual void callAnimReset();
 };
 
 #endif  // CHARACTER_H

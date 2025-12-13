@@ -2,6 +2,8 @@
 #include "Texture.hpp"
 #include "Player.hpp"
 
+#include "PlayerConfig.hpp"
+
 #include <SDL2/SDL.h>
 #include <algorithm>
 
@@ -83,5 +85,14 @@ void Player::update(double delta, DrawBounds bounds){
  */
 SDL_Rect Player::getCollisionRect() const{
     return {(int)x+10, (int)y+10, sprite.getDrawWidth()-20, sprite.getDrawHeight()-20};
+}
+
+/**
+ * @brief プレイヤーの位置を初期位置へ移動させる
+ * 
+ */
+void Player::reset(){
+    setPosition(PlayerConfig::POS_X, PlayerConfig::POS_Y);
+    anim.reset();
 }
 

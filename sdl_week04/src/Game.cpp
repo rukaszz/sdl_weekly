@@ -52,7 +52,7 @@ Game::Game(){
     
     playerTexture = std::make_unique<Texture>(renderer->get(), "assets/image/rhb.png");
     player = std::make_unique<Player>(*playerTexture);
-    player->setPosition(GameConfig::PLAYER_START_X, GameConfig::PLAYER_START_Y);
+    player->setPosition(PlayerConfig::POS_X, PlayerConfig::POS_Y);
     
     enemyTexture = std::make_unique<Texture>(renderer->get(), "assets/image/dark_rhb.png");
     auto enemyTex = enemyTexture.get();
@@ -71,15 +71,18 @@ Game::Game(){
     // スコア
     scoreText = std::make_unique<TextTexture>(renderer->get(), text.get(), SDL_Color{255, 255, 255, 255});
     scoreText->setText("Score: 0");
+    // FPS
+    fpsText = std::make_unique<TextTexture>(renderer->get(), text.get(), SDL_Color{255, 255, 255, 255});
+    fpsText->setText("");
     // ゲームオーバー
     gameOverText = std::make_unique<TextTexture>(renderer->get(), text.get(), SDL_Color{255, 255, 255, 255});
     gameOverText->setText("GameOver");
     running = true;
 
     // 乱数
-    posX = std::uniform_real_distribution<double>(GameConfig::WINDOW_WIDTH/2, GameConfig::WINDOW_WIDTH);
-    posY = std::uniform_real_distribution<double>(50, GameConfig::WINDOW_HEIGHT - 50);
-    randSpd = std::uniform_real_distribution<double>(50, 150);
+    distX = std::uniform_real_distribution<double>(GameConfig::WINDOW_WIDTH/2, GameConfig::WINDOW_WIDTH - EnemyConfig::FRAME_W);
+    distY = std::uniform_real_distribution<double>(EnemyConfig::FRAME_H, GameConfig::WINDOW_HEIGHT - EnemyConfig::FRAME_H);
+    distSpeed = std::uniform_real_distribution<double>(EnemyConfig::SPEED_MIN, EnemyConfig::SPEED_MAX);
 }
 
 /**
@@ -116,7 +119,7 @@ void Game::run(){
         // フレームレートの計算とfps計測
         ++fpsCounter;
         if(nowTime - fpsTimer >= 1000){
-            std::cout << "FPS: " << fpsCounter << std::endl;
+            fpsText->setText("FPS: " + std::to_string(fpsCounter));
             fpsCounter = 0;
             fpsTimer = nowTime;
         }
@@ -159,6 +162,8 @@ void Game::processEvents(){
 void Game::update(double delta){
     /* ----- GameOver状態 ----- */
     if(state == GameState::Title){
+        // タイトルのフェードインなど
+        updateTitle(delta);
         const Uint8* k = SDL_GetKeyboardState(NULL);
         if(k[SDL_SCANCODE_RETURN]){
             state = GameState::Playing;
@@ -182,7 +187,6 @@ void Game::update(double delta){
     DrawBounds b = {static_cast<double>(p.x), static_cast<double>(p.y)};
     // スコア計算
     score += delta * GameConfig::SCORE_RATE;  // 生存時間に重点
-    std::cout << "score: " << score << std::endl;
     scoreText->setText("Score: " + std::to_string(static_cast<int>(score)));
     // 更新
     player->update(delta, b);
@@ -196,6 +200,33 @@ void Game::update(double delta){
 }
 
 /**
+ * @brief タイトルをフェードイン＆点滅させる
+ * 
+ * @param delta 
+ */
+void Game::updateTitle(double delta){
+    /* ----- フェードイン ----- */
+    if(titleFade < 1.0){
+        // 2秒
+        titleFade += delta * 0.5;
+        if(titleFade > 1.0){
+            titleFade = 1.0;    // 1.0を超えないように
+        }
+        // 徐々に実体化
+        Uint8 alpha = static_cast<Uint8>(titleFade * 255);
+        gameTitleText->setAlpha(alpha);
+    }
+
+    /* ----- 点滅 ----- */
+    blinkTimer += delta;
+    // 0.5秒ごとに切り替える
+    if(blinkTimer >= 0.5){
+        blinkTimer = 0;
+        blinkVisible = !blinkVisible;
+    }
+}
+
+/**
  * @brief 描画の更新用
  * 
  */
@@ -204,6 +235,7 @@ void Game::render(){
     // ゲームの状態で分岐
     switch(state){
     case GameState::Title:
+        fpsText->draw(*renderer, 20, 20);
         // 中央にタイトル
         gameTitleText->draw(
             *renderer,
@@ -212,19 +244,23 @@ void Game::render(){
         );
 
         // 下に「Press ENTER to Start」
-        titleText->draw(
-            *renderer,
-            GameConfig::WINDOW_WIDTH/2 - titleText->getWidth()/2,
-            GameConfig::WINDOW_HEIGHT/2 - titleText->getHeight()/2
-        );
+        if(blinkVisible){
+            titleText->draw(
+                *renderer,
+                GameConfig::WINDOW_WIDTH/2 - titleText->getWidth()/2,
+                GameConfig::WINDOW_HEIGHT/2 - titleText->getHeight()/2
+            );
+        }
         break;
     case GameState::Playing:
-        scoreText->draw(*renderer, 20, 20);
+        fpsText->draw(*renderer, 20, 20);
+        scoreText->draw(*renderer, 20, 50);
         player->draw(*renderer);
         for(auto& e : enemies) e->draw(*renderer);
         break;
     case GameState::GameOver:
-        scoreText->draw(*renderer, 20, 20);
+        fpsText->draw(*renderer, 20, 20);
+        scoreText->draw(*renderer, 20, 50);
         gameOverText->draw(
             *renderer,
             GameConfig::WINDOW_WIDTH/2 - gameOverText->getWidth()/2,
@@ -246,41 +282,9 @@ void Game::render(){
  */
 void Game::reset(){
     score = 0;
-    player->setPosition(GameConfig::PLAYER_START_X, GameConfig::PLAYER_START_Y);
-    player->callAnimReset();
+    player->reset();
     for(auto& e : enemies){
-        e->setPosition(posX(rd), posY(rd));
-        e->setSpeed(randSpd(rd));
-        e->callAnimReset();
+        e->reset(rd, distX, distY, distSpeed);
     }
 }
 
-/**
- * @brief 画面に文字を表示する関数
- * 文字の出現位置は現状画面中央．
- * 
- * @param dispStr: 表示する文字列
- * @param color: 文字列の色．処理内のマッピングのどれかを指定する． 
- */
-void Game::displayText(const std::string& dispStr, const std::string& color){
-    // 表示する文字の幅と高さ
-    int w, h;
-    // 色のマッピング
-    static const std::unordered_map<std::string, SDL_Color> colorMap = {
-        {"white", {255, 255, 255, 255}}, 
-        {"black", {0, 0, 0, 255}}, 
-        {"red", {255, 0, 0, 255}}, 
-        {"green", {0, 255, 0, 255}}, 
-        {"blue", {0, 0, 255, 255}}, 
-    };
-    // 引数から色を調べるイテレータ
-    auto it = colorMap.find(color);
-    // TextのRenderText呼び出し
-    if(it != colorMap.end()){
-        SDL_Texture* tex = text->renderText(renderer->get(), dispStr, w, h, it->second);
-        renderer->drawText(tex, GameConfig::WINDOW_WIDTH/2 - w/2, GameConfig::WINDOW_HEIGHT/2 - h/2, w, h);
-        if(tex){
-            SDL_DestroyTexture(tex);
-        }
-    }
-}

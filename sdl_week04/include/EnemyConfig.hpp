@@ -5,6 +5,8 @@
 struct EnemyConfig{
     static inline constexpr int FRAME_W = 114;
     static inline constexpr int FRAME_H = 110;
+    static inline constexpr double SPEED_MAX = 200.0;
+    static inline constexpr double SPEED_MIN = 50.0;
     static inline constexpr int NUM_FRAMES = 8;
 };
 

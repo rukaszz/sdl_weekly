@@ -74,11 +74,3 @@ void Character::clampToBounds(const DrawBounds& b){
     x = std::clamp(x, 0.0, b.drawableWidth - sprite.getDrawWidth());
     y = std::clamp(y, 0.0, b.drawableHeight - sprite.getDrawHeight());
 }
-
-/**
- * @brief animのフレームをリセットする関数
- * 
- */
-void Character::callAnimReset(){
-    anim.reset();
-}
