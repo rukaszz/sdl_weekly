@@ -5,6 +5,10 @@
 
 #include "Window.hpp"
 #include "Renderer.hpp"
+#include "Scene.hpp"
+#include "TitleScene.hpp"
+#include "PlayingScene.hpp"
+#include "GameOverScene.hpp"
 #include "Texture.hpp"
 #include "Character.hpp"
 #include "Player.hpp"
@@ -129,6 +133,26 @@ void Game::run(){
 }
 
 /**
+ * @brief シーンの切り替えを実施する関数
+ * 抽象クラスSceneに対して，ポリモーフィズムによる派生クラス生成を実施する
+ * 
+ * @param s 
+ */
+void Game::changeScene(GameScene s){
+    switch(s){
+    case GameScene::Title:
+        currentScene = std::make_unique<TitleScene>(*this);
+        break;
+    case GameScene::Playing:
+        currentScene = std::make_unique<PlayingScene>(*this);
+        break;
+    case GameScene::GameOver:
+        currentScene = std::make_unique<GameOverScene>(*this);
+        break;
+    }
+}
+
+/**
  * @brief fpsキャップを実装(fpsを固定化するため)
  * 
  * @param fps_nowTime: 計測点
@@ -161,22 +185,22 @@ void Game::processEvents(){
  */
 void Game::update(double delta){
     /* ----- GameOver状態 ----- */
-    if(state == GameState::Title){
+    if(scene == GameScene::Title){
         // タイトルのフェードインなど
         updateTitle(delta);
         const Uint8* k = SDL_GetKeyboardState(NULL);
         if(k[SDL_SCANCODE_RETURN]){
-            state = GameState::Playing;
+            scene = GameScene::Playing;
             score = 0;
             reset();
         }
         return;   // 画面のオブジェクトの更新はしない
     }
-    if(state == GameState::GameOver){
+    if(scene == GameScene::GameOver){
         const Uint8* k = SDL_GetKeyboardState(NULL);
         if(k[SDL_SCANCODE_RETURN]){
             reset();    // PlayerとEnemyを元の位置へ戻す
-            state = GameState::Playing;
+            scene = GameScene::Playing;
             
         }
         return;
@@ -194,7 +218,7 @@ void Game::update(double delta){
     // 衝突判定
     for(auto& e : enemies){
         if(GameUtil::intersects(player->getCollisionRect(), e->getCollisionRect())){
-            state = GameState::GameOver;
+            scene = GameScene::GameOver;
         }
     }
 }
@@ -233,8 +257,8 @@ void Game::updateTitle(double delta){
 void Game::render(){
     renderer->clear();
     // ゲームの状態で分岐
-    switch(state){
-    case GameState::Title:
+    switch(scene){
+    case GameScene::Title:
         fpsText->draw(*renderer, 20, 20);
         // 中央にタイトル
         gameTitleText->draw(
@@ -252,13 +276,13 @@ void Game::render(){
             );
         }
         break;
-    case GameState::Playing:
+    case GameScene::Playing:
         fpsText->draw(*renderer, 20, 20);
         scoreText->draw(*renderer, 20, 50);
         player->draw(*renderer);
         for(auto& e : enemies) e->draw(*renderer);
         break;
-    case GameState::GameOver:
+    case GameScene::GameOver:
         fpsText->draw(*renderer, 20, 20);
         scoreText->draw(*renderer, 20, 50);
         gameOverText->draw(

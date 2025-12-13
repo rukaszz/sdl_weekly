@@ -8,23 +8,33 @@
  * @brief Construct a new Game Over Scene:: Game Over Scene object
  * 
  */
-GameOverScene::GameOverScene()
+GameOverScene::GameOverScene(Game& g)
     : Scene(g)
 {
 
 }
 
 /**
+ * @brief ゲームオーバー時のイベント処理
+ * Enterキー押下でリセットする(TitleではなくPlayingへ戻す)
+ * 
+ * @param e 
+ */
+void GameOverScene::handleEvent(const SDL_Event& e){
+    if(e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN){
+        game.reset();
+        game.setGameScene(GameScene::Playing);
+    }
+}
+
+/**
  * @brief ゲームオーバー時の更新処理
+ * ※Sceneクラス監視前にしていたゲームのリセット処理はhandleEventへ移管
  * 
  * @param delta 
  */
 void GameOverScene::update(double delta){
-    const Uint8* k = SDL_GetKeyboardState(NULL);
-    if(k[SDL_SCANCODE_RETURN]){
-        reset();    // PlayerとEnemyを元の位置へ戻す
-        state = GameState::Playing;
-    }
+    
 }
 
 /**
@@ -32,12 +42,12 @@ void GameOverScene::update(double delta){
  * 
  * @param remderer 
  */
-void GameOverScene::render(Renderer& remderer){
-    fpsText->draw(*renderer, 20, 20);
-    scoreText->draw(*renderer, 20, 50);
-    gameOverText->draw(
-        *renderer,
-        GameConfig::WINDOW_WIDTH/2 - gameOverText->getWidth()/2,
-        GameConfig::WINDOW_HEIGHT/2 - gameOverText->getHeight()/2
+void GameOverScene::render(){
+    game.getFpsText().draw(game.getRenderer(), 20, 20);
+    game.getScoreText().draw(game.getRenderer(), 20, 50);
+    game.getGameOverText().draw(
+        game.getRenderer(),
+        GameConfig::WINDOW_WIDTH/2 - game.getGameOverText().getWidth()/2,
+        GameConfig::WINDOW_HEIGHT/2 - game.getGameOverText().getHeight()/2
     );
 }

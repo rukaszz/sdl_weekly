@@ -90,7 +90,7 @@ void Game::run(){
             fpsCounter = 0;
             fpsTimer = nowTime;
             // 1フレーム生存=1点
-            if(state == GameState::Playing){
+            if(scene == GameScene::Playing){
                 ++score;
             } 
         }
@@ -132,11 +132,11 @@ void Game::processEvents(){
  */
 void Game::update(double delta){
     /* ----- GameOver状態 ----- */
-    if(state == GameState::GameOver){
+    if(scene == GameScene::GameOver){
         const Uint8* k = SDL_GetKeyboardState(NULL);
         if(k[SDL_SCANCODE_RETURN]){
             reset();    // PlayerとEnemyを元の位置へ戻す
-            state = GameState::Playing;
+            scene = GameScene::Playing;
             score = 0;
         }
         return;
@@ -153,7 +153,7 @@ void Game::update(double delta){
     for(auto& e : enemies){
         if(GameUtil::intersects(player->getSprite(), e->getSprite())){
             std::cout << "Collision!!" << std::endl;
-            state = GameState::GameOver;
+            scene = GameScene::GameOver;
         }
     }
 }
@@ -165,7 +165,7 @@ void Game::update(double delta){
 void Game::render(){
     renderer->clear();
     // ゲームの状態で分岐
-    if(state == GameState::Playing){
+    if(scene == GameScene::Playing){
         player->draw(*renderer);
         for(auto& e : enemies) e->draw(*renderer);    
     } else {

@@ -225,6 +225,30 @@ src/Game.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week04.dir/build.make CMakeFiles/sdl_week04.dir/src/Game.cpp.s
 .PHONY : src/Game.cpp.s
 
+src/GameOverScene.o: src/GameOverScene.cpp.o
+.PHONY : src/GameOverScene.o
+
+# target to build an object file
+src/GameOverScene.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week04.dir/build.make CMakeFiles/sdl_week04.dir/src/GameOverScene.cpp.o
+.PHONY : src/GameOverScene.cpp.o
+
+src/GameOverScene.i: src/GameOverScene.cpp.i
+.PHONY : src/GameOverScene.i
+
+# target to preprocess a source file
+src/GameOverScene.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week04.dir/build.make CMakeFiles/sdl_week04.dir/src/GameOverScene.cpp.i
+.PHONY : src/GameOverScene.cpp.i
+
+src/GameOverScene.s: src/GameOverScene.cpp.s
+.PHONY : src/GameOverScene.s
+
+# target to generate assembly for a file
+src/GameOverScene.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week04.dir/build.make CMakeFiles/sdl_week04.dir/src/GameOverScene.cpp.s
+.PHONY : src/GameOverScene.cpp.s
+
 src/Player.o: src/Player.cpp.o
 .PHONY : src/Player.o
 
@@ -249,6 +273,30 @@ src/Player.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week04.dir/build.make CMakeFiles/sdl_week04.dir/src/Player.cpp.s
 .PHONY : src/Player.cpp.s
 
+src/PlayingScene.o: src/PlayingScene.cpp.o
+.PHONY : src/PlayingScene.o
+
+# target to build an object file
+src/PlayingScene.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week04.dir/build.make CMakeFiles/sdl_week04.dir/src/PlayingScene.cpp.o
+.PHONY : src/PlayingScene.cpp.o
+
+src/PlayingScene.i: src/PlayingScene.cpp.i
+.PHONY : src/PlayingScene.i
+
+# target to preprocess a source file
+src/PlayingScene.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week04.dir/build.make CMakeFiles/sdl_week04.dir/src/PlayingScene.cpp.i
+.PHONY : src/PlayingScene.cpp.i
+
+src/PlayingScene.s: src/PlayingScene.cpp.s
+.PHONY : src/PlayingScene.s
+
+# target to generate assembly for a file
+src/PlayingScene.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week04.dir/build.make CMakeFiles/sdl_week04.dir/src/PlayingScene.cpp.s
+.PHONY : src/PlayingScene.cpp.s
+
 src/Renderer.o: src/Renderer.cpp.o
 .PHONY : src/Renderer.o
 
@@ -272,6 +320,30 @@ src/Renderer.s: src/Renderer.cpp.s
 src/Renderer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week04.dir/build.make CMakeFiles/sdl_week04.dir/src/Renderer.cpp.s
 .PHONY : src/Renderer.cpp.s
+
+src/Scene.o: src/Scene.cpp.o
+.PHONY : src/Scene.o
+
+# target to build an object file
+src/Scene.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week04.dir/build.make CMakeFiles/sdl_week04.dir/src/Scene.cpp.o
+.PHONY : src/Scene.cpp.o
+
+src/Scene.i: src/Scene.cpp.i
+.PHONY : src/Scene.i
+
+# target to preprocess a source file
+src/Scene.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week04.dir/build.make CMakeFiles/sdl_week04.dir/src/Scene.cpp.i
+.PHONY : src/Scene.cpp.i
+
+src/Scene.s: src/Scene.cpp.s
+.PHONY : src/Scene.s
+
+# target to generate assembly for a file
+src/Scene.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week04.dir/build.make CMakeFiles/sdl_week04.dir/src/Scene.cpp.s
+.PHONY : src/Scene.cpp.s
 
 src/Sprite.o: src/Sprite.cpp.o
 .PHONY : src/Sprite.o
@@ -369,6 +441,30 @@ src/Texture.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week04.dir/build.make CMakeFiles/sdl_week04.dir/src/Texture.cpp.s
 .PHONY : src/Texture.cpp.s
 
+src/TitleScene.o: src/TitleScene.cpp.o
+.PHONY : src/TitleScene.o
+
+# target to build an object file
+src/TitleScene.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week04.dir/build.make CMakeFiles/sdl_week04.dir/src/TitleScene.cpp.o
+.PHONY : src/TitleScene.cpp.o
+
+src/TitleScene.i: src/TitleScene.cpp.i
+.PHONY : src/TitleScene.i
+
+# target to preprocess a source file
+src/TitleScene.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week04.dir/build.make CMakeFiles/sdl_week04.dir/src/TitleScene.cpp.i
+.PHONY : src/TitleScene.cpp.i
+
+src/TitleScene.s: src/TitleScene.cpp.s
+.PHONY : src/TitleScene.s
+
+# target to generate assembly for a file
+src/TitleScene.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week04.dir/build.make CMakeFiles/sdl_week04.dir/src/TitleScene.cpp.s
+.PHONY : src/TitleScene.cpp.s
+
 src/Window.o: src/Window.cpp.o
 .PHONY : src/Window.o
 
@@ -438,12 +534,21 @@ help:
 	@echo "... src/Game.o"
 	@echo "... src/Game.i"
 	@echo "... src/Game.s"
+	@echo "... src/GameOverScene.o"
+	@echo "... src/GameOverScene.i"
+	@echo "... src/GameOverScene.s"
 	@echo "... src/Player.o"
 	@echo "... src/Player.i"
 	@echo "... src/Player.s"
+	@echo "... src/PlayingScene.o"
+	@echo "... src/PlayingScene.i"
+	@echo "... src/PlayingScene.s"
 	@echo "... src/Renderer.o"
 	@echo "... src/Renderer.i"
 	@echo "... src/Renderer.s"
+	@echo "... src/Scene.o"
+	@echo "... src/Scene.i"
+	@echo "... src/Scene.s"
 	@echo "... src/Sprite.o"
 	@echo "... src/Sprite.i"
 	@echo "... src/Sprite.s"
@@ -456,6 +561,9 @@ help:
 	@echo "... src/Texture.o"
 	@echo "... src/Texture.i"
 	@echo "... src/Texture.s"
+	@echo "... src/TitleScene.o"
+	@echo "... src/TitleScene.i"
+	@echo "... src/TitleScene.s"
 	@echo "... src/Window.o"
 	@echo "... src/Window.i"
 	@echo "... src/Window.s"

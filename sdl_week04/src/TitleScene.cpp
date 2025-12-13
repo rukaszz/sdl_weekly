@@ -1,3 +1,6 @@
+// 定数
+#include "GameConfig.hpp"
+
 #include "TitleScene.hpp"
 #include "Game.hpp"
 #include "Renderer.hpp"
@@ -22,7 +25,9 @@ TitleScene::TitleScene(Game& g)
  * @param e 
  */
 void TitleScene::handleEvent(const SDL_Event& e){
-
+    if(e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN){
+        game.changeScene(GameScene::Playing);
+    }
 }
 
 /**
@@ -32,12 +37,12 @@ void TitleScene::handleEvent(const SDL_Event& e){
  */
 void TitleScene::update(double delta){
     // タイトルのフェードインなど
-    game->updateTitle(delta);
+    game.updateTitle(delta);
     const Uint8* k = SDL_GetKeyboardState(NULL);
     if(k[SDL_SCANCODE_RETURN]){
-        // state = GameState::Playing;
-        score = 0;
-        g->reset();
+        // scene = GameScene::Playing;
+        game.setScore(0);
+        game.reset();
     }
     return;   // 画面のオブジェクトの更新はしない
 }
@@ -47,21 +52,21 @@ void TitleScene::update(double delta){
  * 
  * @param renderer 
  */
-void TitleScene::render(Renderer& renderer){
-    fpsText->draw(*renderer, 20, 20);
+void TitleScene::render(){
+    game.getFpsText().draw(game.getRenderer(), 20, 20);
     // 中央にタイトル
-    gameTitleText->draw(
-        *renderer,
-        GameConfig::WINDOW_WIDTH/2 - gameTitleText->getWidth()/2,
-        GameConfig::WINDOW_HEIGHT/3 - gameTitleText->getHeight()/2
+    game.getGameTitleText().draw(
+        game.getRenderer(),
+        GameConfig::WINDOW_WIDTH/2 - game.getGameTitleText().getWidth()/2,
+        GameConfig::WINDOW_HEIGHT/3 - game.getGameTitleText().getHeight()/2
     );
 
     // 下に「Press ENTER to Start」
     if(blinkVisible){
-        titleText->draw(
-            *renderer,
-            GameConfig::WINDOW_WIDTH/2 - titleText->getWidth()/2,
-            GameConfig::WINDOW_HEIGHT/2 - titleText->getHeight()/2
+        game.getTitleText().draw(
+            game.getRenderer(),
+            GameConfig::WINDOW_WIDTH/2 - game.getTitleText().getWidth()/2,
+            GameConfig::WINDOW_HEIGHT/2 - game.getTitleText().getHeight()/2
         );
     }
 }

@@ -3,6 +3,7 @@
 
 #include "Window.hpp"
 #include "Renderer.hpp"
+#include "Scene.hpp"
 #include "Texture.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
@@ -14,7 +15,7 @@
 #include <random>
 
 // ゲームの状態管理
-enum class GameState{
+enum class GameScene{
     Title, 
     Playing, 
     GameOver, 
@@ -25,6 +26,8 @@ private:
     // スマートポインタ
     std::unique_ptr<Window> window;
     std::unique_ptr<Renderer> renderer;
+    // シーン管理
+    std::unique_ptr<Scene> currentScene;
     // Characterオブジェクト
     std::unique_ptr<Texture> playerTexture;
     std::unique_ptr<Player> player;
@@ -40,7 +43,7 @@ private:
 
     // 変数系
     bool running = true;
-    GameState state = GameState::Title;
+    GameScene scene = GameScene::Title;
     // 仮のスコア(生存時間=スコアになる簡易的なもの)
     uint32_t score = 0;
     // メルセンヌツイスタ
@@ -63,16 +66,57 @@ public:
     Game();
     ~Game();
     void run();
+    void changeScene(GameScene s);
+    void updateTitle(double delta);
+    void reset();
 
 private:
     void initSDL();
     void processEvents();
     void capFrameRate(Uint32 nowTime);
     void update(double delta);
-    void updateTitle(double delta);
     void render();
-    void reset();
     void displayText(const std::string& dispStr, const std::string& color);
+
+public:
+    // getters
+    Window& getWindow() const{
+        return *window;
+    }
+    Renderer& getRenderer() const{
+        return *renderer;
+    }
+    Player& getPlayer() const{
+        return *player;
+    }
+    std::vector<std::unique_ptr<Enemy>>& getEnemies(){
+        return enemies;
+    }
+    TextTexture& getScoreText(){
+        return *scoreText;
+    }
+    TextTexture& getFpsText(){
+        return *fpsText;
+    }
+    TextTexture& getTitleText(){
+        return *titleText;
+    }
+    TextTexture& getGameTitleText(){
+        return *gameTitleText;
+    }
+    TextTexture& getGameOverText(){
+        return *gameOverText;
+    }
+    uint32_t getScore(){
+        return score;
+    }
+    // setters
+    void setScore(uint32_t v){
+        score = v;
+    }
+    void setGameScene(GameScene gs){
+        scene = gs;
+    }
 
 };
 

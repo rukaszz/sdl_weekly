@@ -9,9 +9,7 @@ class Game;
 class Renderer;
 
 class GameOverScene : public Scene{
-protected:
-    // ゲームのシーン(状態)
-    Game& game;
+private:
 
 public:
     GameOverScene(Game& g);
@@ -19,7 +17,7 @@ public:
 
     virtual void handleEvent(const SDL_Event& e) override;
     virtual void update(double delta) override;
-    virtual void render(Renderer& r) override;
+    virtual void render() override;
 
     virtual void onEnter(){};
     virtual void onExit(){};

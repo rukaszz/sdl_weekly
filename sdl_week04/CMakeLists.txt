@@ -28,6 +28,10 @@ add_executable(${PROJECT_NAME}
     src/AnimationController.cpp
     src/Text.cpp
     src/TextTexture.cpp
+    src/Scene.cpp
+    src/TitleScene.cpp
+    src/PlayingScene.cpp
+    src/GameOverScene.cpp    
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

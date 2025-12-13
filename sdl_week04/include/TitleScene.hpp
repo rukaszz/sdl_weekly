@@ -9,17 +9,19 @@ class Game;
 class Renderer;
 
 class TitleScene : public Scene{
-protected:
-    // ゲームのシーン(状態)
-    Game& game;
-
+private:
+    // タイトル処理
+    double titleFade = 0.0; // 0.0 .. 1.0
+    double blinkTimer = 0.0;
+    bool blinkVisible= true;
+    
 public:
     TitleScene(Game& g);
     virtual ~TitleScene() = default;
 
     void handleEvent(const SDL_Event& e) override;
     void update(double delta) override;
-    void render(Renderer& r) override;
+    void render() override;
 
     void onEnter(){};
     void onExit(){};
