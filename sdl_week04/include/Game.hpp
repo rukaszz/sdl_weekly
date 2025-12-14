@@ -110,12 +110,12 @@ public:
     uint32_t getScore(){
         return score;
     }
+    std::mt19937& getRandom(){
+        return rd;
+    }
     // setters
     void setScore(uint32_t v){
         score = v;
-    }
-    void setGameScene(GameScene gs){
-        scene = gs;
     }
 
 };

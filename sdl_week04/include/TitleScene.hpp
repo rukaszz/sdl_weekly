@@ -14,7 +14,7 @@ private:
     double titleFade = 0.0; // 0.0 .. 1.0
     double blinkTimer = 0.0;
     bool blinkVisible= true;
-    
+
 public:
     TitleScene(Game& g);
     virtual ~TitleScene() = default;
@@ -22,9 +22,11 @@ public:
     void handleEvent(const SDL_Event& e) override;
     void update(double delta) override;
     void render() override;
+    
+    void onEnter();
+    void onExit();
 
-    void onEnter(){};
-    void onExit(){};
+    void updateTitle(double delta);
 };
 
 #endif  // TITLESCENE_H

@@ -23,7 +23,7 @@ GameOverScene::GameOverScene(Game& g)
 void GameOverScene::handleEvent(const SDL_Event& e){
     if(e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN){
         game.reset();
-        game.setGameScene(GameScene::Playing);
+        game.changeScene(GameScene::Playing);
     }
 }
 
@@ -34,7 +34,7 @@ void GameOverScene::handleEvent(const SDL_Event& e){
  * @param delta 
  */
 void GameOverScene::update(double delta){
-    
+    updateGameOver(delta);
 }
 
 /**
@@ -45,9 +45,43 @@ void GameOverScene::update(double delta){
 void GameOverScene::render(){
     game.getFpsText().draw(game.getRenderer(), 20, 20);
     game.getScoreText().draw(game.getRenderer(), 20, 50);
-    game.getGameOverText().draw(
-        game.getRenderer(),
-        GameConfig::WINDOW_WIDTH/2 - game.getGameOverText().getWidth()/2,
-        GameConfig::WINDOW_HEIGHT/2 - game.getGameOverText().getHeight()/2
-    );
+    if(blinkVisible){
+        game.getGameOverText().draw(
+            game.getRenderer(),
+            GameConfig::WINDOW_WIDTH/2 - game.getGameOverText().getWidth()/2,
+            GameConfig::WINDOW_HEIGHT/2 - game.getGameOverText().getHeight()/2
+        );
+    }
+}
+
+/**
+ * @brief GAMEOVERを点滅させる
+ * 
+ * @param delta 
+ */
+void GameOverScene::updateGameOver(double delta){
+    /* ----- 点滅 ----- */
+    blinkTimer += delta;
+    // 0.5秒ごとに切り替える
+    if(blinkTimer >= 0.5){
+        blinkTimer = 0;
+        blinkVisible = !blinkVisible;
+    }
+}
+
+/**
+ * @brief GameOverSceneへ入った際の初期化処理
+ * 
+ */
+void GameOverScene::onEnter(){
+    blinkTimer = 0.0;
+    blinkVisible = true;
+}
+
+/**
+ * @brief GameOverSceneから別シーンへ移る際の終了処理
+ * 
+ */
+void GameOverScene::onExit(){
+
 }

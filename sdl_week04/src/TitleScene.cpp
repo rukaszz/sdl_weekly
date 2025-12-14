@@ -37,13 +37,11 @@ void TitleScene::handleEvent(const SDL_Event& e){
  */
 void TitleScene::update(double delta){
     // タイトルのフェードインなど
-    game.updateTitle(delta);
-    const Uint8* k = SDL_GetKeyboardState(NULL);
-    if(k[SDL_SCANCODE_RETURN]){
-        // scene = GameScene::Playing;
-        game.setScore(0);
-        game.reset();
-    }
+    updateTitle(delta);
+    // scene = GameScene::Playing;
+    game.setScore(0);
+    game.reset();
+    
     return;   // 画面のオブジェクトの更新はしない
 }
 
@@ -68,5 +66,50 @@ void TitleScene::render(){
             GameConfig::WINDOW_WIDTH/2 - game.getTitleText().getWidth()/2,
             GameConfig::WINDOW_HEIGHT/2 - game.getTitleText().getHeight()/2
         );
+    }
+}
+
+/**
+ * @brief TitleSceneへ入った際の初期化処理
+ * 
+ */
+void TitleScene::onEnter(){
+    blinkTimer = 0.0;
+    titleFade = 0;
+    blinkVisible = true;
+}
+
+/**
+ * @brief TitleSceneから別シーンへ移る際の終了処理
+ * 
+ */
+void TitleScene::onExit(){
+
+}
+
+/**
+ * @brief タイトルをフェードイン＆点滅させる
+ * 
+ * @param delta 
+ */
+void TitleScene::updateTitle(double delta){
+    /* ----- フェードイン ----- */
+    if(titleFade < 1.0){
+        // 2秒
+        titleFade += delta * 0.5;
+        if(titleFade > 1.0){
+            titleFade = 1.0;    // 1.0を超えないように
+        }
+        // 徐々に実体化
+        Uint8 alpha = static_cast<Uint8>(titleFade * 255);
+        game.getGameTitleText().setAlpha(alpha);
+    }
+
+    /* ----- 点滅 ----- */
+    blinkTimer += delta;
+    // 0.5秒ごとに切り替える
+    if(blinkTimer >= 0.5){
+        blinkTimer = 0;
+        blinkVisible = !blinkVisible;
     }
 }

@@ -10,7 +10,8 @@ class Renderer;
 
 class GameOverScene : public Scene{
 private:
-
+    double blinkTimer = 0.0;
+    bool blinkVisible= true;
 public:
     GameOverScene(Game& g);
     virtual ~GameOverScene() = default;
@@ -19,8 +20,10 @@ public:
     virtual void update(double delta) override;
     virtual void render() override;
 
-    virtual void onEnter(){};
-    virtual void onExit(){};
+    virtual void onEnter();
+    virtual void onExit();
+
+    void updateGameOver(double delta);
 };
 
 #endif  // GAMEOVERSCENE_H

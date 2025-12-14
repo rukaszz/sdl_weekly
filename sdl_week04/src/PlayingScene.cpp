@@ -49,7 +49,8 @@ void PlayingScene::update(double delta){
     // 衝突判定
     for(auto& e : game.getEnemies()){
         if(GameUtil::intersects(game.getPlayer().getCollisionRect(), e->getCollisionRect())){
-            game.setGameScene(GameScene::GameOver);
+            game.changeScene(GameScene::GameOver);
+            return;
         }
     }
 }
@@ -64,4 +65,20 @@ void PlayingScene::render(){
     game.getScoreText().draw(game.getRenderer(), 20, 50);
     game.getPlayer().draw(game.getRenderer());
     for(auto& e : game.getEnemies()) e->draw(game.getRenderer());
+}
+
+/**
+ * @brief PlayingSceneへ入った際の初期化処理
+ * 
+ */
+void PlayingScene::onEnter(){
+    game.reset();
+}
+
+/**
+ * @brief PlayingSceneから別シーンへ移る際の終了処理
+ * 
+ */
+void PlayingScene::onExit(){
+
 }

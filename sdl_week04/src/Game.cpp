@@ -50,14 +50,17 @@ void Game::initSDL(){
 Game::Game(){
     // 初期化
     initSDL();
-
+    // ウィンドウ
     window = std::make_unique<Window>("Test", GameConfig::WINDOW_WIDTH, GameConfig::WINDOW_HEIGHT);
+    // レンダラー
     renderer = std::make_unique<Renderer>(window->get());
-    
+    // シーン
+    currentScene = std::make_unique<TitleScene>(*this);
+    // プレイヤー
     playerTexture = std::make_unique<Texture>(renderer->get(), "assets/image/rhb.png");
     player = std::make_unique<Player>(*playerTexture);
     player->setPosition(PlayerConfig::POS_X, PlayerConfig::POS_Y);
-    
+    // 敵
     enemyTexture = std::make_unique<Texture>(renderer->get(), "assets/image/dark_rhb.png");
     auto enemyTex = enemyTexture.get();
     for(int i = 0;i < 5; ++i){
@@ -175,6 +178,7 @@ void Game::processEvents(){
         if(e.type == SDL_QUIT){
             running = false;
         }
+        currentScene->handleEvent(e);
     }
 }
 
@@ -184,43 +188,44 @@ void Game::processEvents(){
  * @param delta: 前フレームとの差分
  */
 void Game::update(double delta){
-    /* ----- GameOver状態 ----- */
-    if(scene == GameScene::Title){
-        // タイトルのフェードインなど
-        updateTitle(delta);
-        const Uint8* k = SDL_GetKeyboardState(NULL);
-        if(k[SDL_SCANCODE_RETURN]){
-            scene = GameScene::Playing;
-            score = 0;
-            reset();
-        }
-        return;   // 画面のオブジェクトの更新はしない
-    }
-    if(scene == GameScene::GameOver){
-        const Uint8* k = SDL_GetKeyboardState(NULL);
-        if(k[SDL_SCANCODE_RETURN]){
-            reset();    // PlayerとEnemyを元の位置へ戻す
-            scene = GameScene::Playing;
+    // /* ----- GameOver状態 ----- */
+    // if(scene == GameScene::Title){
+    //     // タイトルのフェードインなど
+    //     updateTitle(delta);
+    //     const Uint8* k = SDL_GetKeyboardState(NULL);
+    //     if(k[SDL_SCANCODE_RETURN]){
+    //         scene = GameScene::Playing;
+    //         score = 0;
+    //         reset();
+    //     }
+    //     return;   // 画面のオブジェクトの更新はしない
+    // }
+    // if(scene == GameScene::GameOver){
+    //     const Uint8* k = SDL_GetKeyboardState(NULL);
+    //     if(k[SDL_SCANCODE_RETURN]){
+    //         reset();    // PlayerとEnemyを元の位置へ戻す
+    //         scene = GameScene::Playing;
             
-        }
-        return;
-    }
-    /* ----- Playing状態 ----- */
-    // ウィンドウサイズ変換
-    SDL_Point p = window->getWindowSize();
-    DrawBounds b = {static_cast<double>(p.x), static_cast<double>(p.y)};
-    // スコア計算
-    score += delta * GameConfig::SCORE_RATE;  // 生存時間に重点
-    scoreText->setText("Score: " + std::to_string(static_cast<int>(score)));
-    // 更新
-    player->update(delta, b);
-    for(auto& e : enemies) e->update(delta, b);
-    // 衝突判定
-    for(auto& e : enemies){
-        if(GameUtil::intersects(player->getCollisionRect(), e->getCollisionRect())){
-            scene = GameScene::GameOver;
-        }
-    }
+    //     }
+    //     return;
+    // }
+    // /* ----- Playing状態 ----- */
+    // // ウィンドウサイズ変換
+    // SDL_Point p = window->getWindowSize();
+    // DrawBounds b = {static_cast<double>(p.x), static_cast<double>(p.y)};
+    // // スコア計算
+    // score += delta * GameConfig::SCORE_RATE;  // 生存時間に重点
+    // scoreText->setText("Score: " + std::to_string(static_cast<int>(score)));
+    // // 更新
+    // player->update(delta, b);
+    // for(auto& e : enemies) e->update(delta, b);
+    // // 衝突判定
+    // for(auto& e : enemies){
+    //     if(GameUtil::intersects(player->getCollisionRect(), e->getCollisionRect())){
+    //         scene = GameScene::GameOver;
+    //     }
+    // }
+    currentScene->update(delta);
 }
 
 /**
@@ -230,24 +235,24 @@ void Game::update(double delta){
  */
 void Game::updateTitle(double delta){
     /* ----- フェードイン ----- */
-    if(titleFade < 1.0){
-        // 2秒
-        titleFade += delta * 0.5;
-        if(titleFade > 1.0){
-            titleFade = 1.0;    // 1.0を超えないように
-        }
-        // 徐々に実体化
-        Uint8 alpha = static_cast<Uint8>(titleFade * 255);
-        gameTitleText->setAlpha(alpha);
-    }
+    // if(titleFade < 1.0){
+    //     // 2秒
+    //     titleFade += delta * 0.5;
+    //     if(titleFade > 1.0){
+    //         titleFade = 1.0;    // 1.0を超えないように
+    //     }
+    //     // 徐々に実体化
+    //     Uint8 alpha = static_cast<Uint8>(titleFade * 255);
+    //     gameTitleText->setAlpha(alpha);
+    // }
 
-    /* ----- 点滅 ----- */
-    blinkTimer += delta;
-    // 0.5秒ごとに切り替える
-    if(blinkTimer >= 0.5){
-        blinkTimer = 0;
-        blinkVisible = !blinkVisible;
-    }
+    // /* ----- 点滅 ----- */
+    // blinkTimer += delta;
+    // // 0.5秒ごとに切り替える
+    // if(blinkTimer >= 0.5){
+    //     blinkTimer = 0;
+    //     blinkVisible = !blinkVisible;
+    // }
 }
 
 /**
@@ -256,6 +261,7 @@ void Game::updateTitle(double delta){
  */
 void Game::render(){
     renderer->clear();
+    /*
     // ゲームの状態で分岐
     switch(scene){
     case GameScene::Title:
@@ -292,7 +298,8 @@ void Game::render(){
         );
         break;
     }
-   
+    */
+    currentScene->render();
     renderer->present();
 }
 
