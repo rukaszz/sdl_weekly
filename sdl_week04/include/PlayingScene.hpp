@@ -19,8 +19,8 @@ public:
     virtual void update(double delta) override;
     virtual void render() override;
 
-    virtual void onEnter();
-    virtual void onExit();
+    virtual void onEnter() override;
+    virtual void onExit() override;
 };
 
 #endif  // PLAYINGSCENE_H

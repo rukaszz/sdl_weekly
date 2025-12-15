@@ -24,8 +24,12 @@ PlayingScene::PlayingScene(Game& g)
  */
 void PlayingScene::handleEvent(const SDL_Event& e){
     if(e.type == SDL_KEYDOWN){
-        if(e.key.keysym.sym == SDLK_ESCAPE){
+        switch(e.key.keysym.sym){
+        case SDLK_ESCAPE:
             game.changeScene(GameScene::Title);
+            break;
+        default:
+            break;
         }
     }
 }

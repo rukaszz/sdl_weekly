@@ -39,8 +39,8 @@ void TitleScene::update(double delta){
     // タイトルのフェードインなど
     updateTitle(delta);
     // scene = GameScene::Playing;
-    game.setScore(0);
-    game.reset();
+    // game.setScore(0);
+    // game.reset();
     
     return;   // 画面のオブジェクトの更新はしない
 }

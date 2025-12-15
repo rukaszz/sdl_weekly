@@ -27,7 +27,8 @@ private:
     std::unique_ptr<Window> window;
     std::unique_ptr<Renderer> renderer;
     // シーン管理
-    std::unique_ptr<Scene> currentScene;
+    std::unique_ptr<Scene> scenes[3];
+    Scene* currentScene;
     // Characterオブジェクト
     std::unique_ptr<Texture> playerTexture;
     std::unique_ptr<Player> player;
@@ -53,10 +54,6 @@ private:
     std::uniform_real_distribution<double> distY;
     // speed
     std::uniform_real_distribution<double> distSpeed;
-    // タイトル処理
-    double titleFade = 0.0; // 0.0 .. 1.0
-    double blinkTimer = 0.0;
-    bool blinkVisible= true;
 
 public:
     // 定数

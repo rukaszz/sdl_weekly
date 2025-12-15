@@ -22,9 +22,8 @@ public:
     void handleEvent(const SDL_Event& e) override;
     void update(double delta) override;
     void render() override;
-    
-    void onEnter();
-    void onExit();
+    void onEnter() override;
+    void onExit() override;
 
     void updateTitle(double delta);
 };
