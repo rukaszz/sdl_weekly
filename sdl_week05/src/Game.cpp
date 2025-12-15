@@ -147,23 +147,9 @@ void Game::run(){
  * @param s 
  */
 void Game::changeScene(GameScene s){
-    switch(s){
-    case GameScene::Title:
-        currentScene->onExit();
-        currentScene = scenes[(int)next].get();
-        currentScene->onEnter();
-        break;
-    case GameScene::Playing:
-        currentScene->onExit();
-        currentScene = scenes[(int)next].get();
-        currentScene->onEnter();
-        break;
-    case GameScene::GameOver:
-        currentScene->onExit();
-        currentScene = scenes[(int)next].get();
-        currentScene->onEnter();
-        break;
-    }
+    currentScene->onExit();
+    currentScene = scenes[(int)s].get();
+    currentScene->onEnter();
 }
 
 /**

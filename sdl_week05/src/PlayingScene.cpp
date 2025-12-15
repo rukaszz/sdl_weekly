@@ -43,20 +43,10 @@ void PlayingScene::update(double delta){
     // ウィンドウサイズの型変換
     SDL_Point p = game.getWindow().getWindowSize();
     DrawBounds b = {static_cast<double>(p.x), static_cast<double>(p.y)};
-    // スコア計算
-    uint32_t s = game.getScore() + delta * GameConfig::SCORE_RATE; // 生存時間に重点
-    game.setScore(s);  
-    game.getScoreText().setText("Score: " + std::to_string(static_cast<int>(game.getScore())));
-    // 更新
-    game.getPlayer().update(delta, b);
-    for(auto& e : game.getEnemies()) e->update(delta, b);
-    // 衝突判定
-    for(auto& e : game.getEnemies()){
-        if(GameUtil::intersects(game.getPlayer().getCollisionRect(), e->getCollisionRect())){
-            game.changeScene(GameScene::GameOver);
-            return;
-        }
-    }
+    
+    updateScore(delta);
+    updateEntities(delta, b);
+    checkCollision();
 }
 
 /**
@@ -85,4 +75,40 @@ void PlayingScene::onEnter(){
  */
 void PlayingScene::onExit(){
 
+}
+
+/**
+ * @brief スコア算出処理
+ * 
+ */
+void PlayingScene::updateScore(double delta){
+    // スコア計算
+    uint32_t s = game.getScore() + delta * GameConfig::SCORE_RATE; // 生存時間に重点
+    game.setScore(s);  
+    game.getScoreText().setText("Score: " + std::to_string(static_cast<int>(game.getScore())));
+}
+
+/**
+ * @brief 描画するオブジェクトの更新処理
+ * Player/Enemyなど
+ * 
+ */
+void PlayingScene::updateEntities(double delta, DrawBounds b){
+    // キャラクタの更新
+    game.getPlayer().update(delta, b);
+    for(auto& e : game.getEnemies()) e->update(delta, b);
+}
+
+/**
+ * @brief 描画するオブジェクトの衝突処理
+ * 
+ */
+void PlayingScene::checkCollision(){
+    // 衝突判定
+    for(auto& e : game.getEnemies()){
+        if(GameUtil::intersects(game.getPlayer().getCollisionRect(), e->getCollisionRect())){
+            game.changeScene(GameScene::GameOver);
+            return;
+        }
+    }
 }
