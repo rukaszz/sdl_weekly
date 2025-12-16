@@ -54,13 +54,7 @@ Game::Game(){
     window = std::make_unique<Window>("Test", GameConfig::WINDOW_WIDTH, GameConfig::WINDOW_HEIGHT);
     // レンダラー
     renderer = std::make_unique<Renderer>(window->get());
-    // シーン
-    // currentScene = std::make_unique<TitleScene>(*this);
-    scenes[(int)GameScene::Title] = std::make_unique<TitleScene>(*this);
-    scenes[(int)GameScene::Playing] = std::make_unique<PlayingScene>(*this);
-    scenes[(int)GameScene::GameOver] = std::make_unique<GameOverScene>(*this);
-    currentScene = scenes[(int)GameScene::Title].get();
-    currentScene->onEnter();
+    
     // プレイヤー
     playerTexture = std::make_unique<Texture>(renderer->get(), "assets/image/rhb.png");
     player = std::make_unique<Player>(*playerTexture);
@@ -75,26 +69,77 @@ Game::Game(){
     // テキスト
     text = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
     // プロンプト
-    titleText = std::make_unique<TextTexture>(renderer->get(), text.get(), SDL_Color{255, 255, 255, 255});
+    titleText = std::make_unique<TextTexture>(*renderer, text.get(), SDL_Color{255, 255, 255, 255});
     titleText->setText("Press ENTER to Start");
     // タイトル
-    gameTitleText = std::make_unique<TextTexture>(renderer->get(), text.get(), SDL_Color{255, 255, 255, 255});
+    gameTitleText = std::make_unique<TextTexture>(*renderer, text.get(), SDL_Color{255, 255, 255, 255});
     gameTitleText->setText("My Game");
     // スコア
-    scoreText = std::make_unique<TextTexture>(renderer->get(), text.get(), SDL_Color{255, 255, 255, 255});
+    scoreText = std::make_unique<TextTexture>(*renderer, text.get(), SDL_Color{255, 255, 255, 255});
     scoreText->setText("Score: 0");
     // FPS
-    fpsText = std::make_unique<TextTexture>(renderer->get(), text.get(), SDL_Color{255, 255, 255, 255});
+    fpsText = std::make_unique<TextTexture>(*renderer, text.get(), SDL_Color{255, 255, 255, 255});
     fpsText->setText("");
     // ゲームオーバー
-    gameOverText = std::make_unique<TextTexture>(renderer->get(), text.get(), SDL_Color{255, 255, 255, 255});
+    gameOverText = std::make_unique<TextTexture>(*renderer, text.get(), SDL_Color{255, 255, 255, 255});
     gameOverText->setText("GameOver");
+    
     running = true;
 
     // 乱数
     distX = std::uniform_real_distribution<double>(GameConfig::WINDOW_WIDTH/2, GameConfig::WINDOW_WIDTH - EnemyConfig::FRAME_W);
     distY = std::uniform_real_distribution<double>(EnemyConfig::FRAME_H, GameConfig::WINDOW_HEIGHT - EnemyConfig::FRAME_H);
     distSpeed = std::uniform_real_distribution<double>(EnemyConfig::SPEED_MIN, EnemyConfig::SPEED_MAX);
+
+    // シーン
+    // currentScene = std::make_unique<TitleScene>(*this);
+    scenes[(int)GameScene::Title] = std::make_unique<TitleScene>(
+        *this, 
+        GameContext{
+            *renderer,
+            *player,
+            enemies,
+            *scoreText,
+            *fpsText,
+            rd,
+            distX,
+            distY,
+            distSpeed,
+            text.get()
+        }
+    );
+    scenes[(int)GameScene::Playing] = std::make_unique<PlayingScene>(
+        *this, 
+        GameContext{
+            *renderer,
+            *player,
+            enemies,
+            *scoreText,
+            *fpsText,
+            rd,
+            distX,
+            distY,
+            distSpeed,
+            text.get()
+        }
+    );
+    scenes[(int)GameScene::GameOver] = std::make_unique<GameOverScene>(
+        *this, 
+        GameContext{
+            *renderer,
+            *player,
+            enemies,
+            *scoreText,
+            *fpsText,
+            rd,
+            distX,
+            distY,
+            distSpeed,
+            text.get()
+        }
+    );
+    currentScene = scenes[(int)GameScene::Title].get();
+    currentScene->onEnter();
 }
 
 /**

@@ -3,16 +3,18 @@
 
 #include <SDL2/SDL.h>
 
+struct GameContext;
 class Game;
 class Renderer;
 
 class Scene{
 protected:
-    // Gameオブジェクトの参照
     Game& game;
+    // Gameオブジェクトの参照
+    const GameContext& ctx;
 
 public:
-    Scene(Game& g);
+    Scene(Game& g, const GameContext& context);
     virtual ~Scene() = default;
 
     virtual void handleEvent(const SDL_Event& e) = 0;

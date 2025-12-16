@@ -12,10 +12,18 @@
  * 
  * @param g 
  */
-TitleScene::TitleScene(Game& g)
-    : Scene(g)
+TitleScene::TitleScene(Game& g, const GameContext& context)
+    : Scene(
+        g, 
+        context
+    )
 {
-
+    // タイトル
+    gameTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.font, SDL_Color{255, 255, 255, 255});
+    gameTitleText->setText("My Game");
+    // プロンプト
+    gameEnterText = std::make_unique<TextTexture>(ctx.renderer, ctx.font, SDL_Color{255, 255, 255, 255});
+    gameEnterText->setText("Press ENTER to Start");
 }
 
 /**
@@ -47,20 +55,20 @@ void TitleScene::update(double delta){
  * @param renderer 
  */
 void TitleScene::render(){
-    game.getFpsText().draw(game.getRenderer(), 20, 20);
+    ctx.fpsText.draw(ctx.renderer, 20, 20);
     // 中央にタイトル
-    game.getGameTitleText().draw(
-        game.getRenderer(),
-        GameConfig::WINDOW_WIDTH/2 - game.getGameTitleText().getWidth()/2,
-        GameConfig::WINDOW_HEIGHT/3 - game.getGameTitleText().getHeight()/2
+    gameTitleText->draw(
+        ctx.renderer,
+        GameConfig::WINDOW_WIDTH/2 - gameTitleText->getWidth()/2,
+        GameConfig::WINDOW_HEIGHT/3 - gameTitleText->getHeight()/2
     );
 
     // 下に「Press ENTER to Start」
     if(blinkVisible){
-        game.getTitleText().draw(
-            game.getRenderer(),
-            GameConfig::WINDOW_WIDTH/2 - game.getTitleText().getWidth()/2,
-            GameConfig::WINDOW_HEIGHT/2 - game.getTitleText().getHeight()/2
+        gameEnterText->draw(
+            ctx.renderer,
+            GameConfig::WINDOW_WIDTH/2 - gameEnterText->getWidth()/2,
+            GameConfig::WINDOW_HEIGHT/2 - gameEnterText->getHeight()/2
         );
     }
 }
@@ -98,7 +106,7 @@ void TitleScene::updateTitle(double delta){
         }
         // 徐々に実体化
         Uint8 alpha = static_cast<Uint8>(titleFade * 255);
-        game.getGameTitleText().setAlpha(alpha);
+        gameTitleText->setAlpha(alpha);
     }
 
     /* ----- 点滅 ----- */

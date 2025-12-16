@@ -16,11 +16,11 @@ private:
     Text* text;
     
     SDL_Texture* tex = nullptr;
-    SDL_Renderer* renderer;
+    Renderer& renderer;
     SDL_Color color;
     
 public:
-    TextTexture(SDL_Renderer* r, Text* t, SDL_Color c);
+    TextTexture(Renderer& r, Text* t, SDL_Color c);
     ~TextTexture();
     void setText(const std::string& str);
     void draw(Renderer& r, int x, int y);

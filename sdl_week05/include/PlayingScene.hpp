@@ -2,10 +2,10 @@
 #define PLAYINGSCENE_H
 
 #include "Scene.hpp"
-#include "Character.hpp"
 
 #include <SDL2/SDL.h>
 
+struct DrawBounds;
 class Game;
 class Renderer;
 
@@ -13,7 +13,7 @@ class PlayingScene : public Scene{
 private:
 
 public:
-    PlayingScene(Game& g);
+    PlayingScene(Game& g, const GameContext& context);
     virtual ~PlayingScene() = default;
 
     virtual void handleEvent(const SDL_Event& e) override;

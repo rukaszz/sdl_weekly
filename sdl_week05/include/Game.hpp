@@ -21,6 +21,24 @@ enum class GameScene{
     GameOver, 
 };
 
+// ゲームで必要なデータ群
+struct GameContext{
+    Renderer& renderer;
+    Player& player;
+    std::vector<std::unique_ptr<Enemy>>& enemies;
+
+    TextTexture& scoreText;
+    TextTexture& fpsText;
+
+    std::mt19937& random;
+    std::uniform_real_distribution<double>& distX;
+    std::uniform_real_distribution<double>& distY;
+    std::uniform_real_distribution<double>& distSpeed;
+
+    Text* font;
+
+};
+
 class Game{
 private:
     // スマートポインタ

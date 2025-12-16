@@ -297,6 +297,10 @@ Gameクラスが終了するとき，TTF_Quit()→IMG_Quit()→SDL_Quit()の順�
 
 ## week05
 
+### GameとSceneの分離
+
+week04の状態ではGameとSceneが密結合状態であり，GameとSceneがお互いに知りすぎている依存関係にあった．それらを分離するために，Gameが管理しているオブジェクトから必要なものをまとめ構造体を作成する．
+
 ## アセット
 
 詳細はATTRIBUTIONを参照．

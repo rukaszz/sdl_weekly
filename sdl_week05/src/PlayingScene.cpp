@@ -9,8 +9,11 @@
  * @brief Construct a new Playing Scene:: Playing Scene object
  * 
  */
-PlayingScene::PlayingScene(Game& g)
-    : Scene(g)
+PlayingScene::PlayingScene(Game& g, const GameContext& context)
+    : Scene(
+        g, 
+        context
+    )
 {
 
 }
@@ -41,7 +44,8 @@ void PlayingScene::handleEvent(const SDL_Event& e){
  */
 void PlayingScene::update(double delta){
     // ウィンドウサイズの型変換
-    SDL_Point p = game.getWindow().getWindowSize();
+    // SDL_Point p = ctx.window.getWindowSize();
+    SDL_Point p = ctx.renderer.getOutputSize();
     DrawBounds b = {static_cast<double>(p.x), static_cast<double>(p.y)};
     
     updateScore(delta);
@@ -55,10 +59,10 @@ void PlayingScene::update(double delta){
  * @param renderer 
  */
 void PlayingScene::render(){
-    game.getFpsText().draw(game.getRenderer(), 20, 20);
-    game.getScoreText().draw(game.getRenderer(), 20, 50);
-    game.getPlayer().draw(game.getRenderer());
-    for(auto& e : game.getEnemies()) e->draw(game.getRenderer());
+    ctx.fpsText.draw(ctx.renderer, 20, 20);
+    ctx.scoreText.draw(ctx.renderer, 20, 50);
+    ctx.player.draw(ctx.renderer);
+    for(auto& e : ctx.enemies) e->draw(ctx.renderer);
 }
 
 /**
@@ -85,7 +89,7 @@ void PlayingScene::updateScore(double delta){
     // スコア計算
     uint32_t s = game.getScore() + delta * GameConfig::SCORE_RATE; // 生存時間に重点
     game.setScore(s);  
-    game.getScoreText().setText("Score: " + std::to_string(static_cast<int>(game.getScore())));
+    ctx.scoreText.setText("Score: " + std::to_string(static_cast<int>(game.getScore())));
 }
 
 /**
@@ -95,8 +99,8 @@ void PlayingScene::updateScore(double delta){
  */
 void PlayingScene::updateEntities(double delta, DrawBounds b){
     // キャラクタの更新
-    game.getPlayer().update(delta, b);
-    for(auto& e : game.getEnemies()) e->update(delta, b);
+    ctx.player.update(delta, b);
+    for(auto& e : ctx.enemies) e->update(delta, b);
 }
 
 /**
@@ -105,8 +109,8 @@ void PlayingScene::updateEntities(double delta, DrawBounds b){
  */
 void PlayingScene::checkCollision(){
     // 衝突判定
-    for(auto& e : game.getEnemies()){
-        if(GameUtil::intersects(game.getPlayer().getCollisionRect(), e->getCollisionRect())){
+    for(auto& e : ctx.enemies){
+        if(GameUtil::intersects(ctx.player.getCollisionRect(), e->getCollisionRect())){
             game.changeScene(GameScene::GameOver);
             return;
         }

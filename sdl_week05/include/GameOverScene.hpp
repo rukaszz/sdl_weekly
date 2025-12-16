@@ -5,15 +5,19 @@
 
 #include <SDL2/SDL.h>
 
+#include <memory>
+
 class Game;
 class Renderer;
+class TextTexture;
 
 class GameOverScene : public Scene{
 private:
+    std::unique_ptr<TextTexture> gameOverText;
     double blinkTimer = 0.0;
     bool blinkVisible= true;
 public:
-    GameOverScene(Game& g);
+    GameOverScene(Game& g, const GameContext& context);
     virtual ~GameOverScene() = default;
 
     virtual void handleEvent(const SDL_Event& e) override;
