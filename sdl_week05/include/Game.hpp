@@ -61,6 +61,7 @@ private:
 public:
     // 定数
     static inline constexpr int TARGET_FPS = 60;
+    static inline constexpr double TARGET_FRAME_TIME = 1.0 / TARGET_FPS;
     static inline constexpr int FRAME_DELAY = 1000 / TARGET_FPS;
 
     Game();
@@ -69,12 +70,10 @@ public:
     void changeScene(GameScene id) override;
     void resetGame() override;
 
-    // void updateTitle(double delta);    
-
 private:
     void initSDL();
     void processEvents();
-    void capFrameRate(Uint32 nowTime);
+    void capFrameRate(Uint32 frameStartMs);
     void update(double delta);
     void render();
     void displayText(const std::string& dispStr, const std::string& color);

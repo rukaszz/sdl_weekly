@@ -98,53 +98,7 @@ Game::Game(){
     scenes[(int)GameScene::Title]   = std::make_unique<TitleScene>(*this, *ctx);
     scenes[(int)GameScene::Playing] = std::make_unique<PlayingScene>(*this, *ctx);
     scenes[(int)GameScene::GameOver]= std::make_unique<GameOverScene>(*this, *ctx);
-    /*
-    scenes[(int)GameScene::Title] = std::make_unique<TitleScene>(
-        *this, 
-        GameContext{
-            *renderer,
-            *player,
-            enemies,
-            *scoreText,
-            *fpsText,
-            rd,
-            distX,
-            distY,
-            distSpeed,
-            text.get()
-        }
-    );
-    scenes[(int)GameScene::Playing] = std::make_unique<PlayingScene>(
-        *this, 
-        GameContext{
-            *renderer,
-            *player,
-            enemies,
-            *scoreText,
-            *fpsText,
-            rd,
-            distX,
-            distY,
-            distSpeed,
-            text.get()
-        }
-    );
-    scenes[(int)GameScene::GameOver] = std::make_unique<GameOverScene>(
-        *this, 
-        GameContext{
-            *renderer,
-            *player,
-            enemies,
-            *scoreText,
-            *fpsText,
-            rd,
-            distX,
-            distY,
-            distSpeed,
-            text.get()
-        }
-    );
-    */
+
     currentScene = scenes[(int)GameScene::Title].get();
     currentScene->onEnter();
 }
@@ -195,41 +149,49 @@ void Game::resetGame(){
  * 
  */
 void Game::run(){
-    Uint32 lastTime = SDL_GetTicks();
+    Uint64 frequency = SDL_GetPerformanceFrequency();
+    Uint64 lastCounter = SDL_GetPerformanceCounter();
+    
+    // FPS 計測用（これはミリ秒で十分）
     Uint32 fpsTimer = SDL_GetTicks();
     int fpsCounter = 0;
 
     while(running){
         // 時間の計測
-        Uint32 nowTime = SDL_GetTicks();
-        double delta = (nowTime - lastTime) * 0.001;
-        lastTime = nowTime;
+        Uint64 nowCounter = SDL_GetPerformanceCounter();
+        double delta = static_cast<double>(nowCounter - lastCounter) / static_cast<double>(frequency);
+        lastCounter = nowCounter;
+        // クランプ：deltaが大きすぎて更新しすぎることを防ぐ
+        if(delta > 0.1){
+            delta = 0.1;    // 10FPSくらい
+        }
         // 各種処理の実施
         processEvents();
         update(delta);
         render();
         // フレームレートの計算とfps計測
         ++fpsCounter;
-        if(nowTime - fpsTimer >= 1000){
+        Uint32 nowMs = SDL_GetTicks();
+        if(nowMs - fpsTimer >= 1000){
             fpsText->setText("FPS: " + std::to_string(fpsCounter));
             fpsCounter = 0;
-            fpsTimer = nowTime;
+            fpsTimer = nowMs;
         }
         // fpsキャップ(最大60fps)
-        capFrameRate(nowTime);
+        capFrameRate(nowMs);
     }
 }
 
 /**
  * @brief fpsキャップを実装(fpsを固定化するため)
  * 
- * @param fps_nowTime: 計測点
+ * @param frameStartMs: 計測点
+ * @return * void 
  */
-void Game::capFrameRate(Uint32 frameStart){
-    Uint32 frame_duration = SDL_GetTicks() - frameStart;
-    
-    if(frame_duration < Game::FRAME_DELAY){
-        SDL_Delay(Game::FRAME_DELAY - frame_duration);
+void Game::capFrameRate(Uint32 frameStartMs){
+    Uint32 frameDuration = SDL_GetTicks() - frameStartMs;
+    if(frameDuration < Game::FRAME_DELAY){
+        SDL_Delay(Game::FRAME_DELAY - frameDuration);
     }
 }
 
