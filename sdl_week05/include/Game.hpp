@@ -9,6 +9,7 @@
 #include "Enemy.hpp"
 #include "Text.hpp"
 #include "TextTexture.hpp"
+#include "GameContext.hpp"
 
 #include <memory>
 #include <vector>
@@ -21,39 +22,21 @@ enum class GameScene{
     GameOver, 
 };
 
-// ゲームで必要なデータ群
-struct GameContext{
-    Renderer& renderer;
-    Player& player;
-    std::vector<std::unique_ptr<Enemy>>& enemies;
-
-    TextTexture& scoreText;
-    TextTexture& fpsText;
-
-    std::mt19937& random;
-    std::uniform_real_distribution<double>& distX;
-    std::uniform_real_distribution<double>& distY;
-    std::uniform_real_distribution<double>& distSpeed;
-
-    Text* font;
-
-};
-
-class Game{
+class Game : public SceneControl{
 private:
     // スマートポインタ
     std::unique_ptr<Window> window;
     std::unique_ptr<Renderer> renderer;
     // シーン管理
     std::unique_ptr<Scene> scenes[3];
-    Scene* currentScene;
+    Scene* currentScene = nullptr;
     // Characterオブジェクト
     std::unique_ptr<Texture> playerTexture;
     std::unique_ptr<Player> player;
     std::unique_ptr<Texture> enemyTexture;
     std::vector<std::unique_ptr<Enemy>> enemies;
     // テキスト表示用
-    std::unique_ptr<Text> text; 
+    std::unique_ptr<Text> font;
     std::unique_ptr<TextTexture> titleText;
     std::unique_ptr<TextTexture> gameTitleText;
     std::unique_ptr<TextTexture> scoreText;
@@ -72,6 +55,8 @@ private:
     std::uniform_real_distribution<double> distY;
     // speed
     std::uniform_real_distribution<double> distSpeed;
+    // シーン管理用
+    std::unique_ptr<GameContext> ctx;
 
 public:
     // 定数
@@ -81,9 +66,10 @@ public:
     Game();
     ~Game();
     void run();
-    void changeScene(GameScene s);
-    void updateTitle(double delta);
-    void reset();
+    void changeScene(GameScene id) override;
+    void resetGame() override;
+
+    // void updateTitle(double delta);    
 
 private:
     void initSDL();
@@ -95,44 +81,13 @@ private:
 
 public:
     // getters
-    Window& getWindow() const{
-        return *window;
-    }
-    Renderer& getRenderer() const{
-        return *renderer;
-    }
-    Player& getPlayer() const{
-        return *player;
-    }
-    std::vector<std::unique_ptr<Enemy>>& getEnemies(){
-        return enemies;
-    }
-    TextTexture& getScoreText(){
-        return *scoreText;
-    }
-    TextTexture& getFpsText(){
-        return *fpsText;
-    }
-    TextTexture& getTitleText(){
-        return *titleText;
-    }
-    TextTexture& getGameTitleText(){
-        return *gameTitleText;
-    }
-    TextTexture& getGameOverText(){
-        return *gameOverText;
-    }
-    uint32_t getScore(){
+    uint32_t getScore() override{
         return score;
     }
-    std::mt19937& getRandom(){
-        return rd;
-    }
     // setters
-    void setScore(uint32_t v){
+    void setScore(uint32_t v) override{
         score = v;
     }
-
 };
 
 #endif  // GAME_H

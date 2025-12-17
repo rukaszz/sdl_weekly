@@ -13,7 +13,7 @@ class PlayingScene : public Scene{
 private:
 
 public:
-    PlayingScene(Game& g, const GameContext& context);
+    PlayingScene(SceneControl& sc, GameContext& gc);
     virtual ~PlayingScene() = default;
 
     virtual void handleEvent(const SDL_Event& e) override;

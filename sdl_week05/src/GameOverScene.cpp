@@ -8,10 +8,10 @@
  * @brief Construct a new Game Over Scene:: Game Over Scene object
  * 
  */
-GameOverScene::GameOverScene(Game& g, const GameContext& context)
+GameOverScene::GameOverScene(SceneControl& sc, GameContext& gc)
     : Scene(
-        g, 
-        context
+        sc, 
+        gc
     )
 {
     gameOverText = std::make_unique<TextTexture>(ctx.renderer, ctx.font, SDL_Color{255, 255, 255, 255});
@@ -26,8 +26,8 @@ GameOverScene::GameOverScene(Game& g, const GameContext& context)
  */
 void GameOverScene::handleEvent(const SDL_Event& e){
     if(e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN){
-        game.reset();
-        game.changeScene(GameScene::Playing);
+        ctrl.resetGame();
+        ctrl.changeScene(GameScene::Playing);
     }
 }
 

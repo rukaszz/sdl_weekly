@@ -17,7 +17,7 @@ private:
     double blinkTimer = 0.0;
     bool blinkVisible= true;
 public:
-    GameOverScene(Game& g, const GameContext& context);
+    GameOverScene(SceneControl& sc, GameContext& gc);
     virtual ~GameOverScene() = default;
 
     virtual void handleEvent(const SDL_Event& e) override;

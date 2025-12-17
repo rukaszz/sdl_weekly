@@ -67,22 +67,13 @@ Game::Game(){
     }
 
     // テキスト
-    text = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
-    // プロンプト
-    titleText = std::make_unique<TextTexture>(*renderer, text.get(), SDL_Color{255, 255, 255, 255});
-    titleText->setText("Press ENTER to Start");
-    // タイトル
-    gameTitleText = std::make_unique<TextTexture>(*renderer, text.get(), SDL_Color{255, 255, 255, 255});
-    gameTitleText->setText("My Game");
+    font = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
     // スコア
-    scoreText = std::make_unique<TextTexture>(*renderer, text.get(), SDL_Color{255, 255, 255, 255});
+    scoreText = std::make_unique<TextTexture>(*renderer, font.get(), SDL_Color{255, 255, 255, 255});
     scoreText->setText("Score: 0");
     // FPS
-    fpsText = std::make_unique<TextTexture>(*renderer, text.get(), SDL_Color{255, 255, 255, 255});
+    fpsText = std::make_unique<TextTexture>(*renderer, font.get(), SDL_Color{255, 255, 255, 255});
     fpsText->setText("");
-    // ゲームオーバー
-    gameOverText = std::make_unique<TextTexture>(*renderer, text.get(), SDL_Color{255, 255, 255, 255});
-    gameOverText->setText("GameOver");
     
     running = true;
 
@@ -92,7 +83,22 @@ Game::Game(){
     distSpeed = std::uniform_real_distribution<double>(EnemyConfig::SPEED_MIN, EnemyConfig::SPEED_MAX);
 
     // シーン
-    // currentScene = std::make_unique<TitleScene>(*this);
+    ctx = std::make_unique<GameContext>(GameContext{
+        *renderer,
+        *player,
+        enemies,
+        *scoreText,
+        *fpsText,
+        rd,
+        distX,
+        distY,
+        distSpeed,
+        font.get()
+    });
+    scenes[(int)GameScene::Title]   = std::make_unique<TitleScene>(*this, *ctx);
+    scenes[(int)GameScene::Playing] = std::make_unique<PlayingScene>(*this, *ctx);
+    scenes[(int)GameScene::GameOver]= std::make_unique<GameOverScene>(*this, *ctx);
+    /*
     scenes[(int)GameScene::Title] = std::make_unique<TitleScene>(
         *this, 
         GameContext{
@@ -138,6 +144,7 @@ Game::Game(){
             text.get()
         }
     );
+    */
     currentScene = scenes[(int)GameScene::Title].get();
     currentScene->onEnter();
 }
@@ -153,6 +160,34 @@ Game::~Game(){
      * DBusのリークはSDL_Linux側の問題なので無視
      */
     // quitSDL();
+}
+
+/**
+ * @brief シーンの切り替えを実施する関数
+ * 抽象クラスSceneに対して，ポリモーフィズムによる派生クラス生成を実施する
+ * 
+ * @param s 
+ */
+void Game::changeScene(GameScene id){
+    currentScene->onExit();
+    currentScene = scenes[(int)id].get();
+    currentScene->onEnter();
+}
+
+/**
+ * @brief ゲームの状態をリセットする関数
+ * Playerは初期位置
+ * Enemyはランダムに配置，スピードも変化
+ * animationControllerのフレームのリセット
+ * scoreもリセット
+ * 
+ */
+void Game::resetGame(){
+    score = 0;
+    player->reset();
+    for(auto& e : enemies){
+        e->reset(rd, distX, distY, distSpeed);
+    }
 }
 
 /**
@@ -183,18 +218,6 @@ void Game::run(){
         // fpsキャップ(最大60fps)
         capFrameRate(nowTime);
     }
-}
-
-/**
- * @brief シーンの切り替えを実施する関数
- * 抽象クラスSceneに対して，ポリモーフィズムによる派生クラス生成を実施する
- * 
- * @param s 
- */
-void Game::changeScene(GameScene s){
-    currentScene->onExit();
-    currentScene = scenes[(int)s].get();
-    currentScene->onEnter();
 }
 
 /**
@@ -243,19 +266,5 @@ void Game::render(){
     renderer->present();
 }
 
-/**
- * @brief ゲームの状態をリセットする関数
- * Playerは初期位置
- * Enemyはランダムに配置，スピードも変化
- * animationControllerのフレームのリセット
- * scoreもリセット
- * 
- */
-void Game::reset(){
-    score = 0;
-    player->reset();
-    for(auto& e : enemies){
-        e->reset(rd, distX, distY, distSpeed);
-    }
-}
+
 

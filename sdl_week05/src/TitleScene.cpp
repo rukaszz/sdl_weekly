@@ -12,10 +12,10 @@
  * 
  * @param g 
  */
-TitleScene::TitleScene(Game& g, const GameContext& context)
+TitleScene::TitleScene(SceneControl& sc, GameContext& gc)
     : Scene(
-        g, 
-        context
+        sc, 
+        gc
     )
 {
     // タイトル
@@ -34,7 +34,7 @@ TitleScene::TitleScene(Game& g, const GameContext& context)
  */
 void TitleScene::handleEvent(const SDL_Event& e){
     if(e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN){
-        game.changeScene(GameScene::Playing);
+        ctrl.changeScene(GameScene::Playing);
     }
 }
 

@@ -21,7 +21,7 @@ private:
     bool blinkVisible= true;
 
 public:
-    TitleScene(Game& g, const GameContext& context);
+    TitleScene(SceneControl& sc, GameContext& gc);
     virtual ~TitleScene() = default;
 
     void handleEvent(const SDL_Event& e) override;

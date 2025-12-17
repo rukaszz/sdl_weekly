@@ -9,10 +9,10 @@
  * @brief Construct a new Playing Scene:: Playing Scene object
  * 
  */
-PlayingScene::PlayingScene(Game& g, const GameContext& context)
+PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
     : Scene(
-        g, 
-        context
+        sc, 
+        gc
     )
 {
 
@@ -29,7 +29,7 @@ void PlayingScene::handleEvent(const SDL_Event& e){
     if(e.type == SDL_KEYDOWN){
         switch(e.key.keysym.sym){
         case SDLK_ESCAPE:
-            game.changeScene(GameScene::Title);
+            ctrl.changeScene(GameScene::Title);
             break;
         default:
             break;
@@ -70,7 +70,7 @@ void PlayingScene::render(){
  * 
  */
 void PlayingScene::onEnter(){
-    game.reset();
+    ctrl.resetGame();
 }
 
 /**
@@ -87,9 +87,9 @@ void PlayingScene::onExit(){
  */
 void PlayingScene::updateScore(double delta){
     // スコア計算
-    uint32_t s = game.getScore() + delta * GameConfig::SCORE_RATE; // 生存時間に重点
-    game.setScore(s);  
-    ctx.scoreText.setText("Score: " + std::to_string(static_cast<int>(game.getScore())));
+    uint32_t s = ctrl.getScore() + delta * GameConfig::SCORE_RATE; // 生存時間に重点
+    ctrl.setScore(s);  
+    ctx.scoreText.setText("Score: " + std::to_string(static_cast<int>(ctrl.getScore())));
 }
 
 /**
@@ -111,7 +111,7 @@ void PlayingScene::checkCollision(){
     // 衝突判定
     for(auto& e : ctx.enemies){
         if(GameUtil::intersects(ctx.player.getCollisionRect(), e->getCollisionRect())){
-            game.changeScene(GameScene::GameOver);
+            ctrl.changeScene(GameScene::GameOver);
             return;
         }
     }

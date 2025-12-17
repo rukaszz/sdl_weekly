@@ -7,9 +7,9 @@
  * 
  * @param g 
  */
-Scene::Scene(Game& g, const GameContext& context)
-    : game(g)
-    , ctx(context)
+Scene::Scene(SceneControl& sc, GameContext& gc)
+    : ctrl(sc)
+    , ctx(gc)
 {
 
 }
