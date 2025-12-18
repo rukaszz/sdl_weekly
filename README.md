@@ -312,6 +312,32 @@ SOLID原則の1つで，Dに相当する．
 
 あるクラスが，別のクラスの重要ではない箇所に依存しないようにする設計．クラスAがクラスBの機能を参照する場合，クラスA→クラスBの依存関係になる．しかしこれではクラスAがBに依存しすぎている．クラスAが使いたい機能をインターフェースAとして用意し，クラスBがインターフェースAを実装するとクラスB→インターフェースA→クラスAという依存関係になり，クラスAとBの結合が疎になる．
 
+### 入力状態のテーブル化
+
+これまで，入力はGameやPlayerなどの場所でif/switch文を書いて入力を監視していた．しかしこれでは入力が増えるとif/switch文が肥大化する．また，入力処理とゲームロジックが密接に関係してしまい，状態管理が複雑になる．
+
+入力状態のテーブル化(マッピング)とは，input.hppのようにActionという抽象化したマッピングに，InputStateという状態をフラグとして管理することで，if文内で配列にアクセスするだけで入力を受け取れる．つまり，拡張が容易でありゲームロジックが入力から分離される．
+
+```cpp
+// 入力状態のマッピング
+enum class Action{
+    MoveLeft, 
+    MoveRight, 
+    MoveUp, 
+    MoveDown,
+    Jump, 
+    Pause,  
+};
+
+struct InputState{
+    bool pressed[(int)Action::Pause + 1] = {false};
+    bool justPressed[(int)Action::Pause + 1] = {false};
+};
+
+// 例
+if(input.pressed[(int)Action::MoveLeft]){moveLeft();}
+```
+
 ## アセット
 
 詳細はATTRIBUTIONを参照．

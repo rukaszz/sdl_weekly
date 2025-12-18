@@ -31,7 +31,8 @@ add_executable(${PROJECT_NAME}
     src/Scene.cpp
     src/TitleScene.cpp
     src/PlayingScene.cpp
-    src/GameOverScene.cpp    
+    src/GameOverScene.cpp 
+    src/Input.cpp   
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

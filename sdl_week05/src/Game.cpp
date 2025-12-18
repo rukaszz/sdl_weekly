@@ -17,6 +17,7 @@
 #include "GameUtil.hpp"
 #include "Text.hpp"
 #include "TextTexture.hpp"
+#include "Input.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -74,6 +75,8 @@ Game::Game(){
     // FPS
     fpsText = std::make_unique<TextTexture>(*renderer, font.get(), SDL_Color{255, 255, 255, 255});
     fpsText->setText("");
+    // input抽象化
+    input = std::make_unique<Input>();
     
     running = true;
 
@@ -205,6 +208,7 @@ void Game::processEvents(){
         if(e.type == SDL_QUIT){
             running = false;
         }
+        input->handleEvent(e);
         currentScene->handleEvent(e);
     }
 }

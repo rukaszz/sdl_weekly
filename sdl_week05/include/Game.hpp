@@ -10,6 +10,7 @@
 #include "Text.hpp"
 #include "TextTexture.hpp"
 #include "GameContext.hpp"
+#include "Input.hpp"
 
 #include <memory>
 #include <vector>
@@ -42,6 +43,8 @@ private:
     std::unique_ptr<TextTexture> scoreText;
     std::unique_ptr<TextTexture> fpsText;
     std::unique_ptr<TextTexture> gameOverText;
+    // input抽象化
+    std::unique_ptr<Input> input;
 
     // 変数系
     bool running = true;
