@@ -5,6 +5,7 @@
 #include "Renderer.hpp"
 #include "Texture.hpp"
 #include "Enemy.hpp"
+#include "Input.hpp"
 
 #include <iostream>
 #include <algorithm>
@@ -25,6 +26,7 @@ Enemy::Enemy(Texture& tex)
     : Character(
         0, 0,                               // 初期座標
         100.0,                              // speed
+        0.0,                                // 垂直速度
         Direction::Right,                   // dir
         tex,                                // texture
         EnemyConfig::FRAME_W, 
@@ -45,7 +47,7 @@ Enemy::Enemy(Texture& tex)
  * @param delta: 差分 
  * @param drawableSize: 描画可能範囲 
  */
-void Enemy::update(double delta, DrawBounds bounds){
+void Enemy::update(double delta, const InputState& , DrawBounds bounds){
     double leftBound = 0.0;
     double rightBound = bounds.drawableWidth - static_cast<double>(sprite.getDrawWidth());
 

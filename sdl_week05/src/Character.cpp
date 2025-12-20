@@ -14,6 +14,7 @@
 Character::Character(
     double x_, double y_,
     double speed_,
+    double vv_,
     Direction dir_,
     Texture& tex,
     int frameW, int frameH,
@@ -23,6 +24,7 @@ Character::Character(
     : x(x_)
     , y(y_)
     , speed(speed_)
+    , vv(vv_)
     , dir(dir_)
     , anim(maxFrames, animInterval)
     , sprite(tex, frameW, frameH)

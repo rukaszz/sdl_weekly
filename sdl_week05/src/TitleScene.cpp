@@ -35,11 +35,7 @@ TitleScene::TitleScene(SceneControl& sc, GameContext& gc)
  */
 void TitleScene::handleEvent(const SDL_Event& e){
     // キーイベントをInputクラスへ動かしたので今は何もしない
-    // const InputState& is = ctx.input.getState();
-    // if(is.justPressed[(int)Action::Enter]){
-    //     ctrl.changeScene(GameScene::Playing);
-    //     return;
-    // }
+    (void)e;
 }
 
 /**

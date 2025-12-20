@@ -15,6 +15,8 @@ class Renderer;
 
 class Player : public Character{
 private:
+    // 接地状態管理
+    bool onGround = false;
 
 public:
     // 定数
@@ -22,9 +24,11 @@ public:
 
     Player(Texture& tex);
 
-    void update(double delta, DrawBounds bounds) override;
+    void update(double delta, const InputState& input, DrawBounds bounds) override;
     SDL_Rect getCollisionRect() const override;
     void reset();
+    void clampToGround(const DrawBounds& bounds);
+    void clampHorizontalPosition(const DrawBounds& bounds);
 };
 
 #endif  // PLAYER_H

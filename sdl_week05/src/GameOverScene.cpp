@@ -26,12 +26,7 @@ GameOverScene::GameOverScene(SceneControl& sc, GameContext& gc)
  */
 void GameOverScene::handleEvent(const SDL_Event& e){
     // キーイベントをInputクラスへ動かしたので今は何もしない
-    // const InputState& is = ctx.input.getState();
-    // if(is.justPressed[(int)Action::Enter]){
-    //     ctrl.resetGame();
-    //     ctrl.changeScene(GameScene::Playing);
-    //     return;
-    // }
+    (void)e;
 }
 
 /**

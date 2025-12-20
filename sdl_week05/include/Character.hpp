@@ -3,6 +3,7 @@
 
 #include "AnimationController.hpp"
 #include "Sprite.hpp"
+#include "Input.hpp"
 
 class Texture;
 class Renderer;
@@ -32,6 +33,8 @@ protected:
     double x, y;
     // 移動速度
     double speed;
+    // 垂直速度(vertical verocity)
+    double vv;
     // 向き
     Direction dir;
     // アニメーション管理
@@ -43,6 +46,7 @@ public:
     Character(
         double x, double y,
         double speed,
+        double vv,
         Direction dir,
         Texture& tex,
         int frameW, int frameH,
@@ -50,7 +54,7 @@ public:
         double animInterval
     );
     virtual ~Character();
-    virtual void update(double delta, DrawBounds bounds) = 0;
+    virtual void update(double delta, const InputState& input, DrawBounds bounds) = 0;
     virtual SDL_Rect getCollisionRect() const = 0;
     virtual void draw(Renderer& renderer);
     virtual const Sprite& getSprite() const;

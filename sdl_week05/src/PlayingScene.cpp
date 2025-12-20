@@ -27,11 +27,7 @@ PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
  */
 void PlayingScene::handleEvent(const SDL_Event& e){
     // キーイベントをInputクラスへ動かしたので今は何もしない
-    // const InputState& is = ctx.input.getState();
-    // if(is.justPressed[(int)Action::Pause]){
-    //     ctrl.changeScene(GameScene::Title);
-    //     return;
-    // }
+    (void)e;
 }
 
 /**
@@ -101,9 +97,11 @@ void PlayingScene::updateScore(double delta){
  * 
  */
 void PlayingScene::updateEntities(double delta, DrawBounds b){
+    // キーの状態取得
+    const InputState& is = ctx.input.getState();
     // キャラクタの更新
-    ctx.player.update(delta, b);
-    for(auto& e : ctx.enemies) e->update(delta, b);
+    ctx.player.update(delta, is, b);
+    for(auto& e : ctx.enemies) e->update(delta, is, b);
 }
 
 /**

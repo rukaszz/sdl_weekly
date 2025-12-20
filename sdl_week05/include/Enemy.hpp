@@ -24,8 +24,8 @@ public:
     static inline constexpr int NUM_FRAMES = EnemyConfig::NUM_FRAMES;
 
     Enemy(Texture& tex);
-
-    void update(double delta, DrawBounds bounds) override;
+    // InputStateは使用しないので無名
+    void update(double delta, const InputState&, DrawBounds bounds) override;
     SDL_Rect getCollisionRect() const override;
     void reset(
         std::mt19937& rd,
