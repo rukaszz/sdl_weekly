@@ -4,6 +4,7 @@
 #include "TitleScene.hpp"
 #include "Game.hpp"
 #include "Renderer.hpp"
+#include "Input.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -33,9 +34,12 @@ TitleScene::TitleScene(SceneControl& sc, GameContext& gc)
  * @param e 
  */
 void TitleScene::handleEvent(const SDL_Event& e){
-    if(e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN){
-        ctrl.changeScene(GameScene::Playing);
-    }
+    // キーイベントをInputクラスへ動かしたので今は何もしない
+    // const InputState& is = ctx.input.getState();
+    // if(is.justPressed[(int)Action::Enter]){
+    //     ctrl.changeScene(GameScene::Playing);
+    //     return;
+    // }
 }
 
 /**
@@ -46,7 +50,12 @@ void TitleScene::handleEvent(const SDL_Event& e){
 void TitleScene::update(double delta){
     // タイトルのフェードインなど
     updateTitle(delta);
-    return;   // 画面のオブジェクトの更新はしない
+    // Playingへ遷移
+    const InputState& is = ctx.input.getState();
+    if(is.justPressed[(int)Action::Enter]){
+        ctrl.changeScene(GameScene::Playing);
+        return;
+    }
 }
 
 /**

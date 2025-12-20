@@ -25,10 +25,13 @@ GameOverScene::GameOverScene(SceneControl& sc, GameContext& gc)
  * @param e 
  */
 void GameOverScene::handleEvent(const SDL_Event& e){
-    if(e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN){
-        ctrl.resetGame();
-        ctrl.changeScene(GameScene::Playing);
-    }
+    // キーイベントをInputクラスへ動かしたので今は何もしない
+    // const InputState& is = ctx.input.getState();
+    // if(is.justPressed[(int)Action::Enter]){
+    //     ctrl.resetGame();
+    //     ctrl.changeScene(GameScene::Playing);
+    //     return;
+    // }
 }
 
 /**
@@ -38,7 +41,15 @@ void GameOverScene::handleEvent(const SDL_Event& e){
  * @param delta 
  */
 void GameOverScene::update(double delta){
+    // GameOverの演出
     updateGameOver(delta);
+    // Playingへの遷移
+    const InputState& is = ctx.input.getState();
+    if(is.justPressed[(int)Action::Enter]){
+        ctrl.resetGame();
+        ctrl.changeScene(GameScene::Playing);
+        return;
+    }
 }
 
 /**

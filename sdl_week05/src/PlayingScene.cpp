@@ -26,15 +26,12 @@ PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
  * @param e 
  */
 void PlayingScene::handleEvent(const SDL_Event& e){
-    if(e.type == SDL_KEYDOWN){
-        switch(e.key.keysym.sym){
-        case SDLK_ESCAPE:
-            ctrl.changeScene(GameScene::Title);
-            break;
-        default:
-            break;
-        }
-    }
+    // キーイベントをInputクラスへ動かしたので今は何もしない
+    // const InputState& is = ctx.input.getState();
+    // if(is.justPressed[(int)Action::Pause]){
+    //     ctrl.changeScene(GameScene::Title);
+    //     return;
+    // }
 }
 
 /**
@@ -43,6 +40,12 @@ void PlayingScene::handleEvent(const SDL_Event& e){
  * @param delta 
  */
 void PlayingScene::update(double delta){
+    // Titleへの遷移
+    const InputState& is = ctx.input.getState();
+    if(is.justPressed[(int)Action::Pause]){
+        ctrl.changeScene(GameScene::Title);
+        return;
+    }
     // ウィンドウサイズの型変換
     // SDL_Point p = ctx.window.getWindowSize();
     SDL_Point p = ctx.renderer.getOutputSize();

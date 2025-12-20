@@ -96,7 +96,8 @@ Game::Game(){
         distX,
         distY,
         distSpeed,
-        font.get()
+        font.get(), 
+        *input
     });
     scenes[(int)GameScene::Title]   = std::make_unique<TitleScene>(*this, *ctx);
     scenes[(int)GameScene::Playing] = std::make_unique<PlayingScene>(*this, *ctx);
@@ -155,14 +156,19 @@ void Game::run(){
     Uint64 frequency = SDL_GetPerformanceFrequency();
     Uint64 lastCounter = SDL_GetPerformanceCounter();
     
-    // FPS 計測用（これはミリ秒で十分）
+    // FPS 計測用(これはミリ秒で十分)
     Uint32 fpsTimer = SDL_GetTicks();
     int fpsCounter = 0;
 
     while(running){
         // 時間の計測
+        // フレーム開始点
+        Uint32 frameStartMs = SDL_GetTicks();
+        // 時間開始点
         Uint64 nowCounter = SDL_GetPerformanceCounter();
+        // ゲーム差分delta
         double delta = static_cast<double>(nowCounter - lastCounter) / static_cast<double>(frequency);
+        // 前回の計測点更新
         lastCounter = nowCounter;
         // クランプ：deltaが大きすぎて更新しすぎることを防ぐ
         if(delta > 0.1){
@@ -181,7 +187,7 @@ void Game::run(){
             fpsTimer = nowMs;
         }
         // fpsキャップ(最大60fps)
-        capFrameRate(nowMs);
+        capFrameRate(frameStartMs);
     }
 }
 
@@ -219,7 +225,9 @@ void Game::processEvents(){
  * @param delta: 前フレームとの差分
  */
 void Game::update(double delta){
+    // input->update(); // ここでupdadeするとキー入力がSceneへ伝搬しない
     currentScene->update(delta);
+    input->update();
 }
 
 /**

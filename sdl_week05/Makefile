@@ -249,6 +249,30 @@ src/GameOverScene.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week05.dir/build.make CMakeFiles/sdl_week05.dir/src/GameOverScene.cpp.s
 .PHONY : src/GameOverScene.cpp.s
 
+src/Input.o: src/Input.cpp.o
+.PHONY : src/Input.o
+
+# target to build an object file
+src/Input.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week05.dir/build.make CMakeFiles/sdl_week05.dir/src/Input.cpp.o
+.PHONY : src/Input.cpp.o
+
+src/Input.i: src/Input.cpp.i
+.PHONY : src/Input.i
+
+# target to preprocess a source file
+src/Input.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week05.dir/build.make CMakeFiles/sdl_week05.dir/src/Input.cpp.i
+.PHONY : src/Input.cpp.i
+
+src/Input.s: src/Input.cpp.s
+.PHONY : src/Input.s
+
+# target to generate assembly for a file
+src/Input.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week05.dir/build.make CMakeFiles/sdl_week05.dir/src/Input.cpp.s
+.PHONY : src/Input.cpp.s
+
 src/Player.o: src/Player.cpp.o
 .PHONY : src/Player.o
 
@@ -537,6 +561,9 @@ help:
 	@echo "... src/GameOverScene.o"
 	@echo "... src/GameOverScene.i"
 	@echo "... src/GameOverScene.s"
+	@echo "... src/Input.o"
+	@echo "... src/Input.i"
+	@echo "... src/Input.s"
 	@echo "... src/Player.o"
 	@echo "... src/Player.i"
 	@echo "... src/Player.s"

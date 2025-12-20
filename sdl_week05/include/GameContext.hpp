@@ -5,11 +5,13 @@
 #include <random>
 #include <memory>
 
+// 前方宣言
 class Renderer;
 class Player;
 class Enemy;
 class TextTexture;
 class Text;
+class Input;
 
 // ゲームで必要なデータ群
 struct GameContext{
@@ -26,6 +28,8 @@ struct GameContext{
     std::uniform_real_distribution<double>& distSpeed;
 
     Text* font;
+
+    Input& input;
 
 };
 
