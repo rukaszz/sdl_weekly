@@ -73,7 +73,7 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds){
     }
     // Jump
     if(onGround && input.justPressed[(int)Action::Jump]){
-        vv = -PlayerConfig::JUMP_VELOCITY;
+        vv = -PlayerConfig::JUMP_VELOCITY;  // 上方向はy軸的には負
         onGround = false;
     }
     /*
@@ -119,11 +119,17 @@ SDL_Rect Player::getCollisionRect() const{
 }
 
 /**
- * @brief プレイヤーの位置を初期位置へ移動させる
+ * @brief プレイヤーの状態を初期状態に戻す
  * 
  */
 void Player::reset(){
+    // Playerの座標
     setPosition(PlayerConfig::POS_X, PlayerConfig::POS_Y);
+    // 垂直速度
+    vv = 0.0;
+    // 設置状態(trueにしてclampで正常にする)
+    onGround = false;
+    // アニメーションリセット
     anim.reset();
 }
 

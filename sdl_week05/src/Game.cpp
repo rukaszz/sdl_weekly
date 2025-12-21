@@ -215,6 +215,7 @@ void Game::processEvents(){
             running = false;
         }
         input->handleEvent(e);
+        input->debugPrintInput();
         currentScene->handleEvent(e);
     }
 }

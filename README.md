@@ -206,7 +206,7 @@ Gameクラスが多くの処理を担うようになり，責務過多になっ�
     - Gameを参照することができ，Gameに関係するオブジェクトの更新などを行う
     - シーン遷移をonEnter/onExitで明確化する
   - 主要メソッド：
-    - handleEvent()：キー入力やクリックなど、イベント処理
+    - handleEvent()：キー入力やクリックなど，イベント処理
     - update()：シーン固有の更新処理
     - render()：シーン固有の描画処理
     - onEnter()：シーン遷移時の初期化処理
@@ -214,7 +214,7 @@ Gameクラスが多くの処理を担うようになり，責務過多になっ�
   - 理由：
     - ゲームの状態はweek04の時点でTitle/Playing/GameOverの3種
     - 各種の状態で共通する更新処理，描画処理を抽象化
-    - 責務ごとにコードを分割でき、拡張しやすい設計にした
+    - 責務ごとにコードを分割でき，拡張しやすい設計にした
 - TitleScene：タイトル画面の処理を担う
   - 役割：
     - GameConfig::Titleの状態
@@ -253,7 +253,7 @@ GameにchangeSceneを実装し，シーンの切り替えをonEnter/onExitで統
 SDL_Init()から各種サブシステムを初期化してゲームを動かしているが，ゲームのデストラクタ呼び出し時，すなわちゲーム終了時にコアダンプが生じるようになった．ゲームの終了処理順番としてはWindow→Renderer→Textureのように関連するシステムが順に終了していく．
 
 SDL終了時にコアダンプが生じる場合，考えられるのは二重に破棄する処理が動いていることである．SDLのWikiで確認したところ，SDL_Quit()はすべてのサブシステムを終了するという旨の記述がある．
-SDL_Quit は SDL 内部のサブシステムを終了するだけで、SDL_image や SDL_ttf の内部リソースは破棄しない。また，TTF_Init()はTTF_Quit()の破棄と呼び出し回数を一致させるなどの制約があるため，SDL_Quit()で残留するメモリは可能な限り減らす必要がある．
+SDL_Quit は SDL 内部のサブシステムを終了するだけで，SDL_image や SDL_ttf の内部リソースは破棄しない．また，TTF_Init()はTTF_Quit()の破棄と呼び出し回数を一致させるなどの制約があるため，SDL_Quit()で残留するメモリは可能な限り減らす必要がある．
 
 今回の場合は，TTF_Quit()関係でコアダンプが生じていた．
 
@@ -299,24 +299,60 @@ Gameクラスが終了するとき，TTF_Quit()→IMG_Quit()→SDL_Quit()の順�
 
 ### GameとSceneの分離
 
-week04の状態ではGameとSceneが密結合状態であり，GameとSceneがお互いに知りすぎている依存関係にあった．それらを分離するために，Gameが管理しているオブジェクトから必要なものをまとめ構造体を作成する．
+week04の状態では Game と Scene が強く結合しており，Scene が Game クラスの詳細（メンバ変数や関数）を直接参照していた．その結果，
+
+- Game の責務が肥大化する
+- Scene 側から Game の修正が伝播しやすい
+
+という問題があった．
+
+week05 では，Game が管理しているオブジェクト群から Scene に本当に必要なものだけを抜き出し，GameContext 構造体としてまとめた．また，Scene から Game への呼び出しも SceneControl インターフェース経由に制限することで，Game と Scene の依存関係を整理した．
+
+- GameContext：Scene から参照されるゲームのコンテキスト
+  - 主なフィールド：
+    - Renderer（描画用）
+    - Player / Enemy 配列
+    - TextTexture（スコア表示・FPS表示など）
+    - 乱数生成器と分布（敵の初期位置・速度用）
+    - Text（フォント）
+    - Input（入力状態）
+  - 役割：
+    - Scene に必要な「ゲーム内オブジェクト」をひとまとめにし，Game 本体の詳細構造を Scene から隠蔽する
+    - Scene は GameContext 経由でのみオブジェクトにアクセスする
+
+Game は std::unique_ptr\<Scene\> scenes\[3\] と Scene* currentScene を持ち，changeScene() でシーンを切り替える．シーン切り替え時には onExit() / onEnter() を必ず呼ぶことで，各 Scene 自身が「入室時・退室時の初期化／後始末」を管理できるようにした．
 
 #### SceneControlの導入
 
-Scene系のクラスでGameクラスの関数を呼ぶために，抽象インターフェースSceneControlを導入する．
-SceneControlはGameクラスにある関数を呼ぶための入口である．例えば，GetScore()というgetterを呼びたい場合に，SceneがGameオブジェクトを参照してしまうのは，SceneがGameを知りすぎる状態になる．Sceneが呼びたい関数を抽象化したインターフェースを定義することで，SceneはGame内の必要な機能にのみ依存することになる．
+Scene 系のクラスが Game クラスの関数を直接呼ぶと，Scene が Game の実装に強く依存してしまう．これを避けるために，Game のうち Scene から利用したい操作だけを抽象インターフェース SceneControl として切り出した．
 
-依存性逆転の原則(Dependency inversion principle)：
+- SceneControl インターフェース：
+  - 提供する機能（現時点）：
+    - changeScene(GameScene id)：シーンの切り替え
+    - resetGame()：プレイ開始時のゲーム状態リセット
+    - getScore() / setScore()：スコアの取得・更新
+  - 役割：
+    - Scene が「Game そのもの」ではなく「SceneControl という抽象」に依存するようにする
+    - Game 側は SceneControl を実装するだけでよく，Scene は Game の内部構造を一切知らない
 
-SOLID原則の1つで，Dに相当する．
+Game は SceneControl を実装し，Scene はコンストラクタで SceneControl& を受け取る．これにより，Scene は Game の具体的な型に依存せず，必要最小限の操作だけを通じてゲーム全体を制御できる．
 
-あるクラスが，別のクラスの重要ではない箇所に依存しないようにする設計．クラスAがクラスBの機能を参照する場合，クラスA→クラスBの依存関係になる．しかしこれではクラスAがBに依存しすぎている．クラスAが使いたい機能をインターフェースAとして用意し，クラスBがインターフェースAを実装するとクラスB→インターフェースA→クラスAという依存関係になり，クラスAとBの結合が疎になる．
+依存性逆転の原則（Dependency Inversion Principle）：
+
+- 高水準モジュール（Scene）は低水準モジュール（Game）の具象実装に依存しない
+- 両者とも抽象（SceneControl）に依存する
+- Scene → SceneControl ← Game という形で依存を逆転させることで，Game と Scene の結合度を下げ，変更に強い構造にした
 
 ### 入力状態のテーブル化
 
-これまで，入力はGameやPlayerなどの場所でif/switch文を書いて入力を監視していた．しかしこれでは入力が増えるとif/switch文が肥大化する．また，入力処理とゲームロジックが密接に関係してしまい，状態管理が複雑になる．
+これまでは，入力は Game や Player などの各クラス内で if / switch 文を直接書いて監視しており，
 
-入力状態のテーブル化(マッピング)とは，input.hppのようにActionという抽象化したマッピングに，InputStateという状態をフラグとして管理することで，if文内で配列にアクセスするだけで入力を受け取れる．つまり，拡張が容易でありゲームロジックが入力から分離される．
+- 入力が増えると条件分岐が肥大化する
+- 入力処理とゲームロジックが混在し，保守性が低い
+
+といった問題があった．
+
+week05 では，入力を抽象化した Action と，その状態をまとめる InputState を導入し，「入力状態のテーブル化（マッピング）」を行った．
 
 ```cpp
 // 入力状態のマッピング
@@ -326,17 +362,115 @@ enum class Action{
     MoveUp, 
     MoveDown,
     Jump, 
-    Pause,  
+    Pause,
+    Enter,
+    None,   // 番兵（配列の範囲外判定用）
 };
 
 struct InputState{
-    bool pressed[(int)Action::Pause + 1] = {false};
-    bool justPressed[(int)Action::Pause + 1] = {false};
+    // 列挙値の最大（今回は Enter）+ 1 ぶん確保
+    bool pressed[(int)Action::Enter + 1]     = {false};
+    bool justPressed[(int)Action::Enter + 1] = {false};
 };
 
-// 例
-if(input.pressed[(int)Action::MoveLeft]){moveLeft();}
+// 使用例
+const InputState& input = ctx.input.getState();
+if(input.pressed[(int)Action::MoveLeft]){
+    moveLeft();
+}
 ```
+
+- pressed：キーが押されている間，ずっと true
+
+- justPressed：キーが押された「そのフレームのみ」true
+
+Input::update() で毎フレーム false にリセットする
+
+入力の流れは次のようになる：
+
+1. Game::processEvents() で SDL のイベントをポーリング
+2. Input::handleEvent() にイベントを渡し，pressed / justPressed を更新
+3. Scene の update() から InputState を読み取る
+4. Input::update() で justPressed をクリア
+
+これにより，
+
+- 各クラスは「SDL のキーコード」ではなく「Action列挙」に対してロジックを書く
+
+- 入力処理はすべて Input クラスへ集約され，ゲームロジックから分離される
+
+- 新しい入力を追加しても，Action とマッピングを追加するだけで済む
+
+### week05の設計
+
+入力を Input クラスに集約し，ゲーム全体は InputState の真偽値を読み取るだけにした．
+
+- Input：入力を受け取るクラス
+  - 役割：
+    - キーボード（今後はパッドなども想定）からの入力を受け取り，アクションごとの押下状態をフラグで保持する
+    - 押しっぱなし（pressed）と押した瞬間（justPressed）を区別して管理する
+  - 理由：
+  - 各クラスが SDL のキーコードを直接扱うのではなく，Input が窓口になって Action 状態を提供することで，入力処理とゲームロジックを分離できる
+  - 「このフレームでジャンプボタンが押されたか」「押しっぱなしになっているか」を明確に区別できるようになる
+
+Scene 側は SDL のイベントを気にせず，GameContext に渡された Input の状態だけを参照するようになった．例えば：
+
+- TitleScene：Action::Enter の justPressed を見て PlayingScene へ遷移
+- PlayingScene：
+  - Action::Pause の justPressed で TitleScene へ戻る
+  - Action::MoveLeft / MoveRight の pressed を見て Player の移動方向を決定
+  - Action::Jump の justPressed でジャンプ開始
+
+### 時間依存の更新への移行
+
+week04 までは，SDL_GetTicks() を使った「フレーム時間ベース」の更新を行っていたが，より安定した時間制御のために SDL_GetPerformanceCounter() / SDL_GetPerformanceFrequency() を用いた高精度タイマに移行した．
+
+- delta の計算：
+  - 前フレームと現在の SDL_GetPerformanceCounter() の差分を SDL_GetPerformanceFrequency() で割って秒単位に変換
+  - delta が極端に大きくなった場合（例：一時停止後など）は 0.1 秒（≒10 FPS）にクランプし，物理更新が暴れないようにした
+
+- 更新ループ：
+  - delta を各 Scene の update() に渡し，速度・重力・アニメーションなどは時間ベースで更新
+  - フレームキャップは従来どおり SDL_Delay() で 60 FPS を上限にする
+
+これにより，多少フレームレートが変動してもゲーム速度が極端に変わらないようになった．
+
+### 重力とジャンプの導入
+
+これまではキャラクタが上下左右へ自由に移動できるだけで，物理的な感覚はなかった．マリオライクなゲームを作成する方針に切り替えたため，プレイヤーキャラクタに重力とジャンプを導入した．
+
+- Player クラス：
+  - Character の派生として，水平速度に加えて垂直速度 vv を持つ
+  - 毎フレーム vv に重力加速度を足し，y 座標に反映する
+  - onGround フラグで接地状態を管理し，「地面にいるときだけジャンプ入力を受け付ける」
+- 入力とジャンプ：
+  - 左右移動：Action::MoveLeft / MoveRight の pressed をベースに水平移動
+  - ジャンプ：onGround かつ Action::Jump の justPressed のとき vv に負の速度を与え，上方向へ跳躍する
+
+- 接地判定：
+  - clampToGround(const DrawBounds&)：
+  - 床の Y 座標（画面下端 − スプライト高さ）を境界としてクランプ
+    - プレイヤーがそれより下に行かないようにし，接地時には vv = 0 / onGround = true に戻す
+  - clampHorizontalPosition(const DrawBounds&)：
+    - X 座標を 0〜画面幅 − プレイヤー幅 にクランプし，画面外にはみ出さないようにする
+
+なお，Character::update() のシグネチャを update(double delta, const InputState& input, DrawBounds bounds) のように拡張し，入力を受け取れる形にした．現状，プレイヤーは入力を利用し，敵キャラクタは入力を無視しているが，将来的には「プレイヤー入力に反応して挙動を変える敵」などにも拡張できるようにしてある．
+
+### week06の予定
+
+現状のゲームは，
+
+「プレイヤーが左右移動とジャンプで敵を避ける」，「床はウィンドウ下端の一枚だけ」という最小限の遊び要素にとどまっている．week06 では，キャラクタ以外の要素でゲーム性を拡張していく．
+
+- 床・ブロックの導入：
+  - 実際の床スプライト（タイル）を描画し，当たり判定を実装する
+  - プレイヤーがジャンプで「乗る」「乗り越える」ことができるブロックを配置する
+- 当たり判定の拡張：
+  - プレイヤーと床／ブロックとの衝突方向（上から着地・横から衝突など）を判定し，正しい位置補正と速度修正を行う
+- シーン側の責務整理：
+  - ブロックや床の管理をどこに持たせるか（専用マップクラスを作るか，簡易の配列で持つか）を決める
+
+今後のマップ構造（タイルマップ／レベルデータ）を見据えた設計にしていく
 
 ## アセット
 

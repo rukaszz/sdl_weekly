@@ -21,6 +21,7 @@ enum class Action{
     Jump, 
     Pause,
     Enter,
+    Count,  // 配列サイズ用    
     None,   // 使用禁止
 };
 
@@ -31,8 +32,8 @@ enum class Action{
  * 
  */
 struct InputState{
-    bool pressed[(int)Action::Enter + 1] = {false};
-    bool justPressed[(int)Action::Enter + 1] = {false};
+    bool pressed[(int)Action::Count + 1] = {false};
+    bool justPressed[(int)Action::Count + 1] = {false};
 };
 
 static const std::unordered_map<Action, std::string> ActionNames{
