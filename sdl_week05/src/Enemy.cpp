@@ -45,6 +45,7 @@ Enemy::Enemy(Texture& tex)
  * ウィンドウの描画範囲を超えないように画面内に座標を抑える
  * 
  * @param delta: 差分 
+ * @param (ImputState) プレイヤーの入力(現状は無名引数) 
  * @param drawableSize: 描画可能範囲 
  */
 void Enemy::update(double delta, const InputState& , DrawBounds bounds){

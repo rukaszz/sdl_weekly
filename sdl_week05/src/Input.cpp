@@ -41,20 +41,28 @@ Action Input::actionKeyMap(SDL_Keycode k){
  * @param e SDL_Event(入力を取り出す用) 
  */
 void Input::handleEvent(const SDL_Event& e){
-    if(e.type == SDL_KEYDOWN || e.type == SDL_KEYUP){
+    if(e.type == SDL_KEYDOWN){
         Action act = actionKeyMap(e.key.keysym.sym);
         if(act == Action::None){
             return;
         }
         int idx = static_cast<int>(act);
-        if(e.type == SDL_KEYDOWN){
+        // すでに押されているときはjustPressedを立てない
+        if(!is.pressed[idx]){
             is.pressed[idx] = true;
             is.justPressed[idx] = true;
-        } else {    // SDL_KEYUP
-            is.pressed[idx] = false;
         }
+        // pressedがtrueのときのKEYDOWNではjustPressedを変化させない
+    } else if(e.type == SDL_KEYUP){
+        Action act = actionKeyMap(e.key.keysym.sym);
+        if(act == Action::None){
+            return;
+        }
+        int idx = static_cast<int>(act);
+        is.pressed[idx] = false;
     }
 }
+
 
 /**
  * @brief 毎フレームjustPressedをクリアする関数
