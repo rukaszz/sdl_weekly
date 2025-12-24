@@ -5,8 +5,11 @@
 #include "Sprite.hpp"
 #include "Input.hpp"
 
+#include <vector>
+
 class Texture;
 class Renderer;
+struct Block;
 
 // キャラクタの向き
 enum class Direction{
@@ -54,7 +57,7 @@ public:
         double animInterval
     );
     virtual ~Character();
-    virtual void update(double delta, const InputState& input, DrawBounds bounds) = 0;
+    virtual void update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks) = 0;
     virtual SDL_Rect getCollisionRect() const = 0;
     virtual void draw(Renderer& renderer);
     virtual const Sprite& getSprite() const;

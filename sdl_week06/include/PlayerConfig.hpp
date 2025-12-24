@@ -4,7 +4,7 @@
 // Player用定数
 struct PlayerConfig{
     static inline constexpr int POS_X = 100;
-    static inline constexpr int POS_Y = 650;
+    static inline constexpr int POS_Y = 600;
     static inline constexpr int FRAME_W = 114;
     static inline constexpr int FRAME_H = 110;
     static inline constexpr int NUM_FRAMES = 8;

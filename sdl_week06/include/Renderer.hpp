@@ -23,6 +23,8 @@ public:
     void draw(const Sprite& s, bool flipX);
     SDL_Point getOutputSize() const;
     void drawText(SDL_Texture* tex, int x, int y, int w, int h);
+    // 床ブロックテスト用
+    void drawRect(const SDL_Rect& rect, SDL_Color color);
 
     // rendererオブジェクト返却用
     SDL_Renderer* get() const{

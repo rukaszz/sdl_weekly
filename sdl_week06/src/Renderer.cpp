@@ -151,3 +151,16 @@ void Renderer::drawText(SDL_Texture* tex, int x, int y, int w, int h){
     SDL_Rect dst{x, y, w, h};
     SDL_RenderCopy(renderer, tex, nullptr, &dst);
 }
+
+/**
+ * @brief 矩形描画関数
+ * SDLの矩形オブジェクトと色を受け取って生成する
+ * 床ブロックを描画するためのテストとして，SDL_RenderFillRectをラップした関数として実装
+ * 
+ * @param rect: SDL_Rectオブジェクトを受け取る 
+ * @param color: RGB+alphaをListで受け取る 
+ */
+void Renderer::drawRect(const SDL_Rect& rect, SDL_Color color){
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+    SDL_RenderFillRect(renderer, &rect);
+}

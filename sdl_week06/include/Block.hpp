@@ -8,4 +8,4 @@ struct Block{
     double h;
 };
 
-#endif BLOCK_H
+#endif  // BLOCK_H

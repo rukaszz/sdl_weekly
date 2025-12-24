@@ -45,10 +45,11 @@ Enemy::Enemy(Texture& tex)
  * ウィンドウの描画範囲を超えないように画面内に座標を抑える
  * 
  * @param delta: 差分 
- * @param (ImputState) プレイヤーの入力(現状は無名引数) 
+ * @param (ImputState) プレイヤーの入力(現状は無名) 
  * @param drawableSize: 描画可能範囲 
+ * @param (const std::vector<Block>&) ブロックの判定(現状は無名)
  */
-void Enemy::update(double delta, const InputState& , DrawBounds bounds){
+void Enemy::update(double delta, const InputState& , DrawBounds bounds, const std::vector<Block>& ){
     double leftBound = 0.0;
     double rightBound = bounds.drawableWidth - static_cast<double>(sprite.getDrawWidth());
 

@@ -2,12 +2,14 @@
 #include "Texture.hpp"
 #include "Player.hpp"
 #include "Input.hpp"
+#include "Block.hpp"
 
 #include "GameConfig.hpp"
 #include "PlayerConfig.hpp"
 
 #include <SDL2/SDL.h>
 #include <algorithm>
+#include <vector>
 
 /**
  * Playerクラスは操作するオブジェクトを管理する
@@ -38,13 +40,6 @@ Player::Player(Texture& tex)
 }
 
 /**
- * 
- * @param delta: 差分
- * @param keystate: キーの入力状態
- */
-
-
-/**
  * @brief キーの入力に対して，差分をふまえて更新する
  * ウィンドウの描画範囲を超えないように画面内に座標を抑える
  * ジャンプを実装するので上下移動はなくなる
@@ -53,9 +48,14 @@ Player::Player(Texture& tex)
  * @param input: Inputクラスの状態=キー入力 
  * @param bounds: 描画可能範囲 
  */
-void Player::update(double delta, const InputState& input, DrawBounds bounds){
+void Player::update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks){
     // 水平移動用変数
     double moveDir = 0.0;
+    // 1つ前のフレームの位置(yのみ)
+    double prev_Y = y;
+    // 1つ前の足元(プレイヤーの最下部)の位置
+    double prevFeet = prev_Y + sprite.getDrawHeight();
+
     // 移動中以外はfalse
     bool moving = false;
     
@@ -76,16 +76,6 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds){
         vv = -PlayerConfig::JUMP_VELOCITY;  // 上方向はy軸的には負
         onGround = false;
     }
-    /*
-    if(input.pressed[(int)Action::MoveUp]){
-        y -= speed * delta;
-        moving = true;
-    }
-    if(input.pressed[(int)Action::MoveDown]){
-        y += speed * delta;
-        moving = true;
-    }
-    */
 
     // 水平方向移動
     x += moveDir * speed * delta;
@@ -93,8 +83,12 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds){
     vv += PlayerConfig::PLAYER_GRAVITY * delta;
     y += vv * delta;
 
-    // clampToBounds(bounds);
-    clampToGround(bounds);
+    // 移動後の足元の位置
+    double newFeet = y + sprite.getDrawHeight();
+
+    // clampToBounds(bounds);   // Characterのclampは使わない
+    // clampToGround(bounds);
+    clampToGround(prevFeet, newFeet, blocks);
     clampHorizontalPosition(bounds);
 
     // アニメーション処理
@@ -136,9 +130,57 @@ void Player::reset(){
 /**
  * @brief 床との接地管理用のクランプ関数
  * 
+ * @param prevFeet: 1フレーム前のプレイヤー下部
+ * @param newFeet: 更新時のプレイヤーの下部の位置 
+ * @param blocks: 描画しているブロックの情報 
+ */
+void Player::clampToGround(double prevFeet, double newFeet, const std::vector<Block>& blocks){
+    if(vv > 0.0){
+        // onGround監視用変数
+        bool landed = false;
+        for(const auto& b : blocks){
+            // ブロックの下辺以外の座標
+            double blockTop = b.y;
+            double blockLeft = b.x;
+            double blockRight = b.x + b.w;
+            // Playerの座標
+            double playerLeft = x;
+            double playerRight = x + sprite.getDrawWidth();
+            
+            // プレイヤーがブロックの左右の辺を超えたか
+            bool horizontallyOverlaps = playerRight > blockLeft
+                                     && playerLeft  < blockRight;
+            // プレイヤーがブロックの上辺を超えたか
+            bool verticallyOverlaps = prevFeet <= blockTop
+                                   && newFeet  >= blockTop;
+
+            if(horizontallyOverlaps && verticallyOverlaps){
+                // 着地：ブロック上辺からplayer高さ分を補正
+                y = blockTop - sprite.getDrawHeight();
+                vv = 0.0;
+                onGround = true;
+                landed = true;
+                break;  // ブロックに乗った時点で抜ける
+            }
+        }
+        // ブロック判定を抜けたときにまだ接地していないか見る
+        if(!landed){
+            // 垂直速度>0なら落下中
+            onGround = false;
+        }
+    } else {
+        // 垂直速度<0なら上昇中
+        onGround =false;
+    }
+}
+
+/**
+ * @brief 床との接地管理用のクランプ関数
+ * 
  * @param bounds 
  */
 void Player::clampToGround(const DrawBounds& bounds){
+    // ウィンドウ下部で止まる処理
     // 床の位置
     double floor_y = bounds.drawableHeight - sprite.getDrawHeight();
 

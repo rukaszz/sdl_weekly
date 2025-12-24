@@ -10,8 +10,11 @@
 
 #include <SDL2/SDL.h>
 
+#include <vector>
+
 class Texture;
 class Renderer;
+struct Block;
 
 class Player : public Character{
 private:
@@ -24,10 +27,11 @@ public:
 
     Player(Texture& tex);
 
-    void update(double delta, const InputState& input, DrawBounds bounds) override;
+    void update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks) override;
     SDL_Rect getCollisionRect() const override;
     void reset();
     void clampToGround(const DrawBounds& bounds);
+    void clampToGround(double prevFeet, double newFeet, const std::vector<Block>& blocks);
     void clampHorizontalPosition(const DrawBounds& bounds);
 };
 

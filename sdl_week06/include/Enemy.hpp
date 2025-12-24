@@ -12,9 +12,11 @@
 #include <SDL2/SDL.h>
 
 #include <random>
+#include <vector>
 
 class Texture;
 class Renderer;
+struct Block;
 
 class Enemy : public Character{
 private:
@@ -25,7 +27,7 @@ public:
 
     Enemy(Texture& tex);
     // InputStateは使用しないので無名
-    void update(double delta, const InputState&, DrawBounds bounds) override;
+    void update(double delta, const InputState&, DrawBounds bounds, const std::vector<Block>&) override;
     SDL_Rect getCollisionRect() const override;
     void reset(
         std::mt19937& rd,

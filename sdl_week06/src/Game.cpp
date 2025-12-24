@@ -66,12 +66,12 @@ Game::Game(){
     for(int i = 0;i < 5; ++i){
         enemies.push_back(std::make_unique<Enemy>(*enemyTex));
     }
-    // ブロック
+    // ブロック(とりあえず長い1個のブロックを描画)
     blocks.push_back(Block{
-        0.0, 
-        GameConfig::WINDOW_HEIGHT - 50, // 50はブロックの高さ(仮)
-        static_cast<double>(GameConfig::Window_WIDTH), 
-        static_cast<double>(50)
+        0.0,
+        GameConfig::WINDOW_HEIGHT - 50.0,
+        static_cast<double>(GameConfig::WINDOW_WIDTH),
+        50.0
     });
 
     // テキスト
@@ -104,7 +104,8 @@ Game::Game(){
         distY,
         distSpeed,
         font.get(), 
-        *input
+        *input, 
+        blocks
     });
     scenes[(int)GameScene::Title]   = std::make_unique<TitleScene>(*this, *ctx);
     scenes[(int)GameScene::Playing] = std::make_unique<PlayingScene>(*this, *ctx);

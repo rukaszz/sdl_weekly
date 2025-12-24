@@ -58,8 +58,17 @@ void PlayingScene::update(double delta){
  * @param renderer 
  */
 void PlayingScene::render(){
+    // テキスト描画
     ctx.fpsText.draw(ctx.renderer, 20, 20);
     ctx.scoreText.draw(ctx.renderer, 20, 50);
+    // ブロック描画
+    SDL_Color blockColor = {255, 255, 255, 255};
+    for(const auto& b : ctx.blocks){
+        SDL_Rect r = {static_cast<int>(b.x), static_cast<int>(b.y),
+                      static_cast<int>(b.w), static_cast<int>(b.h)};
+        ctx.renderer.drawRect(r, blockColor);
+    }
+    // キャラクタ描画
     ctx.player.draw(ctx.renderer);
     for(auto& e : ctx.enemies) e->draw(ctx.renderer);
 }
@@ -70,9 +79,9 @@ void PlayingScene::render(){
  */
 void PlayingScene::onEnter(){
     ctrl.resetGame();
-    ctx.blocks.clear();
+    // ctx.blocks.clear();
     // 床ブロック配置
-    ctx.blocks.push_back(Block);
+    // ctx.blocks.push_back(Block);
 }
 
 /**
@@ -103,8 +112,9 @@ void PlayingScene::updateEntities(double delta, DrawBounds b){
     // キーの状態取得
     const InputState& is = ctx.input.getState();
     // キャラクタの更新
-    ctx.player.update(delta, is, b);
-    for(auto& e : ctx.enemies) e->update(delta, is, b);
+    // ctx.player.update(delta, is, b);
+    ctx.player.update(delta, is, b, ctx.blocks);
+    for(auto& e : ctx.enemies) e->update(delta, is, b, ctx.blocks);
 }
 
 /**
