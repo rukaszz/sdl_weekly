@@ -77,10 +77,10 @@ Game::Game(){
     // テキスト
     font = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
     // スコア
-    scoreText = std::make_unique<TextTexture>(*renderer, font.get(), SDL_Color{255, 255, 255, 255});
+    scoreText = std::make_unique<TextTexture>(*renderer, *font, SDL_Color{255, 255, 255, 255});
     scoreText->setText("Score: 0");
     // FPS
-    fpsText = std::make_unique<TextTexture>(*renderer, font.get(), SDL_Color{255, 255, 255, 255});
+    fpsText = std::make_unique<TextTexture>(*renderer, *font, SDL_Color{255, 255, 255, 255});
     fpsText->setText("");
     // input抽象化
     input = std::make_unique<Input>();
@@ -95,17 +95,23 @@ Game::Game(){
     // シーン
     ctx = std::make_unique<GameContext>(GameContext{
         *renderer,
-        *player,
-        enemies,
-        *scoreText,
-        *fpsText,
-        rd,
-        distX,
-        distY,
-        distSpeed,
-        font.get(), 
         *input, 
-        blocks
+        EntityContext{
+            *player,
+            enemies,
+            blocks
+        }, 
+        TextRenderContext{
+            *font,
+            *scoreText,
+            *fpsText,
+        }, 
+        RandomContext{
+            rd,
+            distX,
+            distY,
+            distSpeed,
+        }
     });
     scenes[(int)GameScene::Title]   = std::make_unique<TitleScene>(*this, *ctx);
     scenes[(int)GameScene::Playing] = std::make_unique<PlayingScene>(*this, *ctx);

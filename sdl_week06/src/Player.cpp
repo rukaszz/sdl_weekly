@@ -175,25 +175,6 @@ void Player::clampToGround(double prevFeet, double newFeet, const std::vector<Bl
 }
 
 /**
- * @brief 床との接地管理用のクランプ関数
- * 
- * @param bounds 
- */
-void Player::clampToGround(const DrawBounds& bounds){
-    // ウィンドウ下部で止まる処理
-    // 床の位置
-    double floor_y = bounds.drawableHeight - sprite.getDrawHeight();
-
-    if(y >= floor_y){
-        y = floor_y;
-        vv = 0.0;
-        onGround = true;
-    } else {
-        onGround = false;
-    }
-}
-
-/**
  * @brief x軸との接地管理用のクランプ関数
  * 
  * @param bounds 

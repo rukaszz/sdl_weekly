@@ -30,7 +30,7 @@ public:
     void update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks) override;
     SDL_Rect getCollisionRect() const override;
     void reset();
-    void clampToGround(const DrawBounds& bounds);
+    
     void clampToGround(double prevFeet, double newFeet, const std::vector<Block>& blocks);
     void clampHorizontalPosition(const DrawBounds& bounds);
 };

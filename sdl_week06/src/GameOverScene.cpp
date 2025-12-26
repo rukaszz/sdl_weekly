@@ -14,7 +14,7 @@ GameOverScene::GameOverScene(SceneControl& sc, GameContext& gc)
         gc
     )
 {
-    gameOverText = std::make_unique<TextTexture>(ctx.renderer, ctx.font, SDL_Color{255, 255, 255, 255});
+    gameOverText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
     gameOverText->setText("GameOver");
 }
 
@@ -53,8 +53,8 @@ void GameOverScene::update(double delta){
  * @param remderer 
  */
 void GameOverScene::render(){
-    ctx.fpsText.draw(ctx.renderer, 20, 20);
-    ctx.scoreText.draw(ctx.renderer, 20, 50);
+    ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
+    ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);
     if(blinkVisible){
         gameOverText->draw(
             ctx.renderer,

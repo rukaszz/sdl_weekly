@@ -11,7 +11,7 @@
  * @param t: Textクラス 
  * @param c 
  */
-TextTexture::TextTexture(Renderer& r, Text* t, SDL_Color c)
+TextTexture::TextTexture(Renderer& r, Text& t, SDL_Color c)
     : renderer(r)
     , text(t)
     , color(c)
@@ -45,7 +45,7 @@ void TextTexture::setText(const std::string& s){
     if(tex){
         SDL_DestroyTexture(tex);
     }
-    tex = text->renderText(renderer.get(), s, width, height, color);
+    tex = text.renderText(renderer.get(), s, width, height, color);
 }
 
 /**

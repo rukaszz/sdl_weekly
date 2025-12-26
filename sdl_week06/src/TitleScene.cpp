@@ -20,10 +20,10 @@ TitleScene::TitleScene(SceneControl& sc, GameContext& gc)
     )
 {
     // タイトル
-    gameTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.font, SDL_Color{255, 255, 255, 255});
+    gameTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
     gameTitleText->setText("My Game");
     // プロンプト
-    gameEnterText = std::make_unique<TextTexture>(ctx.renderer, ctx.font, SDL_Color{255, 255, 255, 255});
+    gameEnterText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
     gameEnterText->setText("Press ENTER to Start");
 }
 
@@ -60,7 +60,7 @@ void TitleScene::update(double delta){
  * @param renderer 
  */
 void TitleScene::render(){
-    ctx.fpsText.draw(ctx.renderer, 20, 20);
+    ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
     // 中央にタイトル
     gameTitleText->draw(
         ctx.renderer,

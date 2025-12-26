@@ -13,14 +13,14 @@ private:
     int width = 0;
     int height = 0;
     std::string currentStr;
-    Text* text;
+    Text& text;
     
     SDL_Texture* tex = nullptr;
     Renderer& renderer;
     SDL_Color color;
     
 public:
-    TextTexture(Renderer& r, Text* t, SDL_Color c);
+    TextTexture(Renderer& r, Text& t, SDL_Color c);
     ~TextTexture();
     void setText(const std::string& str);
     void draw(Renderer& r, int x, int y);

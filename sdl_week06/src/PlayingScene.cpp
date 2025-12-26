@@ -43,7 +43,6 @@ void PlayingScene::update(double delta){
         return;
     }
     // ウィンドウサイズの型変換
-    // SDL_Point p = ctx.window.getWindowSize();
     SDL_Point p = ctx.renderer.getOutputSize();
     DrawBounds b = {static_cast<double>(p.x), static_cast<double>(p.y)};
     
@@ -59,18 +58,18 @@ void PlayingScene::update(double delta){
  */
 void PlayingScene::render(){
     // テキスト描画
-    ctx.fpsText.draw(ctx.renderer, 20, 20);
-    ctx.scoreText.draw(ctx.renderer, 20, 50);
+    ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
+    ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);
     // ブロック描画
     SDL_Color blockColor = {255, 255, 255, 255};
-    for(const auto& b : ctx.blocks){
+    for(const auto& b : ctx.entityCtx.blocks){
         SDL_Rect r = {static_cast<int>(b.x), static_cast<int>(b.y),
                       static_cast<int>(b.w), static_cast<int>(b.h)};
         ctx.renderer.drawRect(r, blockColor);
     }
     // キャラクタ描画
-    ctx.player.draw(ctx.renderer);
-    for(auto& e : ctx.enemies) e->draw(ctx.renderer);
+    ctx.entityCtx.player.draw(ctx.renderer);
+    for(auto& e : ctx.entityCtx.enemies) e->draw(ctx.renderer);
 }
 
 /**
@@ -100,7 +99,7 @@ void PlayingScene::updateScore(double delta){
     // スコア計算
     uint32_t s = ctrl.getScore() + delta * GameConfig::SCORE_RATE; // 生存時間に重点
     ctrl.setScore(s);  
-    ctx.scoreText.setText("Score: " + std::to_string(static_cast<int>(ctrl.getScore())));
+    ctx.textRenderCtx.scoreText.setText("Score: " + std::to_string(static_cast<int>(ctrl.getScore())));
 }
 
 /**
@@ -113,8 +112,8 @@ void PlayingScene::updateEntities(double delta, DrawBounds b){
     const InputState& is = ctx.input.getState();
     // キャラクタの更新
     // ctx.player.update(delta, is, b);
-    ctx.player.update(delta, is, b, ctx.blocks);
-    for(auto& e : ctx.enemies) e->update(delta, is, b, ctx.blocks);
+    ctx.entityCtx.player.update(delta, is, b, ctx.entityCtx.blocks);
+    for(auto& e : ctx.entityCtx.enemies) e->update(delta, is, b, ctx.entityCtx.blocks);
 }
 
 /**
@@ -123,8 +122,8 @@ void PlayingScene::updateEntities(double delta, DrawBounds b){
  */
 void PlayingScene::checkCollision(){
     // 衝突判定
-    for(auto& e : ctx.enemies){
-        if(GameUtil::intersects(ctx.player.getCollisionRect(), e->getCollisionRect())){
+    for(auto& e : ctx.entityCtx.enemies){
+        if(GameUtil::intersects(ctx.entityCtx.player.getCollisionRect(), e->getCollisionRect())){
             ctrl.changeScene(GameScene::GameOver);
             return;
         }
