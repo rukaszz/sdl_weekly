@@ -139,6 +139,9 @@ void Player::clampToGround(double prevFeet, double newFeet, const std::vector<Bl
         // onGround監視用変数
         bool landed = false;
         for(const auto& b : blocks){
+            if(b.type != BlockType::Standable){
+                continue;   // 乗れる床以外は以下の処理をしない
+            }
             // ブロックの下辺以外の座標
             double blockTop = b.y;
             double blockLeft = b.x;

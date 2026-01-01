@@ -25,6 +25,7 @@ public:
     void updateScore(double delta);
     void updateEntities(double delta, DrawBounds b);
     void checkCollision();
+    void hasFallenToGameOver();
 };
 
 #endif  // PLAYINGSCENE_H

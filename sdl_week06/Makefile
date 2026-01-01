@@ -177,6 +177,30 @@ src/Block.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week06.dir/build.make CMakeFiles/sdl_week06.dir/src/Block.cpp.s
 .PHONY : src/Block.cpp.s
 
+src/BlockLevelLoader.o: src/BlockLevelLoader.cpp.o
+.PHONY : src/BlockLevelLoader.o
+
+# target to build an object file
+src/BlockLevelLoader.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week06.dir/build.make CMakeFiles/sdl_week06.dir/src/BlockLevelLoader.cpp.o
+.PHONY : src/BlockLevelLoader.cpp.o
+
+src/BlockLevelLoader.i: src/BlockLevelLoader.cpp.i
+.PHONY : src/BlockLevelLoader.i
+
+# target to preprocess a source file
+src/BlockLevelLoader.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week06.dir/build.make CMakeFiles/sdl_week06.dir/src/BlockLevelLoader.cpp.i
+.PHONY : src/BlockLevelLoader.cpp.i
+
+src/BlockLevelLoader.s: src/BlockLevelLoader.cpp.s
+.PHONY : src/BlockLevelLoader.s
+
+# target to generate assembly for a file
+src/BlockLevelLoader.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/sdl_week06.dir/build.make CMakeFiles/sdl_week06.dir/src/BlockLevelLoader.cpp.s
+.PHONY : src/BlockLevelLoader.cpp.s
+
 src/Character.o: src/Character.cpp.o
 .PHONY : src/Character.o
 
@@ -576,6 +600,9 @@ help:
 	@echo "... src/Block.o"
 	@echo "... src/Block.i"
 	@echo "... src/Block.s"
+	@echo "... src/BlockLevelLoader.o"
+	@echo "... src/BlockLevelLoader.i"
+	@echo "... src/BlockLevelLoader.s"
 	@echo "... src/Character.o"
 	@echo "... src/Character.i"
 	@echo "... src/Character.s"

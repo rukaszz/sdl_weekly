@@ -18,6 +18,7 @@
 #include "Text.hpp"
 #include "TextTexture.hpp"
 #include "Input.hpp"
+#include "BlockLevelLoader.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -66,14 +67,30 @@ Game::Game(){
     for(int i = 0;i < 5; ++i){
         enemies.push_back(std::make_unique<Enemy>(*enemyTex));
     }
-    // ブロック(とりあえず長い1個のブロックを描画)
+    // ブロックの描画情報取得
+    try{
+        blocks = BlockLevelLoader::loadFromFile("assets/level/level1.txt");
+    } catch(const std::exception& e){
+        // 最低限のフォールバック
+        // ハードコードで床を描画
+        blocks.clear();
+        blocks.push_back(Block{
+            0.0,
+            GameConfig::WINDOW_HEIGHT - 50.0,
+            static_cast<double>(GameConfig::WINDOW_WIDTH),
+            50.0, 
+            BlockType::Standable
+        });
+    }
+    /*
     blocks.push_back(Block{
         0.0,
         GameConfig::WINDOW_HEIGHT - 50.0,
         static_cast<double>(GameConfig::WINDOW_WIDTH),
-        50.0
+        50.0, 
+        BlockType::Standable
     });
-
+    */
     // テキスト
     font = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
     // スコア

@@ -34,6 +34,7 @@ add_executable(${PROJECT_NAME}
     src/GameOverScene.cpp 
     src/Input.cpp   
     src/Block.cpp
+    src/BlockLevelLoader.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

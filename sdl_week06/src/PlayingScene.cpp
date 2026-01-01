@@ -49,20 +49,32 @@ void PlayingScene::update(double delta){
     updateScore(delta);
     updateEntities(delta, b);
     checkCollision();
+    hasFallenToGameOver();
 }
 
 /**
  * @brief ゲーム中の画面描画処理
  * 
- * @param renderer 
  */
 void PlayingScene::render(){
     // テキスト描画
     ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
     ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);
     // ブロック描画
-    SDL_Color blockColor = {255, 255, 255, 255};
     for(const auto& b : ctx.entityCtx.blocks){
+        SDL_Color blockColor;
+        // 床のタイプで描画を変更
+        switch(b.type){
+        case BlockType::Standable:
+            blockColor = {255, 255, 255, 255};  // 白
+            break;
+        case BlockType::DropThrough:
+            blockColor = {128, 128, 255, 255};  // 青
+            break;
+        case BlockType::Damage:
+            blockColor = {255, 0, 0, 255};      // 赤
+            break;
+        }
         SDL_Rect r = {static_cast<int>(b.x), static_cast<int>(b.y),
                       static_cast<int>(b.w), static_cast<int>(b.h)};
         ctx.renderer.drawRect(r, blockColor);
@@ -121,11 +133,39 @@ void PlayingScene::updateEntities(double delta, DrawBounds b){
  * 
  */
 void PlayingScene::checkCollision(){
-    // 衝突判定
+    // 敵との衝突判定
     for(auto& e : ctx.entityCtx.enemies){
         if(GameUtil::intersects(ctx.entityCtx.player.getCollisionRect(), e->getCollisionRect())){
             ctrl.changeScene(GameScene::GameOver);
             return;
         }
+    }
+    // ダメージブロックとの衝突判定
+    SDL_Rect playerRect = ctx.entityCtx.player.getCollisionRect();
+    for(const auto& b : ctx.entityCtx.blocks){
+        // ダメージ床以外は判定しない
+        if(b.type != BlockType::Damage){
+            continue;
+        }
+        SDL_Rect br = blockToRect(b);
+        if(GameUtil::intersects(playerRect, br)){
+            ctrl.changeScene(GameScene::GameOver);
+            return;
+        }
+    }
+}
+
+/**
+ * @brief 落下死判定関数
+ * 
+ */
+void PlayingScene::hasFallenToGameOver(){
+    double death_Y = GameConfig::WINDOW_HEIGHT + PlayerConfig::FRAME_H; // 画面外へ落下死たら終了
+    const Sprite& sp = ctx.entityCtx.player.getSprite();
+    double playerBottom = ctx.entityCtx.player.getCollisionRect().y
+                          + ctx.entityCtx.player.getCollisionRect().h;
+    if (playerBottom > death_Y){
+        ctrl.changeScene(GameScene::GameOver);
+        return;
     }
 }
