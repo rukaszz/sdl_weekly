@@ -22,7 +22,7 @@ std::vector<Block> BlockLevelLoader::loadFromFile(const std::string& path){
         ++lineNo;
         // 空の行 or コメント(#)は無視
         auto pos = line.find('#');
-        // findで見つかった
+        // findで見つからなかった→#がない
         if(pos != std::string::npos){
             line = line.substr(0, pos);
         }
