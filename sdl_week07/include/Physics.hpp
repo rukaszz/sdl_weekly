@@ -5,19 +5,19 @@
 #include "Block.hpp"
 
 /**
- * @brief Playerクラスのprivateなメンバ変数を渡すための構造体
+ * @brief ゲーム画面で物理的な挙動をするオブジェクトのprivateなメンバ変数を渡すための構造体
  * データ転送オブジェクト(DTO)
  * 参照渡しなので，出力もnewFeet/vv/onGroundが上書きされる
  * 
  */
 struct VerticalCollisionState{
     // 入力
-    double prevFeet;
-    double newFeet;
-    double x;
-    double width;
-    double vv;
-    bool   onGround;
+    double prevFeet;    // 1フレーム前のy座標
+    double newFeet;     // 入力受け取り後のy座標
+    double x;           // x座標
+    double width;       // spriteのwidth
+    double vv;          // 落下速度
+    bool   onGround;    // 接地しているか
 };
 
 namespace Physics{

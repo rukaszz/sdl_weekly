@@ -3,8 +3,8 @@
 /**
  * @brief 床との接地管理用のクランプ関数
  * 
- * @param prevFeet: 1フレーム前のプレイヤー下部
- * @param newFeet: 更新時のプレイヤーの下部の位置 
+ * @param prevFeet: 1フレーム前のオブジェクト下部
+ * @param newFeet: 更新時のオブジェクトの下部の位置 
  * @param blocks: 描画しているブロックの情報 
  */
 void Physics::resolveVerticalBlockCollision(VerticalCollisionState& vcs, const std::vector<Block>& blocks){
@@ -30,10 +30,10 @@ void Physics::resolveVerticalBlockCollision(VerticalCollisionState& vcs, const s
         double blockLeft = b.x;
         double blockRight = b.x + b.w;
         
-        // プレイヤーがブロックの左右の辺を超えたか
+        // オブジェクトがブロックの左右の辺を超えたか
         bool horizontallyOverlaps = playerRight > blockLeft
                                  && playerLeft  < blockRight;
-        // プレイヤーがブロックの上辺を超えたか
+        // オブジェクトがブロックの上辺を超えたか
         bool verticallyOverlaps = prevFeet <= blockTop
                                && newFeet  >= blockTop;
 
