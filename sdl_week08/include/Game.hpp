@@ -22,6 +22,8 @@ enum class GameScene{
     Title, 
     Playing, 
     GameOver, 
+    Clear, 
+    Count, 
 };
 
 class Game : public SceneControl{
@@ -30,7 +32,7 @@ private:
     std::unique_ptr<Window> window;
     std::unique_ptr<Renderer> renderer;
     // シーン管理
-    std::unique_ptr<Scene> scenes[3];
+    std::unique_ptr<Scene> scenes[static_cast<int>(GameScene::Count)];
     Scene* currentScene = nullptr;
     // Characterオブジェクト
     std::unique_ptr<Texture> playerTexture;

@@ -57,6 +57,9 @@ std::vector<Block> BlockLevelLoader::loadFromFile(const std::string& path){
         case 'D':
             type = BlockType::Damage;
             break;
+        case 'C':
+            type = BlockType::Clear;
+            break;
         default:
             // 不明なタイプは無視
             continue;

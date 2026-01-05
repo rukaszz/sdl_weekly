@@ -6,7 +6,8 @@
 enum class BlockType{
     Standable,      // 乗れるブロック
     DropThrough,    // 下へ抜けられるブロック
-    Damage          // 触れるとダメージを受ける床
+    Damage,         // 触れるとダメージを受ける床
+    Clear
 };
 
 struct Block{

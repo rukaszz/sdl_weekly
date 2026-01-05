@@ -74,6 +74,9 @@ void PlayingScene::render(){
         case BlockType::Damage:
             blockColor = {255, 0, 0, 255};      // 赤
             break;
+        case BlockType::Clear:
+            blockColor = {255, 216, 0, 255};    // 黃
+            break;
         }
         SDL_Rect r = {static_cast<int>(b.x), static_cast<int>(b.y),
                       static_cast<int>(b.w), static_cast<int>(b.h)};
@@ -143,14 +146,21 @@ void PlayingScene::checkCollision(){
     // ダメージブロックとの衝突判定
     SDL_Rect playerRect = ctx.entityCtx.player.getCollisionRect();
     for(const auto& b : ctx.entityCtx.blocks){
-        // ダメージ床以外は判定しない
-        if(b.type != BlockType::Damage){
+        // ダメージ床, クリアオブジェクト以外は判定しない
+        if(b.type == BlockType::Damage || b.type == BlockType::Clear){
+            SDL_Rect br = GameUtil::blockToRect(b);
+            if(GameUtil::intersects(playerRect, br)){
+                if(b.type == BlockType::Damage){
+                    ctrl.changeScene(GameScene::GameOver);
+                    return;
+                }
+                if(b.type == BlockType::Clear){
+                    ctrl.changeScene(GameScene::Clear);
+                    return;
+                }
+            }
+        } else {
             continue;
-        }
-        SDL_Rect br = GameUtil::blockToRect(b);
-        if(GameUtil::intersects(playerRect, br)){
-            ctrl.changeScene(GameScene::GameOver);
-            return;
         }
     }
 }

@@ -32,6 +32,7 @@ add_executable(${PROJECT_NAME}
     src/TitleScene.cpp
     src/PlayingScene.cpp
     src/GameOverScene.cpp 
+    src/ClearScene.cpp 
     src/Input.cpp   
     src/Block.cpp
     src/BlockLevelLoader.cpp

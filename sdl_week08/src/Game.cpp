@@ -9,6 +9,7 @@
 #include "TitleScene.hpp"
 #include "PlayingScene.hpp"
 #include "GameOverScene.hpp"
+#include "ClearScene.hpp"
 #include "Texture.hpp"
 #include "Character.hpp"
 #include "Player.hpp"
@@ -130,10 +131,12 @@ Game::Game(){
             distSpeed,
         }
     });
-    scenes[(int)GameScene::Title]   = std::make_unique<TitleScene>(*this, *ctx);
-    scenes[(int)GameScene::Playing] = std::make_unique<PlayingScene>(*this, *ctx);
-    scenes[(int)GameScene::GameOver]= std::make_unique<GameOverScene>(*this, *ctx);
+    scenes[(int)GameScene::Title]    = std::make_unique<TitleScene>(*this, *ctx);
+    scenes[(int)GameScene::Playing]  = std::make_unique<PlayingScene>(*this, *ctx);
+    scenes[(int)GameScene::GameOver] = std::make_unique<GameOverScene>(*this, *ctx);
+    scenes[(int)GameScene::Clear]    = std::make_unique<ClearScene>(*this, *ctx);
 
+    // タイトルからスタート
     currentScene = scenes[(int)GameScene::Title].get();
     currentScene->onEnter();
 }
