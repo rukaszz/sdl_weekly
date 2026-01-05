@@ -147,7 +147,7 @@ void PlayingScene::checkCollision(){
         if(b.type != BlockType::Damage){
             continue;
         }
-        SDL_Rect br = blockToRect(b);
+        SDL_Rect br = GameUtil::blockToRect(b);
         if(GameUtil::intersects(playerRect, br)){
             ctrl.changeScene(GameScene::GameOver);
             return;
@@ -161,7 +161,6 @@ void PlayingScene::checkCollision(){
  */
 void PlayingScene::hasFallenToGameOver(){
     double death_Y = GameConfig::WINDOW_HEIGHT + PlayerConfig::FRAME_H; // 画面外へ落下死たら終了
-    const Sprite& sp = ctx.entityCtx.player.getSprite();
     double playerBottom = ctx.entityCtx.player.getCollisionRect().y
                           + ctx.entityCtx.player.getCollisionRect().h;
     if (playerBottom > death_Y){

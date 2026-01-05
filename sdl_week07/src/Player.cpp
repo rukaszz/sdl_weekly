@@ -3,6 +3,7 @@
 #include "Player.hpp"
 #include "Input.hpp"
 #include "Block.hpp"
+#include "Physics.hpp"
 
 #include "GameConfig.hpp"
 #include "PlayerConfig.hpp"
@@ -86,9 +87,23 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
     // 移動後の足元の位置
     double newFeet = y + sprite.getDrawHeight();
 
-    // clampToBounds(bounds);   // Characterのclampは使わない
-    // clampToGround(bounds);
-    clampToGround(prevFeet, newFeet, blocks);
+    /* -----Physicsへ物理的な挙動を移管 ----- */
+    // clampToGround(prevFeet, newFeet, blocks);
+    // DTO作成
+    VerticalCollisionState vcs{
+        .prevFeet = prevFeet,
+        .newFeet  = newFeet,
+        .x        = x,
+        .width    = static_cast<double>(sprite.getDrawWidth()),
+        .vv       = vv,
+        .onGround = onGround
+    };
+    Physics::resolveVerticalBlockCollision(vcs, blocks);
+    // 帰ってきた結果をPlayerの内部へ反映する
+    y        = vcs.newFeet - sprite.getDrawHeight();
+    vv       = vcs.vv;
+    onGround = vcs.onGround;
+    /* -----Physicsへ物理的な挙動を移管 ----- */
     clampHorizontalPosition(bounds);
 
     // アニメーション処理

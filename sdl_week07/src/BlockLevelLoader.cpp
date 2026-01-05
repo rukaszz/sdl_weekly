@@ -1,11 +1,18 @@
+#include "GameUtil.hpp"
 #include "BlockLevelLoader.hpp"
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
-#include <boost/algorithm/string.hpp>
 
+/**
+ * @brief assets/level/level*.txtを読み込む関数
+ * ブロックの配置や種別を外部ファイルから読み取る
+ * 
+ * @param path 
+ * @return std::vector<Block> 
+ */
 std::vector<Block> BlockLevelLoader::loadFromFile(const std::string& path){
     //ファイルオープン
     std::ifstream ifs(path);
@@ -22,15 +29,12 @@ std::vector<Block> BlockLevelLoader::loadFromFile(const std::string& path){
         ++lineNo;
         // 空の行 or コメント(#)は無視
         auto pos = line.find('#');
-        // findで見つかった
+        // findで見つからない→#が無い箇所のみ
         if(pos != std::string::npos){
             line = line.substr(0, pos);
         }
         // トリム
-        boost::algorithm::trim(line);
-        if(line.empty() || line[0] == '#'){
-            continue;
-        }
+        GameUtil::trim(line);
         // 空白区切りの文字列を読み取り
         std::istringstream iss(line);
         char typeChar;
