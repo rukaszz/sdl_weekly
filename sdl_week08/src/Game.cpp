@@ -249,7 +249,9 @@ void Game::processEvents(){
             running = false;
         }
         input->handleEvent(e);
+        #ifdef DEBUG_INPUT
         input->debugPrintInput();
+        #endif  // DEBUG_INPUT
         currentScene->handleEvent(e);
     }
 }

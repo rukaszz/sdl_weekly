@@ -1,4 +1,5 @@
 #include "Physics.hpp"
+#include "PlayerConfig.hpp"
 
 /**
  * @brief 床との接地管理用のクランプ関数
@@ -22,8 +23,13 @@ void Physics::resolveVerticalBlockCollision(VerticalCollisionState& vcs, const s
 
     // ブロック群をチェック
     for(const auto& b : blocks){
-        if(b.type != BlockType::Standable){
-            continue;   // 乗れる床以外は以下の処理をしない
+        // 乗れる床/すり抜け床以外は以下の処理をしない
+        if(b.type != BlockType::Standable && b.type != BlockType::DropThrough){
+            continue;
+        }
+        // すり抜け床かつignoreDropThroughならスキップ
+        if(b.type == BlockType::DropThrough && vcs.ignoreDropThrough){
+            continue;
         }
         // ブロックの下辺以外の座標
         double blockTop = b.y;
@@ -38,7 +44,7 @@ void Physics::resolveVerticalBlockCollision(VerticalCollisionState& vcs, const s
                                && newFeet  >= blockTop;
 
         if(horizontallyOverlaps && verticallyOverlaps){
-            // 着地：ブロック上辺からplayer高さ分を補正
+            // 着地：ブロック上辺からオブジェクトの高さ分を補正
             vcs.newFeet = blockTop;
             vcs.vv = 0.0;
             vcs.onGround = true;

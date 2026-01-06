@@ -14,6 +14,7 @@ class TextTexture;
 class GameOverScene : public Scene{
 private:
     std::unique_ptr<TextTexture> gameOverText;
+    std::unique_ptr<TextTexture> returnTitleText;
     double blinkTimer = 0.0;
     bool blinkVisible= true;
 public:

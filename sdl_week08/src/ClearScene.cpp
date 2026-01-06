@@ -1,3 +1,4 @@
+#include "GameConfig.hpp"
 #include "ClearScene.hpp"
 #include "Game.hpp"
 #include "Renderer.hpp"
@@ -16,13 +17,16 @@ ClearScene::ClearScene(SceneControl& sc, GameContext& gc)
         gc
     )
 {
+    // クリア表示
     clearText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 216, 0, 255});
     clearText->setText("CLEAR!!");
+    // タイトルへ戻る
+    returnTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
+    returnTitleText->setText("Press ENTER to Title");
 }
 
 /**
  * @brief ゲームクリア時のイベント処理
- * Enterキー押下でリセットする(TitleではなくPlayingへ戻す)
  * 
  * @param e 
  */
@@ -44,7 +48,7 @@ void ClearScene::update(double delta){
     const InputState& is = ctx.input.getState();
     if(is.justPressed[(int)Action::Enter]){
         ctrl.resetGame();
-        ctrl.changeScene(GameScene::Playing);
+        ctrl.changeScene(GameScene::Title);
         return;
     }
 }
@@ -57,11 +61,16 @@ void ClearScene::update(double delta){
 void ClearScene::render(){
     ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
     ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);
+    returnTitleText->draw(
+        ctx.renderer,
+        GameConfig::WINDOW_WIDTH/2 - returnTitleText->getWidth()/2,
+        GameConfig::WINDOW_HEIGHT/2 - returnTitleText->getHeight()/2
+    );
     if(blinkVisible){
         clearText->draw(
             ctx.renderer,
             GameConfig::WINDOW_WIDTH/2 - clearText->getWidth()/2,
-            GameConfig::WINDOW_HEIGHT/2 - clearText->getHeight()/2
+            GameConfig::WINDOW_HEIGHT/3 - clearText->getHeight()/2
         );
     }
 }

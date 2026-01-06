@@ -35,6 +35,10 @@ std::vector<Block> BlockLevelLoader::loadFromFile(const std::string& path){
         }
         // トリム
         GameUtil::trim(line);
+        // 空白の行は何もしない(#以降は切り捨て)
+        if(line.empty()){
+            continue;
+        }
         // 空白区切りの文字列を読み取り
         std::istringstream iss(line);
         char typeChar;

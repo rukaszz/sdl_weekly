@@ -59,6 +59,8 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
 
     // 移動中以外はfalse
     bool moving = false;
+    // DropThroughの判定
+    bool dropThrough = false;
     
     if(input.pressed[(int)Action::MoveLeft]){
         // x -= speed * delta;
@@ -76,6 +78,11 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
     if(onGround && input.justPressed[(int)Action::Jump]){
         vv = -PlayerConfig::JUMP_VELOCITY;  // 上方向はy軸的には負
         onGround = false;
+    }
+    // DropThrough：接地中 かつ 下を押下
+    if(onGround && input.pressed[(int)Action::MoveDown]){
+        onGround = false;   // onGroundを外す
+        dropThrough = true;
     }
 
     // 水平方向移動
@@ -96,7 +103,8 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
         .x        = x,
         .width    = static_cast<double>(sprite.getDrawWidth()),
         .vv       = vv,
-        .onGround = onGround
+        .onGround = onGround, 
+        .ignoreDropThrough = dropThrough
     };
     Physics::resolveVerticalBlockCollision(vcs, blocks);
     // 帰ってきた結果をPlayerの内部へ反映する

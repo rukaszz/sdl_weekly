@@ -12,12 +12,13 @@
  */
 struct VerticalCollisionState{
     // 入力
-    double prevFeet;    // 1フレーム前のy座標
-    double newFeet;     // 入力受け取り後のy座標
-    double x;           // x座標
-    double width;       // spriteのwidth
-    double vv;          // 落下速度
-    bool   onGround;    // 接地しているか
+    double prevFeet;            // 1フレーム前のy座標
+    double newFeet;             // 入力受け取り後のy座標
+    double x;                   // x座標
+    double width;               // spriteのwidth
+    double vv;                  // 落下速度
+    bool   onGround;            // 接地しているか
+    bool   ignoreDropThrough;   // DropThroughの当たり判定を無視するか
 };
 
 namespace Physics{

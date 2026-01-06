@@ -1,4 +1,5 @@
 #include "GameUtil.hpp"
+#include "GameConfig.hpp"
 #include "PlayingScene.hpp"
 #include "Game.hpp"
 #include "Renderer.hpp"
@@ -147,21 +148,19 @@ void PlayingScene::checkCollision(){
     SDL_Rect playerRect = ctx.entityCtx.player.getCollisionRect();
     for(const auto& b : ctx.entityCtx.blocks){
         // ダメージ床, クリアオブジェクト以外は判定しない
-        if(b.type == BlockType::Damage || b.type == BlockType::Clear){
-            SDL_Rect br = GameUtil::blockToRect(b);
-            if(GameUtil::intersects(playerRect, br)){
-                if(b.type == BlockType::Damage){
-                    ctrl.changeScene(GameScene::GameOver);
-                    return;
-                }
-                if(b.type == BlockType::Clear){
-                    ctrl.changeScene(GameScene::Clear);
-                    return;
-                }
-            }
-        } else {
+        if(b.type != BlockType::Damage && b.type != BlockType::Clear){
+            continue;   
+        }
+        SDL_Rect br = GameUtil::blockToRect(b);
+        if(!GameUtil::intersects(playerRect, br)){
             continue;
         }
+        if(b.type == BlockType::Damage){
+            ctrl.changeScene(GameScene::GameOver);
+        }else if(b.type == BlockType::Clear){
+            ctrl.changeScene(GameScene::Clear);
+        }
+        return;
     }
 }
 

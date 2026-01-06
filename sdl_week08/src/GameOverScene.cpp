@@ -1,3 +1,4 @@
+#include "GameConfig.hpp"
 #include "GameOverScene.hpp"
 #include "Game.hpp"
 #include "Renderer.hpp"
@@ -16,6 +17,8 @@ GameOverScene::GameOverScene(SceneControl& sc, GameContext& gc)
 {
     gameOverText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
     gameOverText->setText("GameOver");
+    returnTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
+    returnTitleText->setText("Press ENTER to Title");
 }
 
 /**
@@ -62,6 +65,11 @@ void GameOverScene::render(){
             GameConfig::WINDOW_HEIGHT/2 - gameOverText->getHeight()/2
         );
     }
+    returnTitleText->draw(
+        ctx.renderer,
+        GameConfig::WINDOW_WIDTH/2 - returnTitleText->getWidth()/2,
+        GameConfig::WINDOW_HEIGHT/1.5 - returnTitleText->getHeight()/2
+    );
 }
 
 /**

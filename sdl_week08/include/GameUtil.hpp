@@ -53,7 +53,7 @@ namespace GameUtil{
 
     /**
      * @brief 空白のトリムを行う関数
-     * すべて空白のパターンはdefaultへ落ちるので問題ない
+     * すべて空白のパターンはtrim後のline.empty()で弾く
      * 全角空白などは考慮していない
      * 
      * @param s 
