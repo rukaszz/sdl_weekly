@@ -10,6 +10,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 # pkg-configを利用
 find_package(PkgConfig REQUIRED)
 
+# テスト用
+enable_testing()
+add_subdirectory(tests)
+
 # SDL2
 pkg_check_modules(SDL2 REQUIRED sdl2)
 pkg_check_modules(SDL2IMAGE REQUIRED SDL2_image)

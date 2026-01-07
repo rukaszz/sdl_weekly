@@ -2,4 +2,7 @@
 *.make
 /CMakeFiles/*
 /build/*
+/_deps/*
+/lib/*
+CMakeCache.txt
 *.log

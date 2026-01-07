@@ -1,5 +1,4 @@
 #include "Physics.hpp"
-#include "PlayerConfig.hpp"
 
 /**
  * @brief 床との接地管理用のクランプ関数
@@ -18,8 +17,8 @@ void Physics::resolveVerticalBlockCollision(VerticalCollisionState& vcs, const s
     // vcsの分解
     double prevFeet = vcs.prevFeet;
     double newFeet = vcs.newFeet;
-    double playerLeft = vcs.x;
-    double playerRight = vcs.x + vcs.width;
+    double entityLeft = vcs.x;
+    double entityLRight = vcs.x + vcs.width;
 
     // ブロック群をチェック
     for(const auto& b : blocks){
@@ -37,8 +36,8 @@ void Physics::resolveVerticalBlockCollision(VerticalCollisionState& vcs, const s
         double blockRight = b.x + b.w;
         
         // オブジェクトがブロックの左右の辺を超えたか
-        bool horizontallyOverlaps = playerRight > blockLeft
-                                 && playerLeft  < blockRight;
+        bool horizontallyOverlaps = entityLRight > blockLeft
+                                 && entityLeft  < blockRight;
         // オブジェクトがブロックの上辺を超えたか
         bool verticallyOverlaps = prevFeet <= blockTop
                                && newFeet  >= blockTop;

@@ -18,7 +18,7 @@ struct VerticalCollisionState{
     double width;               // spriteのwidth
     double vv;                  // 落下速度
     bool   onGround;            // 接地しているか
-    bool   ignoreDropThrough;   // DropThroughの当たり判定を無視するか
+    bool   ignoreDropThrough;   // DropThroughの衝突を無視するかのフラグ
 };
 
 namespace Physics{
