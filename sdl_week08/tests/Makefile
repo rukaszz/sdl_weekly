@@ -172,25 +172,97 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-tests/CMakeFiles/PhysicsTests.dir/rule:
-	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/CMakeFiles/PhysicsTests.dir/rule
-.PHONY : tests/CMakeFiles/PhysicsTests.dir/rule
+tests/CMakeFiles/AllTest.dir/rule:
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 tests/CMakeFiles/AllTest.dir/rule
+.PHONY : tests/CMakeFiles/AllTest.dir/rule
 
 # Convenience name for target.
-PhysicsTests: tests/CMakeFiles/PhysicsTests.dir/rule
-.PHONY : PhysicsTests
+AllTest: tests/CMakeFiles/AllTest.dir/rule
+.PHONY : AllTest
 
 # fast build rule for target.
-PhysicsTests/fast:
-	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/PhysicsTests.dir/build.make tests/CMakeFiles/PhysicsTests.dir/build
-.PHONY : PhysicsTests/fast
+AllTest/fast:
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/build
+.PHONY : AllTest/fast
+
+__/src/BlockLevelLoader.o: __/src/BlockLevelLoader.cpp.o
+.PHONY : __/src/BlockLevelLoader.o
+
+# target to build an object file
+__/src/BlockLevelLoader.cpp.o:
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/__/src/BlockLevelLoader.cpp.o
+.PHONY : __/src/BlockLevelLoader.cpp.o
+
+__/src/BlockLevelLoader.i: __/src/BlockLevelLoader.cpp.i
+.PHONY : __/src/BlockLevelLoader.i
+
+# target to preprocess a source file
+__/src/BlockLevelLoader.cpp.i:
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/__/src/BlockLevelLoader.cpp.i
+.PHONY : __/src/BlockLevelLoader.cpp.i
+
+__/src/BlockLevelLoader.s: __/src/BlockLevelLoader.cpp.s
+.PHONY : __/src/BlockLevelLoader.s
+
+# target to generate assembly for a file
+__/src/BlockLevelLoader.cpp.s:
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/__/src/BlockLevelLoader.cpp.s
+.PHONY : __/src/BlockLevelLoader.cpp.s
+
+__/src/Physics.o: __/src/Physics.cpp.o
+.PHONY : __/src/Physics.o
+
+# target to build an object file
+__/src/Physics.cpp.o:
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/__/src/Physics.cpp.o
+.PHONY : __/src/Physics.cpp.o
+
+__/src/Physics.i: __/src/Physics.cpp.i
+.PHONY : __/src/Physics.i
+
+# target to preprocess a source file
+__/src/Physics.cpp.i:
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/__/src/Physics.cpp.i
+.PHONY : __/src/Physics.cpp.i
+
+__/src/Physics.s: __/src/Physics.cpp.s
+.PHONY : __/src/Physics.s
+
+# target to generate assembly for a file
+__/src/Physics.cpp.s:
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/__/src/Physics.cpp.s
+.PHONY : __/src/Physics.cpp.s
+
+test_BlockLevelLoader.o: test_BlockLevelLoader.cpp.o
+.PHONY : test_BlockLevelLoader.o
+
+# target to build an object file
+test_BlockLevelLoader.cpp.o:
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/test_BlockLevelLoader.cpp.o
+.PHONY : test_BlockLevelLoader.cpp.o
+
+test_BlockLevelLoader.i: test_BlockLevelLoader.cpp.i
+.PHONY : test_BlockLevelLoader.i
+
+# target to preprocess a source file
+test_BlockLevelLoader.cpp.i:
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/test_BlockLevelLoader.cpp.i
+.PHONY : test_BlockLevelLoader.cpp.i
+
+test_BlockLevelLoader.s: test_BlockLevelLoader.cpp.s
+.PHONY : test_BlockLevelLoader.s
+
+# target to generate assembly for a file
+test_BlockLevelLoader.cpp.s:
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/test_BlockLevelLoader.cpp.s
+.PHONY : test_BlockLevelLoader.cpp.s
 
 test_Physics_logic.o: test_Physics_logic.cpp.o
 .PHONY : test_Physics_logic.o
 
 # target to build an object file
 test_Physics_logic.cpp.o:
-	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/PhysicsTests.dir/build.make tests/CMakeFiles/PhysicsTests.dir/test_Physics_logic.cpp.o
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/test_Physics_logic.cpp.o
 .PHONY : test_Physics_logic.cpp.o
 
 test_Physics_logic.i: test_Physics_logic.cpp.i
@@ -198,7 +270,7 @@ test_Physics_logic.i: test_Physics_logic.cpp.i
 
 # target to preprocess a source file
 test_Physics_logic.cpp.i:
-	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/PhysicsTests.dir/build.make tests/CMakeFiles/PhysicsTests.dir/test_Physics_logic.cpp.i
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/test_Physics_logic.cpp.i
 .PHONY : test_Physics_logic.cpp.i
 
 test_Physics_logic.s: test_Physics_logic.cpp.s
@@ -206,7 +278,7 @@ test_Physics_logic.s: test_Physics_logic.cpp.s
 
 # target to generate assembly for a file
 test_Physics_logic.cpp.s:
-	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/PhysicsTests.dir/build.make tests/CMakeFiles/PhysicsTests.dir/test_Physics_logic.cpp.s
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/test_Physics_logic.cpp.s
 .PHONY : test_Physics_logic.cpp.s
 
 # Help Target
@@ -222,7 +294,16 @@ help:
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... test"
-	@echo "... PhysicsTests"
+	@echo "... AllTest"
+	@echo "... __/src/BlockLevelLoader.o"
+	@echo "... __/src/BlockLevelLoader.i"
+	@echo "... __/src/BlockLevelLoader.s"
+	@echo "... __/src/Physics.o"
+	@echo "... __/src/Physics.i"
+	@echo "... __/src/Physics.s"
+	@echo "... test_BlockLevelLoader.o"
+	@echo "... test_BlockLevelLoader.i"
+	@echo "... test_BlockLevelLoader.s"
 	@echo "... test_Physics_logic.o"
 	@echo "... test_Physics_logic.i"
 	@echo "... test_Physics_logic.s"

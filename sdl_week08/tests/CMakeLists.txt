@@ -1,3 +1,4 @@
+##### GoogleTest用CmakeLists.txt #####
 # GoogleTestを取得
 include(FetchContent)
 
@@ -16,25 +17,29 @@ FetchContent_MakeAvailable(googletest)
 # テスト対象ソース
 set(GAME_SOURCES
     ${CMAKE_SOURCE_DIR}/src/Physics.cpp
+    ${CMAKE_SOURCE_DIR}/src/BlockLevelLoader.cpp
 )
 
-# Physics のテスト
+# テスト(AllTestでまとめてテストする)
 add_executable(
-    PhysicsTests
+    AllTest
     test_Physics_logic.cpp
+    test_BlockLevelLoader.cpp
     ${GAME_SOURCES}
     ${GAME_HEADERS}
 )
+
 # Physicsのインクルードディレクトリ
 target_include_directories(
-    PhysicsTests PRIVATE
+    AllTest PRIVATE
     ${CMAKE_SOURCE_DIR}/include
 )
 # テスト
-target_link_libraries(PhysicsTests
+target_link_libraries(
+    AllTest
     GTest::gtest
     GTest::gtest_main
 )
 
 include(GoogleTest)
-gtest_discover_tests(PhysicsTests)
+gtest_discover_tests(AllTest)

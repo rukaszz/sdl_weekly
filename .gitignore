@@ -6,3 +6,4 @@
 /lib/*
 CMakeCache.txt
 *.log
+Makefile

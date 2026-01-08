@@ -3,6 +3,9 @@
 /**
  * @brief 床との接地管理用のクランプ関数
  * 
+ * if(vcs.vv <= 0.0)は重力加算後に呼ばれる前提の処理なので留意すること
+ * vv > 0のときのみ下向き衝突判定が行われる(上昇中は何もしない)
+ * 
  * @param prevFeet: 1フレーム前のオブジェクト下部
  * @param newFeet: 更新時のオブジェクトの下部の位置 
  * @param blocks: 描画しているブロックの情報 
@@ -18,7 +21,7 @@ void Physics::resolveVerticalBlockCollision(VerticalCollisionState& vcs, const s
     double prevFeet = vcs.prevFeet;
     double newFeet = vcs.newFeet;
     double entityLeft = vcs.x;
-    double entityLRight = vcs.x + vcs.width;
+    double entityRight = vcs.x + vcs.width;
 
     // ブロック群をチェック
     for(const auto& b : blocks){
@@ -36,8 +39,8 @@ void Physics::resolveVerticalBlockCollision(VerticalCollisionState& vcs, const s
         double blockRight = b.x + b.w;
         
         // オブジェクトがブロックの左右の辺を超えたか
-        bool horizontallyOverlaps = entityLRight > blockLeft
-                                 && entityLeft  < blockRight;
+        bool horizontallyOverlaps = entityRight > blockLeft
+                                 && entityLeft   < blockRight;
         // オブジェクトがブロックの上辺を超えたか
         bool verticallyOverlaps = prevFeet <= blockTop
                                && newFeet  >= blockTop;
