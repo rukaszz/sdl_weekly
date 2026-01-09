@@ -102,6 +102,8 @@ Game::Game(){
     fpsText->setText("");
     // input抽象化
     input = std::make_unique<Input>();
+    // カメラ
+    camera = {0, 0, 0, 0};
     
     running = true;
 
@@ -114,6 +116,7 @@ Game::Game(){
     ctx = std::make_unique<GameContext>(GameContext{
         *renderer,
         *input, 
+        camera,
         EntityContext{
             *player,
             enemies,

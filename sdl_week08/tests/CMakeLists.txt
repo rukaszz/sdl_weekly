@@ -18,6 +18,7 @@ FetchContent_MakeAvailable(googletest)
 set(GAME_SOURCES
     ${CMAKE_SOURCE_DIR}/src/Physics.cpp
     ${CMAKE_SOURCE_DIR}/src/BlockLevelLoader.cpp
+    ${CMAKE_SOURCE_DIR}/src/GameUtil.cpp
 )
 
 # テスト(AllTestでまとめてテストする)
@@ -25,6 +26,7 @@ add_executable(
     AllTest
     test_Physics_logic.cpp
     test_BlockLevelLoader.cpp
+    test_GameUtil.cpp
     ${GAME_SOURCES}
     ${GAME_HEADERS}
 )
@@ -39,6 +41,8 @@ target_link_libraries(
     AllTest
     GTest::gtest
     GTest::gtest_main
+    GTest::gmock
+    GTest::gmock_main
 )
 
 include(GoogleTest)

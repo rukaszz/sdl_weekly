@@ -13,6 +13,7 @@ class TextTexture;
 class Text;
 class Input;
 struct Block;
+struct Camera;
 
 /**
  * @brief 主にプレイヤーに関わるオブジェクト(エンティティ)を管理
@@ -49,6 +50,7 @@ struct RandomContext{
 struct GameContext{
     Renderer& renderer;
     Input& input;
+    Camera& camera;
 
     EntityContext entityCtx;
     TextRenderContext textRenderCtx;

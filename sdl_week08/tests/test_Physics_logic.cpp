@@ -8,7 +8,7 @@
  * 
  * ブロックがないパターン
  */
-TEST(PhysicsTests, FallWithoutBlocks_NoLanding){
+TEST(AllTest, FallWithoutBlocks_NoLanding){
     // Physicsへ渡すDTO
     VerticalCollisionState vcs{
         .prevFeet          = 90.0, 
@@ -34,7 +34,7 @@ TEST(PhysicsTests, FallWithoutBlocks_NoLanding){
  * 
  * 立てる床へたったパターン
  */
-TEST(PhysicsTests, LandOnStandableBlock){
+TEST(AllTest, LandOnStandableBlock){
     // Physicsへ渡すDTO
     VerticalCollisionState vcs{
         .prevFeet          = 90.0, 
@@ -69,7 +69,7 @@ TEST(PhysicsTests, LandOnStandableBlock){
  * 
  * x軸が離れているパターン
  */
-TEST(PhysicsTests, NoCollisionWhenNotOverlappingHorizontally) {
+TEST(AllTest, NoCollisionWhenNotOverlappingHorizontally) {
     // Physicsへ渡すDTO
     VerticalCollisionState vcs{
         .prevFeet = 90.0,
@@ -103,7 +103,7 @@ TEST(PhysicsTests, NoCollisionWhenNotOverlappingHorizontally) {
  * 
  * すり抜け床で立つパターン
  */
-TEST(PhysicsTests, DropThrough_ActsAsStandableWhenNotIgnored) {
+TEST(AllTest, DropThrough_ActsAsStandableWhenNotIgnored) {
     // Physicsへ渡すDTO
     VerticalCollisionState vcs{
         .prevFeet          = 90.0,  // 上からの落下 
@@ -137,7 +137,7 @@ TEST(PhysicsTests, DropThrough_ActsAsStandableWhenNotIgnored) {
  * 
  * すり抜け床をすり抜けるパターン
  */
-TEST(PhysicsTests, DropThrough_IgnoredWhenFlagSet_DropStarts) {
+TEST(AllTest, DropThrough_IgnoredWhenFlagSet_DropStarts) {
     // Physicsへ渡すDTO
     VerticalCollisionState vcs{
         .prevFeet          = 100.0,   // blockTop と一致 → 直前フレームでは床に立っていた
@@ -171,7 +171,7 @@ TEST(PhysicsTests, DropThrough_IgnoredWhenFlagSet_DropStarts) {
  * 
  * すり抜け床をすり抜けたあとにその床へ戻らないか
  */
-TEST(PhysicsTests, DropThrough_OncePassedTop_DoesNotRelandLater) {
+TEST(AllTest, DropThrough_OncePassedTop_DoesNotRelandLater) {
     // すり抜け床ブロック
     Block floor{
         .x    = 40.0,
@@ -224,7 +224,7 @@ TEST(PhysicsTests, DropThrough_OncePassedTop_DoesNotRelandLater) {
  * 
  * 着地処理に関係しないブロックのパターン
  */
-TEST(PhysicsTests, IgnoreDamageAndClearBlocksForLanding) {
+TEST(AllTest, IgnoreDamageAndClearBlocksForLanding) {
     // Physicsへ渡すDTO
     VerticalCollisionState vcs{
         .prevFeet = 90.0,

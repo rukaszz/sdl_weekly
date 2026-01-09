@@ -79,11 +79,12 @@ void PlayingScene::render(){
             blockColor = {255, 216, 0, 255};    // 黃
             break;
         }
-        SDL_Rect r = {static_cast<int>(b.x), static_cast<int>(b.y),
+        SDL_Rect r = {static_cast<int>(b.x - ctx.camera.x), static_cast<int>(b.y- ctx.camera.y),
                       static_cast<int>(b.w), static_cast<int>(b.h)};
         ctx.renderer.drawRect(r, blockColor);
     }
     // キャラクタ描画
+    // カメラを考慮した書き方にする
     ctx.entityCtx.player.draw(ctx.renderer);
     for(auto& e : ctx.entityCtx.enemies) e->draw(ctx.renderer);
 }

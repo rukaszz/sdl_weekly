@@ -209,6 +209,30 @@ __/src/BlockLevelLoader.cpp.s:
 	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/__/src/BlockLevelLoader.cpp.s
 .PHONY : __/src/BlockLevelLoader.cpp.s
 
+__/src/GameUtil.o: __/src/GameUtil.cpp.o
+.PHONY : __/src/GameUtil.o
+
+# target to build an object file
+__/src/GameUtil.cpp.o:
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/__/src/GameUtil.cpp.o
+.PHONY : __/src/GameUtil.cpp.o
+
+__/src/GameUtil.i: __/src/GameUtil.cpp.i
+.PHONY : __/src/GameUtil.i
+
+# target to preprocess a source file
+__/src/GameUtil.cpp.i:
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/__/src/GameUtil.cpp.i
+.PHONY : __/src/GameUtil.cpp.i
+
+__/src/GameUtil.s: __/src/GameUtil.cpp.s
+.PHONY : __/src/GameUtil.s
+
+# target to generate assembly for a file
+__/src/GameUtil.cpp.s:
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/__/src/GameUtil.cpp.s
+.PHONY : __/src/GameUtil.cpp.s
+
 __/src/Physics.o: __/src/Physics.cpp.o
 .PHONY : __/src/Physics.o
 
@@ -257,6 +281,30 @@ test_BlockLevelLoader.cpp.s:
 	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/test_BlockLevelLoader.cpp.s
 .PHONY : test_BlockLevelLoader.cpp.s
 
+test_GameUtil.o: test_GameUtil.cpp.o
+.PHONY : test_GameUtil.o
+
+# target to build an object file
+test_GameUtil.cpp.o:
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/test_GameUtil.cpp.o
+.PHONY : test_GameUtil.cpp.o
+
+test_GameUtil.i: test_GameUtil.cpp.i
+.PHONY : test_GameUtil.i
+
+# target to preprocess a source file
+test_GameUtil.cpp.i:
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/test_GameUtil.cpp.i
+.PHONY : test_GameUtil.cpp.i
+
+test_GameUtil.s: test_GameUtil.cpp.s
+.PHONY : test_GameUtil.s
+
+# target to generate assembly for a file
+test_GameUtil.cpp.s:
+	cd /home/lucas/sdl-weekly/sdl_week08 && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/AllTest.dir/build.make tests/CMakeFiles/AllTest.dir/test_GameUtil.cpp.s
+.PHONY : test_GameUtil.cpp.s
+
 test_Physics_logic.o: test_Physics_logic.cpp.o
 .PHONY : test_Physics_logic.o
 
@@ -298,12 +346,18 @@ help:
 	@echo "... __/src/BlockLevelLoader.o"
 	@echo "... __/src/BlockLevelLoader.i"
 	@echo "... __/src/BlockLevelLoader.s"
+	@echo "... __/src/GameUtil.o"
+	@echo "... __/src/GameUtil.i"
+	@echo "... __/src/GameUtil.s"
 	@echo "... __/src/Physics.o"
 	@echo "... __/src/Physics.i"
 	@echo "... __/src/Physics.s"
 	@echo "... test_BlockLevelLoader.o"
 	@echo "... test_BlockLevelLoader.i"
 	@echo "... test_BlockLevelLoader.s"
+	@echo "... test_GameUtil.o"
+	@echo "... test_GameUtil.i"
+	@echo "... test_GameUtil.s"
 	@echo "... test_Physics_logic.o"
 	@echo "... test_Physics_logic.i"
 	@echo "... test_Physics_logic.s"

@@ -12,6 +12,7 @@
 #include "GameContext.hpp"
 #include "Input.hpp"
 #include "Block.hpp"
+#include "Camera.hpp"
 
 #include <memory>
 #include <vector>
@@ -50,6 +51,8 @@ private:
     std::unique_ptr<TextTexture> gameOverText;
     // input抽象化
     std::unique_ptr<Input> input;
+    // カメラ
+    Camera camera;
 
     // 変数系
     bool running = true;
