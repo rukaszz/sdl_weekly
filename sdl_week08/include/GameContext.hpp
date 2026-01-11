@@ -14,6 +14,7 @@ class Text;
 class Input;
 struct Block;
 struct Camera;
+struct WorldInfo;
 
 /**
  * @brief 主にプレイヤーに関わるオブジェクト(エンティティ)を管理
@@ -51,6 +52,7 @@ struct GameContext{
     Renderer& renderer;
     Input& input;
     Camera& camera;
+    WorldInfo& worldInfo;
 
     EntityContext entityCtx;
     TextRenderContext textRenderCtx;

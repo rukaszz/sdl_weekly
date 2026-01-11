@@ -3,6 +3,7 @@
 #include <SDL2/SDL.h>
 
 class Sprite;
+struct Camera;
 
 class Renderer{
 private:
@@ -21,6 +22,7 @@ public:
     void clear();
     void present();
     void draw(const Sprite& s, bool flipX);
+    void draw(const Sprite& s, Camera& camera, bool flipX);
     SDL_Point getOutputSize() const;
     void drawText(SDL_Texture* tex, int x, int y, int w, int h);
     // 床ブロックテスト用

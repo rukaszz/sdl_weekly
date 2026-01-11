@@ -8,7 +8,7 @@
  * 
  * ブロックがないパターン
  */
-TEST(AllTest, FallWithoutBlocks_NoLanding){
+TEST(PhysicsTests, FallWithoutBlocks_NoLanding){
     // Physicsへ渡すDTO
     VerticalCollisionState vcs{
         .prevFeet          = 90.0, 
@@ -34,7 +34,7 @@ TEST(AllTest, FallWithoutBlocks_NoLanding){
  * 
  * 立てる床へたったパターン
  */
-TEST(AllTest, LandOnStandableBlock){
+TEST(PhysicsTests, LandOnStandableBlock){
     // Physicsへ渡すDTO
     VerticalCollisionState vcs{
         .prevFeet          = 90.0, 
@@ -69,7 +69,7 @@ TEST(AllTest, LandOnStandableBlock){
  * 
  * x軸が離れているパターン
  */
-TEST(AllTest, NoCollisionWhenNotOverlappingHorizontally) {
+TEST(PhysicsTests, NoCollisionWhenNotOverlappingHorizontally) {
     // Physicsへ渡すDTO
     VerticalCollisionState vcs{
         .prevFeet = 90.0,
@@ -103,7 +103,7 @@ TEST(AllTest, NoCollisionWhenNotOverlappingHorizontally) {
  * 
  * すり抜け床で立つパターン
  */
-TEST(AllTest, DropThrough_ActsAsStandableWhenNotIgnored) {
+TEST(PhysicsTests, DropThrough_ActsAsStandableWhenNotIgnored) {
     // Physicsへ渡すDTO
     VerticalCollisionState vcs{
         .prevFeet          = 90.0,  // 上からの落下 
@@ -126,7 +126,7 @@ TEST(AllTest, DropThrough_ActsAsStandableWhenNotIgnored) {
 
     Physics::resolveVerticalBlockCollision(vcs, blocks);
 
-    // すり抜けるのでonGroundが変わる
+    // すり抜け床だがignoreDropThrough=falseなので通常ブロックとして着地する
     EXPECT_DOUBLE_EQ(vcs.newFeet, floor.y);
     EXPECT_DOUBLE_EQ(vcs.vv, 0.0);  // 接地状態
     EXPECT_TRUE(vcs.onGround);
@@ -137,7 +137,7 @@ TEST(AllTest, DropThrough_ActsAsStandableWhenNotIgnored) {
  * 
  * すり抜け床をすり抜けるパターン
  */
-TEST(AllTest, DropThrough_IgnoredWhenFlagSet_DropStarts) {
+TEST(PhysicsTests, DropThrough_IgnoredWhenFlagSet_DropStarts) {
     // Physicsへ渡すDTO
     VerticalCollisionState vcs{
         .prevFeet          = 100.0,   // blockTop と一致 → 直前フレームでは床に立っていた
@@ -171,7 +171,7 @@ TEST(AllTest, DropThrough_IgnoredWhenFlagSet_DropStarts) {
  * 
  * すり抜け床をすり抜けたあとにその床へ戻らないか
  */
-TEST(AllTest, DropThrough_OncePassedTop_DoesNotRelandLater) {
+TEST(PhysicsTests, DropThrough_OncePassedTop_DoesNotRelandLater) {
     // すり抜け床ブロック
     Block floor{
         .x    = 40.0,
@@ -224,7 +224,7 @@ TEST(AllTest, DropThrough_OncePassedTop_DoesNotRelandLater) {
  * 
  * 着地処理に関係しないブロックのパターン
  */
-TEST(AllTest, IgnoreDamageAndClearBlocksForLanding) {
+TEST(PhysicsTests, IgnoreDamageAndClearBlocksForLanding) {
     // Physicsへ渡すDTO
     VerticalCollisionState vcs{
         .prevFeet = 90.0,

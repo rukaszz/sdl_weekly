@@ -1,6 +1,7 @@
 #include "Character.hpp"
 #include "Renderer.hpp"
 #include "Texture.hpp"
+#include "Camera.hpp"
 
 #include <algorithm>
 
@@ -42,9 +43,41 @@ Character::~Character() = default;
  * 
  * @param renderer: Rendererクラスのオブジェクト
  */
-void Character::draw(Renderer& renderer){
+// void Character::draw(Renderer& renderer){
+//     sprite.setPosition(static_cast<int>(x), static_cast<int>(y));
+//     renderer.draw(sprite, dir == Direction::Left);
+// }
+
+/**
+ * @brief スプライトオブジェクトが持っている画像をレンダラーへ描画する
+ * カメラを考慮した版
+ * 
+ * @param renderer 
+ * @param camera 
+ */
+void Character::draw(Renderer& renderer, Camera& camera){
     sprite.setPosition(static_cast<int>(x), static_cast<int>(y));
-    renderer.draw(sprite, dir == Direction::Left);
+    renderer.draw(sprite, camera, dir == Direction::Left);
+}
+
+/**
+ * @brief エンティティのx軸の中心位置を返す
+ * 主にカメラなどの処理で使う
+ * 
+ * @return double 
+ */
+double Character::getEntityCenter_X(){
+    return x + (sprite.getDrawWidth() / 2.0);
+}
+
+/**
+ * @brief エンティティのy軸の中心位置を返す
+ * 主にカメラなどの処理で使う
+ * 
+ * @return double 
+ */
+double Character::getEntityCenter_Y(){
+    return y + (sprite.getDrawHeight() / 2.0);
 }
 
 /**

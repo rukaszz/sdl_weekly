@@ -6,7 +6,6 @@ using ::testing::Field;
 #include <fstream>
 #include <cstdio>   // std::remove用
 
-#include "GameUtil.hpp"
 #include "BlockLevelLoader.hpp"
 #include "Block.hpp"
 
@@ -30,7 +29,7 @@ void writeTempFile(const std::string& filename, const std::string& content){
  * 
  * 正常なデータ読み込み
  */
-TEST(AllTest, NormalBlockLevelDataLoad){
+TEST(BlockLevelLoaderTests, NormalBlockLevelDataLoad){
     // 一時テキストファイル
     const std::string filename = "temp_test_normal_file.txt";
     // 正常なlevelデータ
@@ -96,14 +95,15 @@ C 650 80 20 20   # クリアオブジェクト)";
  * 
  * 壊れたデータを含むテキストデータ読み込み
  */
-TEST(AllTest, AbnormalBlockLevelDataLoad){
+TEST(BlockLevelLoaderTests, AbnormalBlockLevelDataLoad){
     // 一時テキストファイル
     const std::string filename = "temp_test_abnormal_file.txt";
     // 正常なlevelデータ
     std::string rsl = R"(# T 200  80 100 20 # コメント行
 S 0   750 200 50 # 床(正常なデータ)
 D 400 380 100 # カラム欠け
-C 650 80 20 ten   # 変な文字が入る)";
+C 650 80 20 ten   # 変な文字が入る
+X 500 100 10 10 # 未知のBlockTypeは虫)";
 
     // 一時ファイルへ書き込み
     writeTempFile(filename, rsl);

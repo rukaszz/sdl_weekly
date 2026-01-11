@@ -10,6 +10,7 @@
 class Texture;
 class Renderer;
 struct Block;
+struct Camera;
 
 // キャラクタの向き
 enum class Direction{
@@ -59,7 +60,10 @@ public:
     virtual ~Character();
     virtual void update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks) = 0;
     virtual SDL_Rect getCollisionRect() const = 0;
-    virtual void draw(Renderer& renderer);
+    // virtual void draw(Renderer& renderer);
+    virtual void draw(Renderer& renderer, Camera& camera);
+    virtual double getEntityCenter_X();
+    virtual double getEntityCenter_Y(); 
     virtual const Sprite& getSprite() const;
     virtual void setPosition(double coorX, double coorY);
     virtual void clampToBounds(const DrawBounds& b);

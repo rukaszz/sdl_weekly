@@ -1,5 +1,6 @@
 #include "Renderer.hpp"
 #include "Sprite.hpp"
+#include "Camera.hpp"
 
 #include <SDL2/SDL.h>
 #include <stdexcept>
@@ -106,6 +107,33 @@ void Renderer::drawTextureEx(SDL_Texture* tex, const SDL_Rect* src, SDL_Rect* ds
  * @param flipX: dir == Direction::Leftのように渡ってくる真理値  
  */
 void Renderer::draw(const Sprite& sprite, bool flipX){
+    SDL_RendererFlip flip = flipX ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
+    const SDL_Rect& src = sprite.getSrcRect();
+    const SDL_Rect& dst = sprite.getDstRect();
+    
+    SDL_RenderCopyEx(
+        renderer, 
+        sprite.getTexture(), 
+        &src, 
+        &dst, 
+        0.0, 
+        nullptr, 
+        flip
+    );
+}
+
+/**
+ * @brief 描画処理を担う反転可能な描画関数
+ * SDL_RenderCopyExを呼び出す
+ * cameraを考慮した版 
+ * 
+ * @param sprite 
+ * @param camera 
+ * @param flipX 
+ */
+void Renderer::draw(const Sprite& sprite, Camera& camera, bool flipX){
+    // cameraはとりあえず無効化しておく
+    (void)camera;
     SDL_RendererFlip flip = flipX ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
     const SDL_Rect& src = sprite.getSrcRect();
     const SDL_Rect& dst = sprite.getDstRect();

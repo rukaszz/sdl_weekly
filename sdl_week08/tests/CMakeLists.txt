@@ -18,20 +18,18 @@ FetchContent_MakeAvailable(googletest)
 set(GAME_SOURCES
     ${CMAKE_SOURCE_DIR}/src/Physics.cpp
     ${CMAKE_SOURCE_DIR}/src/BlockLevelLoader.cpp
-    ${CMAKE_SOURCE_DIR}/src/GameUtil.cpp
 )
 
-# テスト(AllTestでまとめてテストする)
+# テスト(cppファイルごとにテストスイートを作る)
 add_executable(
     AllTest
     test_Physics_logic.cpp
     test_BlockLevelLoader.cpp
     test_GameUtil.cpp
     ${GAME_SOURCES}
-    ${GAME_HEADERS}
 )
 
-# Physicsのインクルードディレクトリ
+# Physicsインクルードディレクトリ
 target_include_directories(
     AllTest PRIVATE
     ${CMAKE_SOURCE_DIR}/include
@@ -40,9 +38,8 @@ target_include_directories(
 target_link_libraries(
     AllTest
     GTest::gtest
-    GTest::gtest_main
     GTest::gmock
-    GTest::gmock_main
+    GTest::gtest_main
 )
 
 include(GoogleTest)

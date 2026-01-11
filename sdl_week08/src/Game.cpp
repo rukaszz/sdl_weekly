@@ -62,7 +62,7 @@ Game::Game(){
     playerTexture = std::make_unique<Texture>(renderer->get(), "assets/image/rhb.png");
     player = std::make_unique<Player>(*playerTexture);
     player->setPosition(PlayerConfig::POS_X, PlayerConfig::POS_Y);
-    // 敵
+    // 敵(とりあえず5体表示)
     enemyTexture = std::make_unique<Texture>(renderer->get(), "assets/image/dark_rhb.png");
     auto enemyTex = enemyTexture.get();
     for(int i = 0;i < 5; ++i){
@@ -71,7 +71,7 @@ Game::Game(){
     // ブロックの描画情報取得
     try{
         blocks = BlockLevelLoader::loadFromFile("assets/level/level1.txt");
-    } catch(const std::exception& e){
+    }catch(const std::exception& e){
         // 最低限のフォールバック
         // ハードコードで床を描画
         blocks.clear();
@@ -83,15 +83,16 @@ Game::Game(){
             BlockType::Standable
         });
     }
-    /*
-    blocks.push_back(Block{
-        0.0,
-        GameConfig::WINDOW_HEIGHT - 50.0,
-        static_cast<double>(GameConfig::WINDOW_WIDTH),
-        50.0, 
-        BlockType::Standable
-    });
-    */
+
+    // 世界の広さ
+    WorldInfo worldInfo = {static_cast<double>(GameConfig::WINDOW_WIDTH), 
+                           static_cast<double>(GameConfig::WINDOW_HEIGHT)
+                        };
+    // ブロックが置かれている範囲に応じて拡張
+    for(const auto& b : blocks){
+        worldInfo.WorldWidth = std::max(worldInfo.WorldWidth, b.x + b.w);
+        worldInfo.WorldHeight = std::max(worldInfo.WorldHeight, b.y + b.h);
+    }
     // テキスト
     font = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
     // スコア
@@ -103,7 +104,10 @@ Game::Game(){
     // input抽象化
     input = std::make_unique<Input>();
     // カメラ
-    camera = {0, 0, 0, 0};
+    camera = {0.0, 0.0, 
+              static_cast<double>(GameConfig::WINDOW_WIDTH), 
+              static_cast<double>(GameConfig::WINDOW_HEIGHT)
+            };
     
     running = true;
 
@@ -117,6 +121,7 @@ Game::Game(){
         *renderer,
         *input, 
         camera,
+        worldInfo, 
         EntityContext{
             *player,
             enemies,

@@ -24,6 +24,7 @@ public:
 
     void updateScore(double delta);
     void updateEntities(double delta, DrawBounds b);
+    void updateCamera();
     void checkCollision();
     void hasFallenToGameOver();
 };

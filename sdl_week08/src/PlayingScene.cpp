@@ -6,6 +6,8 @@
 
 #include <SDL2/SDL.h>
 
+#include <algorithm>
+
 /**
  * @brief Construct a new Playing Scene:: Playing Scene object
  * 
@@ -51,6 +53,7 @@ void PlayingScene::update(double delta){
     updateEntities(delta, b);
     checkCollision();
     hasFallenToGameOver();
+    updateCamera();
 }
 
 /**
@@ -85,8 +88,25 @@ void PlayingScene::render(){
     }
     // キャラクタ描画
     // カメラを考慮した書き方にする
-    ctx.entityCtx.player.draw(ctx.renderer);
-    for(auto& e : ctx.entityCtx.enemies) e->draw(ctx.renderer);
+    ctx.entityCtx.player.draw(ctx.renderer, ctx.camera);
+    for(auto& e : ctx.entityCtx.enemies) e->draw(ctx.renderer, ctx.camera);
+}
+
+/**
+ * @brief camera更新用関数
+ * 
+ */
+void PlayingScene::updateCamera(){
+    auto& player = ctx.entityCtx.player;
+    // playerの中央
+    const double playerCenter_X = player.getEntityCenter_X();
+
+    // プレイヤーを画面中央付近へ維持する
+    ctx.camera.x = playerCenter_X - (ctx.camera.width / 2.0);
+
+    // WorldInfo.WorldWidthでクランプする
+    const double maxCamera_X = std::max(0.0, (ctx.worldInfo.WorldWidth - ctx.camera.width));
+    ctx.camera.x = std::clamp(ctx.camera.x, 0.0, maxCamera_X);
 }
 
 /**

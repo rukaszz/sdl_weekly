@@ -27,6 +27,12 @@ enum class GameScene{
     Count, 
 };
 
+// 世界の広さ(ステージの広さ)
+struct WorldInfo{
+    double WorldWidth;
+    double WorldHeight;
+};
+
 class Game : public SceneControl{
 private:
     // スマートポインタ

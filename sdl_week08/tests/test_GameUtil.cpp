@@ -12,7 +12,7 @@
  * 
  * 先頭と末尾の半角スペースが取り除かれるパターン
  */
-TEST(AllTest, GameUtil_TrimSpace){
+TEST(GameUtilTests, GameUtil_TrimSpace){
     // テスト用文字列
     std::string test_str = " S 10 20 30 40 ";
     // 期待値
@@ -27,7 +27,7 @@ TEST(AllTest, GameUtil_TrimSpace){
  * 
  * 半角スペースのみの行が空の文字列にトリムされるパターン
  */
-TEST(AllTest, GameUtil_TrimBlankLine){
+TEST(GameUtilTests, GameUtil_TrimBlankLine){
     // テスト用文字列
     std::string test_str = "          "; // 半角スペース10個
     // 期待値
@@ -43,7 +43,7 @@ TEST(AllTest, GameUtil_TrimBlankLine){
  * 
  * 明らかに接触しているパターン
  */
-TEST(AllTest, GameUtil_AABBClearlyIntersecting){
+TEST(GameUtilTests, GameUtil_AABBClearlyIntersecting){
     SDL_Rect a{0, 0, 10, 10};
     SDL_Rect b{5, 5, 15, 15};
 
@@ -55,7 +55,7 @@ TEST(AllTest, GameUtil_AABBClearlyIntersecting){
  * 
  * 明らかに接触していないパターン
  */
-TEST(AllTest, GameUtil_AABBClearlyNotIntersecting){
+TEST(GameUtilTests, GameUtil_AABBClearlyNotIntersecting){
     SDL_Rect a{0, 0, 10, 10};
     SDL_Rect b{20, 20, 30, 30};
 
@@ -67,7 +67,7 @@ TEST(AllTest, GameUtil_AABBClearlyNotIntersecting){
  * 
  * 左右の境界で接触しているパターン
  */
-TEST(AllTest, GameUtil_AABBTouchAtEdgeHorizontal){
+TEST(GameUtilTests, GameUtil_AABBTouchAtEdgeHorizontal){
     // aの右端(10)とbの左端(10)が接触→false
     SDL_Rect a{0, 0, 10, 10};
     SDL_Rect b{10, 0, 20, 10};
@@ -80,7 +80,7 @@ TEST(AllTest, GameUtil_AABBTouchAtEdgeHorizontal){
  * 
  * 上下の境界で接触しているパターン
  */
-TEST(AllTest, GameUtil_AABBTouchAtEdgeVertical){
+TEST(GameUtilTests, GameUtil_AABBTouchAtEdgeVertical){
     // aの上端(10)とbの下端(10)が接触→false
     SDL_Rect a{0, 0, 10, 10};
     SDL_Rect b{0, 10, 10, 20};
@@ -93,7 +93,7 @@ TEST(AllTest, GameUtil_AABBTouchAtEdgeVertical){
  * 
  * 角で接触しているパターン
  */
-TEST(AllTest, GameUtil_AABBTouchAtCorner){
+TEST(GameUtilTests, GameUtil_AABBTouchAtCorner){
     // 角(a右下とb左上)が接触→false
     SDL_Rect a{0, 0, 10, 10};
     SDL_Rect b{10, 10, 10, 20};
