@@ -85,9 +85,9 @@ Game::Game(){
     }
 
     // 世界の広さ
-    WorldInfo worldInfo = {static_cast<double>(GameConfig::WINDOW_WIDTH), 
-                           static_cast<double>(GameConfig::WINDOW_HEIGHT)
-                        };
+    worldInfo = {static_cast<double>(GameConfig::WINDOW_WIDTH), 
+                 static_cast<double>(GameConfig::WINDOW_HEIGHT)
+                };
     // ブロックが置かれている範囲に応じて拡張
     for(const auto& b : blocks){
         worldInfo.WorldWidth = std::max(worldInfo.WorldWidth, b.x + b.w);
@@ -184,6 +184,8 @@ void Game::changeScene(GameScene id){
  */
 void Game::resetGame(){
     score = 0;
+    camera.x = 0.0;
+    camera.y = 0.0;
     player->reset();
     for(auto& e : enemies){
         e->reset(rd, distX, distY, distSpeed);
@@ -284,6 +286,3 @@ void Game::render(){
     currentScene->render();
     renderer->present();
 }
-
-
-

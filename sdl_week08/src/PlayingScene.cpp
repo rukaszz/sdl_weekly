@@ -46,11 +46,13 @@ void PlayingScene::update(double delta){
         return;
     }
     // ウィンドウサイズの型変換
-    SDL_Point p = ctx.renderer.getOutputSize();
-    DrawBounds b = {static_cast<double>(p.x), static_cast<double>(p.y)};
+    // SDL_Point p = ctx.renderer.getOutputSize();
+    // DrawBounds b = {static_cast<double>(p.x), static_cast<double>(p.y)};
+    // worldInfoを用いた幅のクランプ処理へ変更
+    DrawBounds worldBounds = {ctx.worldInfo.WorldWidth, ctx.worldInfo.WorldHeight};
     
     updateScore(delta);
-    updateEntities(delta, b);
+    updateEntities(delta, worldBounds);
     checkCollision();
     hasFallenToGameOver();
     updateCamera();
@@ -82,9 +84,13 @@ void PlayingScene::render(){
             blockColor = {255, 216, 0, 255};    // 黃
             break;
         }
+        /*
         SDL_Rect r = {static_cast<int>(b.x - ctx.camera.x), static_cast<int>(b.y- ctx.camera.y),
                       static_cast<int>(b.w), static_cast<int>(b.h)};
-        ctx.renderer.drawRect(r, blockColor);
+        */
+        SDL_Rect r = {static_cast<int>(b.x), static_cast<int>(b.y),
+                      static_cast<int>(b.w), static_cast<int>(b.h)};
+        ctx.renderer.drawRect(r, blockColor, ctx.camera);
     }
     // キャラクタ描画
     // カメラを考慮した書き方にする
@@ -94,6 +100,8 @@ void PlayingScene::render(){
 
 /**
  * @brief camera更新用関数
+ * Playerがカメラの中心に来る
+ * ただしclamp処理があるため，画面端ではplayerに追従しない
  * 
  */
 void PlayingScene::updateCamera(){
@@ -190,7 +198,8 @@ void PlayingScene::checkCollision(){
  * 
  */
 void PlayingScene::hasFallenToGameOver(){
-    double death_Y = GameConfig::WINDOW_HEIGHT + PlayerConfig::FRAME_H; // 画面外へ落下死たら終了
+    //double death_Y = GameConfig::WINDOW_HEIGHT + PlayerConfig::FRAME_H; // 画面外へ落下死たら終了
+    double death_Y = ctx.worldInfo.WorldHeight + PlayerConfig::FRAME_H; // 規定したworldInfoを使う
     double playerBottom = ctx.entityCtx.player.getCollisionRect().y
                           + ctx.entityCtx.player.getCollisionRect().h;
     if (playerBottom > death_Y){

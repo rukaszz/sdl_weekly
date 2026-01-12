@@ -87,7 +87,7 @@ SpriteとTextureを追加．ただし，Rendererとの参照関係は明確に�
 現状の関係は次の通り：
 
 - Texture  ---依存---> SDL_Texture*
-- Sprite   ---関節依存---> Texture（参照）
+- Sprite   ---間接依存---> Texture（参照）
 - Player   ---依存---> Sprite/Renderer(静的)
 - Renderer ---依存---> SDL_Renderer*
 - Game     ---依存---> Texture / Player / Renderer
@@ -640,6 +640,135 @@ struct VerticalCollisionState{
    - ジャンプ/ダメージ床/落下など現状あるギミック利用する
 
 まずはマリオライクなゲームとして，1-1面の完成を目指して2Dゲームを作成する方針で進めていく．
+
+## week08
+
+### Google Testの導入
+
+week08まで，テストは全てゲームを起動して動作確認を兼ねたテストを実施していた．機能が増加してきているため，基礎的な処理の単体テストをGoogle Testを用いて実施した．
+
+Google test(Google C++ Testing Framework)は名の通り，Googleが開発したC++向けの単体テストフレームワークである．候補としては導入が簡単なCatch2や軽量なDoctestなどがあった．本開発ではCMakeを使用しているため相性がよく，大規模な開発で使われている実績や情報量が多く，FetchContentやgtestによるCMake/CTestとの統合が簡単なのでGoogle testを用いた．
+
+また，Google testはテストの独立性・再現性が重視されており環境への依存が少なく，CMakeと合わせて導入が容易である点も評価した．
+
+Google Testの導入方法：
+
+1. testsディレクトリの作成(もしなければ)
+2. テスト用のCMakeLists.txtをtestsディレクトリへ配置
+3. テスト用cppファイルを作成
+4. ビルド/実行
+
+   ```Bash
+   ~$> cmake .. # build用ファイル作成
+   # 現在のディレクトリをビルド対象に
+   # -j$(nproc)：利用可能なコア数を使って並列でビルド
+   ~$> cmake --build . -j$(nproc) 
+   # ctestでテストランナーを実行して，enable_testing()でテスト情報を読み取る
+   # --output-on-failure：失敗のみを詳細に表示させる
+   ~$> ctest --output-on-failure
+   ```
+
+### google testの対象
+
+次の3つの機能をテストした：
+
+- Physics
+  - 理由
+    - ブロックへ乗ったときの処理を実施するため，境界値の処理が想定通りに動作しているかをテストする必要があった
+  - テスト内容
+    - ブロックが存在しないパターン
+    - Standableに対する着地
+    - x軸の重なり
+    - DropThroughの条件による振る舞い
+- BlockLevelLoader
+  - 理由
+    - level1.txtなどのテキストファイルを読み込む処理であり，ゲームの初期化に使われている
+    - 外部のファイルとやり取りし，想定した形式のデータをパースする処理があるためテストが必要である
+  - テスト内容
+    - 正常な行のデータのパース処理
+    - 壊れた行のデータへの処理
+- GameUtil
+  - 理由
+    - ゲームで使用する処理をまとめており，汎用的な関数がそろっている
+    - 今後も頻繁に呼ばれる処理であるためテストで処理を確認する必要がある
+  - テストケース
+    - trim()：前後スペースの除去，全スペースな行への処理
+    - intersects()：重なり，辺/端の接触
+
+### week08の設計
+
+これまでゲームのオブジェクトはworld座標系(x, y)で管理され，動ける範囲はウィンドウの範囲であった．そのためステージもウィンドウの内部に固定されており，非常に狭いステージでゲームをプレイすることになっていた．
+
+week08ではカメラが導入されたことで，いわゆるworld座標という，ゲームのオブジェクトが持つ絶対的な位置(x, y)に概念が追加された．画面上の座標がカメラの(x, y)分ずれることで，画面が動きスクロールしているように見えるカメラを考慮した描画処理が追加された．
+
+Rendererなど描画処理はこれからカメラ座標を前提にした処理になった．これによってプレイヤーが画面上で動く=世界座標，カメラがプレイヤーを追う/描画にカメラが関与する=カメラ座標というようにオブジェクトと描画が分離された．
+
+### カメラの導入
+
+- Camera構造体
+  - 役割
+    - これまでの画面上の絶対的な位置(世界座標)とは異なる，新たな座標系の役割を持つ
+  - 理由
+    - 描画処理はカメラ座標を参照することで，世界座標と相対的な関係性になり，いわゆるスクロール的な処理が可能になる
+    - Cameraの座標はRendererクラスで考慮するため，Characterなど画面上のオブジェクトはカメラを極力意識しないようになる
+- Game::Game()
+  - worldInfo
+    - 世界(ステージ)の広さ(幅と高さ)を持っている
+    - week08時点ではblockの配置に応じて拡張される(最小限ウィンドウのサイズには合う)
+  - GameContextにcamera/worldInfoを導入し，シーンへ受け渡すように修正
+- PlayingScene
+  - update()
+    - DrawBounds(Characterの移動範囲)にworldInfoを導入し，拡張された範囲に対応した
+    - 既存の処理では，見えない壁に阻まれてしまいWINDOW_WIDTH以上先へ進めなくなる
+    - cameraのupdate処理を呼び出すように修正
+  - render()
+    - 描画処理でRendererへ渡すdraw()メソッドに，cameraを渡すように修正した
+  - updateCamera()
+    - playerをカメラの中心に置いて，カメラが追従していく処理を実装している関数
+    - playerの中心をカメラの中心へ置くが，画面の端(worldInfo)においては画面の端を優先し，ステージの端を超えないようにクランプする
+    - クランプ処理によって，プレイヤーは世界の端っこで止まり，背景も止まる
+- Character
+  - draw()
+    - cameraをシグネチャとして持ち，rendererのdraw関数でcamera座標系を考慮した版を呼び出すように修正
+  - getEntityCenter_X()/getEntityCenter_Y()
+    - Characterの中心位置を返す関数(カメラの追従処理で主に使用)
+- Renderer
+  - draw()
+    - cameraを引数に持ち，カメラ座標系を考慮した描画処理がなされる用にしたオーバーロード版
+  - drawRect()
+    - cameraを引数に持ち，カメラ座標系を考慮した描画処理がなされる用にしたオーバーロード版
+
+#### level1.txtについて
+
+上述の通り，worldInfo(ステージの広さの情報)はブロックの配置場所を考慮して拡張される：
+
+```cpp
+// 世界の広さ
+worldInfo = {static_cast<double>(GameConfig::WINDOW_WIDTH), 
+              static_cast<double>(GameConfig::WINDOW_HEIGHT)
+            };
+// ブロックが置かれている範囲に応じて拡張
+for(const auto& b : blocks){
+    worldInfo.WorldWidth = std::max(worldInfo.WorldWidth, b.x + b.w);
+    worldInfo.WorldHeight = std::max(worldInfo.WorldHeight, b.y + b.h);
+}
+```
+
+そのため，level1.txtではWINDOW_WIDTHより大きい座標にブロックが配置されるように修正し，スクロールされるかを確認した．
+結果としては，画面の拡張および落下死など各種処理も問題なく実行されていた：
+
+```txt
+S 0   750 1200 50 # 床
+S 200 700 100 20 # 空中の足場
+S 250 550 100 20 # 空中の足場
+S 300 400 100 20 # 空中の足場
+S 400 250 100 20 # 空中の足場
+S 600 100 100 20 # 空中の足場
+T 1400 700 100 20 # 空中の足場
+T 200  80 100 20 # 空中の足場(すり抜け)
+D 400 380 100 20 # 空中のダメージ床
+C 650 80 20 20   # クリアオブジェクト
+```
 
 ## アセット
 

@@ -132,17 +132,22 @@ void Renderer::draw(const Sprite& sprite, bool flipX){
  * @param flipX 
  */
 void Renderer::draw(const Sprite& sprite, Camera& camera, bool flipX){
-    // cameraはとりあえず無効化しておく
-    (void)camera;
+    // スプライトの向き
     SDL_RendererFlip flip = flipX ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
-    const SDL_Rect& src = sprite.getSrcRect();
-    const SDL_Rect& dst = sprite.getDstRect();
-    
+    // 座標の処理(カメラ)
+    const SDL_Rect& srcRef = sprite.getSrcRect();
+    const SDL_Rect& dstRef = sprite.getDstRect();
+    // カメラを考慮して座標を計算
+    SDL_Rect src = srcRef;
+    SDL_Rect dst = dstRef;
+    dst.x -= static_cast<int>(camera.x);
+    dst.y -= static_cast<int>(camera.y);
+
     SDL_RenderCopyEx(
         renderer, 
         sprite.getTexture(), 
-        &src, 
-        &dst, 
+        &src,   // 画像サイズ
+        &dst,   // 描画サイズ
         0.0, 
         nullptr, 
         flip
@@ -191,4 +196,21 @@ void Renderer::drawText(SDL_Texture* tex, int x, int y, int w, int h){
 void Renderer::drawRect(const SDL_Rect& rect, SDL_Color color){
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(renderer, &rect);
+}
+
+/**
+ * @brief 矩形描画関数
+ * SDLの矩形オブジェクトと色を受け取って生成する
+ * ※カメラの処理を加えた版
+ * 
+ * @param rect 
+ * @param color 
+ * @param camera 
+ */
+void Renderer::drawRect(const SDL_Rect& rect, SDL_Color color, Camera& camera){
+    // カメラ座標を計算
+    SDL_Rect r = {static_cast<int>(rect.x - camera.x), static_cast<int>(rect.y - camera.y),
+                      static_cast<int>(rect.w), static_cast<int>(rect.h)};
+    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+    SDL_RenderFillRect(renderer, &r);
 }

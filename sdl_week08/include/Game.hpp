@@ -59,6 +59,8 @@ private:
     std::unique_ptr<Input> input;
     // カメラ
     Camera camera;
+    // ステージ(世界)の情報
+    WorldInfo worldInfo;
 
     // 変数系
     bool running = true;

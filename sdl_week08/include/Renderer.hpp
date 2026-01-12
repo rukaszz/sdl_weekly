@@ -27,6 +27,8 @@ public:
     void drawText(SDL_Texture* tex, int x, int y, int w, int h);
     // 床ブロックテスト用
     void drawRect(const SDL_Rect& rect, SDL_Color color);
+    // カメラ考慮版
+    void drawRect(const SDL_Rect& rect, SDL_Color color, Camera& camera);
 
     // rendererオブジェクト返却用
     SDL_Renderer* get() const{
