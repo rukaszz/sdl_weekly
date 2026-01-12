@@ -1,0 +1,3 @@
+/home/lucas/sdl-weekly/sdl_week09/_deps/googletest-subbuild/CMakeFiles/googletest-populate.dir
+/home/lucas/sdl-weekly/sdl_week09/_deps/googletest-subbuild/CMakeFiles/edit_cache.dir
+/home/lucas/sdl-weekly/sdl_week09/_deps/googletest-subbuild/CMakeFiles/rebuild_cache.dir

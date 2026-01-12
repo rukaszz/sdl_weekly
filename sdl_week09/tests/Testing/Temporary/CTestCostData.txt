@@ -1,0 +1,26 @@
+AllTest.FallWithoutBlocks_NoLanding 4 0.000385968
+AllTest.LandOnStandableBlock 4 0.000362644
+AllTest.NoCollisionWhenNotOverlappingHorizontally 4 0.000294407
+AllTest.DropThrough_ActsAsStandableWhenNotIgnored 4 0.000280463
+AllTest.DropThrough_IgnoredWhenFlagSet_DropStarts 4 0.000271614
+AllTest.DropThrough_OncePassedTop_DoesNotRelandLater 4 0.000268015
+AllTest.IgnoreDamageAndClearBlocksForLanding 4 0.000265907
+AllTest.NormalBlockLevelDataLoad 4 0.00031149
+AllTest.AbnormalBlockLevelDataLoad 4 0.000296782
+AllTest.GameUtil_TrimSpace 5 0.000222922
+AllTest.GameUtil_TrimBlankLine 5 0.000215235
+AllTest.GameUtil_AABBClearlyIntersecting 5 0.000213032
+AllTest.GameUtil_AABBClearlyNotIntersecting 5 0.000229644
+AllTest.GameUtil_AABBTouchAtEdgeHorizontal 5 0.000228389
+AllTest.GameUtil_AABBTouchAtEdgeVertical 5 0.000231186
+AllTest.GameUtil_AABBTouchAtCorner 5 0.000209067
+PhysicsTests.FallWithoutBlocks_NoLanding 1 0.0014792
+PhysicsTests.LandOnStandableBlock 1 0.00127667
+PhysicsTests.NoCollisionWhenNotOverlappingHorizontally 1 0.00140021
+PhysicsTests.DropThrough_ActsAsStandableWhenNotIgnored 1 0.00144365
+PhysicsTests.DropThrough_IgnoredWhenFlagSet_DropStarts 1 0.00152122
+PhysicsTests.DropThrough_OncePassedTop_DoesNotRelandLater 1 0.00126036
+PhysicsTests.IgnoreDamageAndClearBlocksForLanding 1 0.0012955
+BlockLevelLoaderTests.NormalBlockLevelDataLoad 1 0.00141535
+BlockLevelLoaderTests.AbnormalBlockLevelDataLoad 1 0.00138841
+---

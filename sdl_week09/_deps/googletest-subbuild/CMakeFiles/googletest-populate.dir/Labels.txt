@@ -1,0 +1,14 @@
+# Target labels
+ googletest-populate
+# Source files and their labels
+/home/lucas/sdl-weekly/sdl_week09/_deps/googletest-subbuild/CMakeFiles/googletest-populate
+/home/lucas/sdl-weekly/sdl_week09/_deps/googletest-subbuild/CMakeFiles/googletest-populate.rule
+/home/lucas/sdl-weekly/sdl_week09/_deps/googletest-subbuild/CMakeFiles/googletest-populate-complete.rule
+/home/lucas/sdl-weekly/sdl_week09/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-build.rule
+/home/lucas/sdl-weekly/sdl_week09/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-configure.rule
+/home/lucas/sdl-weekly/sdl_week09/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-download.rule
+/home/lucas/sdl-weekly/sdl_week09/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-install.rule
+/home/lucas/sdl-weekly/sdl_week09/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-mkdir.rule
+/home/lucas/sdl-weekly/sdl_week09/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-patch.rule
+/home/lucas/sdl-weekly/sdl_week09/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-test.rule
+/home/lucas/sdl-weekly/sdl_week09/_deps/googletest-subbuild/googletest-populate-prefix/src/googletest-populate-stamp/googletest-populate-update.rule
