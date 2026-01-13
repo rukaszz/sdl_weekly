@@ -8,6 +8,7 @@ struct EnemyConfig{
     static inline constexpr double SPEED_MAX = 200.0;
     static inline constexpr double SPEED_MIN = 50.0;
     static inline constexpr int NUM_FRAMES = 8;
+    static inline constexpr int SCORE_AT_DEATH = 100;
 };
 
 #endif  // ENEMYCONFIG_H

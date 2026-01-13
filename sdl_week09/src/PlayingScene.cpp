@@ -165,7 +165,8 @@ void PlayingScene::updateEntities(double delta, DrawBounds b){
  * @brief 描画するオブジェクトの衝突処理
  * 
  */
-void PlayingScene::checkCollision(){
+/*
+ void PlayingScene::checkCollision(){
     // 敵との衝突判定
     for(auto& e : ctx.entityCtx.enemies){
         if(GameUtil::intersects(ctx.entityCtx.player.getCollisionRect(), e->getCollisionRect())){
@@ -191,6 +192,54 @@ void PlayingScene::checkCollision(){
             ctrl.changeScene(GameScene::Clear);
         }
         return;
+    }
+}
+*/
+void PlayingScene::checkCollision(){
+    // PlayerのRect取得
+    auto& player = ctx.entityCtx.player;
+    SDL_Rect playerRect = player.getCollisionRect();
+    // 衝突処理用変数
+    double prevFeet = player.getPrevFeet();
+    double newFeet  = player.getFeet();
+    double playerVv = player.getVerticalVelocity();
+    // 踏んだ敵のindex記録用
+    std::vector<std::size_t> toKill;
+    
+    // 接触のループ
+    for(std::size_t i = 0; i < ctx.entityCtx.enemies.size(); ++i){
+        auto& e = ctx.entityCtx.enemies[i];
+        SDL_Rect enemyRect = e->getCollisionRect();
+        // 接触判定
+        auto result = resolvePlayerEnemyCollision(
+            playerRect, 
+            prevFeet, 
+            newFeet, 
+            playerVv, 
+            enemyRect
+        );
+
+        // 接触判定結果で処理を分ける
+        if(result == PlayerEnemyCollisionResult::None){
+            continue;
+        }
+        if(result == PlayerEnemyCollisionResult::StompEnemy){
+            // 敵を踏みつけ(後で敵を消す)
+            toKill.push_back(i);
+            // プレイヤーはバウンドする
+            player.setVerticalVelocity(-std::abs(PlayerConfig::JUMP_VELOCITY) * 0.5);
+            // スコア加算
+            ctrl.setScore(ctrl.getScore() + EnemyConfig::SCORE_AT_DEATH);
+            continue;
+        }
+        if(result == PlayerEnemyCollisionResult::PlayerHit){
+            ctrl.changeScene(GameScene::GameOver);
+            return;
+        }
+    }
+    // 踏みつけで死んだ敵をvectorから消す
+    for(auto it = toKill.rbegin(); it != toKill.rend(); ++it){
+        ctx.entityCtx.enemies.erase(ctx.entityCtx.enemies.begin() + *it);
     }
 }
 
@@ -227,7 +276,21 @@ PlayerEnemyCollisionResult PlayingScene::resolvePlayerEnemyCollision(
     const SDL_Rect& enemyRect 
 )
 {
-    bool isFallen = (playerVv > 0);
-    bool isStomp = (playerPrevFeet <= enemyRect.y && playerNewFeet <= enemyRect.y);
-    
+    // 1. そもそも接触しているか
+    if (!GameUtil::intersects(playerRect, enemyRect)) {
+        return PlayerEnemyCollisionResult::None;
+    }
+    // 敵の頭上
+    const int enemyTop = enemyRect.y;
+    // 落ちているか
+    const bool falling = (playerVv > 0.0);
+    // 敵の頭とプレイヤーの足が接触したか
+    const bool feetCrossTop = (playerPrevFeet <= enemyTop && enemyTop <= playerNewFeet);
+
+    // 2. 落下中に敵の頭をまたいでいたらstomp
+    if(falling && feetCrossTop){
+        return PlayerEnemyCollisionResult::StompEnemy;
+    }
+    // 3. 2の接触以外は全てPlayerHit
+    return PlayerEnemyCollisionResult::PlayerHit;
 }

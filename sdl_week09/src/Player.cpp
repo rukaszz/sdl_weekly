@@ -50,13 +50,14 @@ Player::Player(Texture& tex)
  * @param bounds: 描画可能範囲 
  */
 void Player::update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks){
-    // 水平移動用変数
-    double moveDir = 0.0;
     // 1つ前のフレームの位置(yのみ)
     double prev_Y = y;
     // 1つ前の足元(プレイヤーの最下部)の位置
-    double prevFeet = prev_Y + sprite.getDrawHeight();
+    // double prevFeet = prev_Y + sprite.getDrawHeight();
+    beginFrameFeetSample();   // ローカル変数を止める
 
+    // 水平移動用変数
+    double moveDir = 0.0;
     // 移動中以外はfalse
     bool moving = false;
     // DropThroughの判定
@@ -91,14 +92,15 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
     vv += PlayerConfig::PLAYER_GRAVITY * delta;
     y += vv * delta;
 
-    // 移動後の足元の位置
-    double newFeet = y + sprite.getDrawHeight();
+    // 移動後の足元の位置の計算
+    SDL_Rect r = getCollisionRect();
+    double newFeet = r.y + r.h;
+    // double newFeet = y + sprite.getDrawHeight();
 
-    /* -----Physicsへ物理的な挙動を移管 ----- */
     // clampToGround(prevFeet, newFeet, blocks);
     // DTO作成
     VerticalCollisionState vcs{
-        .prevFeet = prevFeet,
+        .prevFeet = getPrevFeet(),  // 処理の最初で保存したprevFeetを参照
         .newFeet  = newFeet,
         .x        = x,
         .width    = static_cast<double>(sprite.getDrawWidth()),
@@ -111,7 +113,8 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
     y        = vcs.newFeet - sprite.getDrawHeight();
     vv       = vcs.vv;
     onGround = vcs.onGround;
-    /* -----Physicsへ物理的な挙動を移管 ----- */
+
+    // x軸方向のクランプ処理
     clampHorizontalPosition(bounds);
 
     // アニメーション処理

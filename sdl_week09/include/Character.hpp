@@ -37,6 +37,8 @@ protected:
     double x, y;
     // 移動速度
     double speed;
+    // 1フレーム前のRect下部
+    double prevFeet;
     // 垂直速度(vertical verocity)
     double vv;
     // 向き
@@ -67,6 +69,27 @@ public:
     virtual const Sprite& getSprite() const;
     virtual void setPosition(double coorX, double coorY);
     virtual void clampToBounds(const DrawBounds& b);
+
+    // getter/setter
+    double getPrevFeet() const{
+        return prevFeet;
+    }
+    void setPrevFeet(double v){
+        prevFeet = v;
+    }
+    double getFeet() const{
+        SDL_Rect r = getCollisionRect();
+        return r.y + r.h;
+    }
+    void beginFrameFeetSample(){
+        prevFeet = getFeet();
+    }
+    double getVerticalVelocity() const{
+        return vv;
+    }
+    void setVerticalVelocity(double v){
+        vv = v;
+    }
 };
 
 #endif  // CHARACTER_H
