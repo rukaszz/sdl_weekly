@@ -38,7 +38,9 @@ protected:
     // 移動速度
     double speed;
     // 1フレーム前のRect下部
-    double prevFeet;
+    double prevFeetPhysics;     // Physics用でspriteのbottom
+    // collisionRectベースの1フレーム前のRect.y+Rect.h
+    double prevFeetCollision;   // 踏みつけ処理などで用いる 
     // 垂直速度(vertical verocity)
     double vv;
     // 向き
@@ -71,19 +73,29 @@ public:
     virtual void clampToBounds(const DrawBounds& b);
 
     // getter/setter
-    double getPrevFeet() const{
-        return prevFeet;
+    // prevFeetPhysics用
+    void beginFrameFeetPhysicsSample(){
+        prevFeetPhysics = getFeetPhysics();
     }
-    void setPrevFeet(double v){
-        prevFeet = v;
+    double getFeetPhysics() const{
+        return y + sprite.getDrawHeight();
     }
-    double getFeet() const{
+    double getPrevFeetPhysics() const{
+        return prevFeetPhysics;
+    }
+    // prevFeetCollision用
+    void beginFrameCollisionSample() {
+        SDL_Rect r = getCollisionRect();
+        prevFeetCollision = r.y + r.h;
+    }
+    double getFeetCollision() const {
         SDL_Rect r = getCollisionRect();
         return r.y + r.h;
     }
-    void beginFrameFeetSample(){
-        prevFeet = getFeet();
+    double getPrevFeetCollision() const {
+        return prevFeetCollision;
     }
+    // 垂直速度
     double getVerticalVelocity() const{
         return vv;
     }

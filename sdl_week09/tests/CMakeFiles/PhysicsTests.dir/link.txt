@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/PhysicsTests.dir/test_Physics_logic.cpp.o CMakeFiles/PhysicsTests.dir/__/src/Physics.cpp.o -o ../build/PhysicsTests  ../lib/libgtest.a ../lib/libgtest_main.a ../lib/libgtest.a 

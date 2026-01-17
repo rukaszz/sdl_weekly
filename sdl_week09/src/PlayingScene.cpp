@@ -1,4 +1,5 @@
 #include "GameUtil.hpp"
+#include "PlayerEnemyCollisionUtil.hpp"
 #include "GameConfig.hpp"
 #include "PlayingScene.hpp"
 #include "Game.hpp"
@@ -45,15 +46,14 @@ void PlayingScene::update(double delta){
         ctrl.changeScene(GameScene::Title);
         return;
     }
-    // ウィンドウサイズの型変換
-    // SDL_Point p = ctx.renderer.getOutputSize();
-    // DrawBounds b = {static_cast<double>(p.x), static_cast<double>(p.y)};
-    // worldInfoを用いた幅のクランプ処理へ変更
+    // 衝突処理用の前フレームのプレイヤー下部をサンプリング
+    ctx.entityCtx.player.beginFrameCollisionSample();
+    // worldInfoを用いた幅のクランプ処理
     DrawBounds worldBounds = {ctx.worldInfo.WorldWidth, ctx.worldInfo.WorldHeight};
     
     updateScore(delta);
     updateEntities(delta, worldBounds);
-    checkCollision();
+    detectCollision();
     hasFallenToGameOver();
     updateCamera();
 }
@@ -84,10 +84,6 @@ void PlayingScene::render(){
             blockColor = {255, 216, 0, 255};    // 黃
             break;
         }
-        /*
-        SDL_Rect r = {static_cast<int>(b.x - ctx.camera.x), static_cast<int>(b.y- ctx.camera.y),
-                      static_cast<int>(b.w), static_cast<int>(b.h)};
-        */
         SDL_Rect r = {static_cast<int>(b.x), static_cast<int>(b.y),
                       static_cast<int>(b.w), static_cast<int>(b.h)};
         ctx.renderer.drawRect(r, blockColor, ctx.camera);
@@ -165,16 +161,18 @@ void PlayingScene::updateEntities(double delta, DrawBounds b){
  * @brief 描画するオブジェクトの衝突処理
  * 
  */
-/*
- void PlayingScene::checkCollision(){
+void PlayingScene::detectCollision(){
     // 敵との衝突判定
-    for(auto& e : ctx.entityCtx.enemies){
-        if(GameUtil::intersects(ctx.entityCtx.player.getCollisionRect(), e->getCollisionRect())){
-            // 接触判定を呼ぶ
-            ctrl.changeScene(GameScene::GameOver);
-            return;
-        }
-    }
+    resolveEnemyCollision();
+    // ダメージブロックとの衝突判定
+    resolveBlockCollision();
+}
+
+/**
+ * @brief ブロックとの衝突処理用
+ * 
+ */
+void PlayingScene::resolveBlockCollision(){
     // ダメージブロックとの衝突判定
     SDL_Rect playerRect = ctx.entityCtx.player.getCollisionRect();
     for(const auto& b : ctx.entityCtx.blocks){
@@ -194,14 +192,21 @@ void PlayingScene::updateEntities(double delta, DrawBounds b){
         return;
     }
 }
-*/
-void PlayingScene::checkCollision(){
+
+/**
+ * @brief 敵との衝突用の処理
+ * 敵の踏みつけ/削除/スコア加算/GameOverの処理を行う
+ * 
+ */
+void PlayingScene::resolveEnemyCollision(){
     // PlayerのRect取得
     auto& player = ctx.entityCtx.player;
+    // プレイヤーのRect基準のあたり判定取得
+    // ※update→Physics →clamp→getCollisionRectの順番が必要
     SDL_Rect playerRect = player.getCollisionRect();
-    // 衝突処理用変数
-    double prevFeet = player.getPrevFeet();
-    double newFeet  = player.getFeet();
+    // 衝突処理用変数：collisionのfeetを使う
+    double prevFeet = player.getPrevFeetCollision();
+    double newFeet  = player.getFeetCollision();
     double playerVv = player.getVerticalVelocity();
     // 踏んだ敵のindex記録用
     std::vector<std::size_t> toKill;
@@ -211,7 +216,7 @@ void PlayingScene::checkCollision(){
         auto& e = ctx.entityCtx.enemies[i];
         SDL_Rect enemyRect = e->getCollisionRect();
         // 接触判定
-        auto result = resolvePlayerEnemyCollision(
+        auto result = PlayerEnemyCollision::resolvePlayerEnemyCollision(
             playerRect, 
             prevFeet, 
             newFeet, 
@@ -238,6 +243,7 @@ void PlayingScene::checkCollision(){
         }
     }
     // 踏みつけで死んだ敵をvectorから消す
+    // 現状は即時削除の処理のみ(演出は後で)
     for(auto it = toKill.rbegin(); it != toKill.rend(); ++it){
         ctx.entityCtx.enemies.erase(ctx.entityCtx.enemies.begin() + *it);
     }
@@ -258,39 +264,41 @@ void PlayingScene::hasFallenToGameOver(){
     }
 }
 
-/**
- * @brief 敵の踏みつけ処理
- * 
- * @param playerRect 
- * @param playerPrevFeet 
- * @param playerNewFeet 
- * @param playerVv 
- * @param enemyRect 
- * @return PlayerEnemyCollisionResult 
- */
-PlayerEnemyCollisionResult PlayingScene::resolvePlayerEnemyCollision(
-    const SDL_Rect& playerRect, 
-    double playerPrevFeet, 
-    double playerNewFeet, 
-    double playerVv,
-    const SDL_Rect& enemyRect 
-)
-{
-    // 1. そもそも接触しているか
-    if (!GameUtil::intersects(playerRect, enemyRect)) {
-        return PlayerEnemyCollisionResult::None;
-    }
-    // 敵の頭上
-    const int enemyTop = enemyRect.y;
-    // 落ちているか
-    const bool falling = (playerVv > 0.0);
-    // 敵の頭とプレイヤーの足が接触したか
-    const bool feetCrossTop = (playerPrevFeet <= enemyTop && enemyTop <= playerNewFeet);
+// /**
+//  * @brief 敵の踏みつけ処理
+//  * 
+//  * @param playerRect 
+//  * @param playerPrevFeet 
+//  * @param playerNewFeet 
+//  * @param playerVv 
+//  * @param enemyRect 
+//  * @return PlayerEnemyCollisionResult 
+//  */
+// PlayerEnemyCollisionResult PlayingScene::resolvePlayerEnemyCollision(
+//     const SDL_Rect& playerRect, 
+//     double playerPrevFeet, 
+//     double playerNewFeet, 
+//     double playerVv,
+//     const SDL_Rect& enemyRect 
+// )
+// {
+//     // 1. そもそも接触しているか=接触していたら以下の処理が走る
+//     if (!GameUtil::intersects(playerRect, enemyRect)) {
+//         return PlayerEnemyCollisionResult::None;
+//     }
+//     // 許容範囲(境界部分の補正用ε)
+//     constexpr double eps = 1.0;
+//     // 敵の頭上
+//     const int enemyTop = enemyRect.y;
+//     // 落ちているか
+//     const bool falling = (playerVv > 0.0);
+//     // 敵の頭とプレイヤーの足が接触したか
+//     const bool feetCrossTop = (playerPrevFeet <= enemyTop + eps && enemyTop <= playerNewFeet + eps);
 
-    // 2. 落下中に敵の頭をまたいでいたらstomp
-    if(falling && feetCrossTop){
-        return PlayerEnemyCollisionResult::StompEnemy;
-    }
-    // 3. 2の接触以外は全てPlayerHit
-    return PlayerEnemyCollisionResult::PlayerHit;
-}
+//     // 2. 落下中に敵の頭をまたいでいたらstomp
+//     if(falling && feetCrossTop){
+//         return PlayerEnemyCollisionResult::StompEnemy;
+//     }
+//     // 3. 2の接触以外は全てPlayerHit
+//     return PlayerEnemyCollisionResult::PlayerHit;
+// }

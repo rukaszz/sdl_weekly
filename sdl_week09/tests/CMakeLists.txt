@@ -18,6 +18,7 @@ FetchContent_MakeAvailable(googletest)
 set(GAME_SOURCES
     ${CMAKE_SOURCE_DIR}/src/Physics.cpp
     ${CMAKE_SOURCE_DIR}/src/BlockLevelLoader.cpp
+    ${CMAKE_SOURCE_DIR}/src/PlayerEnemyCollisionUtil.cpp
 )
 
 # テスト(cppファイルごとにテストスイートを作る)
@@ -26,6 +27,7 @@ add_executable(
     test_Physics_logic.cpp
     test_BlockLevelLoader.cpp
     test_GameUtil.cpp
+    test_resolvePlayerEnemyCollision.cpp
     ${GAME_SOURCES}
 )
 

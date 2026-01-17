@@ -30,6 +30,9 @@ Character::Character(
     , anim(maxFrames, animInterval)
     , sprite(tex, frameW, frameH)
 {
+    // 足の座標の初期化
+    prevFeetPhysics = 0.0;
+    prevFeetCollision = 0.0;
 }
 
 /**

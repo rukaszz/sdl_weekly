@@ -42,6 +42,7 @@ add_executable(${PROJECT_NAME}
     src/BlockLevelLoader.cpp
     src/Physics.cpp
     src/Camera.cpp
+    src/PlayerEnemyCollisionUtil.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

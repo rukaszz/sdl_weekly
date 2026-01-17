@@ -9,11 +9,12 @@ struct DrawBounds;
 class Game;
 class Renderer;
 
-enum class PlayerEnemyCollisionResult{
-    None, 
-    StompEnemy, 
-    PlayerHit, 
-};
+// enum class PlayerEnemyCollisionResult{
+//     None, 
+//     StompEnemy, 
+//     PlayerHit, 
+//     Count, 
+// };
 
 class PlayingScene : public Scene{
 private:
@@ -32,14 +33,17 @@ public:
     void updateEntities(double delta, DrawBounds b);
     void updateCamera();
     void checkCollision();
+    void detectCollision();
+    void resolveBlockCollision();
+    void resolveEnemyCollision();
     void hasFallenToGameOver();
-    PlayerEnemyCollisionResult resolvePlayerEnemyCollision(
-        const SDL_Rect& playerRect, 
-        double playerPrevFeet, 
-        double playerNewFeet, 
-        double playerVv,
-        const SDL_Rect& enemyRect 
-    );
+    // static PlayerEnemyCollisionResult resolvePlayerEnemyCollision(
+    //     const SDL_Rect& playerRect, 
+    //     double playerPrevFeet, 
+    //     double playerNewFeet, 
+    //     double playerVv,
+    //     const SDL_Rect& enemyRect 
+    // );
 };
 
 #endif  // PLAYINGSCENE_H
