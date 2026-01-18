@@ -776,20 +776,181 @@ C 650 80 20 20   # クリアオブジェクト
 
 ## week09
 
+### 概要
+
+week09では，次の2点を中心に実装・整理を行った．
+
+- プレイヤーによる敵の踏みつけ処理の実装
+- 踏みつけ後の敵の死亡演出(その場で点滅して消える)の実装
+- 踏みつけ処理実装に伴った当たり判定まわりの整理とテストコードの追加
+
+week08にて，床ブロックとの接地処理やカメラ・スクロール処理は整備されていたが，敵との接触は「当たったら即ゲームオーバー」という単純な仕様だった．そのためweek09ではここをゲームらしい処理に拡張している．
+
 ### 踏みつけ処理について
 
-1. 踏みつけの判定について
-   - 条件
-     - 落下中(player.vv > 0)
-     - 足の判定(player.prevFeet <= enemyTop && player.newFeet >= enemyTop)
-     - x軸は通常の接触判定があるので，触れると死ぬ
-   - 判定
-     - 敵：死亡フラグが立つ＆死ぬ
-     - プレイヤー：踏むと若干跳ねる
-     - スコア：敵を倒すと加算
-   - 複数の敵を踏んだとき
-     - 条件を満たすなら踏めるようにする
-     - 1体踏む→もう一体を接地せずに踏む，という連続踏みも考慮する
+プレイヤーが敵を「踏みつけた」とみなす条件は次の通り：
+
+1. 落下中であること
+
+   - `player.vv > 0`（垂直速度が下向き）のときのみ踏みつけ判定を行う
+
+2. プレイヤーの足が敵の頭頂をまたいでいること
+
+   - 前フレームの足元が敵の頭頂より上
+   - 今フレームの足元が敵の頭頂より下
+   - という条件を，prevFeetとnewFeetとenemyTopを使ってチェックする
+
+3. 敵の矩形と実際に衝突していること
+
+   - SDL_RectベースのAABB当たり判定で，プレイヤー矩形と敵矩形が交差していること
+
+判定結果はPlayerEnemyCollisionResultで表現される．
+
+- None
+  - そもそも矩形同士が接触していない，または踏みつけ条件を満たしていない（かつダメージにもならない）場合
+- StompEnemy  
+  - 上記条件をすべて満たし，「上から踏みつけた」と判断できる場合
+- PlayerHit  
+  - 矩形としては接触しているが踏みつけ条件を満たしていない場合  
+    （側面や下からぶつかった場合など）
+
+この結果に応じて，PlayingScene側で以下の処理を行う．
+
+- None
+  - 何もしない
+- StompEnemy  
+  - 敵に死亡演出を開始させる
+  - プレイヤーの垂直速度を反転させ，少しだけバウンドさせる
+  - スコアを加算する
+- PlayerHit  
+  - 現状は即ゲームオーバー
+
+複数の敵が重なっている状況でも，条件を満たす限り連続で踏みつけられる設計になっている．
+
+### 当たり判定まわりで発生した問題
+
+#### 問題の背景
+
+踏みつけ処理は当初は接触判定→さらに細かく踏みつけているかをワールド座標で判断，という想定で進んでいた．しかしながら，敵を踏みつけようとすると，ゲームオーバになってしまうという状態になってしまった．
+
+これはいままで曖昧な状態にしていた，SDL_Rectによる矩形の当たり判定と，spriteによる描画範囲による当たり判定(若干小さい)の混在が招いた問題である．そのため，これら当たり判定を整理して当たり判定を構築しなければならない．
+
+当初の実装では，次の2種類の「足元」の定義が混在していた．
+
+- spriteの描画範囲（y + sprite.getDrawHeight()）を使った足元
+- getCollisionRect()で少し小さくした矩形(当たり判定用)のbottom
+
+処理の流れはおおよそ次のようになっていた：
+
+1. Rectでの接触判定が最初に実施される
+2. 1の後に足元(前後のフレーム)の判定になる
+3. feet系の接触判定はplayer.y + sprite.getDrawHeight()なので，Rectより若干小さい
+4. 1のRect接触時点では，feet系の接触判定に引っかからない
+5. 踏みつけ判定の条件式を満たさないので，その下のPlayerHitがreturnされる
+
+このRect&AABBの当たり判定→踏みつけ判定の問題について，2つの解決策が考えられる：
+
+- PlayerHitのreturnにx軸と下方向の判定を追加し，安易にPlayerHitを返さないようにする
+- 踏みつけ判定に若干の許容範囲(tolerance)をもたせて，踏みつけ判定の条件式を緩める
+
+この2つの案のうち，PlayerHitの接触を厳格に判定する方法は「上からの踏みつけ以外」を判定するより難しい．そのため，SDL_Rect&AABBによる接触判定後に，余裕(tolerance)を持って判定させる方法を考えた．
+
+#### toleranceを導入することによる問題
+
+toleranceを大きく取って判定を実施すると，今後厳格な判定を実施しようとした際に，仕様を大きく変更しなければならず将来の負債になる．
+
+一時的な発想として，「踏みつけ判定にtolerance(許容範囲)を持たせて条件を緩めるという案を検討した．しかしこの方針は以下の理由から採用しないことにした．
+
+- その場しのぎの調整値が増え，将来的に仕様を厳密にしたいときの負債になる
+- 他の接触判定にも類似のtoleranceを入れ始めると，全体として挙動の理由が分かりにくくなる
+
+つまり様々な接触判定にtoleranceが登場する可能性があるためこの方法はNGである．
+
+### 解決方針：feet を用途ごとに分離する
+
+最終的には、「座標系の混在をやめる」ことをゴールに次のように整理した．
+
+1. Characterクラスにfeetを2系列持たせる
+
+   - 物理処理（ブロックとの接地など）用  
+     - prevFeetPhysics/getFeetPhysics()
+     - y + sprite.getDrawHeight()ベースで「描画矩形の bottom」を扱う
+   - 衝突処理（プレイヤー vs 敵）用  
+     - prevFeetCollision/getFeetCollision()
+     - getCollisionRect()ベースで「当たり判定用に縮めた Rect の bottom」を扱う
+
+2. 物理処理と衝突処理で、使う feet を明確に分ける
+
+   - Physics::resolveVerticalBlockCollision
+     →prevFeetPhysics/getFeetPhysics()を使用
+   - Player vs Enemy の踏みつけ判定
+     → prevFeetCollision/getFeetCollision()を使用
+
+3. 踏みつけ判定ロジックをユーティリティに切り出す
+
+   - PlayerEnemyCollisionUtilとしてresolvePlayerEnemyCollision(...)をPlayingSceneから分離
+   - Sceneやrendererに依存しない「純粋な」関数にすることで、Google Test からテストしやすくした
+
+### week09の設計
+
+- Characterクラス
+  - Character::prevFeet系
+    - 理由
+      - 上述のように，Rect系と描画処理系の当たり判定を混在させているため，物理処理用，接触判定用，にそれぞれprevFeetのキャッシュを用意する必要があった
+    - 役割
+      - 物理処理用：prevFeetPhysics
+      - 衝突処理用：prevFeetCollision
+- Playerクラス
+  - Player::update()
+    - 理由：Characterクラスで実装したprevFeet系を取得するサンプリングを実施
+- Enemyクラス
+  - EnemyState
+    - 状態を管理する
+    - Alive：生存状態．この状態は動ける
+    - Dying：死にかけの状態．踏まれたら(攻撃されたら)この状態になる
+    - Dead：死亡状態．描画などの処理の対象外になる
+  - Enemy::update()
+    - Dying状態の管理
+    - 一定の時間(DYING_DURATION)立ったらDeadへ遷移
+  - Enemy::draw()
+    - 理由
+      - Character::draw()は単純な描画用にrendererを呼ぶ処理になっている
+      - 各EnemyStateの状態に合わせて描画処理が変わるため
+    - 役割
+      - Dying/Deadの状態での描画処理を追加した
+      - AliveやDyingの点滅処理では，Character::draw()をこれまで通り呼ぶ
+  - Enemy::startDying()
+    - 理由
+      - PlayingSceneなどでDyingを開始するため
+    - 役割
+      - PlayingSceneで呼ばれる
+- PlayingSceneクラス
+  - Collision系
+    - PlayingScene::detectCollision()：衝突処理が大きくブロックと敵の2つに分けれているので，それぞれの処理を呼び出す
+    - PlayingScene::resolveBlockCollision()：week08での実装と同様の処理
+    - PlayingScene::resolveEnemyCollision()
+      - prevFeet系の取得
+      - PlayerEnemyCollision::resolvePlayerEnemyCollision()の呼び出し
+      - Player/Enemyの接触処理結果に応じた処理
+        - None：何もしない
+        - StompEnemy：敵の踏みつけ/Playerのバウンドなど
+        - PlayerHit：敵への接触(現状はゲームオーバ)
+    - PlayingScene::updateEntities()
+      - Player/Enemyの更新処理
+      - Enemyの場合は踏みつけられた敵の削除処理も入る
+- PlayerEnemyCollisionUtil
+  - 理由
+    - PlayingSceneに依存する必要ない純粋な関数なので，PlayingSceneから切り出した
+    - 境界チェックがあるためテストがしやすくなる意図もある
+  - 役割
+    - Player/Enemyの接触処理
+    - SDL_Rect&AABBによる接触判定
+    - prevFeetとEnemyTopによる踏みつけ判定
+    - 単純なプレイヤーとの接触による判定(これまで同様)
+
+### week10の予定
+
+考え中
 
 ## アセット
 

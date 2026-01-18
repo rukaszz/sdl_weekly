@@ -87,7 +87,7 @@ TEST(PlayerEnemyCollisionTests, None_WhenNotIntersecting){
  * 
  * 上からギリギリ踏めていない(境界チェック)
  */
-TEST(PlayerEnemyCollisionTests, StompEnemy_AtEdgeOfSuccess){
+TEST(PlayerEnemyCollisionTests, StompEnemy_AtEdgeOfFailure){
     const SDL_Rect playerRect{40, 25, 20, 20};  // x:40-60, y:25-45 → intersects == true
     const SDL_Rect enemyRect{40, 40, 20, 20};   // x:40-60, y:40-60
 
@@ -131,7 +131,7 @@ TEST(PlayerEnemyCollisionTests, StompEnemy_AtEdgeOfSuccess){
         enemyRect
     );
     // 敵を踏めたはず
-    EXPECT_EQ(result, PlayerEnemyCollisionResult::EnemyStomp);
+    EXPECT_EQ(result, PlayerEnemyCollisionResult::StompEnemy);
 }
 
 /**
@@ -139,12 +139,12 @@ TEST(PlayerEnemyCollisionTests, StompEnemy_AtEdgeOfSuccess){
  * 
  * 落下していないとき
  */
-TEST(PlayerEnemyCollisionTests, None_WhenNotIntersecting){
+TEST(PlayerEnemyCollisionTests, None_WhenNotFalling){
     const SDL_Rect playerRect{40, 55, 20, 20};  // x:40-60, y:55-75 → intersects == true
     const SDL_Rect enemyRect{40, 20, 20, 20};   // x:40-60, y:20-40
 
-    double playerPrevFeet = 75
-    double playerNewFeet  = 35       // 35 → Enemyへめり込んではいる
+    double playerPrevFeet = 75;
+    double playerNewFeet  = 35;      // 35 → Enemyへめり込んではいる
     double playerVv       = -40.0;   // 上昇中(Jumpなど)
 
     auto result = resolvePlayerEnemyCollision(
@@ -164,7 +164,7 @@ TEST(PlayerEnemyCollisionTests, None_WhenNotIntersecting){
  * 
  * 踏みつけの条件(feetCrossTop)は満たしているが，衝突はしていない場合
  */
-TEST(PlayerEnemyCollisionTests, None_WhenNotIntersecting){
+TEST(PlayerEnemyCollisionTests, None_StompConditionWithoutIntersection){
     const SDL_Rect playerRect{10, 190, 20, 20};  // x:10-30, y:10-30
     const SDL_Rect enemyRect{200, 200, 20, 20}; // x:200-220, y:200-220
 

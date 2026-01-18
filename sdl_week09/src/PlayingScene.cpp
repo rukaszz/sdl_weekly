@@ -119,9 +119,6 @@ void PlayingScene::updateCamera(){
  */
 void PlayingScene::onEnter(){
     ctrl.resetGame();
-    // ctx.blocks.clear();
-    // 床ブロック配置
-    // ctx.blocks.push_back(Block);
 }
 
 /**
@@ -144,17 +141,29 @@ void PlayingScene::updateScore(double delta){
 }
 
 /**
- * @brief 描画するオブジェクトの更新処理
- * Player/Enemyなど
+ * @brief 描画するオブジェクトの更新処理※Player/Enemyなど
  * 
  */
 void PlayingScene::updateEntities(double delta, DrawBounds b){
     // キーの状態取得
     const InputState& is = ctx.input.getState();
     // キャラクタの更新
-    // ctx.player.update(delta, is, b);
+    // Player
     ctx.entityCtx.player.update(delta, is, b, ctx.entityCtx.blocks);
+    // Enemy：通常の更新処理
     for(auto& e : ctx.entityCtx.enemies) e->update(delta, is, b, ctx.entityCtx.blocks);
+    // Dying演出が終了しているEnemyを消す
+    // ※Dying中の敵を消す処理は，updateEntities上で完結させる
+    auto& enemies = ctx.entityCtx.enemies;
+    // remove_ifは条件を満たす要素を除いたコンテナの終端イテレータを返す
+    auto first = std::remove_if( 
+        enemies.begin(),
+        enemies.end(),
+        [](const std::unique_ptr<Enemy>& e){
+            return e->isDead();
+        }
+    );
+    enemies.erase(first, enemies.end());
 }
 
 /**
@@ -181,6 +190,7 @@ void PlayingScene::resolveBlockCollision(){
             continue;   
         }
         SDL_Rect br = GameUtil::blockToRect(b);
+        // 衝突しているかをまず判定(Rect)
         if(!GameUtil::intersects(playerRect, br)){
             continue;
         }
@@ -208,12 +218,15 @@ void PlayingScene::resolveEnemyCollision(){
     double prevFeet = player.getPrevFeetCollision();
     double newFeet  = player.getFeetCollision();
     double playerVv = player.getVerticalVelocity();
-    // 踏んだ敵のindex記録用
-    std::vector<std::size_t> toKill;
     
     // 接触のループ
     for(std::size_t i = 0; i < ctx.entityCtx.enemies.size(); ++i){
         auto& e = ctx.entityCtx.enemies[i];
+        // 生きている敵のみ対象(Dying/Deadは除外)
+        if(!e->isAlive()){
+            continue;
+        }
+        // 矩形の当たり判定取得
         SDL_Rect enemyRect = e->getCollisionRect();
         // 接触判定
         auto result = PlayerEnemyCollision::resolvePlayerEnemyCollision(
@@ -230,22 +243,17 @@ void PlayingScene::resolveEnemyCollision(){
         }
         if(result == PlayerEnemyCollisionResult::StompEnemy){
             // 敵を踏みつけ(後で敵を消す)
-            toKill.push_back(i);
+            e->startDying();    // Dying状態へ遷移
             // プレイヤーはバウンドする
             player.setVerticalVelocity(-std::abs(PlayerConfig::JUMP_VELOCITY) * 0.5);
             // スコア加算
             ctrl.setScore(ctrl.getScore() + EnemyConfig::SCORE_AT_DEATH);
-            continue;
+            continue;   // 同フレーム中に同一の敵を二度ふまないようにcountinue
         }
         if(result == PlayerEnemyCollisionResult::PlayerHit){
             ctrl.changeScene(GameScene::GameOver);
             return;
         }
-    }
-    // 踏みつけで死んだ敵をvectorから消す
-    // 現状は即時削除の処理のみ(演出は後で)
-    for(auto it = toKill.rbegin(); it != toKill.rend(); ++it){
-        ctx.entityCtx.enemies.erase(ctx.entityCtx.enemies.begin() + *it);
     }
 }
 
@@ -263,42 +271,3 @@ void PlayingScene::hasFallenToGameOver(){
         return;
     }
 }
-
-// /**
-//  * @brief 敵の踏みつけ処理
-//  * 
-//  * @param playerRect 
-//  * @param playerPrevFeet 
-//  * @param playerNewFeet 
-//  * @param playerVv 
-//  * @param enemyRect 
-//  * @return PlayerEnemyCollisionResult 
-//  */
-// PlayerEnemyCollisionResult PlayingScene::resolvePlayerEnemyCollision(
-//     const SDL_Rect& playerRect, 
-//     double playerPrevFeet, 
-//     double playerNewFeet, 
-//     double playerVv,
-//     const SDL_Rect& enemyRect 
-// )
-// {
-//     // 1. そもそも接触しているか=接触していたら以下の処理が走る
-//     if (!GameUtil::intersects(playerRect, enemyRect)) {
-//         return PlayerEnemyCollisionResult::None;
-//     }
-//     // 許容範囲(境界部分の補正用ε)
-//     constexpr double eps = 1.0;
-//     // 敵の頭上
-//     const int enemyTop = enemyRect.y;
-//     // 落ちているか
-//     const bool falling = (playerVv > 0.0);
-//     // 敵の頭とプレイヤーの足が接触したか
-//     const bool feetCrossTop = (playerPrevFeet <= enemyTop + eps && enemyTop <= playerNewFeet + eps);
-
-//     // 2. 落下中に敵の頭をまたいでいたらstomp
-//     if(falling && feetCrossTop){
-//         return PlayerEnemyCollisionResult::StompEnemy;
-//     }
-//     // 3. 2の接触以外は全てPlayerHit
-//     return PlayerEnemyCollisionResult::PlayerHit;
-// }

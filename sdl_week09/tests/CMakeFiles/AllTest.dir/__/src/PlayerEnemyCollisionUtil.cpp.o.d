@@ -243,6 +243,7 @@ tests/CMakeFiles/AllTest.dir/__/src/PlayerEnemyCollisionUtil.cpp.o: \
  /usr/local/include/SDL2/SDL_system.h /usr/local/include/SDL2/SDL_timer.h \
  /usr/local/include/SDL2/SDL_version.h \
  /usr/local/include/SDL2/SDL_locale.h /usr/local/include/SDL2/SDL_misc.h \
+ /home/lucas/sdl-weekly/sdl_week09/include/PlayerConfig.hpp \
  /home/lucas/sdl-weekly/sdl_week09/include/GameUtil.hpp \
  /home/lucas/sdl-weekly/sdl_week09/include/Block.hpp \
  /usr/include/c++/13/algorithm /usr/include/c++/13/bits/stl_algo.h \

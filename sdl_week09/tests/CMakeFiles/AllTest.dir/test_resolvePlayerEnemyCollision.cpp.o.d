@@ -345,7 +345,7 @@ tests/CMakeFiles/AllTest.dir/test_resolvePlayerEnemyCollision.cpp.o: \
  /home/lucas/sdl-weekly/sdl_week09/_deps/googletest-src/googlemock/include/gmock/internal/custom/gmock-generated-actions.h \
  /home/lucas/sdl-weekly/sdl_week09/_deps/googletest-src/googlemock/include/gmock/gmock-more-matchers.h \
  /home/lucas/sdl-weekly/sdl_week09/_deps/googletest-src/googlemock/include/gmock/gmock-nice-strict.h \
- /home/lucas/sdl-weekly/sdl_week09/include/Scene.hpp \
+ /home/lucas/sdl-weekly/sdl_week09/include/PlayerEnemyCollisionUtil.hpp \
  /usr/local/include/SDL2/SDL.h /usr/local/include/SDL2/SDL_main.h \
  /usr/local/include/SDL2/SDL_stdinc.h \
  /usr/local/include/SDL2/SDL_config.h \
@@ -477,6 +477,4 @@ tests/CMakeFiles/AllTest.dir/test_resolvePlayerEnemyCollision.cpp.o: \
  /usr/local/include/SDL2/SDL_system.h /usr/local/include/SDL2/SDL_timer.h \
  /usr/local/include/SDL2/SDL_version.h \
  /usr/local/include/SDL2/SDL_locale.h /usr/local/include/SDL2/SDL_misc.h \
- /home/lucas/sdl-weekly/sdl_week09/include/PlayingScene.hpp \
- /home/lucas/sdl-weekly/sdl_week09/include/Scene.hpp \
- /home/lucas/sdl-weekly/sdl_week09/include/PlayerEnemyCollisionUtil.hpp
+ /home/lucas/sdl-weekly/sdl_week09/include/PlayerConfig.hpp

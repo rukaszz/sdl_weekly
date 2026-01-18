@@ -711,6 +711,7 @@ tests/CMakeFiles/AllTest.dir/__/src/PlayerEnemyCollisionUtil.cpp.o
  /home/lucas/sdl-weekly/sdl_week09/src/PlayerEnemyCollisionUtil.cpp
  /home/lucas/sdl-weekly/sdl_week09/include/Block.hpp
  /home/lucas/sdl-weekly/sdl_week09/include/GameUtil.hpp
+ /home/lucas/sdl-weekly/sdl_week09/include/PlayerConfig.hpp
  /home/lucas/sdl-weekly/sdl_week09/include/PlayerEnemyCollisionUtil.hpp
  /usr/include/alloca.h
  /usr/include/asm-generic/errno-base.h
@@ -2767,9 +2768,8 @@ tests/CMakeFiles/AllTest.dir/test_resolvePlayerEnemyCollision.cpp.o
  /home/lucas/sdl-weekly/sdl_week09/_deps/googletest-src/googletest/include/gtest/internal/gtest-port.h
  /home/lucas/sdl-weekly/sdl_week09/_deps/googletest-src/googletest/include/gtest/internal/gtest-string.h
  /home/lucas/sdl-weekly/sdl_week09/_deps/googletest-src/googletest/include/gtest/internal/gtest-type-util.h
+ /home/lucas/sdl-weekly/sdl_week09/include/PlayerConfig.hpp
  /home/lucas/sdl-weekly/sdl_week09/include/PlayerEnemyCollisionUtil.hpp
- /home/lucas/sdl-weekly/sdl_week09/include/PlayingScene.hpp
- /home/lucas/sdl-weekly/sdl_week09/include/Scene.hpp
  /usr/include/alloca.h
  /usr/include/asm-generic/bitsperlong.h
  /usr/include/asm-generic/errno-base.h
