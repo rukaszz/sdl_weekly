@@ -61,7 +61,6 @@ void Enemy::update(double delta, const InputState& , DrawBounds bounds, const st
     case EnemyState::Dying:
         // その場にとどまって，一定時間経過で死ぬ
         dyingTime += delta;
-        anim.update(delta); // アニメーションは進める
         // 一定時間経過でDying→Deadへ
         if(dyingTime >= EnemyConfig::DYING_DURATION){
             state = EnemyState::Dead;
@@ -105,6 +104,8 @@ SDL_Rect Enemy::getCollisionRect() const{
 /**
  * @brief Characterクラスの設定をオーバーライドして独自の実装を実施
  * 
+ * 現状は点滅は描画スキップで実装している
+ * 
  * @param renderer 
  * @param camera 
  */
@@ -144,8 +145,10 @@ void Enemy::reset(std::mt19937& rd,
 {
     setPosition(dx(rd), dy(rd));
     setSpeed(ds(rd));
-    dir = (rand()%2 == 0 ? Direction::Left : Direction::Right);
+    std::uniform_int_distribution<int> d01(0, 1);
+    dir = (d01(rd) == 0 ? Direction::Left : Direction::Right);
     state = EnemyState::Alive;
+    dyingTime = 0.0;
     anim.reset();
 }
 

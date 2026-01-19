@@ -141,7 +141,7 @@ TEST(PlayerEnemyCollisionTests, StompEnemy_AtEdgeOfSuccess){
  */
 TEST(PlayerEnemyCollisionTests, None_WhenNotFalling){
     const SDL_Rect playerRect{40, 55, 20, 20};  // x:40-60, y:55-75 → intersects == true
-    const SDL_Rect enemyRect{40, 20, 20, 20};   // x:40-60, y:20-40
+    const SDL_Rect enemyRect{40, 55, 20, 20};   // x:40-60, y:55-75
 
     double playerPrevFeet = 75;
     double playerNewFeet  = 35;      // 35 → Enemyへめり込んではいる
@@ -155,7 +155,7 @@ TEST(PlayerEnemyCollisionTests, None_WhenNotFalling){
         enemyRect
     );
     // 敵に下からぶつかる→PlayerHit
-    EXPECT_EQ(result, PlayerEnemyCollisionResult::None);
+    EXPECT_EQ(result, PlayerEnemyCollisionResult::PlayerHit);
 }
 
 
@@ -165,7 +165,7 @@ TEST(PlayerEnemyCollisionTests, None_WhenNotFalling){
  * 踏みつけの条件(feetCrossTop)は満たしているが，衝突はしていない場合
  */
 TEST(PlayerEnemyCollisionTests, None_StompConditionWithoutIntersection){
-    const SDL_Rect playerRect{10, 190, 20, 20};  // x:10-30, y:10-30
+    const SDL_Rect playerRect{10, 190, 20, 20};  // x:10-190, y:10-30
     const SDL_Rect enemyRect{200, 200, 20, 20}; // x:200-220, y:200-220
 
     const double enemyTop = enemyRect.y;    // 40
@@ -183,4 +183,28 @@ TEST(PlayerEnemyCollisionTests, None_StompConditionWithoutIntersection){
     );
     // 何も処理しない
     EXPECT_EQ(result, PlayerEnemyCollisionResult::None);
+}
+
+/**
+ * @brief Construct a new TEST object
+ * 
+ * 落下していない状態で接触したパターン
+ */
+TEST(PlayerEnemyCollisionTests, PlayerHit_OnTheGround){
+    const SDL_Rect playerRect{45, 45, 20, 20};  // x:45-75, y:45-65
+    const SDL_Rect enemyRect{50, 45, 20, 20};   // x:50-70, y:40-60 → 側面から衝突
+
+    double playerPrevFeet = 70.0;
+    double playerNewFeet  = 70.0;
+    double playerVv       = 0.0;   // 落下中に横からぶつかった
+
+    auto result = resolvePlayerEnemyCollision(
+        playerRect,
+        playerPrevFeet,
+        playerNewFeet,
+        playerVv,
+        enemyRect
+    );
+    // 接地時の衝突 → PlayerHit
+    EXPECT_EQ(result, PlayerEnemyCollisionResult::PlayerHit);
 }

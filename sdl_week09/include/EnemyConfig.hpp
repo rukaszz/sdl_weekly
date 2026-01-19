@@ -9,8 +9,8 @@ struct EnemyConfig{
     static inline constexpr double SPEED_MIN = 50.0;
     static inline constexpr int NUM_FRAMES = 8;
     static inline constexpr int SCORE_AT_DEATH = 100;
-    static inline constexpr double DYING_DURATION = 1.5;
-    static inline constexpr double DYING_BLINK_INTERVAL = 0.1;
+    static inline constexpr double DYING_DURATION = 1.5;    // 秒
+    static inline constexpr double DYING_BLINK_INTERVAL = 0.1;  // 秒
 };
 
 #endif  // ENEMYCONFIG_H

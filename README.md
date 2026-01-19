@@ -87,7 +87,7 @@ SpriteとTextureを追加．ただし，Rendererとの参照関係は明確に�
 現状の関係は次の通り：
 
 - Texture  ---依存---> SDL_Texture*
-- Sprite   ---間接依存---> Texture（参照）
+- Sprite   ---間接依存---> Texture(参照)
 - Player   ---依存---> Sprite/Renderer(静的)
 - Renderer ---依存---> SDL_Renderer*
 - Game     ---依存---> Texture / Player / Renderer
@@ -229,7 +229,7 @@ Gameクラスが多くの処理を担うようになり，責務過多になっ�
   - 理由：
     - ゲームをプレイするときの更新処理をここに集約した
     - 現状はGameの処理をそのまま移管しただけなので，さらに処理を分離する必要がある
-      - update() が 5 種類の責務（入力処理/物理/敵AI/スコア/衝突判定）を持っている
+      - update() が 5 種類の責務(入力処理/物理/敵AI/スコア/衝突判定)を持っている
       - これら処理を分割する
 - GameOverScene：ゲームオーバー時の処理
   - 役割：
@@ -299,7 +299,7 @@ Gameクラスが終了するとき，TTF_Quit()→IMG_Quit()→SDL_Quit()の順�
 
 ### GameとSceneの分離
 
-week04の状態では Game と Scene が強く結合しており，Scene が Game クラスの詳細（メンバ変数や関数）を直接参照していた．その結果，
+week04の状態では Game と Scene が強く結合しており，Scene が Game クラスの詳細(メンバ変数や関数)を直接参照していた．その結果，
 
 - Game の責務が肥大化する
 - Scene 側から Game の修正が伝播しやすい
@@ -310,12 +310,12 @@ week05 では，Game が管理しているオブジェクト群から Scene に�
 
 - GameContext：Scene から参照されるゲームのコンテキスト
   - 主なフィールド：
-    - Renderer（描画用）
+    - Renderer(描画用)
     - Player / Enemy 配列
-    - TextTexture（スコア表示・FPS表示など）
-    - 乱数生成器と分布（敵の初期位置・速度用）
-    - Text（フォント）
-    - Input（入力状態）
+    - TextTexture(スコア表示・FPS表示など)
+    - 乱数生成器と分布(敵の初期位置・速度用)
+    - Text(フォント)
+    - Input(入力状態)
   - 役割：
     - Scene に必要な「ゲーム内オブジェクト」をひとまとめにし，Game 本体の詳細構造を Scene から隠蔽する
     - Scene は GameContext 経由でのみオブジェクトにアクセスする
@@ -327,7 +327,7 @@ Game は std::unique_ptr\<Scene\> scenes\[3\] と Scene* currentScene を持ち�
 Scene 系のクラスが Game クラスの関数を直接呼ぶと，Scene が Game の実装に強く依存してしまう．これを避けるために，Game のうち Scene から利用したい操作だけを抽象インターフェース SceneControl として切り出した．
 
 - SceneControl インターフェース：
-  - 提供する機能（現時点）：
+  - 提供する機能(現時点)：
     - changeScene(GameScene id)：シーンの切り替え
     - resetGame()：プレイ開始時のゲーム状態リセット
     - getScore() / setScore()：スコアの取得・更新
@@ -337,10 +337,10 @@ Scene 系のクラスが Game クラスの関数を直接呼ぶと，Scene が G
 
 Game は SceneControl を実装し，Scene はコンストラクタで SceneControl& を受け取る．これにより，Scene は Game の具体的な型に依存せず，必要最小限の操作だけを通じてゲーム全体を制御できる．
 
-依存性逆転の原則（Dependency Inversion Principle）：
+依存性逆転の原則(Dependency Inversion Principle)：
 
-- 高水準モジュール（Scene）は低水準モジュール（Game）の具象実装に依存しない
-- 両者とも抽象（SceneControl）に依存する
+- 高水準モジュール(Scene)は低水準モジュール(Game)の具象実装に依存しない
+- 両者とも抽象(SceneControl)に依存する
 - Scene → SceneControl ← Game という形で依存を逆転させることで，Game と Scene の結合度を下げ，変更に強い構造にした
 
 ### 入力状態のテーブル化
@@ -352,7 +352,7 @@ Game は SceneControl を実装し，Scene はコンストラクタで SceneCont
 
 といった問題があった．
 
-week05 では，入力を抽象化した Action と，その状態をまとめる InputState を導入し，「入力状態のテーブル化（マッピング）」を行った．
+week05 では，入力を抽象化した Action と，その状態をまとめる InputState を導入し，「入力状態のテーブル化(マッピング)」を行った．
 
 ```cpp
 // 入力状態のマッピング
@@ -364,11 +364,11 @@ enum class Action{
     Jump, 
     Pause,
     Enter,
-    None,   // 番兵（配列の範囲外判定用）
+    None,   // 番兵(配列の範囲外判定用)
 };
 
 struct InputState{
-    // 列挙値の最大（今回は Enter）+ 1 ぶん確保
+    // 列挙値の最大(今回は Enter)+ 1 ぶん確保
     bool pressed[(int)Action::Enter + 1]     = {false};
     bool justPressed[(int)Action::Enter + 1] = {false};
 };
@@ -407,8 +407,8 @@ Input::update() で毎フレーム false にリセットする
 
 - Input：入力を受け取るクラス
   - 役割：
-    - キーボード（今後はパッドなども想定）からの入力を受け取り，アクションごとの押下状態をフラグで保持する
-    - 押しっぱなし（pressed）と押した瞬間（justPressed）を区別して管理する
+    - キーボード(今後はパッドなども想定)からの入力を受け取り，アクションごとの押下状態をフラグで保持する
+    - 押しっぱなし(pressed)と押した瞬間(justPressed)を区別して管理する
   - 理由：
   - 各クラスが SDL のキーコードを直接扱うのではなく，Input が窓口になって Action 状態を提供することで，入力処理とゲームロジックを分離できる
   - 「このフレームでジャンプボタンが押されたか」「押しっぱなしになっているか」を明確に区別できるようになる
@@ -427,7 +427,7 @@ week04 までは，SDL_GetTicks() を使った「フレーム時間ベース」�
 
 - delta の計算：
   - 前フレームと現在の SDL_GetPerformanceCounter() の差分を SDL_GetPerformanceFrequency() で割って秒単位に変換
-  - delta が極端に大きくなった場合（例：一時停止後など）は 0.1 秒（≒10 FPS）にクランプし，物理更新が暴れないようにした
+  - delta が極端に大きくなった場合(例：一時停止後など)は 0.1 秒(≒10 FPS)にクランプし，物理更新が暴れないようにした
 
 - 更新ループ：
   - delta を各 Scene の update() に渡し，速度・重力・アニメーションなどは時間ベースで更新
@@ -449,7 +449,7 @@ week04 までは，SDL_GetTicks() を使った「フレーム時間ベース」�
 
 - 接地判定：
   - clampToGround(const DrawBounds&)：
-  - 床の Y 座標（画面下端 − スプライト高さ）を境界としてクランプ
+  - 床の Y 座標(画面下端 − スプライト高さ)を境界としてクランプ
     - プレイヤーがそれより下に行かないようにし，接地時には vv = 0 / onGround = true に戻す
   - clampHorizontalPosition(const DrawBounds&)：
     - X 座標を 0〜画面幅 − プレイヤー幅 にクランプし，画面外にはみ出さないようにする
@@ -463,14 +463,14 @@ week04 までは，SDL_GetTicks() を使った「フレーム時間ベース」�
 「プレイヤーが左右移動とジャンプで敵を避ける」，「床はウィンドウ下端の一枚だけ」という最小限の遊び要素にとどまっている．week06 では，キャラクタ以外の要素でゲーム性を拡張していく．
 
 - 床・ブロックの導入：
-  - 実際の床スプライト（タイル）を描画し，当たり判定を実装する
+  - 実際の床スプライト(タイル)を描画し，当たり判定を実装する
   - プレイヤーがジャンプで「乗る」「乗り越える」ことができるブロックを配置する
 - 当たり判定の拡張：
-  - プレイヤーと床／ブロックとの衝突方向（上から着地・横から衝突など）を判定し，正しい位置補正と速度修正を行う
+  - プレイヤーと床／ブロックとの衝突方向(上から着地・横から衝突など)を判定し，正しい位置補正と速度修正を行う
 - シーン側の責務整理：
-  - ブロックや床の管理をどこに持たせるか（専用マップクラスを作るか，簡易の配列で持つか）を決める
+  - ブロックや床の管理をどこに持たせるか(専用マップクラスを作るか，簡易の配列で持つか)を決める
 
-今後のマップ構造（タイルマップ／レベルデータ）を見据えた設計にしていく
+今後のマップ構造(タイルマップ／レベルデータ)を見据えた設計にしていく
 
 ## week06
 
@@ -489,7 +489,7 @@ week04 までは，SDL_GetTicks() を使った「フレーム時間ベース」�
   - BlockTypeによって床として乗れるのか，ダメージ床なのか，といった役割を区別する
 - 種別(BlockType)
   - Standable：乗れる通常ブロック．色は白
-  - DropThrough：乗ることができて，下ボタン押下ですり抜けられるブロック（挙動は未実装）．色は青
+  - DropThrough：乗ることができて，下ボタン押下ですり抜けられるブロック(挙動は未実装)．色は青
     - 現時点では種別として定義しているだけ(Standableと区別するため)
   - Damage：当たるとダメージを受けるブロック(現状は即死)．色は赤
 - 理由
@@ -501,7 +501,7 @@ week04 までは，SDL_GetTicks() を使った「フレーム時間ベース」�
 ブロック配置を外部ファイルで定義するための読み込み用関数．
 
 - 役割
-  - レベルファイル（assets/level/level1.txt）を読み込み，各行をBlockの配列に変換する
+  - レベルファイル(assets/level/level1.txt)を読み込み，各行をBlockの配列に変換する
   - レベルファイルのフォーマット:
     - 1 行につき 1 ブロック定義
     - 形式："種類文字" "x" "y" "w" "h" # コメント
@@ -523,23 +523,23 @@ week04 までは，SDL_GetTicks() を使った「フレーム時間ベース」�
   - ブロックの形状・役割・配置はステージごとに変わる前提なので，コードにハードコードせず外部ファイルに切り出して柔軟性をもたせた
   - レベルファイルを差し替えるだけでステージ構成を変えられるようにしておくことで，あとからマップを増やすときの負荷を下げられる
 
-### Player クラス（床判定）
+### Player クラス(床判定)
 
 Player は引き続き入力に応じて動くキャラクタだが，week06でブロックとの接地判定を Block ベースに統一した．
 
 - update(double delta, const InputState& input, DrawBounds bounds, const std::vector\<Block\>& blocks)
   - 入力は左右移動とジャンプを受け取る
-  - 重力を vv（垂直速度）に加算し，y へ反映する
-  - 垂直移動の前後で「足の高さ（prevFeet / newFeet）」を計算し，clampToGround に渡す
+  - 重力を vv(垂直速度)に加算し，y へ反映する
+  - 垂直移動の前後で「足の高さ(prevFeet / newFeet)」を計算し，clampToGround に渡す
 - clampToGround(double prevFeet, double newFeet, const std::vector\<Block\>& blocks)
-  - 垂直速度 vv > 0（落下中）のときだけ，Standable ブロックとの着地判定を行う
+  - 垂直速度 vv > 0(落下中)のときだけ，Standable ブロックとの着地判定を行う
   - 各ブロックに対して次の内容を判定し，条件を満たしたら「そのブロックの上に着地」させる：
     - プレイヤーの左右の範囲とブロックの左右の範囲が重なっているか
     - 足が「前フレームではブロック上端より上，今フレームでブロック上端より下」という状態を跨いだか
   - 着地した場合はyをブロック上端にスナップし，vv=0，onGround=trueにする
   - どのブロックにも乗っていなければ onGround=falseにする
 - 現時点の問題点
-  - プレイヤーの物理挙動（重力・床との衝突・着地処理）が Player クラスにベタ書きされており，将来的に Enemy など他のオブジェクトにも同じような処理を書き始める破綻する
+  - プレイヤーの物理挙動(重力・床との衝突・着地処理)が Player クラスにベタ書きされており，将来的に Enemy など他のオブジェクトにも同じような処理を書き始める破綻する
   - week07 では，この床判定を Physics モジュール側へ切り出し，「位置・速度などの値だけを Physics に渡して処理する」形にリファクタリングが必要
 
 ### PlayingScene クラス
@@ -549,12 +549,12 @@ Player は引き続き入力に応じて動くキャラクタだが，week06で�
 - render
   - ctx.entityCtx.blocks を走査し，BlockTypeに応じて色を変えて矩形を描画する
     - Standable：白
-    - DropThrough：青（ただし現段階では挙動は未実装）
+    - DropThrough：青(ただし現段階では挙動は未実装)
     - Damage：赤
   - FPS，スコア，プレイヤー，敵キャラクタを描画する
 - checkCollision
   - プレイヤーと敵との当たり判定を行い，衝突したら GameOverScene へ遷移する
-  - プレイヤーと BlockType::Damageのブロックとの衝突判定を行い，当たった場合も GameOverScene へ遷移する（現状は即死扱い）
+  - プレイヤーと BlockType::Damageのブロックとの衝突判定を行い，当たった場合も GameOverScene へ遷移する(現状は即死扱い)
 - hasFallenToGameOver
   - プレイヤーの足元が「画面下から一定距離を超えて落下した」ときにゲームオーバーにする
   - 現状は「ウィンドウ下端＋プレイヤースプライト高さ分」をしきい値としている
@@ -583,7 +583,7 @@ BlockLevelLoader::loadFromFileで，「#」 以降をコメントとして扱う
 2. ステージ表現とカメラの問題
    - 現状はウィンドウ内に収まる前提でステージを作っており，横スクロール・カメラ移動が存在しない
    - 将来的にマリオライクなステージを実装するためにはを扱えるようにする必要がある
-     - カメラ（ビューポート）の概念を導入
+     - カメラ(ビューポート)の概念を導入
      - ワールド座標系と画面座標系の変換
    - week07では，まずPhysics 抽出を優先し，その後の週でスクロール／カメラ実装に手を付ける
 
@@ -792,7 +792,7 @@ week08にて，床ブロックとの接地処理やカメラ・スクロール�
 
 1. 落下中であること
 
-   - `player.vv > 0`（垂直速度が下向き）のときのみ踏みつけ判定を行う
+   - `player.vv > 0`(垂直速度が下向き)のときのみ踏みつけ判定を行う
 
 2. プレイヤーの足が敵の頭頂をまたいでいること
 
@@ -807,12 +807,12 @@ week08にて，床ブロックとの接地処理やカメラ・スクロール�
 判定結果はPlayerEnemyCollisionResultで表現される．
 
 - None
-  - そもそも矩形同士が接触していない，または踏みつけ条件を満たしていない（かつダメージにもならない）場合
+  - そもそも矩形同士が接触していない，または踏みつけ条件を満たしていない(かつダメージにもならない)場合
 - StompEnemy  
   - 上記条件をすべて満たし，「上から踏みつけた」と判断できる場合
 - PlayerHit  
   - 矩形としては接触しているが踏みつけ条件を満たしていない場合  
-    （側面や下からぶつかった場合など）
+    (側面や下からぶつかった場合など)
 
 この結果に応じて，PlayingScene側で以下の処理を行う．
 
@@ -837,7 +837,7 @@ week08にて，床ブロックとの接地処理やカメラ・スクロール�
 
 当初の実装では，次の2種類の「足元」の定義が混在していた．
 
-- spriteの描画範囲（y + sprite.getDrawHeight()）を使った足元
+- spriteの描画範囲(y + sprite.getDrawHeight())を使った足元
 - getCollisionRect()で少し小さくした矩形(当たり判定用)のbottom
 
 処理の流れはおおよそ次のようになっていた：
@@ -868,89 +868,177 @@ toleranceを大きく取って判定を実施すると，今後厳格な判定�
 
 ### 解決方針：feet を用途ごとに分離する
 
-最終的には、「座標系の混在をやめる」ことをゴールに次のように整理した．
+最終的には，「座標系の混在をやめる」ことをゴールに次のように整理した．
 
 1. Characterクラスにfeetを2系列持たせる
 
-   - 物理処理（ブロックとの接地など）用  
+   - 物理処理(ブロックとの接地など)用  
      - prevFeetPhysics/getFeetPhysics()
-     - y + sprite.getDrawHeight()ベースで「描画矩形の bottom」を扱う
-   - 衝突処理（プレイヤー vs 敵）用  
+     - y + sprite.getDrawHeight()ベースで「描画矩形のbottom」を扱う
+   - 衝突処理(Player/Enemy)用  
      - prevFeetCollision/getFeetCollision()
-     - getCollisionRect()ベースで「当たり判定用に縮めた Rect の bottom」を扱う
+     - getCollisionRect()ベースで「当たり判定用に縮めたRect bottom」を扱う
 
-2. 物理処理と衝突処理で、使う feet を明確に分ける
+2. 物理処理と衝突処理で，使う feet を明確に分ける
 
    - Physics::resolveVerticalBlockCollision
      →prevFeetPhysics/getFeetPhysics()を使用
-   - Player vs Enemy の踏みつけ判定
+   - Player?Enemy の踏みつけ判定
      → prevFeetCollision/getFeetCollision()を使用
 
 3. 踏みつけ判定ロジックをユーティリティに切り出す
 
    - PlayerEnemyCollisionUtilとしてresolvePlayerEnemyCollision(...)をPlayingSceneから分離
-   - Sceneやrendererに依存しない「純粋な」関数にすることで、Google Test からテストしやすくした
+   - Sceneやrendererに依存しない「純粋な」関数にすることで，テストを容易にする
 
 ### week09の設計
 
-- Characterクラス
-  - Character::prevFeet系
-    - 理由
-      - 上述のように，Rect系と描画処理系の当たり判定を混在させているため，物理処理用，接触判定用，にそれぞれprevFeetのキャッシュを用意する必要があった
-    - 役割
-      - 物理処理用：prevFeetPhysics
-      - 衝突処理用：prevFeetCollision
-- Playerクラス
-  - Player::update()
-    - 理由：Characterクラスで実装したprevFeet系を取得するサンプリングを実施
-- Enemyクラス
-  - EnemyState
-    - 状態を管理する
-    - Alive：生存状態．この状態は動ける
-    - Dying：死にかけの状態．踏まれたら(攻撃されたら)この状態になる
-    - Dead：死亡状態．描画などの処理の対象外になる
-  - Enemy::update()
-    - Dying状態の管理
-    - 一定の時間(DYING_DURATION)立ったらDeadへ遷移
-  - Enemy::draw()
-    - 理由
-      - Character::draw()は単純な描画用にrendererを呼ぶ処理になっている
-      - 各EnemyStateの状態に合わせて描画処理が変わるため
-    - 役割
-      - Dying/Deadの状態での描画処理を追加した
-      - AliveやDyingの点滅処理では，Character::draw()をこれまで通り呼ぶ
-  - Enemy::startDying()
-    - 理由
-      - PlayingSceneなどでDyingを開始するため
-    - 役割
-      - PlayingSceneで呼ばれる
-- PlayingSceneクラス
-  - Collision系
-    - PlayingScene::detectCollision()：衝突処理が大きくブロックと敵の2つに分けれているので，それぞれの処理を呼び出す
-    - PlayingScene::resolveBlockCollision()：week08での実装と同様の処理
-    - PlayingScene::resolveEnemyCollision()
-      - prevFeet系の取得
-      - PlayerEnemyCollision::resolvePlayerEnemyCollision()の呼び出し
-      - Player/Enemyの接触処理結果に応じた処理
-        - None：何もしない
-        - StompEnemy：敵の踏みつけ/Playerのバウンドなど
-        - PlayerHit：敵への接触(現状はゲームオーバ)
-    - PlayingScene::updateEntities()
-      - Player/Enemyの更新処理
-      - Enemyの場合は踏みつけられた敵の削除処理も入る
-- PlayerEnemyCollisionUtil
-  - 理由
-    - PlayingSceneに依存する必要ない純粋な関数なので，PlayingSceneから切り出した
-    - 境界チェックがあるためテストがしやすくなる意図もある
-  - 役割
-    - Player/Enemyの接触処理
-    - SDL_Rect&AABBによる接触判定
-    - prevFeetとEnemyTopによる踏みつけ判定
-    - 単純なプレイヤーとの接触による判定(これまで同様)
+#### Characterクラス
+
+役割：物理計算・衝突判定で必要となる「前フレームの足元位置」をキャッシュする
+
+主なメンバ
+
+```cpp
+double prevFeetPhysics;   // Physics 用：sprite 高さベース
+double prevFeetCollision; // 衝突処理用：collisionRect ベース
+
+// 主なメソッド
+
+// Physics 用の feet のサンプリング
+// update() の冒頭で呼び出し，物理計算に入る前の足元位置をキャッシュする
+void beginFrameFeetPhysicsSample();
+double getFeetPhysics() const;
+double getPrevFeetPhysics() const;
+
+// 衝突判定用の feet のサンプリング
+// PlayingScene::update() の冒頭で呼び出し，シーン全体の更新前の足元位置をキャッシュする
+void beginFrameCollisionSample();
+double getFeetCollision() const;
+double getPrevFeetCollision() const;
+```
+
+#### Playerクラス
+
+Player::update()
+
+Characterクラスで実装したprevFeet系を取得するサンプリングを実施する．流れとしては次の通り：
+
+1. beginFrameFeetPhysicsSample()でprevFeetPhysicsをサンプリング
+2. 垂直速度やy軸の更新
+3. VerticalCollisionStateの作成
+4. resolveVerticalBlockCollision()を呼び出す
+
+#### Enemyクラス
+
+EnemyState
+
+新しく導入した，Enemyの状態を管理するenum class．次の3つの状態がある：
+
+- Alive：生存状態．この状態は動ける
+- Dying：死にかけの状態．踏まれたら(攻撃されたら)この状態になる
+- Dead：死亡状態．描画などの処理の対象外になる
+
+dyingTime
+
+Dying状態は名の通り死にかけの状態なので，時間経過でDead状態へ移行する．そのためのDying状態管理用の時間．
+
+- Enemy::update()
+  - Alive
+    - 従来のように左右への移動/worldBoundsで反射する
+    - アニメーションを更新する
+  - Dying
+    - 位置はそのまま固定
+    - dyingTimeを加算する
+    - 指定時間(EnemyConfig::DYING_DURATION)経過するとDeadへ遷移する
+  - Dead
+    - 更新処理を行わない，スキップされる
+    - PlayingScene::updateEntities()で削除される対象
+- Enemy::draw()
+  - Dead：描画しない
+  - Dying：EnemyConfig::DYING_BLINK_INTERVALを用いて点滅する(点滅は描画のスキップで表現)
+  - Alive/Dyingの可視フレーム：これまで通りCharacter::draw()を呼ぶ
+- Enemy::startDying()
+  - 外部から呼ばれ，Alive→Dyingへの状態遷移をする
+  - Dying/Dead時は何もしないことで，多重踏みつけの防止
+
+#### PlayingSceneクラス
+
+- update(double delta)
+   1. Pause 入力によるタイトルシーンへの遷移チェック
+   2. player.beginFrameCollisionSample()で衝突用のfeet をサンプリング
+   3. updateScore(delta)でスコア更新
+   4. updateEntities(delta, worldBounds) で Player/Enemy を更新
+   5. detectCollision()でブロックと敵の衝突処理
+   6. hasFallenToGameOver()で落下死判定
+   7. updateCamera()でカメラ追従
+- updateEntities(...)
+  - Player の更新(物理処理・入力処理)
+  - 各Enemyの更新(状態に応じた動き／演出)
+  - EnemyState::Deadの敵をremove_if + eraseで削除 → Dying 演出が終わった敵だけを自然に消す
+- detectCollision()
+  - 敵との衝突：resolveEnemyCollision()
+  - ダメージ床・クリアオブジェクトとの衝突：resolveBlockCollision()
+- resolveEnemyCollision()
+  - PlayerのgetCollisionRect() を取得
+  - prevFeetCollision/feetCollision/verticalVelocityを読み出し
+  - EnemyState::Alive の敵のみ対象にループ
+  - prevFeetCollisionの事前のサンプリングに強く依存しているので，サンプリングなしで呼び出すとうまく動作しないことに注意が必要
+- PlayerEnemyCollision::resolvePlayerEnemyCollision(...)
+  - resolveEnemyCollision()内で呼ばれ結果を判定
+    - StompEnemy
+      - 対象のEnemyへstartDying()呼ぶ
+      - Playerをリバウンドさせる
+      - スコアの加算
+    - PlayerHit
+      - ゲームオーバ
+
+#### PlayerEnemyCollisionUtil
+
+踏みつけ判定のロジックを純粋な関数として切り出した．
+
+内部ロジック概要：
+
+1. SDL_RectベースのAABBで矩形同士が交差しているかチェック → していなければNone
+2. プレイヤーが落下中かどうかをplayerVv > 0.0で判定
+3. playerPrevFeet, playerNewFeet, enemyTopを使って，足元が敵の頭頂をまたいだかどうかをチェック
+   - playerPrevFeet <= enemyTop + eps
+   - enemyTop <= playerNewFeet + eps
+   - 境界の丸め誤差を抑えるためのepsは共通の定数として定義しており，1.0程度の許容範囲である
+4. 以上を満たしていればStompEnemy，そうでなければPlayerHit
+
+この関数はシーンやレンダラに依存しない純粋関数になっているため，Google Testでの単体テストが容易になっている．
+
+#### PlayerEnemyCollisionUtilのテスト
+
+踏みつけ処理は境界値のチェックが重要なので，次のテストケースを実施した：
+
+- StompEnemy_FromAbove
+  - プレイヤーが上から落下してきて，足元が敵の頭頂をまたいでいるケース → StompEnemy になることを確認
+- PlayerHit_FromSide
+  - 落下中だが，敵の側面から接触するケース → PlayerHit になることを確認
+- None_WhenNotIntersecting
+  - feet の条件を満たしていても，矩形同士がそもそも交差していないケース → None になることを確認
+- StompEnemy_AtEdgeOfFailure
+  - ギリギリ踏めていないケース(enemyTop をまたいでいない)
+- StompEnemy_AtEdgeOfSuccess
+  - ギリギリ踏めているケース(enemyTop をわずかにまたぐ)
+- None_WhenNotFalling
+  - playerVv <= 0 の場合は踏みつけにならないことを確認
+- None_StompConditionWithoutIntersection
+  - 「踏みつけ条件は満たしているが，Rect としては交差していない」ケース
+  - resolvePlayerEnemyCollision 内の「まず矩形交差をチェックする」という前提が守られているかを検証
+- PlayerHit_OnTheGround
+  - 落下中ではない状態でintersectsした場合
 
 ### week10の予定
 
-考え中
+week09 でプレイヤーと敵の基本的なインタラクション(踏みつけ → 死亡演出)が実装できたので，今後は次のような方向性を検討している(優先順位は今後調整)
+
+- ステージ遷移(ステージ 1 → ステージ 2 ...)とそれに伴うレベルデータ管理
+- 敵のバリエーション追加(移動パターン，飛び跳ねる敵など)
+- パーティクルエフェクト(踏みつけ時のエフェクト，ダメージ床の視覚効果など)
+- デバッグ用途の軽量な可視化(ヒットボックス表示など)
 
 ## アセット
 

@@ -38,8 +38,11 @@ protected:
     // 移動速度
     double speed;
     // 1フレーム前のRect下部
+    // ブロックとの接触など物理の判定に用いる
+    // Sprite の高さベース(= 描画上の矩形)のbottom
     double prevFeetPhysics;     // Physics用でspriteのbottom
     // collisionRectベースの1フレーム前のRect.y+Rect.h
+    // getCollisionRect(当たり判定用に縮めたRect)ベースのbottom．敵との踏みつけ判定などキャラクタ同士の衝突専用
     double prevFeetCollision;   // 踏みつけ処理などで用いる 
     // 垂直速度(vertical verocity)
     double vv;

@@ -47,6 +47,7 @@ void PlayingScene::update(double delta){
         return;
     }
     // 衝突処理用の前フレームのプレイヤー下部をサンプリング
+    // 必ず各種Collision判定前に呼ぶ必要がある
     ctx.entityCtx.player.beginFrameCollisionSample();
     // worldInfoを用いた幅のクランプ処理
     DrawBounds worldBounds = {ctx.worldInfo.WorldWidth, ctx.worldInfo.WorldHeight};
@@ -169,10 +170,11 @@ void PlayingScene::updateEntities(double delta, DrawBounds b){
 /**
  * @brief 描画するオブジェクトの衝突処理
  * 
+ * 必ず呼び出す前にprevFeetCollisionをサンプリングしている必要がある
  */
 void PlayingScene::detectCollision(){
     // 敵との衝突判定
-    resolveEnemyCollision();
+    resolveEnemyCollision(ctx.entityCtx.player.getPrevFeetCollision());
     // ダメージブロックとの衝突判定
     resolveBlockCollision();
 }
@@ -208,14 +210,14 @@ void PlayingScene::resolveBlockCollision(){
  * 敵の踏みつけ/削除/スコア加算/GameOverの処理を行う
  * 
  */
-void PlayingScene::resolveEnemyCollision(){
+void PlayingScene::resolveEnemyCollision(double prevFeet){
     // PlayerのRect取得
     auto& player = ctx.entityCtx.player;
     // プレイヤーのRect基準のあたり判定取得
     // ※update→Physics →clamp→getCollisionRectの順番が必要
     SDL_Rect playerRect = player.getCollisionRect();
     // 衝突処理用変数：collisionのfeetを使う
-    double prevFeet = player.getPrevFeetCollision();
+    // double prevFeet = player.getPrevFeetCollision();
     double newFeet  = player.getFeetCollision();
     double playerVv = player.getVerticalVelocity();
     

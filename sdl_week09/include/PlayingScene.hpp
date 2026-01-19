@@ -35,15 +35,9 @@ public:
     void checkCollision();
     void detectCollision();
     void resolveBlockCollision();
-    void resolveEnemyCollision();
+    void resolveEnemyCollision(double prevFeet);
     void hasFallenToGameOver();
-    // static PlayerEnemyCollisionResult resolvePlayerEnemyCollision(
-    //     const SDL_Rect& playerRect, 
-    //     double playerPrevFeet, 
-    //     double playerNewFeet, 
-    //     double playerVv,
-    //     const SDL_Rect& enemyRect 
-    // );
+
 };
 
 #endif  // PLAYINGSCENE_H
