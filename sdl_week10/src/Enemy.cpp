@@ -168,3 +168,23 @@ void Enemy::startDying(){
     vv = 0.0;
     speed = 0.0;
 }
+
+/**
+ * @brief Enemyのx, y, speedをセットする
+ * 
+ * reset()やloadStage()などで呼ぶ想定
+ * 
+ * @param coorX 
+ * @param coorY 
+ * @param spd 
+ */
+void Enemy::applyEnemyParamForSpawn(double coorX, double coorY, double spd){
+    setPosition(coorX, coorY);
+    setSpeed(spd);
+    // 固定でRight
+    dir = Direction::Right;
+    state = EnemyState::Alive;
+    dyingTime = 0.0;
+    vv = 0.0;
+    anim.reset();
+}

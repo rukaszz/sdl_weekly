@@ -33,19 +33,25 @@ private:
 public:
     // 定数
     static inline constexpr int NUM_FRAMES = EnemyConfig::NUM_FRAMES;
-
+    // コンストラクタ
     Enemy(Texture& tex);
     // InputStateは使用しないので無名
     void update(double delta, const InputState&, DrawBounds bounds, const std::vector<Block>&) override;
+    // 当たり判定を返す関数
     SDL_Rect getCollisionRect() const override;
+    // 描画
     void draw(Renderer& renderer, Camera& camera) override;
+    // 乱数を用いてx, y, speedを設定する関数
     void reset(
         std::mt19937& rd,
         std::uniform_real_distribution<double>& dx,
         std::uniform_real_distribution<double>& dy,
         std::uniform_real_distribution<double>& ds
     );
+    // EnemyStateをDyingにする関数
     void startDying();
+    // スポーン時にx, y, speedをセットする
+    void applyEnemyParamForSpawn(double coorX, double coorY, double spd);
     // getter/setter
     void setSpeed(double v){
         speed = v;

@@ -49,6 +49,7 @@ void TitleScene::update(double delta){
     // Playingへ遷移
     const InputState& is = ctx.input.getState();
     if(is.justPressed[(int)Action::Enter]){
+        ctrl.startNewGame();
         ctrl.changeScene(GameScene::Playing);
         return;
     }

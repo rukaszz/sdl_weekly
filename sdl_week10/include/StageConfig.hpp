@@ -5,6 +5,16 @@
 #include <vector>
 
 /**
+ * @brief 敵の出現(読み込み)に関わる変数
+ * 
+ */
+struct EnemySpawn{
+    double x;
+    double y;
+    double speed;
+};
+
+/**
  * @brief ステージ定義管理用
  * レベルファイルのパスやプレイヤーの初期位置などを持つ
  */
@@ -13,6 +23,7 @@ struct StageDefinition{
     std::string levelFile;  // "assets/levels/levelN.txt"など
     double playerStart_X;   // ステージの開始位置
     double playerStart_Y;
+    std::vector<EnemySpawn> enemySpawns;
 };
 
 namespace StageConfig{
@@ -21,13 +32,24 @@ namespace StageConfig{
             "Stage 1", 
             "assets/level/level1.txt", 
             100.0,  // playerStart_X
-            700.0   // playerStart_Y
+            600.0,  // playerStart_Y
+            {{.x = 100.0, .y = 200.0, .speed = 150.0}, 
+             {.x = 200.0, .y = 400.0, .speed = 100.0},
+             {.x = 300.0, .y = 600.0, .speed = 50.0}
+            }
         }, 
         {
             "Stage 2", 
             "assets/level/level2.txt", 
             100.0,  // playerStart_X
-            700.0   // playerStart_Y
+            600.0,  // playerStart_Y
+            {{.x = 100.0, .y = 100.0, .speed = 50.0}, 
+             {.x = 200.0, .y = 200.0, .speed = 80.0},
+             {.x = 300.0, .y = 300.0, .speed = 110.0},
+             {.x = 400.0, .y = 400.0, .speed = 140.0},
+             {.x = 500.0, .y = 500.0, .speed = 170.0},
+             {.x = 600.0, .y = 600.0, .speed = 200.0}
+            }
         }, 
     };
 }   // namespace StageConfig

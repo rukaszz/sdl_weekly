@@ -7,7 +7,7 @@ struct GameContext;
 enum class GameScene;
 
 /**
- * @brief 抽象インターフェース
+ * @brief GameクラスとSceneクラスの依存を緩め，ステージ進行を担うクラス
  * Gameクラスのうち，特定の呼びたい機能のみをSceneControlで呼ぶ
  * 依存性逆転の原則(dependency inversion principle)に従って，Gameへの依存を減らす
  * 
@@ -18,6 +18,7 @@ private:
     int currentStageIndex = 0;
 
 public:
+    SceneControl() = default;
     virtual void changeScene(GameScene id) = 0;
     virtual void resetGame() = 0;
     virtual uint32_t getScore() = 0;

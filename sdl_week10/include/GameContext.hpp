@@ -1,20 +1,31 @@
 #ifndef GAMECONTEXT_H
 #define GAMECONTEXT_H
 
+#include "Texture.hpp"
+#include "Player.hpp"
+#include "Enemy.hpp"
+
 #include <vector>
 #include <random>
 #include <memory>
 
 // 前方宣言
 class Renderer;
-class Player;
-class Enemy;
+// class Texture;
 class TextTexture;
 class Text;
 class Input;
 struct Block;
 struct Camera;
+// class Player;
+// class Enemy;
 struct WorldInfo;
+
+// 世界の広さ(ステージの広さ)
+struct WorldInfo{
+    double WorldWidth;
+    double WorldHeight;
+};
 
 /**
  * @brief 主にプレイヤーに関わるオブジェクト(エンティティ)を管理
@@ -22,6 +33,7 @@ struct WorldInfo;
  */
 struct EntityContext{
     Player& player;
+    Texture& enemyTexture;
     std::vector<std::unique_ptr<Enemy>>& enemies;
     std::vector<Block>& blocks;
 };

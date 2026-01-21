@@ -40,22 +40,27 @@ void PlayingScene::handleEvent(const SDL_Event& e){
  * @param delta 
  */
 void PlayingScene::update(double delta){
-    // Titleへの遷移
+    // エスケープキーでTitleへの遷移
     const InputState& is = ctx.input.getState();
     if(is.justPressed[(int)Action::Pause]){
         ctrl.changeScene(GameScene::Title);
         return;
     }
-    // 衝突処理用の前フレームのプレイヤー下部をサンプリング
+    // 1. 衝突処理用の前フレームのプレイヤー下部をサンプリング
     // 必ず各種Collision判定前に呼ぶ必要がある
+    // 呼び出し順序に注意すること
     ctx.entityCtx.player.beginFrameCollisionSample();
-    // worldInfoを用いた幅のクランプ処理
+    // 2. worldInfoを用いた幅のクランプ処理
     DrawBounds worldBounds = {ctx.worldInfo.WorldWidth, ctx.worldInfo.WorldHeight};
-    
+    // 3. スコア更新
     updateScore(delta);
+    // 4. Characterの更新
     updateEntities(delta, worldBounds);
+    // 5. Playerとの当たり判定
     detectCollision();
+    // 6. 落下死判定
     hasFallenToGameOver();
+    // 7. カメラ座標の更新
     updateCamera();
 }
 
@@ -201,7 +206,14 @@ void PlayingScene::resolveBlockCollision(){
         if(b.type == BlockType::Damage){
             ctrl.changeScene(GameScene::GameOver);
         }else if(b.type == BlockType::Clear){
-            ctrl.changeScene(GameScene::Clear);
+            // ステージ遷移
+            if(ctrl.goToNextStage()){
+                ctrl.changeScene(GameScene::Playing);
+            } else {
+                // 全ステージクリア
+                ctrl.changeScene(GameScene::Clear);
+            }
+            // ctrl.changeScene(GameScene::Clear);
         }
         return;
     }

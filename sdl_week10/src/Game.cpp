@@ -64,25 +64,27 @@ Game::Game(){
     player->setPosition(PlayerConfig::POS_X, PlayerConfig::POS_Y);
     // 敵(とりあえず5体表示)
     enemyTexture = std::make_unique<Texture>(renderer->get(), "assets/image/dark_rhb.png");
-    auto enemyTex = enemyTexture.get();
-    for(int i = 0;i < 5; ++i){
-        enemies.push_back(std::make_unique<Enemy>(*enemyTex));
-    }
+    enemies.clear();
+    // auto enemyTex = enemyTexture.get();
+    // for(int i = 0;i < 5; ++i){
+    //     enemies.push_back(std::make_unique<Enemy>(*enemyTex));
+    // }
     // ブロックの描画情報取得
-    try{
-        blocks = BlockLevelLoader::loadFromFile("assets/level/level1.txt");
-    }catch(const std::exception& e){
-        // 最低限のフォールバック
-        // ハードコードで床を描画
-        blocks.clear();
-        blocks.push_back(Block{
-            0.0,
-            GameConfig::WINDOW_HEIGHT - 50.0,
-            static_cast<double>(GameConfig::WINDOW_WIDTH),
-            50.0, 
-            BlockType::Standable
-        });
-    }
+    blocks.clear(); // ロードはloadStage()で実施
+    // try{
+    //     blocks = BlockLevelLoader::loadFromFile("assets/level/level1.txt");
+    // }catch(const std::exception& e){
+    //     // 最低限のフォールバック
+    //     // ハードコードで床を描画
+    //     blocks.clear();
+    //     blocks.push_back(Block{
+    //         0.0,
+    //         GameConfig::WINDOW_HEIGHT - 50.0,
+    //         static_cast<double>(GameConfig::WINDOW_WIDTH),
+    //         50.0, 
+    //         BlockType::Standable
+    //     });
+    // }
 
     // 世界の広さ
     worldInfo = {static_cast<double>(GameConfig::WINDOW_WIDTH), 
@@ -124,6 +126,7 @@ Game::Game(){
         worldInfo, 
         EntityContext{
             *player,
+            *enemyTexture,
             enemies,
             blocks
         }, 
@@ -166,7 +169,7 @@ Game::~Game(){
  * @brief シーンの切り替えを実施する関数
  * 抽象クラスSceneに対して，ポリモーフィズムによる派生クラス生成を実施する
  * 
- * @param s 
+ * @param id 
  */
 void Game::changeScene(GameScene id){
     currentScene->onExit();
@@ -188,10 +191,11 @@ void Game::resetGame(){
     score = 0;
     camera.x = 0.0;
     camera.y = 0.0;
-    player->reset();
-    for(auto& e : enemies){
-        e->reset(rd, distX, distY, distSpeed);
-    }
+    // 以下はloadStageへ移管
+    // player->reset();
+    // for(auto& e : enemies){
+    //     e->reset(rd, distX, distY, distSpeed);
+    // }
 }
 
 /**
