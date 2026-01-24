@@ -31,6 +31,7 @@
 #include <vector>
 #include <unordered_map>
 #include <random>
+#include <chrono>
 
 void Game::initSDL(){
     // SDL初期化
@@ -179,10 +180,7 @@ void Game::changeScene(GameScene id){
 
 /**
  * @brief ゲームの状態をリセットする関数
- * Playerは初期位置
- * Enemyはランダムに配置，スピードも変化
- * animationControllerのフレームのリセット
- * scoreもリセット
+ * score/cameraをリセット
  * 
  * SceneControlが管理するので，タイトルからのNewGameのみ呼ぶ
  * 
@@ -191,17 +189,72 @@ void Game::resetGame(){
     score = 0;
     camera.x = 0.0;
     camera.y = 0.0;
-    // 以下はloadStageへ移管
-    // player->reset();
-    // for(auto& e : enemies){
-    //     e->reset(rd, distX, distY, distSpeed);
-    // }
 }
 
 /**
  * @brief ゲーム実行用関数
  * 
  */
+void Game::run(){
+    // プラットフォームの最小間隔のクロック
+    using clock = std::chrono::high_resolution_clock;
+    // 60Hz
+    const double fixedDelta = 1.0 / 60.0;
+    // ナノ秒単位での60fps間隔
+    const auto fixedNs = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::duration<double>(fixedDelta));
+    // ループ開始前の時刻
+    auto prev = clock::now();
+    // 累積値
+    std::chrono::nanoseconds acc{0};
+    
+    // FPS 計測用(これはミリ秒で十分)
+    Uint32 fpsTimer = SDL_GetTicks();
+    int fpsCounter = 0;
+
+    while(running){
+        // 時間の計測
+        // フレーム開始点
+        Uint32 frameStartMs = SDL_GetTicks();
+        // 入力値の受け取りはなるべく最初に実施する
+        // 入力受付
+        processEvents();
+        // input->beginFrame();
+        // 時間計測と更新
+        auto now = clock::now();
+        acc += std::chrono::duration_cast<std::chrono::nanoseconds>(now - prev);
+        prev = now;
+
+        // accの大量累積によるゲーム大幅更新の防止
+        // 更新が動かず処理が累積しても，最大で5回しかupdate()を実施しない
+        int safety = 0;
+        while(acc >= fixedNs && safety++ < 5){
+            update(fixedDelta);
+            acc -= fixedNs;
+        }
+
+        // 補間係数(描画用)
+        // const double alpha = std::clamp(acc.count() / static_cast<double>(fixedNs.count()), 0.0, 1.0);
+        // 描画
+        render();
+        
+        // input->endFrame();
+        
+        // update(delta);
+        // render();
+        // フレームレートの計算とfps計測
+        ++fpsCounter;
+        Uint32 nowMs = SDL_GetTicks();
+        if(nowMs - fpsTimer >= 1000){
+            fpsText->setText("FPS: " + std::to_string(fpsCounter));
+            fpsCounter = 0;
+            fpsTimer = nowMs;
+        }
+        // fpsキャップ(最大60fps)
+        capFrameRate(frameStartMs);
+    }
+}
+
+/*
 void Game::run(){
     Uint64 frequency = SDL_GetPerformanceFrequency();
     Uint64 lastCounter = SDL_GetPerformanceCounter();
@@ -240,6 +293,7 @@ void Game::run(){
         capFrameRate(frameStartMs);
     }
 }
+*/
 
 /**
  * @brief fpsキャップを実装(fpsを固定化するため)
@@ -248,11 +302,31 @@ void Game::run(){
  * @return * void 
  */
 void Game::capFrameRate(Uint32 frameStartMs){
+    // 16.6ms - 経過時間の概算
+    Uint32 frameDuration = SDL_GetTicks() - frameStartMs;
+    if(frameDuration < Game::FRAME_DELAY){
+        // スリープ処理
+        Uint32 sleepMs = Game::FRAME_DELAY - frameDuration;
+        if(sleepMs > 1){
+            // 余り2ms以上でSDL_Delayを呼び出す
+            SDL_Delay(sleepMs - 1);
+            // 最後の1ms弱はbusy waitで微調整する(高負荷なので最小限)
+            while ((SDL_GetTicks() - frameStartMs) < Game::FRAME_DELAY){
+                /* spin */
+            }
+            
+        }
+    }
+}
+
+/*
+void Game::capFrameRate(Uint32 frameStartMs){
     Uint32 frameDuration = SDL_GetTicks() - frameStartMs;
     if(frameDuration < Game::FRAME_DELAY){
         SDL_Delay(Game::FRAME_DELAY - frameDuration);
     }
 }
+*/
 
 /**
  * @brief ポーリング処理によるイベント管理
