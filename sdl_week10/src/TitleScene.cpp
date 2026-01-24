@@ -87,6 +87,7 @@ void TitleScene::onEnter(){
     blinkTimer = 0.0;
     titleFade = 0;
     blinkVisible = true;
+    ctrl.resetGame();
 }
 
 /**

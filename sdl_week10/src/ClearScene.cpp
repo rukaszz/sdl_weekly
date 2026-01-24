@@ -20,9 +20,12 @@ ClearScene::ClearScene(SceneControl& sc, GameContext& gc)
     // クリア表示
     clearText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 216, 0, 255});
     clearText->setText("CLEAR!!");
+    // 次のステージへ
+    NextStageText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
+    NextStageText->setText("Press ENTER to Next Stage");
     // タイトルへ戻る
     returnTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
-    returnTitleText->setText("Press ENTER to Title");
+    returnTitleText->setText("Press ESC to Title");
 }
 
 /**
@@ -46,10 +49,21 @@ void ClearScene::update(double delta){
     updateClear(delta);
     // Playingへの遷移
     const InputState& is = ctx.input.getState();
+    // Enterでステージ遷移
     if(is.justPressed[(int)Action::Enter]){
-        ctrl.resetGame();
+        if(ctrl.goToNextStage()){
+            // ステージインデックスを勧めてシーンを切り替える
+            ctrl.changeScene(GameScene::Playing);
+        } else {
+            // 全ステージクリア
+            // タイトルへ戻すだけ
+            // 後でリザルト画面(ResultScene)を作る
+            ctrl.changeScene(GameScene::Title);
+        }
+    }
+    // ESCでタイトル画面へ
+    if(is.justPressed[(int)Action::Pause]){
         ctrl.changeScene(GameScene::Title);
-        return;
     }
 }
 
@@ -61,11 +75,7 @@ void ClearScene::update(double delta){
 void ClearScene::render(){
     ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
     ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);
-    returnTitleText->draw(
-        ctx.renderer,
-        GameConfig::WINDOW_WIDTH/2 - returnTitleText->getWidth()/2,
-        GameConfig::WINDOW_HEIGHT/2 - returnTitleText->getHeight()/2
-    );
+    // CLEARは点滅
     if(blinkVisible){
         clearText->draw(
             ctx.renderer,
@@ -73,6 +83,17 @@ void ClearScene::render(){
             GameConfig::WINDOW_HEIGHT/3 - clearText->getHeight()/2
         );
     }
+    NextStageText->draw(
+        ctx.renderer,
+        GameConfig::WINDOW_WIDTH/2 - NextStageText->getWidth()/2,
+        GameConfig::WINDOW_HEIGHT/2 - NextStageText->getHeight()/2
+    );
+    returnTitleText->draw(
+        ctx.renderer,
+        GameConfig::WINDOW_WIDTH/2 - returnTitleText->getWidth()/2,
+        GameConfig::WINDOW_HEIGHT/1.5 - returnTitleText->getHeight()/2
+    );
+    
 }
 
 /**

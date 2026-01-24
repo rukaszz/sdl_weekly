@@ -48,7 +48,7 @@ private:
     std::unique_ptr<TextTexture> gameTitleText;
     std::unique_ptr<TextTexture> scoreText;
     std::unique_ptr<TextTexture> fpsText;
-    std::unique_ptr<TextTexture> gameOverText;
+    // std::unique_ptr<TextTexture> gameOverText;
     // input抽象化
     std::unique_ptr<Input> input;
     // カメラ

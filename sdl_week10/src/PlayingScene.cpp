@@ -124,7 +124,6 @@ void PlayingScene::updateCamera(){
  * 
  */
 void PlayingScene::onEnter(){
-    // ctrl.resetGame();
     int stageIndex = ctrl.getCurrentStageIndex();
     ctrl.loadStage(stageIndex, ctx);
 }
@@ -207,13 +206,7 @@ void PlayingScene::resolveBlockCollision(){
             ctrl.changeScene(GameScene::GameOver);
         }else if(b.type == BlockType::Clear){
             // ステージ遷移
-            if(ctrl.goToNextStage()){
-                ctrl.changeScene(GameScene::Playing);
-            } else {
-                // 全ステージクリア
-                ctrl.changeScene(GameScene::Clear);
-            }
-            // ctrl.changeScene(GameScene::Clear);
+            ctrl.changeScene(GameScene::Clear);
         }
         return;
     }

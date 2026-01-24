@@ -15,6 +15,7 @@ class ClearScene : public Scene{
 private:
     std::unique_ptr<TextTexture> clearText;
     std::unique_ptr<TextTexture> returnTitleText;
+    std::unique_ptr<TextTexture> NextStageText;
     double blinkTimer = 0.0;
     bool blinkVisible= true;
 public:

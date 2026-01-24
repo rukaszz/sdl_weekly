@@ -18,7 +18,9 @@ GameOverScene::GameOverScene(SceneControl& sc, GameContext& gc)
     gameOverText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
     gameOverText->setText("GameOver");
     returnTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
-    returnTitleText->setText("Press ENTER to Title");
+    returnTitleText->setText("Press ESC to Title");
+    returnStageText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
+    returnStageText->setText("Press ENTER to Return Stage");
 }
 
 /**
@@ -43,10 +45,14 @@ void GameOverScene::update(double delta){
     updateGameOver(delta);
     // Playingへの遷移
     const InputState& is = ctx.input.getState();
+    // Enterでリトライ
     if(is.justPressed[(int)Action::Enter]){
-        ctrl.resetGame();
         ctrl.changeScene(GameScene::Playing);
-        return;
+    }
+    // Pauseでタイトル画面へ
+    // 諦めてタイトルへ戻るので，リザルト画面(ResultScene)へ遷移する予定
+    if(is.justPressed[(int)Action::Pause]){
+        ctrl.changeScene(GameScene::Title);
     }
 }
 
@@ -58,17 +64,23 @@ void GameOverScene::update(double delta){
 void GameOverScene::render(){
     ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
     ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);
+    // GameOverは点滅
     if(blinkVisible){
         gameOverText->draw(
             ctx.renderer,
             GameConfig::WINDOW_WIDTH/2 - gameOverText->getWidth()/2,
-            GameConfig::WINDOW_HEIGHT/2 - gameOverText->getHeight()/2
+            GameConfig::WINDOW_HEIGHT/3 - gameOverText->getHeight()/2
         );
     }
     returnTitleText->draw(
         ctx.renderer,
         GameConfig::WINDOW_WIDTH/2 - returnTitleText->getWidth()/2,
-        GameConfig::WINDOW_HEIGHT/1.5 - returnTitleText->getHeight()/2
+        GameConfig::WINDOW_HEIGHT/2 - returnTitleText->getHeight()/2
+    );
+    returnStageText->draw(
+        ctx.renderer,
+        GameConfig::WINDOW_WIDTH/2 - returnStageText->getWidth()/2,
+        GameConfig::WINDOW_HEIGHT/1.5 - returnStageText->getHeight()/2
     );
 }
 
