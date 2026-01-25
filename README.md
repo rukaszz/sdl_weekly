@@ -1055,6 +1055,46 @@ week09 でプレイヤーと敵の基本的なインタラクション(踏みつ
   - リトライを押下→直前のステージのはじめから
   - タイトルを押下→スコア・ステージ数の表示画面→タイトル画面へ
 
+### ステージの定義とロードの整理
+
+#### StageConfig
+
+StageConfig.hppを作成し，ステージの情報を一箇所に集約した．これによって，ステージごとの違いはGame/Sceneから切り離され，StageDefinitionを参照する方針になった：
+
+- StageDefinition
+  - name：ステージ名
+  - levelFile：ブロック配置のデータが記述されているレベルファイルパス
+  - playerStart_X/playerStart_Y：プレイヤーの各ステージの初期座標
+  - enemySpawns：ステージごとの敵の出現情報
+    - x/y：敵の初期座標
+    - speed：敵の移動速度
+
+#### SceneControl::loadStage
+
+ステージの遷移が必要になったので，今までのようにchangeSceneでシーンを切り替えるだけでは不足することになった．loadStage()によって，シーン(PlayingScene)へ入るとステージのインデックスにあった情報を読み込む処理が追加された．
+
+要素としては次の通り：
+
+- StageConfig::STAGES\[stageIndex\] からStageDefinitionを取得
+- ctx.entityCtx.blocks/ctx.entityCtx.enemies を一度クリア
+- BlockLevelLoader::loadFromFile(def.levelFile) でブロックをロード
+  - 失敗時はフォールバックとして画面下端に単純な床ブロックを生成
+- ctx.worldInfoの再計算
+  - ブロック配置に応じて WorldWidth / WorldHeight を更新して，ステージ(世界)を拡張
+- プレイヤー初期位置の設定
+  - player.reset() → setPosition(def.playerStart_X, def.playerStart_Y)
+- 敵の生成
+  - StageDefinition.enemySpawnsを元にEnemyをstd::unique_ptrで生成
+  - Enemy::applyEnemyParamForSpawn(x, y, speed)で各個体のパラメータを適用
+
+ステージの読み込みはchangeScene()の仕様に合わせ，onEnter()で呼ぶ(つまり呼ばれたシーンの初期で読み込む)ようにした．
+
+### シーン遷移のフロー
+
+#### シーンごとの遷移のルール明確化
+
+- TitleScene
+
 ## アセット
 
 詳細はATTRIBUTIONを参照．

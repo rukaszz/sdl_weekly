@@ -1,6 +1,3 @@
-#include "Window.hpp"
-#include "Renderer.hpp"
-#include "Player.hpp"
 #include "Game.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -17,6 +14,11 @@
  * @return int 
  */
 int main(int argc, char* argv[]){
+    Game game;
+    game.run();
+    return 0;
+
+    /*
     // Gameで管理しているオブジェクトを破棄させるスコープ
     {
         Game game;
@@ -27,4 +29,5 @@ int main(int argc, char* argv[]){
     IMG_Quit();
     SDL_Quit();
     return 0;
+    */
 }

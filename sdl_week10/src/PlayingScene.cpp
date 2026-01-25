@@ -43,7 +43,8 @@ void PlayingScene::update(double delta){
     // エスケープキーでTitleへの遷移
     const InputState& is = ctx.input.getState();
     if(is.justPressed[(int)Action::Pause]){
-        ctrl.changeScene(GameScene::Title);
+        // ctrl.changeScene(GameScene::Title);
+        ctrl.requestScene(GameScene::Title);
         return;
     }
     // 1. 衝突処理用の前フレームのプレイヤー下部をサンプリング
@@ -203,10 +204,12 @@ void PlayingScene::resolveBlockCollision(){
             continue;
         }
         if(b.type == BlockType::Damage){
-            ctrl.changeScene(GameScene::GameOver);
+            // ctrl.changeScene(GameScene::GameOver);
+            ctrl.requestScene(GameScene::GameOver);
         }else if(b.type == BlockType::Clear){
             // ステージ遷移
-            ctrl.changeScene(GameScene::Clear);
+            // ctrl.changeScene(GameScene::Clear);
+            ctrl.requestScene(GameScene::Clear);
         }
         return;
     }
@@ -260,7 +263,8 @@ void PlayingScene::resolveEnemyCollision(double prevFeet){
             continue;   // 同フレーム中に同一の敵を二度ふまないようにcountinue
         }
         if(result == PlayerEnemyCollisionResult::PlayerHit){
-            ctrl.changeScene(GameScene::GameOver);
+            // ctrl.changeScene(GameScene::GameOver);
+            ctrl.requestScene(GameScene::GameOver);
             return;
         }
     }
@@ -276,7 +280,8 @@ void PlayingScene::hasFallenToGameOver(){
     double playerBottom = ctx.entityCtx.player.getCollisionRect().y
                           + ctx.entityCtx.player.getCollisionRect().h;
     if (playerBottom > death_Y){
-        ctrl.changeScene(GameScene::GameOver);
+        // ctrl.changeScene(GameScene::GameOver);
+        ctrl.requestScene(GameScene::GameOver);
         return;
     }
 }

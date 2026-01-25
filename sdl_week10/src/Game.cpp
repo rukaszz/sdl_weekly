@@ -3,6 +3,7 @@
 #include "PlayerConfig.hpp"
 #include "EnemyConfig.hpp"
 
+#include "SdlSystem.hpp"
 #include "Window.hpp"
 #include "Renderer.hpp"
 #include "Scene.hpp"
@@ -25,6 +26,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 
+#include <stdexcept>
 #include <iostream>
 #include <string>
 #include <memory>
@@ -53,49 +55,39 @@ void Game::initSDL(){
  */
 Game::Game(){
     // 初期化
-    initSDL();
+    sdl = std::make_unique<SdlSystem>();
+    bootstrapWindowAndRenderer();
+    loadResources();
+    buildWorld();
+    buildContexts();
+    buildScenes();
+    startFromTitle();
+}
+
+/**
+ * @brief Destroy the Game:: Game object
+ * 
+ */
+Game::~Game(){
+    /*
+     * Gameオブジェクトが破棄されたあとにSDLの終了処理を実施する
+     * →リーク回避のため
+     * DBusのリークはSDL_Linux側の問題なので無視
+     */
+    // quitSDL();
+}
+
+void Game::bootstrapWindowAndRenderer(){
     // ウィンドウ
     window = std::make_unique<Window>("Test", GameConfig::WINDOW_WIDTH, GameConfig::WINDOW_HEIGHT);
     // レンダラー
     renderer = std::make_unique<Renderer>(window->get());
-    
+}
+void Game::loadResources(){
     // プレイヤー
     playerTexture = std::make_unique<Texture>(renderer->get(), "assets/image/rhb.png");
-    player = std::make_unique<Player>(*playerTexture);
-    player->setPosition(PlayerConfig::POS_X, PlayerConfig::POS_Y);
     // 敵(とりあえず5体表示)
     enemyTexture = std::make_unique<Texture>(renderer->get(), "assets/image/dark_rhb.png");
-    enemies.clear();
-    // auto enemyTex = enemyTexture.get();
-    // for(int i = 0;i < 5; ++i){
-    //     enemies.push_back(std::make_unique<Enemy>(*enemyTex));
-    // }
-    // ブロックの描画情報取得
-    blocks.clear(); // ロードはloadStage()で実施
-    // try{
-    //     blocks = BlockLevelLoader::loadFromFile("assets/level/level1.txt");
-    // }catch(const std::exception& e){
-    //     // 最低限のフォールバック
-    //     // ハードコードで床を描画
-    //     blocks.clear();
-    //     blocks.push_back(Block{
-    //         0.0,
-    //         GameConfig::WINDOW_HEIGHT - 50.0,
-    //         static_cast<double>(GameConfig::WINDOW_WIDTH),
-    //         50.0, 
-    //         BlockType::Standable
-    //     });
-    // }
-
-    // 世界の広さ
-    worldInfo = {static_cast<double>(GameConfig::WINDOW_WIDTH), 
-                 static_cast<double>(GameConfig::WINDOW_HEIGHT)
-                };
-    // ブロックが置かれている範囲に応じて拡張
-    for(const auto& b : blocks){
-        worldInfo.WorldWidth = std::max(worldInfo.WorldWidth, b.x + b.w);
-        worldInfo.WorldHeight = std::max(worldInfo.WorldHeight, b.y + b.h);
-    }
     // テキスト
     font = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
     // スコア
@@ -104,21 +96,27 @@ Game::Game(){
     // FPS
     fpsText = std::make_unique<TextTexture>(*renderer, *font, SDL_Color{255, 255, 255, 255});
     fpsText->setText("");
-    // input抽象化
-    input = std::make_unique<Input>();
+}
+void Game::buildWorld(){
+    player = std::make_unique<Player>(*playerTexture);
+    player->setPosition(PlayerConfig::POS_X, PlayerConfig::POS_Y);
+    // 世界の広さ
+    worldInfo = {static_cast<double>(GameConfig::WINDOW_WIDTH), 
+                 static_cast<double>(GameConfig::WINDOW_HEIGHT)
+                };
+    // 乱数
+    distX = std::uniform_real_distribution<double>(GameConfig::WINDOW_WIDTH/2, GameConfig::WINDOW_WIDTH - EnemyConfig::FRAME_W);
+    distY = std::uniform_real_distribution<double>(EnemyConfig::FRAME_H, GameConfig::WINDOW_HEIGHT - EnemyConfig::FRAME_H);
+    distSpeed = std::uniform_real_distribution<double>(EnemyConfig::SPEED_MIN, EnemyConfig::SPEED_MAX);
     // カメラ
     camera = {0.0, 0.0, 
               static_cast<double>(GameConfig::WINDOW_WIDTH), 
               static_cast<double>(GameConfig::WINDOW_HEIGHT)
             };
-    
-    running = true;
-
-    // 乱数
-    distX = std::uniform_real_distribution<double>(GameConfig::WINDOW_WIDTH/2, GameConfig::WINDOW_WIDTH - EnemyConfig::FRAME_W);
-    distY = std::uniform_real_distribution<double>(EnemyConfig::FRAME_H, GameConfig::WINDOW_HEIGHT - EnemyConfig::FRAME_H);
-    distSpeed = std::uniform_real_distribution<double>(EnemyConfig::SPEED_MIN, EnemyConfig::SPEED_MAX);
-
+}
+void Game::buildContexts(){
+    // input抽象化
+    input = std::make_unique<Input>();
     // シーン
     ctx = std::make_unique<GameContext>(GameContext{
         *renderer,
@@ -143,27 +141,17 @@ Game::Game(){
             distSpeed,
         }
     });
+}
+void Game::buildScenes(){
     scenes[(int)GameScene::Title]    = std::make_unique<TitleScene>(*this, *ctx);
     scenes[(int)GameScene::Playing]  = std::make_unique<PlayingScene>(*this, *ctx);
     scenes[(int)GameScene::GameOver] = std::make_unique<GameOverScene>(*this, *ctx);
     scenes[(int)GameScene::Clear]    = std::make_unique<ClearScene>(*this, *ctx);
-
+}
+void Game::startFromTitle(){
     // タイトルからスタート
     currentScene = scenes[(int)GameScene::Title].get();
     currentScene->onEnter();
-}
-
-/**
- * @brief Destroy the Game:: Game object
- * 
- */
-Game::~Game(){
-    /*
-     * Gameオブジェクトが破棄されたあとにSDLの終了処理を実施する
-     * →リーク回避のため
-     * DBusのリークはSDL_Linux側の問題なので無視
-     */
-    // quitSDL();
 }
 
 /**
@@ -176,6 +164,22 @@ void Game::changeScene(GameScene id){
     currentScene->onExit();
     currentScene = scenes[(int)id].get();
     currentScene->onEnter();
+}
+
+void Game::requestScene(GameScene id){
+    pendingSceneChange = id;
+}
+
+void Game::applySceneChangeIfAny(){
+    if(!pendingSceneChange){
+        return;
+    }
+    if(currentScene){
+        currentScene->onExit();
+    }
+    currentScene = scenes[nextSceneIndex(*pendingSceneChange)].get();
+    currentScene->onEnter();
+    pendingSceneChange.reset();
 }
 
 /**
@@ -231,14 +235,14 @@ void Game::run(){
             update(fixedDelta);
             acc -= fixedNs;
         }
-
+        // シーンの更新
+        applySceneChangeIfAny();
         // 補間係数(描画用)
         // const double alpha = std::clamp(acc.count() / static_cast<double>(fixedNs.count()), 0.0, 1.0);
         // 描画
         render();
         
         // input->endFrame();
-        
         // update(delta);
         // render();
         // フレームレートの計算とfps計測
@@ -366,3 +370,89 @@ void Game::render(){
     currentScene->render();
     renderer->present();
 }
+
+/*
+Game::Game(){
+    // 初期化
+    // initSDL();
+    sdl = std::make_unique<SdlSystem>();
+    // ウィンドウ
+    window = std::make_unique<Window>("Test", GameConfig::WINDOW_WIDTH, GameConfig::WINDOW_HEIGHT);
+    // レンダラー
+    renderer = std::make_unique<Renderer>(window->get());
+    
+    // プレイヤー
+    playerTexture = std::make_unique<Texture>(renderer->get(), "assets/image/rhb.png");
+    player = std::make_unique<Player>(*playerTexture);
+    player->setPosition(PlayerConfig::POS_X, PlayerConfig::POS_Y);
+    // 敵(とりあえず5体表示)
+    enemyTexture = std::make_unique<Texture>(renderer->get(), "assets/image/dark_rhb.png");
+    enemies.clear();
+    // ブロックの描画情報取得
+    blocks.clear(); // ロードはloadStage()で実施
+    // 世界の広さ
+    worldInfo = {static_cast<double>(GameConfig::WINDOW_WIDTH), 
+                 static_cast<double>(GameConfig::WINDOW_HEIGHT)
+                };
+    // ブロックが置かれている範囲に応じて拡張
+    for(const auto& b : blocks){
+        worldInfo.WorldWidth = std::max(worldInfo.WorldWidth, b.x + b.w);
+        worldInfo.WorldHeight = std::max(worldInfo.WorldHeight, b.y + b.h);
+    }
+    // テキスト
+    font = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
+    // スコア
+    scoreText = std::make_unique<TextTexture>(*renderer, *font, SDL_Color{255, 255, 255, 255});
+    scoreText->setText("Score: 0");
+    // FPS
+    fpsText = std::make_unique<TextTexture>(*renderer, *font, SDL_Color{255, 255, 255, 255});
+    fpsText->setText("");
+    // input抽象化
+    input = std::make_unique<Input>();
+    // カメラ
+    camera = {0.0, 0.0, 
+              static_cast<double>(GameConfig::WINDOW_WIDTH), 
+              static_cast<double>(GameConfig::WINDOW_HEIGHT)
+            };
+    
+    // running = true;
+
+    // 乱数
+    distX = std::uniform_real_distribution<double>(GameConfig::WINDOW_WIDTH/2, GameConfig::WINDOW_WIDTH - EnemyConfig::FRAME_W);
+    distY = std::uniform_real_distribution<double>(EnemyConfig::FRAME_H, GameConfig::WINDOW_HEIGHT - EnemyConfig::FRAME_H);
+    distSpeed = std::uniform_real_distribution<double>(EnemyConfig::SPEED_MIN, EnemyConfig::SPEED_MAX);
+
+    // シーン
+    ctx = std::make_unique<GameContext>(GameContext{
+        *renderer,
+        *input, 
+        camera,
+        worldInfo, 
+        EntityContext{
+            *player,
+            *enemyTexture,
+            enemies,
+            blocks
+        }, 
+        TextRenderContext{
+            *font,
+            *scoreText,
+            *fpsText,
+        }, 
+        RandomContext{
+            rd,
+            distX,
+            distY,
+            distSpeed,
+        }
+    });
+    scenes[(int)GameScene::Title]    = std::make_unique<TitleScene>(*this, *ctx);
+    scenes[(int)GameScene::Playing]  = std::make_unique<PlayingScene>(*this, *ctx);
+    scenes[(int)GameScene::GameOver] = std::make_unique<GameOverScene>(*this, *ctx);
+    scenes[(int)GameScene::Clear]    = std::make_unique<ClearScene>(*this, *ctx);
+
+    // タイトルからスタート
+    currentScene = scenes[(int)GameScene::Title].get();
+    currentScene->onEnter();
+}
+*/

@@ -44,6 +44,7 @@ add_executable(${PROJECT_NAME}
     src/Physics.cpp
     src/Camera.cpp
     src/PlayerEnemyCollisionUtil.cpp
+    src/SdlSystem.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

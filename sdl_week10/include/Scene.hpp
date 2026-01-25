@@ -9,7 +9,7 @@ struct GameContext;
 class Game;
 class Renderer;
 
-enum class GameScene;
+enum class GameScene : size_t;
 
 class Scene{
 protected:

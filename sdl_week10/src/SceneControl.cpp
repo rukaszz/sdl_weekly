@@ -84,6 +84,7 @@ void SceneControl::loadStage(int stageIndex, GameContext& ctx){
             50.0, 
             BlockType::Standable
         });
+        std::cerr << "[BlockLevelLoaderFallBack] " << e.what() << std::endl;
     }
     // worldInfoの再計算
     ctx.worldInfo.WorldWidth  = static_cast<double>(GameConfig::WINDOW_WIDTH); 

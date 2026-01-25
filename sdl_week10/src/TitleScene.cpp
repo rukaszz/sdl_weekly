@@ -3,6 +3,7 @@
 
 #include "TitleScene.hpp"
 #include "Game.hpp"
+#include "SceneControl.hpp"
 #include "Renderer.hpp"
 #include "Input.hpp"
 
@@ -50,7 +51,9 @@ void TitleScene::update(double delta){
     const InputState& is = ctx.input.getState();
     if(is.justPressed[(int)Action::Enter]){
         ctrl.startNewGame();
-        ctrl.changeScene(GameScene::Playing);
+        ctrl.resetGame();
+        // ctrl.changeScene(GameScene::Playing);
+        ctrl.requestScene(GameScene::Playing);
         return;
     }
 }
@@ -87,7 +90,7 @@ void TitleScene::onEnter(){
     blinkTimer = 0.0;
     titleFade = 0;
     blinkVisible = true;
-    ctrl.resetGame();
+    // ctrl.resetGame(); // リセットはstartNewGame()呼び出し時のみ
 }
 
 /**

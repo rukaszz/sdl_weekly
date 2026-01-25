@@ -4,7 +4,7 @@
 #include <SDL2/SDL.h>
 
 struct GameContext;
-enum class GameScene;
+enum class GameScene : size_t;
 
 /**
  * @brief GameクラスとSceneクラスの依存を緩め，ステージ進行を担うクラス
@@ -28,6 +28,8 @@ public:
     void startNewGame();
     bool goToNextStage();
     void loadStage(int stageIndex, GameContext& ctx);
+
+    virtual void requestScene(GameScene id) = 0;
 
     // getter
     int getCurrentStageIndex() const{
