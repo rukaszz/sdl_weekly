@@ -8,6 +8,7 @@
 #include "Enemy.hpp"
 // #include "Game.hpp"
 
+#include <iostream>
 #include <cassert>
 #include <algorithm>
 #include <memory>

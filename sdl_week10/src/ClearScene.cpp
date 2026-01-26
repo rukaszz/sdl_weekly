@@ -53,19 +53,16 @@ void ClearScene::update(double delta){
     if(is.justPressed[(int)Action::Enter]){
         if(ctrl.goToNextStage()){
             // ステージインデックスを勧めてシーンを切り替える
-            // ctrl.changeScene(GameScene::Playing);
             ctrl.requestScene(GameScene::Playing);
         } else {
             // 全ステージクリア
             // タイトルへ戻すだけ
             // 後でリザルト画面(ResultScene)を作る
-            // ctrl.changeScene(GameScene::Title);
             ctrl.requestScene(GameScene::Title);
         }
     }
     // ESCでタイトル画面へ
     if(is.justPressed[(int)Action::Pause]){
-        // ctrl.changeScene(GameScene::Title);
         ctrl.requestScene(GameScene::Title);
     }
 }

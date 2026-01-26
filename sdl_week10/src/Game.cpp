@@ -35,20 +35,6 @@
 #include <random>
 #include <chrono>
 
-void Game::initSDL(){
-    // SDL初期化
-    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0){
-        throw std::runtime_error(SDL_GetError());
-    }
-    // SDL_IMG初期化
-    if(!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)){
-        throw std::runtime_error(IMG_GetError());
-    }
-    if((TTF_Init() != 0)){
-        throw std::runtime_error(SDL_GetError());
-    }
-}
-
 /**
  * @brief Construct a new Game:: Game object
  * 
@@ -77,12 +63,21 @@ Game::~Game(){
     // quitSDL();
 }
 
+/**
+ * @brief windowとrendererを作成する初期処理
+ * 
+ */
 void Game::bootstrapWindowAndRenderer(){
     // ウィンドウ
     window = std::make_unique<Window>("Test", GameConfig::WINDOW_WIDTH, GameConfig::WINDOW_HEIGHT);
     // レンダラー
     renderer = std::make_unique<Renderer>(window->get());
 }
+
+/**
+ * @brief プレイヤー/フォントなどのテクスチャを読み込む
+ * 
+ */
 void Game::loadResources(){
     // プレイヤー
     playerTexture = std::make_unique<Texture>(renderer->get(), "assets/image/rhb.png");
@@ -97,6 +92,13 @@ void Game::loadResources(){
     fpsText = std::make_unique<TextTexture>(*renderer, *font, SDL_Color{255, 255, 255, 255});
     fpsText->setText("");
 }
+
+/**
+ * @brief ゲーム部分の構成
+ * 
+ * プレイヤーやカメラなどを定義
+ * 注意：worldInfoはloadStage()内で上書きされる(ここではウィンドウサイズで定義)
+ */
 void Game::buildWorld(){
     player = std::make_unique<Player>(*playerTexture);
     player->setPosition(PlayerConfig::POS_X, PlayerConfig::POS_Y);
@@ -114,6 +116,12 @@ void Game::buildWorld(){
               static_cast<double>(GameConfig::WINDOW_HEIGHT)
             };
 }
+
+/**
+ * @brief GameContextを作成する
+ * 
+ * enemies/blocksはからのvectorなので注意
+ */
 void Game::buildContexts(){
     // input抽象化
     input = std::make_unique<Input>();
@@ -126,8 +134,8 @@ void Game::buildContexts(){
         EntityContext{
             *player,
             *enemyTexture,
-            enemies,
-            blocks
+            enemies,    // 空vector
+            blocks      // 空vector
         }, 
         TextRenderContext{
             *font,
@@ -142,21 +150,33 @@ void Game::buildContexts(){
         }
     });
 }
+
+/**
+ * @brief 各種のシーンをオブジェクト化
+ * 
+ */
 void Game::buildScenes(){
-    scenes[(int)GameScene::Title]    = std::make_unique<TitleScene>(*this, *ctx);
-    scenes[(int)GameScene::Playing]  = std::make_unique<PlayingScene>(*this, *ctx);
-    scenes[(int)GameScene::GameOver] = std::make_unique<GameOverScene>(*this, *ctx);
-    scenes[(int)GameScene::Clear]    = std::make_unique<ClearScene>(*this, *ctx);
+    scenes[nextSceneIndex(GameScene::Title)]    = std::make_unique<TitleScene>(*this, *ctx);
+    scenes[nextSceneIndex(GameScene::Playing)]  = std::make_unique<PlayingScene>(*this, *ctx);
+    scenes[nextSceneIndex(GameScene::GameOver)] = std::make_unique<GameOverScene>(*this, *ctx);
+    scenes[nextSceneIndex(GameScene::Clear)]    = std::make_unique<ClearScene>(*this, *ctx);
 }
+
+/**
+ * @brief Gameコンストラクタ上で呼ばれ，タイトルシーンを読み込む
+ * 
+ */
 void Game::startFromTitle(){
     // タイトルからスタート
-    currentScene = scenes[(int)GameScene::Title].get();
+    currentScene = scenes[nextSceneIndex(GameScene::Title)].get();
     currentScene->onEnter();
 }
 
 /**
  * @brief シーンの切り替えを実施する関数
  * 抽象クラスSceneに対して，ポリモーフィズムによる派生クラス生成を実施する
+ * SceneControlでprotected
+ * ※シーン変更処理のヘルパとして残すが，将来的には消える
  * 
  * @param id 
  */
@@ -166,19 +186,35 @@ void Game::changeScene(GameScene id){
     currentScene->onEnter();
 }
 
+/**
+ * @brief 各シーンで呼ばれ，次のシーンへの遷移をリクエストする
+ * ※リクエストするだけで遷移はしない
+ * 
+ * @param id 
+ */
 void Game::requestScene(GameScene id){
     pendingSceneChange = id;
 }
 
+/**
+ * @brief requestSceneを適用する
+ * 
+ * Game::update()内で呼ばれ，更新処理上でシーン遷移のリクエストがあればそれを適用する
+ * 要求は複数回許可されるが，最後のリクエストが認められる
+ */
 void Game::applySceneChangeIfAny(){
+    // 要求がなければ何もしない
     if(!pendingSceneChange){
         return;
     }
+    // 現在のシーンから脱する
     if(currentScene){
         currentScene->onExit();
     }
+    // シーン遷移を行う
     currentScene = scenes[nextSceneIndex(*pendingSceneChange)].get();
     currentScene->onEnter();
+    // シーンリクエストのキューをクリア
     pendingSceneChange.reset();
 }
 
@@ -201,7 +237,7 @@ void Game::resetGame(){
  */
 void Game::run(){
     // プラットフォームの最小間隔のクロック
-    using clock = std::chrono::high_resolution_clock;
+    using clock = std::chrono::steady_clock;    // is_steadyな時刻を採用
     // 60Hz
     const double fixedDelta = 1.0 / 60.0;
     // ナノ秒単位での60fps間隔
@@ -230,6 +266,7 @@ void Game::run(){
 
         // accの大量累積によるゲーム大幅更新の防止
         // 更新が動かず処理が累積しても，最大で5回しかupdate()を実施しない
+        // ※遅延蓄積時でもprocessEventsは1回のみ呼ばれることに留意
         int safety = 0;
         while(acc >= fixedNs && safety++ < 5){
             update(fixedDelta);

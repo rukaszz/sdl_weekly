@@ -1094,6 +1094,94 @@ StageConfig.hppを作成し，ステージの情報を一箇所に集約した�
 #### シーンごとの遷移のルール明確化
 
 - TitleScene
+  - ENTERキー押下：startNewGame()を実行してスコアなどを初期化しPlayingSceneへ
+- PlayingScene
+  - ESC(Pause)押下：TitleSceneへ
+  - ダメージを受ける(Enemy/Damege床へ接触)：GameOverへ
+  - クリアブロックに接触：ClearSceneへ
+- ClearScene
+  - ENTERキー押下：
+    - goTonextStage()がtrue：次のステージへ
+    - goTonextStage()がfalse：全ステージクリア
+      - 全ステージクリア時は，ResultScene的なシーンへ遷移予定
+  - ESC(Pause)押下：TitleSceneへ
+- GameOverScene：
+  - ENTERキー押下：同じステージを最初からやり直す→PlayingScene
+  - ESC(Pause)押下：TitleScene
+    - TitleSceneへの遷移=諦めるなので，ResultScen的なシーンへ遷移予定
+
+ステージの遷移において，データのロードはすべてloadStage()が実行する．
+
+#### SceneControlとGameの関係
+
+SceneControl側はステージのインデックス，スコアの管理を実行する．シーンの遷移はGameSceneを介してGameへ伝搬し，Game::run()でcurrentSceneの差し替えが行われる．
+
+現段階では，GameコンストラクタのbuildSceneでオブジェクト化され，遷移のルールはSceneが管理する．この出入り口となるonEnter/onExitをGameが呼び出すことで，シーンの遷移が行われる．
+
+### Gameクラスの見直し
+
+#### Gameクラスの初期化
+
+SDL/SDL_image/SDL_ttfの初期化・終了処理をSdlSystemに管理させるようにした．これによって，RAIIに準拠するようになり，SdlSystemのコンストラクタ/デストラクタで初期化/終了処理が実施されるようになった．
+これによって，Gameオブジェクトのライフタイムに追従したSDLサブシステムの解放が行われる．
+これまではmain関数内部で波括弧によるスコープを明示することで，オブジェクトの解放→SDLの終了処理が順に行われていた．今後はGameオブジェクトのライフタイムに追従するので，main関数はシンプルなGame生成とrun()の実行のみになった．
+
+#### Gameコンストラクタの分割
+
+これまで，コンストラクタ内で一連の流れでオブジェクトの生成やリソースの確保を行っていたが，それぞれメソッド化して分割し，リソースの確保を明記して影響範囲を確定させた．
+
+コンストラクタ内で次の順番で処理される：
+
+1. sdl = std::make_unique<SdlSystem>()
+   - SDLの初期化処理で，必ず最初に呼ぶ
+2. bootstrapWindowAndRenderer()
+   - Window / Renderer の生成
+3. loadResources()
+   - Texture/Text/TextTextureを生成
+4. buildWorld()
+   - プレイヤーインスタンスの生成と初期位置設定
+   - WorldInfo の初期値設定
+   - 敵生成用の乱数ディストリビューション (distX, distY, distSpeed) の設定
+   - カメラの初期化
+5. buildContexts()
+   - GameContext の構築（Renderer / Input / Camera / WorldInfo / EntityContext / TextRenderContext / RandomContext）
+6. buildScenes()
+   - Title/Playing/GameOver/Clearの各Sceneインスタンス生成
+7. startFromTitle()
+   - 初期シーンを Title に設定し，onEnter()を呼ぶ
+
+#### 固定デルタタイム+accumulator方式へ変更
+
+ゲームループでのdeltaの計算を見直し，可変deltaとSDL_Delayのキャップ処理から，fpsごとの固定delta(1/60)を用いてupdateを回すことで，遅延時の安定性を向上させた．
+
+accumulatorは以前のタイプスタンプからの累積値であり，deltaタイムが溜まっていく．その累積値から遅延処理時の「遅延を取り戻そうとするupdate」を複数回実行する．ただし，過剰なupdateでプレイヤーが関与できない更新が延々と実行される可能性を加味して，safetyを設け最大5回しか更新されないように制限をかけている．
+
+主な変更点は次の通り：
+
+- 時間管理にstd::chronoを用いる
+- 固定deltaは1.0/60.0秒(≒16.666ms)
+- ループ内では
+  - processEvents()でSDLイベントを処理
+  - now - prevをaccへ加算
+  - acc >= fixedNsの間update．ただし最大5回まで
+  - render()で画面描画更新処理
+- capFrameRateで60fpsへキャップする
+
+これによって，一時的な遅延でもdeltaが大きくならない，固定ステップで物理処理などが進むようになった．
+
+なお，現在の仕様として，遅延が生じてupdate()が複数回走ったとしても，processEvents()は1回しか走らない．そのため，プレイヤーのキー入力の処理も1回のみ働く仕様となっていることに注意．
+
+### week11の予定
+
+- SceneControlの整理が終わっていないので整理する
+- ResultSceneを導入してプレイヤーの体験がTitle〜Result〜Titleまで違和感なく回るようにする
+- ゲームの要素の追加
+  - levelファイルの再設計
+  - ブロックの描画修正
+  - 敵の挙動追加
+  - プレイヤーの挙動(コヨーテジャンプなど)
+- 演出の追加
+  - 一部アニメーションの追加
 
 ## アセット
 

@@ -18,6 +18,7 @@ public:
         if(!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)){
             throw std::runtime_error(IMG_GetError());
         }
+        // SDL_TTF初期化
         if((TTF_Init() != 0)){
             throw std::runtime_error(TTF_GetError());
         }

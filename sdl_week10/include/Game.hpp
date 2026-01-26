@@ -1,6 +1,8 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include "GameScene.hpp"
+
 #include "SdlSystem.hpp"
 #include "Window.hpp"
 #include "Renderer.hpp"
@@ -30,13 +32,6 @@
 //     Count, 
 // };
 
-enum class GameScene : size_t {
-    Title, 
-    Playing, 
-    GameOver, 
-    Clear, 
-    Count, 
-};
 
 class Game : public SceneControl{
 private:
@@ -98,7 +93,6 @@ public:
     void requestScene(GameScene id) override;
 
 private:
-    void initSDL();
     // ↓コンストラクタ内のリソース確保関数↓
     void bootstrapWindowAndRenderer();
     void loadResources();
@@ -115,7 +109,7 @@ private:
     void applySceneChangeIfAny();
 public:
     // シーンのindex取得関数
-    constexpr size_t nextSceneIndex(GameScene s){
+    static constexpr size_t nextSceneIndex(GameScene s) noexcept{
         return static_cast<size_t>(s);
     }
     // getters

@@ -1,10 +1,11 @@
 #ifndef SCENECONTROL_H
 #define SCENECONTROL_H
 
+#include "GameScene.hpp"
+
 #include <SDL2/SDL.h>
 
 struct GameContext;
-enum class GameScene : size_t;
 
 /**
  * @brief GameクラスとSceneクラスの依存を緩め，ステージ進行を担うクラス
@@ -17,9 +18,12 @@ private:
     // ステージ遷移用index
     int currentStageIndex = 0;
 
+protected:
+    // シーン変更処理のヘルパとしてしばらく残す
+    virtual void changeScene(GameScene id) = 0;
+
 public:
     SceneControl() = default;
-    virtual void changeScene(GameScene id) = 0;
     virtual void resetGame() = 0;
     virtual uint32_t getScore() = 0;
     virtual void setScore(uint32_t v) = 0;

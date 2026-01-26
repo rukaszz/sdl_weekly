@@ -46,13 +46,11 @@ void GameOverScene::update(double delta){
     const InputState& is = ctx.input.getState();
     // Enterでリトライ
     if(is.justPressed[(int)Action::Enter]){
-        // ctrl.changeScene(GameScene::Playing);
         ctrl.requestScene(GameScene::Playing);
     }
     // Pauseでタイトル画面へ
     // 諦めてタイトルへ戻るので，リザルト画面(ResultScene)へ遷移する予定
     if(is.justPressed[(int)Action::Pause]){
-        // ctrl.changeScene(GameScene::Title);
         ctrl.requestScene(GameScene::Title);
     }
 }

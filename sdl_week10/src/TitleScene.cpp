@@ -52,7 +52,6 @@ void TitleScene::update(double delta){
     if(is.justPressed[(int)Action::Enter]){
         ctrl.startNewGame();
         ctrl.resetGame();
-        // ctrl.changeScene(GameScene::Playing);
         ctrl.requestScene(GameScene::Playing);
         return;
     }
