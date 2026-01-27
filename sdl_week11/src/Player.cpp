@@ -76,6 +76,8 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
     if(onGround && input.justPressed[(int)Action::Jump]){
         vv = -PlayerConfig::JUMP_VELOCITY;  // 上方向はy軸的には負
         onGround = false;
+        isJumping = true;
+        jumpElapsed = 0.0;
     }
     // DropThrough：接地中 かつ 下を押下
     if(onGround && input.pressed[(int)Action::MoveDown]){
@@ -87,6 +89,8 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
     x += moveDir * speed * delta;
     // 垂直方向移動
     vv += PlayerConfig::PLAYER_GRAVITY * delta;
+    // 可変ジャンプ
+    detectJumpButtomState(delta, input);
     y += vv * delta;
 
     // 移動後の(このフレームの)足元の位置の計算
@@ -129,7 +133,7 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
  * @return SDL_Rect 
  */
 SDL_Rect Player::getCollisionRect() const{
-    return {(int)x+10, (int)y+10, sprite.getDrawWidth()-20, sprite.getDrawHeight()-20};
+    return {(int)x+40, (int)y+40, sprite.getDrawWidth()-40, sprite.getDrawHeight()-40};
 }
 
 /**
@@ -156,3 +160,29 @@ void Player::clampHorizontalPosition(const DrawBounds& bounds){
     x = std::clamp(x, 0.0, bounds.drawableWidth - sprite.getDrawWidth());
 }
 
+
+void Player::detectJumpButtomState(double delta, const InputState& input){
+    if(isJumping){
+        // ジャンプボタンが押されているか
+        bool jumpButtomReleased = !input.pressed[static_cast<int>(Action::Jump)];
+        // ジャンプボタンが規定時間以上押されているか
+        bool overMaxHold = (jumpElapsed >= JUMP_HOLD_MAX_TIME);
+
+        jumpElapsed += delta;
+        
+        // ジャンプボタンが押されなくなった or 規定時間以上押された
+        if(jumpButtomReleased || overMaxHold){
+            // まだ上昇中なら減速させる
+            if(vv < 0.0){
+                vv *= 0.5;
+            }
+            isJumping = false;
+        }
+
+        // 地面に接地したらジャンプ状態解除
+        if(onGround && vv >= 0.0){
+            isJumping = false;
+        }
+
+    }
+}

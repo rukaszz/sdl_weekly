@@ -56,9 +56,7 @@ void SceneControl::loadStage(int stageIndex, GameContext& ctx){
     ctx.entityCtx.blocks.clear();
     ctx.entityCtx.enemies.clear();
     Texture& enemyTex = ctx.entityCtx.enemyTexture;
-    // for(int i = 0;i < 5; ++i){
-    //     enemies.push_back(std::make_unique<Enemy>(*enemyTex));
-    // }
+    // 敵のサイズ分メモリを予約
     ctx.entityCtx.enemies.reserve(def.enemySpawns.size());
     for(const auto& es : def.enemySpawns){
         /* c++17: 
@@ -97,8 +95,4 @@ void SceneControl::loadStage(int stageIndex, GameContext& ctx){
     // プレイヤーの位置初期化
     ctx.entityCtx.player.reset();
     ctx.entityCtx.player.setPosition(def.playerStart_X, def.playerStart_Y);
-    // 敵の位置初期化
-    // for(auto& e : ctx.entityCtx.enemies){
-    //     e->reset(ctx.randomCtx.random, ctx.randomCtx.distX, ctx.randomCtx.distY, ctx.randomCtx.distSpeed);
-    // }
 }

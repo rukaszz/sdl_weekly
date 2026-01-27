@@ -11,6 +11,7 @@
 #include "PlayingScene.hpp"
 #include "GameOverScene.hpp"
 #include "ClearScene.hpp"
+#include "ResultScene.hpp"
 #include "Texture.hpp"
 #include "Character.hpp"
 #include "Player.hpp"
@@ -160,6 +161,7 @@ void Game::buildScenes(){
     scenes[nextSceneIndex(GameScene::Playing)]  = std::make_unique<PlayingScene>(*this, *ctx);
     scenes[nextSceneIndex(GameScene::GameOver)] = std::make_unique<GameOverScene>(*this, *ctx);
     scenes[nextSceneIndex(GameScene::Clear)]    = std::make_unique<ClearScene>(*this, *ctx);
+    scenes[nextSceneIndex(GameScene::Result)]   = std::make_unique<ResultScene>(*this, *ctx);
 }
 
 /**

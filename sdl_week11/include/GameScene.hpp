@@ -8,6 +8,7 @@ enum class GameScene : size_t {
     Playing, 
     GameOver, 
     Clear, 
+    Result, 
     Count, 
 };
 

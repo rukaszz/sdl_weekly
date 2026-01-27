@@ -98,7 +98,7 @@ void Enemy::update(double delta, const InputState& , DrawBounds bounds, const st
  * @return SDL_Rect 
  */
 SDL_Rect Enemy::getCollisionRect() const{
-    return {(int)x+10, (int)y+10, sprite.getDrawWidth()-20, sprite.getDrawHeight()-20};
+    return {(int)x+40, (int)y+40, sprite.getDrawWidth()-40, sprite.getDrawHeight()-40};
 }
 
 /**

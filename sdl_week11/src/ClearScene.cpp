@@ -58,11 +58,12 @@ void ClearScene::update(double delta){
             // 全ステージクリア
             // タイトルへ戻すだけ
             // 後でリザルト画面(ResultScene)を作る
-            ctrl.requestScene(GameScene::Title);
+            ctrl.requestScene(GameScene::Result);
         }
     }
     // ESCでタイトル画面へ
     if(is.justPressed[(int)Action::Pause]){
+        // 諦めてタイトルへ戻るなのでTitleScene
         ctrl.requestScene(GameScene::Title);
     }
 }
