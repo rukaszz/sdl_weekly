@@ -9,7 +9,7 @@ struct PlayerConfig{
     static inline constexpr int FRAME_H = 110;  // スプライトの高さ
     static inline constexpr int NUM_FRAMES = 8; // スプライトアニメーション枚数
     static inline constexpr double PLAYER_GRAVITY  = 880.0; // キャラクタの重力
-    static inline constexpr double JUMP_VELOCITY  = 660.0;  // ジャンプ速度
+    static inline constexpr double JUMP_VELOCITY  = 440.0;  // ジャンプ速度
     static inline constexpr double eps  = 1.0;    // 踏みつけ時の若干の許容範囲ε
 };
 

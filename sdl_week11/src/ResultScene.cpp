@@ -20,7 +20,7 @@ ResultScene::ResultScene(SceneControl& sc, GameContext& gc)
     resultText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
     resultText->setText("Result");
     returnTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
-    returnTitleText->setText("Press ESC to Title");
+    returnTitleText->setText("Press Enter to Title");
     praiseText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{244, 229, 17, 255}); // 淡い黄色
     praiseText->setText("Congratulations!");
     stageText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
@@ -37,7 +37,7 @@ void ResultScene::handleEvent(const SDL_Event& e){
 }
 
 /**
- * @brief ゲームオーバー時の更新処理
+ * @brief リザルト画面の更新処理
  * 
  * @param delta 
  */

@@ -254,7 +254,7 @@ void PlayingScene::resolveEnemyCollision(double prevFeet){
             // 敵を踏みつけ(後で敵を消す)
             e->startDying();    // Dying状態へ遷移
             // プレイヤーはバウンドする
-            player.setVerticalVelocity(-std::abs(PlayerConfig::JUMP_VELOCITY) * 0.5);
+            player.setVerticalVelocity(-std::abs(PlayerConfig::JUMP_VELOCITY));
             // スコア加算
             ctrl.setScore(ctrl.getScore() + EnemyConfig::SCORE_AT_DEATH);
             continue;   // 同フレーム中に同一の敵を二度ふまないようにcountinue

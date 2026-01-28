@@ -88,9 +88,9 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
     // 水平方向移動
     x += moveDir * speed * delta;
     // 垂直方向移動
-    vv += PlayerConfig::PLAYER_GRAVITY * delta;
+    // vv += PlayerConfig::PLAYER_GRAVITY * delta;
     // 可変ジャンプ
-    detectJumpButtomState(delta, input);
+    detectJumpButtonState(delta, input);
     y += vv * delta;
 
     // 移動後の(このフレームの)足元の位置の計算
@@ -147,6 +147,8 @@ void Player::reset(){
     vv = 0.0;
     // 設置状態(trueにしてclampで正常にする)
     onGround = false;
+    isJumping = false;
+    jumpElapsed = 0.0;
     // アニメーションリセット
     anim.reset();
 }
@@ -160,29 +162,33 @@ void Player::clampHorizontalPosition(const DrawBounds& bounds){
     x = std::clamp(x, 0.0, bounds.drawableWidth - sprite.getDrawWidth());
 }
 
-
-void Player::detectJumpButtomState(double delta, const InputState& input){
-    if(isJumping){
+/**
+ * @brief ジャンプボタン押下時間に応じた垂直速度設定関数
+ * 
+ * @param delta 
+ * @param input 
+ */
+void Player::detectJumpButtonState(double delta, const InputState& input){
+    // 重力
+    double gravity = PlayerConfig::PLAYER_GRAVITY;
+    // ジャンプによる上昇中のみ可変重力を設定
+    if(isJumping && vv < 0.0){
+        // ジャンプボタン押下時間計測
+        jumpElapsed += delta;
         // ジャンプボタンが押されているか
         bool jumpButtomReleased = !input.pressed[static_cast<int>(Action::Jump)];
         // ジャンプボタンが規定時間以上押されているか
         bool overMaxHold = (jumpElapsed >= JUMP_HOLD_MAX_TIME);
-
-        jumpElapsed += delta;
         
-        // ジャンプボタンが押されなくなった or 規定時間以上押された
+        // ジャンプボタンを離した or 押下時間の上限に達したら通常の重力を適用
         if(jumpButtomReleased || overMaxHold){
-            // まだ上昇中なら減速させる
-            if(vv < 0.0){
-                vv *= 0.5;
-            }
+            // 通常の重力
             isJumping = false;
+        } else {
+            // ジャンプボタンを押し続けているときは重力を弱くする(高く飛べる)
+            gravity *= 0.2;
         }
-
-        // 地面に接地したらジャンプ状態解除
-        if(onGround && vv >= 0.0){
-            isJumping = false;
-        }
-
-    }
+    } 
+    // 重力の加算は1回のみ
+    vv += gravity * delta;
 }
