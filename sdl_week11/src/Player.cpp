@@ -59,6 +59,29 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
     bool moving = false;
     // DropThroughの判定
     bool dropThrough = false;
+
+    inputProcessing(delta, 
+                    input, 
+                    moveDir, 
+                    moving, 
+                    dropThrough);
+    moveElementsUpdate(delta, input, moveDir);
+    physicsProcessing(blocks, dropThrough);
+    // x軸方向のクランプ処理
+    clampHorizontalPosition(bounds);
+    animationProcessing(delta, moving);
+}
+/*
+void Player::update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks){
+    // 1つ前の足元(プレイヤーの最下部)の位置
+    beginFrameFeetPhysicsSample();   // prevFeetPhisicsのサンプリング
+
+    // 水平移動用変数
+    double moveDir = 0.0;
+    // 移動中以外はfalse
+    bool moving = false;
+    // DropThroughの判定
+    bool dropThrough = false;
     
     if(input.pressed[(int)Action::MoveLeft]){
         // x -= speed * delta;
@@ -73,16 +96,25 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
         moving = true;
     }
     // Jump
-    if(onGround && input.justPressed[(int)Action::Jump]){
+    // コヨーテタイマー
+    if(onGround){
+        coyoteTimer = PlayerConfig::COYOTE_TIME;
+    }else{
+        coyoteTimer = std::max(0.0, coyoteTimer - delta);
+    }
+    if((onGround || coyoteTimer > 0.0) && input.justPressed[(int)Action::Jump]){
         vv = -PlayerConfig::JUMP_VELOCITY;  // 上方向はy軸的には負
         onGround = false;
         isJumping = true;
         jumpElapsed = 0.0;
+        coyoteTimer = 0.0;  // ジャンプの猶予は0にする
     }
     // DropThrough：接地中 かつ 下を押下
     if(onGround && input.pressed[(int)Action::MoveDown]){
         onGround = false;   // onGroundを外す
         dropThrough = true;
+        coyoteTimer = 0.0;  // すり抜け時のジャンプは許可しない
+
     }
     // 物理の更新
     // 水平方向移動
@@ -112,6 +144,13 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
     vv       = vcs.vv;
     onGround = vcs.onGround;
 
+    // 状態の整理
+    if(onGround && vv >= 0.0){
+        // 頭をぶつけたようなvv>=0のタイミングで状態がちぐはぐになるのを防止
+        isJumping = false;
+        jumpElapsed = 0.0;
+    }
+
     // x軸方向のクランプ処理
     clampHorizontalPosition(bounds);
 
@@ -125,6 +164,7 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
     anim.update(delta);
     sprite.setFrame(anim.getFrame());
 }
+*/
 
 /**
  * @brief 衝突判定を返す関数
@@ -149,6 +189,7 @@ void Player::reset(){
     onGround = false;
     isJumping = false;
     jumpElapsed = 0.0;
+    coyoteTimer = 0.0;
     // アニメーションリセット
     anim.reset();
 }
@@ -178,7 +219,7 @@ void Player::detectJumpButtonState(double delta, const InputState& input){
         // ジャンプボタンが押されているか
         bool jumpButtomReleased = !input.pressed[static_cast<int>(Action::Jump)];
         // ジャンプボタンが規定時間以上押されているか
-        bool overMaxHold = (jumpElapsed >= JUMP_HOLD_MAX_TIME);
+        bool overMaxHold = (jumpElapsed >= PlayerConfig::JUMP_HOLD_MAX_TIME);
         
         // ジャンプボタンを離した or 押下時間の上限に達したら通常の重力を適用
         if(jumpButtomReleased || overMaxHold){
@@ -191,4 +232,96 @@ void Player::detectJumpButtonState(double delta, const InputState& input){
     } 
     // 重力の加算は1回のみ
     vv += gravity * delta;
+}
+
+void Player::inputProcessing(double delta, 
+                             const InputState& input, 
+                             double& moveDir, 
+                             bool& moving, 
+                             bool& dropThrough)
+{
+    if(input.pressed[static_cast<int>(Action::MoveLeft)]){
+        // x -= speed * delta;
+        moveDir -= 1.0;
+        dir = Direction::Left;
+        moving = true;
+    }
+    if(input.pressed[static_cast<int>(Action::MoveRight)]){
+        // x += speed * delta;
+        moveDir += 1.0;
+        dir = Direction::Right;
+        moving = true;
+    }
+    // Jump
+    // コヨーテタイマー
+    if(onGround){
+        coyoteTimer = PlayerConfig::COYOTE_TIME;
+    }else{
+        coyoteTimer = std::max(0.0, coyoteTimer - delta);
+    }
+    if((onGround || coyoteTimer > 0.0) && input.justPressed[static_cast<int>(Action::Jump)]){
+        vv = -PlayerConfig::JUMP_VELOCITY;  // 上方向はy軸的には負
+        onGround = false;
+        isJumping = true;
+        jumpElapsed = 0.0;
+        coyoteTimer = 0.0;  // ジャンプの猶予は0にする
+    }
+    // DropThrough：接地中 かつ 下を押下
+    if(onGround && input.pressed[static_cast<int>(Action::MoveDown)]){
+        onGround = false;   // onGroundを外す
+        dropThrough = true;
+        coyoteTimer = 0.0;  // すり抜け時のジャンプは許可しない
+
+    }
+}
+
+void Player::moveElementsUpdate(double delta, const InputState& input, const double moveDir){
+    // 物理の更新
+    // 水平方向移動
+    x += moveDir * speed * delta;
+    // 垂直方向移動
+    // vv += PlayerConfig::PLAYER_GRAVITY * delta;
+    // 可変ジャンプ
+    detectJumpButtonState(delta, input);
+    y += vv * delta;
+}
+
+void Player::physicsProcessing(const std::vector<Block>& blocks, const bool dropThrough){
+    // 移動後の(このフレームの)足元の位置の計算
+    double newFeet = y + sprite.getDrawHeight();
+
+    // DTO作成
+    VerticalCollisionState vcs{
+        .prevFeet = getPrevFeetPhysics(),  // 処理の最初で保存したprevFeetを参照
+        .newFeet  = newFeet,
+        .x        = x,
+        .width    = static_cast<double>(sprite.getDrawWidth()),
+        .vv       = vv,
+        .onGround = onGround, 
+        .ignoreDropThrough = dropThrough
+    };
+    Physics::resolveVerticalBlockCollision(vcs, blocks);
+    // 帰ってきた結果をPlayerの内部へ反映する
+    y        = vcs.newFeet - sprite.getDrawHeight();
+    vv       = vcs.vv;
+    onGround = vcs.onGround;
+
+    // 状態の整理
+    if(onGround && vv >= 0.0){
+        // 頭をぶつけたようなvv>=0のタイミングで状態がちぐはぐになるのを防止
+        isJumping = false;
+        jumpElapsed = 0.0;
+    }
+}
+
+void Player::animationProcessing(double delta, const bool moving){
+    // アニメーション処理
+    if(!moving){
+        anim.reset();
+        sprite.setFrame(anim.getFrame());
+        return;
+    }
+    // フレームを動かして描画
+    anim.update(delta);
+    sprite.setFrame(anim.getFrame());
 }

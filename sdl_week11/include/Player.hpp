@@ -26,21 +26,28 @@ private:
     // コヨーテタイム
     // ※落下判定の初期段階でジャンプを許可するやつ
     double coyoteTimer = 0.0;
-    static inline constexpr double COYOTE_TIME = 0.08;  // 約5フレーム(0.016*5)
 public:
     // 定数
     // アニメーション枚数
     static inline constexpr int NUM_FRAMES = PlayerConfig::NUM_FRAMES;
     // ジャンプボタン押下時の押しっぱなしの時間の長さ
-    static inline constexpr double JUMP_HOLD_MAX_TIME = 0.3;    // 300ms程度の猶予
     Player(Texture& tex);
 
     void update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks) override;
     SDL_Rect getCollisionRect() const override;
     void reset();
     
-    void clampHorizontalPosition(const DrawBounds& bounds);
+    // update()関係
+    void inputProcessing(double delta, 
+                         const InputState& input, 
+                         double& moveDir, 
+                         bool& moving, 
+                         bool& dropThrough);
+    void moveElementsUpdate(double delta, const InputState& input, const double moveDir);
     void detectJumpButtonState(double delta, const InputState& input);
+    void physicsProcessing(const std::vector<Block>& blocks, const bool dropThrough);
+    void clampHorizontalPosition(const DrawBounds& bounds);
+    void animationProcessing(double delta, const bool moving);
 };
 
 #endif  // PLAYER_H

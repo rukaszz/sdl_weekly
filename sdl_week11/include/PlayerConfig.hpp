@@ -11,6 +11,9 @@ struct PlayerConfig{
     static inline constexpr double PLAYER_GRAVITY  = 880.0; // キャラクタの重力
     static inline constexpr double JUMP_VELOCITY  = 440.0;  // ジャンプ速度
     static inline constexpr double eps  = 1.0;    // 踏みつけ時の若干の許容範囲ε
+    static inline constexpr double COYOTE_TIME = 0.08;  // 約5フレーム(0.016*5)
+    static inline constexpr double JUMP_HOLD_MAX_TIME = 0.3;    // 300ms程度の猶予
+
 };
 
 #endif  // PLAYERCONFIG_H
