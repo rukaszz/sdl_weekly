@@ -5,19 +5,16 @@
 
 #include <SDL2/SDL.h>
 
+#include <memory>
+
 struct DrawBounds;
 class Game;
 class Renderer;
-
-// enum class PlayerEnemyCollisionResult{
-//     None, 
-//     StompEnemy, 
-//     PlayerHit, 
-//     Count, 
-// };
+class TextTexture;
 
 class PlayingScene : public Scene{
 private:
+    std::unique_ptr<TextTexture> debugText;
 
 public:
     PlayingScene(SceneControl& sc, GameContext& gc);

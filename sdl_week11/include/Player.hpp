@@ -11,6 +11,7 @@
 #include <SDL2/SDL.h>
 
 #include <vector>
+#include <string>
 
 class Texture;
 class Renderer;
@@ -36,7 +37,9 @@ public:
     void update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks) override;
     SDL_Rect getCollisionRect() const override;
     void reset();
-    
+    // デバッグ用テキスト表示用getter
+    std::string debugMoveContext();
+private:
     // update()関係
     void inputProcessing(double delta, 
                          const InputState& input, 

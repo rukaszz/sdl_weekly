@@ -19,7 +19,7 @@ PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
         gc
     )
 {
-
+    debugText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 0, 255, 255});
 }
 
 /**
@@ -62,6 +62,8 @@ void PlayingScene::update(double delta){
     hasFallenToGameOver();
     // 7. カメラ座標の更新
     updateCamera();
+    // デバッグ情報取得
+    debugText->setText(ctx.entityCtx.player.debugMoveContext());
 }
 
 /**
@@ -98,6 +100,12 @@ void PlayingScene::render(){
     // カメラを考慮した書き方にする
     ctx.entityCtx.player.draw(ctx.renderer, ctx.camera);
     for(auto& e : ctx.entityCtx.enemies) e->draw(ctx.renderer, ctx.camera);
+    // デバッグ情報表示
+    debugText->draw(
+        ctx.renderer,
+        GameConfig::WINDOW_WIDTH - debugText->getWidth(),
+        GameConfig::WINDOW_HEIGHT - debugText->getHeight()
+    );
 }
 
 /**

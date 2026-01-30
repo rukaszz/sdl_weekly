@@ -11,6 +11,7 @@
 #include <SDL2/SDL.h>
 #include <algorithm>
 #include <vector>
+#include <string>
 
 /**
  * Playerクラスは操作するオブジェクトを管理する
@@ -50,7 +51,7 @@ Player::Player(Texture& tex)
  * @param bounds: 描画可能範囲 
  */
 void Player::update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks){
-    // 1つ前の足元(プレイヤーの最下部)の位置
+    // 1. 1つ前の足元(プレイヤーの最下部)の位置
     beginFrameFeetPhysicsSample();   // prevFeetPhisicsのサンプリング
 
     // 水平移動用変数
@@ -59,16 +60,19 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
     bool moving = false;
     // DropThroughの判定
     bool dropThrough = false;
-
+    // 2. 入力処理
     inputProcessing(delta, 
                     input, 
                     moveDir, 
                     moving, 
                     dropThrough);
+    // 3. x/y/vvの更新
     moveElementsUpdate(delta, input, moveDir);
+    // 4. 物理処理
     physicsProcessing(blocks, dropThrough);
-    // x軸方向のクランプ処理
+    // 5. x軸方向のクランプ処理
     clampHorizontalPosition(bounds);
+    // 6. アニメーション処理
     animationProcessing(delta, moving);
 }
 /*
@@ -130,15 +134,7 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
 
     // DTO作成
     VerticalCollisionState vcs{
-        .prevFeet = getPrevFeetPhysics(),  // 処理の最初で保存したprevFeetを参照
-        .newFeet  = newFeet,
-        .x        = x,
-        .width    = static_cast<double>(sprite.getDrawWidth()),
-        .vv       = vv,
-        .onGround = onGround, 
-        .ignoreDropThrough = dropThrough
-    };
-    Physics::resolveVerticalBlockCollision(vcs, blocks);
+    ision(vcs, blocks);
     // 帰ってきた結果をPlayerの内部へ反映する
     y        = vcs.newFeet - sprite.getDrawHeight();
     vv       = vcs.vv;
@@ -220,7 +216,6 @@ void Player::detectJumpButtonState(double delta, const InputState& input){
         bool jumpButtomReleased = !input.pressed[static_cast<int>(Action::Jump)];
         // ジャンプボタンが規定時間以上押されているか
         bool overMaxHold = (jumpElapsed >= PlayerConfig::JUMP_HOLD_MAX_TIME);
-        
         // ジャンプボタンを離した or 押下時間の上限に達したら通常の重力を適用
         if(jumpButtomReleased || overMaxHold){
             // 通常の重力
@@ -230,10 +225,20 @@ void Player::detectJumpButtonState(double delta, const InputState& input){
             gravity *= 0.2;
         }
     } 
-    // 重力の加算は1回のみ
+    // 重力の加算は最後に加算
     vv += gravity * delta;
 }
 
+/**
+ * @brief 入力の読み取りとその処理
+ * 各キーの押下に応じた処理(変数の設定)を実施する
+ * 
+ * @param delta 
+ * @param input 
+ * @param moveDir 
+ * @param moving 
+ * @param dropThrough 
+ */
 void Player::inputProcessing(double delta, 
                              const InputState& input, 
                              double& moveDir, 
@@ -241,13 +246,11 @@ void Player::inputProcessing(double delta,
                              bool& dropThrough)
 {
     if(input.pressed[static_cast<int>(Action::MoveLeft)]){
-        // x -= speed * delta;
         moveDir -= 1.0;
         dir = Direction::Left;
         moving = true;
     }
     if(input.pressed[static_cast<int>(Action::MoveRight)]){
-        // x += speed * delta;
         moveDir += 1.0;
         dir = Direction::Right;
         moving = true;
@@ -275,6 +278,13 @@ void Player::inputProcessing(double delta,
     }
 }
 
+/**
+ * @brief x/vv/yを更新する関数
+ * 
+ * @param delta 
+ * @param input 
+ * @param moveDir 
+ */
 void Player::moveElementsUpdate(double delta, const InputState& input, const double moveDir){
     // 物理の更新
     // 水平方向移動
@@ -283,9 +293,16 @@ void Player::moveElementsUpdate(double delta, const InputState& input, const dou
     // vv += PlayerConfig::PLAYER_GRAVITY * delta;
     // 可変ジャンプ
     detectJumpButtonState(delta, input);
+    // detectJumpButtonState()でvvを更新からyを更新
     y += vv * delta;
 }
 
+/**
+ * @brief 物理処理の呼び出しと状態の更新
+ * 
+ * @param blocks 
+ * @param dropThrough 
+ */
 void Player::physicsProcessing(const std::vector<Block>& blocks, const bool dropThrough){
     // 移動後の(このフレームの)足元の位置の計算
     double newFeet = y + sprite.getDrawHeight();
@@ -314,6 +331,12 @@ void Player::physicsProcessing(const std::vector<Block>& blocks, const bool drop
     }
 }
 
+/**
+ * @brief アニメーション更新関数
+ * 
+ * @param delta 
+ * @param moving 
+ */
 void Player::animationProcessing(double delta, const bool moving){
     // アニメーション処理
     if(!moving){
@@ -324,4 +347,19 @@ void Player::animationProcessing(double delta, const bool moving){
     // フレームを動かして描画
     anim.update(delta);
     sprite.setFrame(anim.getFrame());
+}
+
+/**
+ * @brief デバッグ用テキスト出力関数
+ * PlayingSceneで画面に文字を表示するために文字列を構成する
+ * 
+ * @return std::string 
+ */
+std::string Player::debugMoveContext(){
+    std::string mvCtx = "";
+    mvCtx = "vv: " + std::to_string(vv)
+          + "onGround: " + "vv: " + std::to_string(onGround)
+          + "coyoteTime: " + std::to_string(coyoteTimer)
+          + "isJumping: " + std::to_string(isJumping);
+    return mvCtx;
 }
