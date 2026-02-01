@@ -28,7 +28,7 @@ Player::Player(Texture& tex)
     : Character(
         PlayerConfig::POS_X, 
         PlayerConfig::POS_Y,                // 初期座標
-        200,                                // speed
+        PlayerConfig::RUN_MAX_SPEED,        // speed
         0.0,                                // 水平速度
         0.0,                                // 垂直速度
         Direction::Right,                   // dir
@@ -84,7 +84,7 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
  * @return SDL_Rect 
  */
 SDL_Rect Player::getCollisionRect() const{
-    return {(int)x+40, (int)y+40, sprite.getDrawWidth()-40, sprite.getDrawHeight()-40};
+    return {(int)x+40, (int)y+40, sprite.getDrawWidth()-80, sprite.getDrawHeight()-80};
 }
 
 /**
@@ -103,6 +103,7 @@ void Player::reset(){
     isJumping = false;
     jumpElapsed = 0.0;
     coyoteTimer = 0.0;
+    jumpableBufferTimer = 0.0;
     // アニメーションリセット
     anim.reset();
 }
@@ -238,6 +239,7 @@ void Player::moveElementsUpdate(double delta, const InputState& input, const dou
 
 /**
  * @brief 物理処理の呼び出しと状態の更新
+ * 物理処理の順番は縦方向の補正→横方向の補正
  * 
  * @param blocks 
  * @param dropThrough 
@@ -246,6 +248,7 @@ void Player::physicsProcessing(const std::vector<Block>& blocks, const bool drop
     // 移動後の(このフレームの)足元の位置の計算
     double newFeet = y + sprite.getDrawHeight();
 
+    // 縦方向の補正
     // DTO作成
     VerticalCollisionState vcs{
         .prevFeet = getPrevFeetPhysics(),  // 処理の最初で保存したprevFeetを参照
@@ -261,6 +264,20 @@ void Player::physicsProcessing(const std::vector<Block>& blocks, const bool drop
     y        = vcs.newFeet - sprite.getDrawHeight();
     vv       = vcs.vv;
     onGround = vcs.onGround;
+
+    // 横方向の補正
+    SDL_Rect col = getCollisionRect();
+    HorizontalCollisionState hcs{
+        .x      = static_cast<double>(col.x), 
+        .y      = static_cast<double>(col.y), 
+        .width  = static_cast<double>(col.w),
+        .height = static_cast<double>(col.h),
+        .hv     = hv
+    };
+    Physics::resolveHorizontalBlockCollision(hcs, blocks);
+    // 帰ってきた結果をPlayer内部へ反映
+    x = hcs.x - 40.0;   // getCollisionRectのオフセット(現状はハードコード)
+    hv = hcs.hv;
 
     // 状態の整理
     if(onGround && vv >= 0.0){
@@ -296,10 +313,11 @@ void Player::animationProcessing(double delta, const bool moving){
  */
 std::string Player::debugMoveContext(){
     std::string mvCtx = "";
-    mvCtx = "hv: "          + std::to_string(hv)
-          + "vv: "          + std::to_string(vv)
-          + "onGround: "    + std::to_string(onGround)
-          + "coyoteTime: "  + std::to_string(coyoteTimer)
-          + "isJumping: "   + std::to_string(isJumping);
+    mvCtx = "hv: "      + std::to_string(hv)
+          + "vv: "      + std::to_string(vv)
+          + "onG: "     + std::to_string(onGround)
+          + "cyt: "     + std::to_string(coyoteTimer)
+          + "jbt: "     + std::to_string(jumpableBufferTimer)
+          + "isJ: "     + std::to_string(isJumping);
     return mvCtx;
 }

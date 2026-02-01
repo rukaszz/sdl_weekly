@@ -6,8 +6,9 @@
  * if(vcs.vv <= 0.0)は重力加算後に呼ばれる前提の処理なので留意すること
  * vv > 0のときのみ下向き衝突判定が行われる(上昇中は何もしない)
  * 
- * @param prevFeet: 1フレーム前のオブジェクト下部
- * @param newFeet: 更新時のオブジェクトの下部の位置 
+ * @param vcs: prevFeet/newFeet/x/width/vv/onGround/ignoreDropThrough
+ *     @param prevFeet: 1フレーム前のオブジェクト下部
+ *     @param newFeet: 更新時のオブジェクトの下部の位置 
  * @param blocks: 描画しているブロックの情報 
  */
 void Physics::resolveVerticalBlockCollision(VerticalCollisionState& vcs, const std::vector<Block>& blocks){
@@ -58,5 +59,60 @@ void Physics::resolveVerticalBlockCollision(VerticalCollisionState& vcs, const s
     if(!landed){
         // 垂直速度>0なら落下中
         vcs.onGround = false;
+    }
+}
+
+/**
+ * @brief hcsからAABBを組み立て，ブロックを走査し水平方向のめり込みを解消する
+ * 
+ * @param hcs: player: x/y/w/h/hv 
+ * @param blocks 
+ */
+void Physics::resolveHorizontalBlockCollision(HorizontalCollisionState& hcs, const std::vector<Block>& blocks){
+    // キャラクタの座標
+    double entityLeft = hcs.x;
+    double entityRight = hcs.x + hcs.width;
+    double entityTop = hcs.y;
+    double entityBottom = hcs.y + hcs.height;
+    for(const auto& b : blocks){
+        // ブロックの座標
+        double blockLeft  = b.x;
+        double blockRight = b.x + b.w;
+        double blockTop  = b.y;
+        double blockBottom = b.y + b.h;
+        // AABB判定※超えていないなら何もしない
+        if(entityRight <= blockLeft || blockRight <= entityLeft ||
+           entityBottom <= blockTop || blockBottom <= entityTop){
+            continue;
+        }
+        // 上下左右の重なり
+        // キャラクタの右端とブロック左端の食い込み
+        double overlapLeft = entityRight - blockLeft;
+        // キャラクタの左端とブロック右端の食い込み
+        double overlapRight = blockRight - entityLeft;
+        // キャラクタの下端とブロック上端の食い込み
+        double overlapTop = entityBottom - blockTop;
+        // キャラクタの上端とブロック下端の食い込み
+        double overlapBottom = blockBottom - entityTop;
+        
+        // 左右のどちらから来たか：true→左，false→右
+        bool leftOrRight = overlapLeft < overlapRight;
+        // 補正用変数
+        // 重なっている部分の取得
+        double horizontalOverlap = leftOrRight ? overlapLeft : overlapRight;
+        double verticalOverlap = std::min(overlapTop,overlapBottom);
+        // 矩形同士の重なりなので，重なりが浅い=本来の衝突方向とみなす
+        if(horizontalOverlap < verticalOverlap){
+            if(leftOrRight){
+                // 左補正
+                hcs.x -= overlapLeft;
+            } else {
+                // 右補正
+                hcs.x += overlapRight;
+            }
+            // 水平方向の速度は0にする
+            hcs.hv = 0.0;
+            break;  // 1フレーム1回だけ押し戻す
+        }
     }
 }

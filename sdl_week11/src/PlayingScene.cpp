@@ -101,11 +101,7 @@ void PlayingScene::render(){
     ctx.entityCtx.player.draw(ctx.renderer, ctx.camera);
     for(auto& e : ctx.entityCtx.enemies) e->draw(ctx.renderer, ctx.camera);
     // デバッグ情報表示
-    debugText->draw(
-        ctx.renderer,
-        GameConfig::WINDOW_WIDTH - debugText->getWidth(),
-        GameConfig::WINDOW_HEIGHT - debugText->getHeight()
-    );
+    debugText->draw(ctx.renderer, 20, 80);
 }
 
 /**

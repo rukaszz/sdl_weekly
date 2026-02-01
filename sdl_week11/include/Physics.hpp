@@ -21,8 +21,18 @@ struct VerticalCollisionState{
     bool   ignoreDropThrough;   // DropThroughの衝突を無視するかのフラグ
 };
 
+struct HorizontalCollisionState{
+    // 入力
+    double x;       // 今フレームの試行後のx
+    double y;       // 当たり判定のy(top)
+    double width;   // 当たり判定のw(幅)
+    double height;  // 当たり判定のh(高さ)
+    double hv;      // 水平速度
+};
+
 namespace Physics{
     void resolveVerticalBlockCollision(VerticalCollisionState& vcs, const std::vector<Block>& blocks);
+    void resolveHorizontalBlockCollision(HorizontalCollisionState& hcs, const std::vector<Block>& blocks);
 }
 
 #endif  // PHYSICS_H
