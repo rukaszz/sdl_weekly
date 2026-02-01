@@ -27,6 +27,7 @@ Enemy::Enemy(Texture& tex)
     : Character(
         0, 0,                               // 初期座標
         100.0,                              // speed
+        0.0,                                // 水平速度
         0.0,                                // 垂直速度
         Direction::Right,                   // dir
         tex,                                // texture

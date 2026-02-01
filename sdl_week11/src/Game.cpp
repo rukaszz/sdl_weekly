@@ -56,12 +56,7 @@ Game::Game(){
  * 
  */
 Game::~Game(){
-    /*
-     * Gameオブジェクトが破棄されたあとにSDLの終了処理を実施する
-     * →リーク回避のため
-     * DBusのリークはSDL_Linux側の問題なので無視
-     */
-    // quitSDL();
+
 }
 
 /**
@@ -82,7 +77,7 @@ void Game::bootstrapWindowAndRenderer(){
 void Game::loadResources(){
     // プレイヤー
     playerTexture = std::make_unique<Texture>(renderer->get(), "assets/image/rhb.png");
-    // 敵(とりあえず5体表示)
+    // 敵
     enemyTexture = std::make_unique<Texture>(renderer->get(), "assets/image/dark_rhb.png");
     // テキスト
     font = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);

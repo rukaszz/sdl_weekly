@@ -27,6 +27,8 @@ private:
     // コヨーテタイム
     // ※落下判定の初期段階でジャンプを許可するやつ
     double coyoteTimer = 0.0;
+    // 接地直前でもジャンプ可能とする時間の猶予
+    double jumpableBufferTimer = 0.0;
 public:
     // 定数
     // アニメーション枚数

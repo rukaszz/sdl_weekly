@@ -44,6 +44,8 @@ protected:
     // collisionRectベースの1フレーム前のRect.y+Rect.h
     // getCollisionRect(当たり判定用に縮めたRect)ベースのbottom．敵との踏みつけ判定などキャラクタ同士の衝突専用
     double prevFeetCollision;   // 踏みつけ処理などで用いる 
+    // 水平速度(horizontal verocity)
+    double hv;
     // 垂直速度(vertical verocity)
     double vv;
     // 向き
@@ -57,6 +59,7 @@ public:
     Character(
         double x, double y,
         double speed,
+        double hv,
         double vv,
         Direction dir,
         Texture& tex,

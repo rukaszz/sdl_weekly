@@ -11,9 +11,12 @@ struct PlayerConfig{
     static inline constexpr double PLAYER_GRAVITY  = 880.0; // キャラクタの重力
     static inline constexpr double JUMP_VELOCITY  = 440.0;  // ジャンプ速度
     static inline constexpr double eps  = 1.0;    // 踏みつけ時の若干の許容範囲ε
-    static inline constexpr double COYOTE_TIME = 0.08;  // 約5フレーム(0.016*5)
-    static inline constexpr double JUMP_HOLD_MAX_TIME = 0.3;    // 300ms程度の猶予
-
+    static inline constexpr double COYOTE_TIME = 0.08;  // コヨーテタイム猶予：約5フレーム(0.016*5)
+    static inline constexpr double JUMP_HOLD_MAX_TIME = 0.3;    // ジャンプボタン持続押下：300ms程度の猶予
+    // static inline constexpr double RUN_MAX_SPEED = 200.0;    // 最高水平方向速度[px/s]
+    static inline constexpr double ACCELERATION = 2000.0;    // 加速度[px/s^2]
+    static inline constexpr double FRICTION = 500.0;    // 摩擦係数[px/s^2]
+    static inline constexpr double JUMPABLE_BUFFER_TIME = 0.08;  // 接地直前でもジャンプ可能となる猶予：約5フレーム(0.016*5)
 };
 
 #endif  // PLAYERCONFIG_H
