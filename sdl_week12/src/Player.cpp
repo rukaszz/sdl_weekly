@@ -87,7 +87,11 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
  * @return SDL_Rect 
  */
 SDL_Rect Player::getCollisionRect() const{
-    return {(int)x+40, (int)y+40, sprite.getDrawWidth()-60, sprite.getDrawHeight()-60};
+    return {
+        static_cast<int>(x) + PlayerConfig::COLLISION_MARGIN_X, 
+        static_cast<int>(y) + PlayerConfig::COLLISION_MARGIN_Y,
+        sprite.getDrawWidth() - PlayerConfig::COLLISION_MARGIN_X *2,
+        sprite.getDrawHeight() - PlayerConfig::COLLISION_MARGIN_Y * 2};
 }
 
 /**
@@ -251,7 +255,8 @@ void Player::physicsProcessing(const std::vector<Block>& blocks, const bool drop
     // 移動後の(このフレームの)頭頂の位置の計算
     double newTop = y;
     // 移動後の(このフレームの)足元の位置の計算
-    double newFeet = y + sprite.getDrawHeight();
+    const double sprite_H = static_cast<double>(sprite.getDrawHeight());
+    double newFeet = y + sprite_H;
 
     // 縦方向の補正
     // DTO作成
@@ -266,18 +271,21 @@ void Player::physicsProcessing(const std::vector<Block>& blocks, const bool drop
         .onGround = onGround, 
         .ignoreDropThrough = dropThrough
     };
-    Physics::resolveVerticalBlockCollision(vcs, blocks);
-    // 帰ってきた結果をPlayerの内部へ反映する
-    y        = vcs.newFeet - sprite.getDrawHeight();
-    vv       = vcs.vv;
-    onGround = vcs.onGround;
-
-    Physics::resolveFromBottom(vcs, blocks);
-    y = vcs.newTop;
-    vv = vcs.vv;
-    if(vv == 0.0){
-        isJumping   = false;
-        jumpElapsed = 0.0;
+    // 垂直速度で判定を分岐する
+    if (vv > 0.0) {
+        // 落下：床判定だけ
+        Physics::resolveBlockCollisionFromTop(vcs, blocks);
+        y        = vcs.newFeet - sprite_H;
+        vv       = vcs.vv;
+        onGround = vcs.onGround;
+    } else if (vv < 0.0) {
+        // 上昇：天井判定だけ
+        Physics::resolveBlockCollisionFromBottom(vcs, blocks);
+        y  = vcs.newTop;
+        vv = vcs.vv;
+        // onGround は false のまま
+    } else {
+        // vv == 0.0 → 何もしない
     }
 
     // 横方向の補正
@@ -291,7 +299,7 @@ void Player::physicsProcessing(const std::vector<Block>& blocks, const bool drop
     };
     Physics::resolveHorizontalBlockCollision(hcs, blocks);
     // 帰ってきた結果をPlayer内部へ反映
-    x = hcs.x - 40.0;   // getCollisionRectのオフセット(現状はハードコード)
+    x = hcs.x - PlayerConfig::COLLISION_MARGIN_X;   // getCollisionRectのオフセット(現状はハードコード)
     hv = hcs.hv;
 
     // 状態の整理

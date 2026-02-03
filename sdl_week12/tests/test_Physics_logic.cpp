@@ -21,7 +21,7 @@ TEST(PhysicsTests, FallWithoutBlocks_NoLanding){
     };
     std::vector<Block> blocks;  // 空
 
-    Physics::resolveVerticalBlockCollision(vcs, blocks);
+    Physics::resolveBlockCollisionFromTop(vcs, blocks);
 
     // ブロックが空→newFeet/vv/onGroundはそのまま
     EXPECT_DOUBLE_EQ(vcs.newFeet, 100.0);
@@ -55,7 +55,7 @@ TEST(PhysicsTests, LandOnStandableBlock){
     };
     std::vector<Block> blocks{floor};
 
-    Physics::resolveVerticalBlockCollision(vcs, blocks);
+    Physics::resolveBlockCollisionFromTop(vcs, blocks);
 
     // newFeetはblockTopへクランプされる
     EXPECT_DOUBLE_EQ(vcs.newFeet, floor.y);
@@ -90,7 +90,7 @@ TEST(PhysicsTests, NoCollisionWhenNotOverlappingHorizontally) {
     };
     std::vector<Block> blocks{floor};
 
-    Physics::resolveVerticalBlockCollision(vcs, blocks);
+    Physics::resolveBlockCollisionFromTop(vcs, blocks);
 
     // x が離れているので接地しない→newFeet/vv/onGroundはそのまま
     EXPECT_DOUBLE_EQ(vcs.newFeet, 110.0);
@@ -124,7 +124,7 @@ TEST(PhysicsTests, DropThrough_ActsAsStandableWhenNotIgnored) {
     };
     std::vector<Block> blocks{floor};
 
-    Physics::resolveVerticalBlockCollision(vcs, blocks);
+    Physics::resolveBlockCollisionFromTop(vcs, blocks);
 
     // すり抜け床だがignoreDropThrough=falseなので通常ブロックとして着地する
     EXPECT_DOUBLE_EQ(vcs.newFeet, floor.y);
@@ -158,7 +158,7 @@ TEST(PhysicsTests, DropThrough_IgnoredWhenFlagSet_DropStarts) {
     };
     std::vector<Block> blocks{floor};
 
-    Physics::resolveVerticalBlockCollision(vcs, blocks);
+    Physics::resolveBlockCollisionFromTop(vcs, blocks);
 
     // DropThrough を無視しているので「着地しない」＝ newFeet, vv はそのまま / onGround=false
     EXPECT_DOUBLE_EQ(vcs.newFeet, 105.0);   // clamp されない
@@ -193,7 +193,7 @@ TEST(PhysicsTests, DropThrough_OncePassedTop_DoesNotRelandLater) {
         .ignoreDropThrough = true    // このフレームだけ無視の入力
     };
     // フレームNの処理
-    Physics::resolveVerticalBlockCollision(dropFrame, blocks);
+    Physics::resolveBlockCollisionFromTop(dropFrame, blocks);
 
     // この時点で床を離れている想定
     EXPECT_FALSE(dropFrame.onGround);
@@ -210,7 +210,7 @@ TEST(PhysicsTests, DropThrough_OncePassedTop_DoesNotRelandLater) {
         .ignoreDropThrough = false    // もう無視フラグはfalseに戻っている
     };
     // フレームN+1の処理
-    Physics::resolveVerticalBlockCollision(nextFrame, blocks);
+    Physics::resolveBlockCollisionFromTop(nextFrame, blocks);
 
     // prevFeet > blockTop なので縦方向条件(prevFeet <= blockTop)を満たさない
     // clampされず2度とこの床には乗らない
@@ -253,7 +253,7 @@ TEST(PhysicsTests, IgnoreDamageAndClearBlocksForLanding) {
     };
     std::vector<Block> blocks{damage, clear};
 
-    Physics::resolveVerticalBlockCollision(vcs, blocks);
+    Physics::resolveBlockCollisionFromTop(vcs, blocks);
 
     // DamageとClear は着地処理には使われない前提なので無視される→newFeet/vv/onGroundはそのまま
     EXPECT_DOUBLE_EQ(vcs.newFeet, 110.0);

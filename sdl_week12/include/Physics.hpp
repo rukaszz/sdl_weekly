@@ -6,7 +6,7 @@
 
 /**
  * @brief ゲーム画面で物理的な挙動をするオブジェクトのprivateなメンバ変数を渡すための構造体
- * データ転送オブジェクト(DTO)
+ * 垂直方向用データ転送オブジェクト(DTO)
  * 参照渡しなので，出力もnewFeet/vv/onGroundが上書きされる
  * 
  */
@@ -23,6 +23,11 @@ struct VerticalCollisionState{
     bool   ignoreDropThrough;   // DropThroughの衝突を無視するかのフラグ
 };
 
+/**
+ * @brief ゲーム画面で物理的な挙動をするオブジェクトのprivateなメンバ変数を渡すための構造体
+ * 水平方向用データ転送オブジェクト(DTO)
+ * 参照渡しなので，出力もx/vvが上書きされる
+ */
 struct HorizontalCollisionState{
     // 入力
     double x;       // 今フレームの試行後のx
@@ -33,9 +38,9 @@ struct HorizontalCollisionState{
 };
 
 namespace Physics{
-    void resolveVerticalBlockCollision(VerticalCollisionState& vcs, const std::vector<Block>& blocks);
     void resolveHorizontalBlockCollision(HorizontalCollisionState& hcs, const std::vector<Block>& blocks);
-    void resolveFromBottom(VerticalCollisionState& vcs, const std::vector<Block>& blocks);
+    void resolveBlockCollisionFromBottom(VerticalCollisionState& vcs, const std::vector<Block>& blocks);
+    void resolveBlockCollisionFromTop(VerticalCollisionState& vcs, const std::vector<Block>& blocks);
 }
 
 #endif  // PHYSICS_H
