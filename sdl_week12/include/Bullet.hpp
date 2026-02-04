@@ -1,9 +1,9 @@
 #ifndef BULLET_H
 #define BULLET_H
 
+#include "Direction.hpp"
 #include "AnimationController.hpp"
 #include "Sprite.hpp"
-#include "Input.hpp"
 
 #include <vector>
 
@@ -11,25 +11,6 @@ class Texture;
 class Renderer;
 struct Block;
 struct Camera;
-
-// 投射物の向き
-enum class Direction{
-    Left, 
-    Right
-};
-
-// 描画境界
-struct DrawBounds{
-    double drawableWidth;
-    double drawableHeight;
-};
-
-// キャラクタのサイズ(矩形)
-struct BulletBounds
-{
-    double x, y, w, h;
-};
-
 
 class Bullet{
 protected:
@@ -58,7 +39,7 @@ public:
         double animInterval
     );
     virtual ~Bullet();
-    virtual void update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks) = 0;
+    virtual void update(double delta, const std::vector<Block>& blocks) = 0;
     virtual void draw(Renderer& renderer, Camera& camera);
 
     virtual SDL_Rect getCollisionRect() const = 0;

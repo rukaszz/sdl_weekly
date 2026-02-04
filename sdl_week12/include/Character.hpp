@@ -1,6 +1,8 @@
 #ifndef CHARACTER_H
 #define CHARACTER_H
 
+#include "Direction.hpp"
+#include "DrawBounds.hpp"
 #include "AnimationController.hpp"
 #include "Sprite.hpp"
 #include "Input.hpp"
@@ -12,23 +14,6 @@ class Renderer;
 struct Block;
 struct Camera;
 
-// キャラクタの向き
-enum class Direction{
-    Left, 
-    Right
-};
-
-// 描画境界
-struct DrawBounds{
-    double drawableWidth;
-    double drawableHeight;
-};
-
-// キャラクタのサイズ(矩形)
-struct CharaBounds
-{
-    double x, y, w, h;
-};
 
 
 class Character{

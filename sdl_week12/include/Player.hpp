@@ -3,6 +3,8 @@
 
 // 定数
 #include "PlayerConfig.hpp"
+#include "Direction.hpp"
+#include "DrawBounds.hpp"
 
 #include "Character.hpp"
 #include "AnimationController.hpp"

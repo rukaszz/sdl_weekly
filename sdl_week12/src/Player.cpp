@@ -5,6 +5,8 @@
 #include "Block.hpp"
 #include "Physics.hpp"
 
+#include "Direction.hpp"
+#include "DrawBounds.hpp"
 #include "GameConfig.hpp"
 #include "PlayerConfig.hpp"
 

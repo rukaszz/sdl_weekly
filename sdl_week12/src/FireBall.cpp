@@ -4,27 +4,24 @@
 #include "Texture.hpp"
 #include "Camera.hpp"
 
+#include "FireBallConfig.hpp"
+
 #include <algorithm>
 
-FireBall::FireBall(
-    double x_, double y_,
-    double hv_,
-    double vv_,
-    Direction dir_,
-    Texture& tex,
-    int frameW, int frameH,
-    int maxFrames,
-    double animInterval
-)
-    : x(x_)
-    , y(y_)
-    , hv(hv_)
-    , vv(vv_)
-    , dir(dir_)
-    , anim(maxFrames, animInterval)
-    , sprite(tex, frameW, frameH)
+FireBall::FireBall(double x, double y, Direction dir, Texture& tex)
+    : Bullet(
+        x, y,   // x, y
+        (dir == Direction::Right ? FireBallConfig::SPEED_X : -FireBallConfig::SPEED_X),     // hv
+        0.0,    // vv
+        dir,    //dir
+        tex,    // tex
+        FireBallConfig::FRAME_W,    // frameW 
+        FireBallConfig::FRAME_H,    // frameH
+        FireBallConfig::NUM_FRAMES, // maxFrames    
+        FireBallConfig::ANIM_INTERVAVL  // animInterval
+    )
 {
-
+    sprite.setFrame(0);
 }
 
 /**
@@ -33,8 +30,13 @@ FireBall::FireBall(
  */
 FireBall::~FireBall() = default;
 
-FireBall::update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks);
+void FireBall::update(double delta, DrawBounds bounds, const std::vector<Block>& blocks){
+    // TODO: FireBallの更新
+}
 
-FireBall::getCollisionRect()
+SDL_Rect FireBall::getCollisionRect() const{
+    // TODO: 当たり判定用の矩形を返却
+    return SDL_Rect{0, 0, 0, 0};
+}
 
 

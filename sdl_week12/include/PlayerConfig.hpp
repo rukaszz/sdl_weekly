@@ -8,8 +8,8 @@ struct PlayerConfig{
     static inline constexpr int FRAME_W = 114;  // スプライトの幅
     static inline constexpr int FRAME_H = 110;  // スプライトの高さ
     static inline constexpr int NUM_FRAMES = 8; // スプライトアニメーション枚数
-    static inline constexpr int COLLISION_MARGIN_X = 40;
-    static inline constexpr int COLLISION_MARGIN_Y = 40;
+    static inline constexpr int COLLISION_MARGIN_X = 40;    // スプライト(矩形)の水平方向の補正
+    static inline constexpr int COLLISION_MARGIN_Y = 40;    // スプライト(矩形)の垂直方向の補正
     
     static inline constexpr double PLAYER_GRAVITY  = 880.0; // キャラクタの重力
     static inline constexpr double JUMP_VELOCITY  = 440.0;  // ジャンプ速度

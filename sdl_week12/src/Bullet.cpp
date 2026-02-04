@@ -70,13 +70,3 @@ void Bullet::setPosition(double coorX, double coorY){
     x = coorX;
     y = coorY;
 }
-
-/**
- * @brief 画面外へはみ出さないように補正する処理
- * 
- * @param b 
- */
-void Bullet::clampToBounds(const DrawBounds& b){
-    x = std::clamp(x, 0.0, b.drawableWidth - sprite.getDrawWidth());
-    y = std::clamp(y, 0.0, b.drawableHeight - sprite.getDrawHeight());
-}
