@@ -1298,6 +1298,14 @@ resolveVertical/HorizontalBlockCollision()はなるべく純粋な計算で成�
     - FireBall を非活性化
     - 敵撃破スコアを加算
 
+### week13の予定
+
+ファイアボールの骨子は完成したとみなして，次は敵のバリエーションを増やす．具体的には敵に簡単なAIを状態を持たせ，3種類を実装予定である：
+
+- これまでのように歩き続けるWalker
+- プレイヤーを追いかけるChaser
+- 予測しにくい動作をするJumper
+
 ## アセット
 
 詳細はATTRIBUTIONを参照．
