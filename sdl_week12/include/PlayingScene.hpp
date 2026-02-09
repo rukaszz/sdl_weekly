@@ -26,6 +26,7 @@ public:
     virtual void onEnter() override;
     virtual void onExit() override;
 
+private:
     void updateScore(double delta);
     void updateEntities(double delta, DrawBounds b);
     void updateCamera();
@@ -34,6 +35,9 @@ public:
     void resolveBlockCollision();
     void resolveEnemyCollision(double prevFeet);
     void hasFallenToGameOver();
+    bool checkBoundsforFireBalls(SDL_Rect fr, const double world_W, const double world_H);
+    void cleanupFireBalls();
+    void resolveFireBallEnemyCollision();
 
 };
 

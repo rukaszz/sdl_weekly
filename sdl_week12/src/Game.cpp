@@ -16,6 +16,7 @@
 #include "Character.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
+#include "FireBall.hpp"
 #include "Game.hpp"
 #include "GameUtil.hpp"
 #include "Text.hpp"
@@ -79,6 +80,8 @@ void Game::loadResources(){
     playerTexture = std::make_unique<Texture>(renderer->get(), "assets/image/rhb.png");
     // 敵
     enemyTexture = std::make_unique<Texture>(renderer->get(), "assets/image/dark_rhb.png");
+    // ファイアボール
+    fireballTexture = std::make_unique<Texture>(renderer->get(), "assets/image/fireball.png");
     // テキスト
     font = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
     // スコア
@@ -131,7 +134,9 @@ void Game::buildContexts(){
             *player,
             *enemyTexture,
             enemies,    // 空vector
-            blocks      // 空vector
+            blocks,     // 空vector
+            *fireballTexture, 
+            fireballs   // 空vector
         }, 
         TextRenderContext{
             *font,
@@ -292,47 +297,6 @@ void Game::run(){
     }
 }
 
-/*
-void Game::run(){
-    Uint64 frequency = SDL_GetPerformanceFrequency();
-    Uint64 lastCounter = SDL_GetPerformanceCounter();
-    
-    // FPS 計測用(これはミリ秒で十分)
-    Uint32 fpsTimer = SDL_GetTicks();
-    int fpsCounter = 0;
-
-    while(running){
-        // 時間の計測
-        // フレーム開始点
-        Uint32 frameStartMs = SDL_GetTicks();
-        // 時間開始点
-        Uint64 nowCounter = SDL_GetPerformanceCounter();
-        // ゲーム差分delta
-        double delta = static_cast<double>(nowCounter - lastCounter) / static_cast<double>(frequency);
-        // 前回の計測点更新
-        lastCounter = nowCounter;
-        // クランプ：deltaが大きすぎて更新しすぎることを防ぐ
-        if(delta > 0.1){
-            delta = 0.1;    // 10FPSくらい
-        }
-        // 各種処理の実施
-        processEvents();
-        update(delta);
-        render();
-        // フレームレートの計算とfps計測
-        ++fpsCounter;
-        Uint32 nowMs = SDL_GetTicks();
-        if(nowMs - fpsTimer >= 1000){
-            fpsText->setText("FPS: " + std::to_string(fpsCounter));
-            fpsCounter = 0;
-            fpsTimer = nowMs;
-        }
-        // fpsキャップ(最大60fps)
-        capFrameRate(frameStartMs);
-    }
-}
-*/
-
 /**
  * @brief fpsキャップを実装(fpsを固定化するため)
  * 
@@ -356,15 +320,6 @@ void Game::capFrameRate(Uint32 frameStartMs){
         }
     }
 }
-
-/*
-void Game::capFrameRate(Uint32 frameStartMs){
-    Uint32 frameDuration = SDL_GetTicks() - frameStartMs;
-    if(frameDuration < Game::FRAME_DELAY){
-        SDL_Delay(Game::FRAME_DELAY - frameDuration);
-    }
-}
-*/
 
 /**
  * @brief ポーリング処理によるイベント管理
@@ -404,89 +359,3 @@ void Game::render(){
     currentScene->render();
     renderer->present();
 }
-
-/*
-Game::Game(){
-    // 初期化
-    // initSDL();
-    sdl = std::make_unique<SdlSystem>();
-    // ウィンドウ
-    window = std::make_unique<Window>("Test", GameConfig::WINDOW_WIDTH, GameConfig::WINDOW_HEIGHT);
-    // レンダラー
-    renderer = std::make_unique<Renderer>(window->get());
-    
-    // プレイヤー
-    playerTexture = std::make_unique<Texture>(renderer->get(), "assets/image/rhb.png");
-    player = std::make_unique<Player>(*playerTexture);
-    player->setPosition(PlayerConfig::POS_X, PlayerConfig::POS_Y);
-    // 敵(とりあえず5体表示)
-    enemyTexture = std::make_unique<Texture>(renderer->get(), "assets/image/dark_rhb.png");
-    enemies.clear();
-    // ブロックの描画情報取得
-    blocks.clear(); // ロードはloadStage()で実施
-    // 世界の広さ
-    worldInfo = {static_cast<double>(GameConfig::WINDOW_WIDTH), 
-                 static_cast<double>(GameConfig::WINDOW_HEIGHT)
-                };
-    // ブロックが置かれている範囲に応じて拡張
-    for(const auto& b : blocks){
-        worldInfo.WorldWidth = std::max(worldInfo.WorldWidth, b.x + b.w);
-        worldInfo.WorldHeight = std::max(worldInfo.WorldHeight, b.y + b.h);
-    }
-    // テキスト
-    font = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
-    // スコア
-    scoreText = std::make_unique<TextTexture>(*renderer, *font, SDL_Color{255, 255, 255, 255});
-    scoreText->setText("Score: 0");
-    // FPS
-    fpsText = std::make_unique<TextTexture>(*renderer, *font, SDL_Color{255, 255, 255, 255});
-    fpsText->setText("");
-    // input抽象化
-    input = std::make_unique<Input>();
-    // カメラ
-    camera = {0.0, 0.0, 
-              static_cast<double>(GameConfig::WINDOW_WIDTH), 
-              static_cast<double>(GameConfig::WINDOW_HEIGHT)
-            };
-    
-    // running = true;
-
-    // 乱数
-    distX = std::uniform_real_distribution<double>(GameConfig::WINDOW_WIDTH/2, GameConfig::WINDOW_WIDTH - EnemyConfig::FRAME_W);
-    distY = std::uniform_real_distribution<double>(EnemyConfig::FRAME_H, GameConfig::WINDOW_HEIGHT - EnemyConfig::FRAME_H);
-    distSpeed = std::uniform_real_distribution<double>(EnemyConfig::SPEED_MIN, EnemyConfig::SPEED_MAX);
-
-    // シーン
-    ctx = std::make_unique<GameContext>(GameContext{
-        *renderer,
-        *input, 
-        camera,
-        worldInfo, 
-        EntityContext{
-            *player,
-            *enemyTexture,
-            enemies,
-            blocks
-        }, 
-        TextRenderContext{
-            *font,
-            *scoreText,
-            *fpsText,
-        }, 
-        RandomContext{
-            rd,
-            distX,
-            distY,
-            distSpeed,
-        }
-    });
-    scenes[(int)GameScene::Title]    = std::make_unique<TitleScene>(*this, *ctx);
-    scenes[(int)GameScene::Playing]  = std::make_unique<PlayingScene>(*this, *ctx);
-    scenes[(int)GameScene::GameOver] = std::make_unique<GameOverScene>(*this, *ctx);
-    scenes[(int)GameScene::Clear]    = std::make_unique<ClearScene>(*this, *ctx);
-
-    // タイトルからスタート
-    currentScene = scenes[(int)GameScene::Title].get();
-    currentScene->onEnter();
-}
-*/

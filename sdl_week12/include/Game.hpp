@@ -10,6 +10,7 @@
 #include "Texture.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
+#include "FireBall.hpp"
 #include "Text.hpp"
 #include "TextTexture.hpp"
 #include "GameContext.hpp"
@@ -22,16 +23,6 @@
 #include <random>
 #include <optional>
 #include <array>
-
-// ゲームの状態管理
-// enum class GameScene{
-//     Title, 
-//     Playing, 
-//     GameOver, 
-//     Clear, 
-//     Count, 
-// };
-
 
 class Game : public SceneControl{
 private:
@@ -50,6 +41,8 @@ private:
     std::unique_ptr<Player> player;
     std::unique_ptr<Texture> enemyTexture;
     std::vector<std::unique_ptr<Enemy>> enemies;
+    std::unique_ptr<Texture> fireballTexture;
+    std::vector<std::unique_ptr<FireBall>> fireballs;
     // ブロック
     std::vector<Block> blocks;
     // テキスト表示用

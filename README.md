@@ -1144,7 +1144,7 @@ SDL/SDL_image/SDL_ttfの初期化・終了処理をSdlSystemに管理させる�
    - 敵生成用の乱数ディストリビューション (distX, distY, distSpeed) の設定
    - カメラの初期化
 5. buildContexts()
-   - GameContext の構築（Renderer / Input / Camera / WorldInfo / EntityContext / TextRenderContext / RandomContext）
+   - GameContext の構築(Renderer / Input / Camera / WorldInfo / EntityContext / TextRenderContext / RandomContext)
 6. buildScenes()
    - Title/Playing/GameOver/Clearの各Sceneインスタンス生成
 7. startFromTitle()
@@ -1246,6 +1246,57 @@ resolveVertical/HorizontalBlockCollision()はなるべく純粋な計算で成�
 - 複数ブロックが登場するステージで当たり判定を調整する
 - プレイヤーの攻撃手段の追加(ファイアボール)
 - 敵のバリエーションの追加(AI導入など)
+
+## week12
+
+### week12の概要
+
+実装の方針としては2つに絞った．
+1つはブロックの下から上への判定である．上から下へすり抜ける実装があるので，下方向からはすり抜けられないブロックを作成することでステージ構成に幅をもたせる．
+もう1つはファイアボールで，プレイヤーに踏みつけ以外の攻撃手段を追加する．
+
+### FireBallのスプライトシート作成
+
+簡単なファイアボールアニメーションができるスプライトシートを作成した．大きさは縦横比で64*(64*4)という4枚構成で，大きかったので32pxという半分のサイズに縮小した．
+
+使用したツールはGimpである．ベースとなる赤と白のコアと，外側にフレアのようなオレンジ色の光で炎を表現している．
+
+詳しくは「assets/image/fireball.png」を参照．
+
+### week12の実装内容
+
+- 垂直方向の当たり判定の拡張
+  - 既存の下方向への判定処理を拡張し，1フレーム前の頭頂(prevTop)/足元(prevFeet)と，移動後の頭頂 (newTop)/足元(newFeet)をサンプリングする仕組みを導入
+    - VerticalCollisionStateを拡張し，床・天井との衝突判定に必要な情報をまとめて Physicsモジュールへ渡すように変更した
+  - 1回の接触判定中に，床上床下両方の判定が必要になることは無いと仮定し，垂直速度vvの符号に応じて処理を分割：
+    - vv > 0 のときは床側との接触(resolveBlockCollisionFromTop)だけを実行
+    - vv < 0 のときは天井との接触処理(resolveBlockCollisionFromBottom)だけを実行
+  - これにより，ジャンプ中の天井ヒットと落下中の床着地を安定して検出できるようになった
+
+- Player物理処理の整理
+  - Playerのupdate内で，「移動後の座標」からVerticalCollisionStateを組み立ててPhysicsに渡す形にリファクタリング
+  - 衝突解決後のy/vv/onGroundをPlayer側に正しく反映するようにし，  頭をぶつけた直後の isJumping / jumpElapsed が破綻しないように状態リセット処理を実装した
+  - 当たり判定矩形とスプライトの描画矩形を切り離すために，PlayerConfig::COLLISION_MARGIN_X/Yを導入してハードコードを抑えた
+    - getCollisionRect()で余白を差し引いたヒットボックスを返すように明示して，当たり判定を微調整
+
+- 飛び道具システム(Bullet/FireBall)の導入
+  - 共通の弾クラスとしてBulletを追加し，ゲームに必要な要素を持つインターフェイスとした
+    - 座標(x, y)，速度(hv, vv)，向き(Direction)，アニメーション (AnimationController)，スプライト (Sprite) を持つ
+  - FireBall専用の設定をFireBallConfigに切り出し：
+    - 初速 (SPEED_X)
+    - 重力 (GRAVITY)
+    - 反発係数 (BOUNCE)
+    - スプライトシートの1コマサイズ/コマ数/アニメーション間隔などを定義．
+  - Action::Fire(Bボタン)入力に応じて，Playerのキャラクタ中心からFireBallを生成する処理をPlayingSceneに実装した
+  - FireBallに対して重力＋床バウンドの挙動を実装し，片付ける処理も実装している：
+    - 一定以下の速度になった
+    - 規定回数以上バウンドした
+    - 画面(ワールド)外へ出た
+  - 上記のいずれかの条件を満たしたタイミングで非活性化してcleanupFireBalls()で削除するライフサイクルで設計した
+  - FireBallとEnemyの当たり判定(resolveFireBallEnemyCollision)を追加し，命中時に以下の処理を実施する：
+    - Enemy を Dying 状態へ遷移
+    - FireBall を非活性化
+    - 敵撃破スコアを加算
 
 ## アセット
 

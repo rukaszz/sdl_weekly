@@ -4,6 +4,7 @@
 #include "Texture.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
+#include "FireBall.hpp"
 
 #include <vector>
 #include <random>
@@ -36,6 +37,8 @@ struct EntityContext{
     Texture& enemyTexture;
     std::vector<std::unique_ptr<Enemy>>& enemies;
     std::vector<Block>& blocks;
+    Texture& fireballTexture;
+    std::vector<std::unique_ptr<FireBall>>& fireballs;
 };
 
 /**

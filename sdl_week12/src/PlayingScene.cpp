@@ -1,9 +1,12 @@
-#include "GameUtil.hpp"
-#include "PlayerEnemyCollisionUtil.hpp"
-#include "GameConfig.hpp"
 #include "PlayingScene.hpp"
-#include "Game.hpp"
+#include "PlayerEnemyCollisionUtil.hpp"
 #include "Renderer.hpp"
+#include "Game.hpp"
+#include "GameUtil.hpp"
+
+#include "GameConfig.hpp"
+#include "EnemyConfig.hpp"
+#include "FireBallConfig.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -46,6 +49,15 @@ void PlayingScene::update(double delta){
         ctrl.requestScene(GameScene::Title);
         return;
     }
+    if(is.justPressed[static_cast<int>(Action::Fire)]){
+        double spawn_X = ctx.entityCtx.player.getEntityCenter_X();
+        double spawn_Y = ctx.entityCtx.player.getEntityCenter_Y();
+        Direction dir = ctx.entityCtx.player.getDirection();
+
+        ctx.entityCtx.fireballs.emplace_back(
+            std::make_unique<FireBall>(spawn_X, spawn_Y, dir, ctx.entityCtx.fireballTexture)
+        );
+    }
     // 1. 衝突処理用の前フレームのプレイヤー下部をサンプリング
     // 必ず各種Collision判定前に呼ぶ必要がある
     // 呼び出し順序に注意すること
@@ -62,6 +74,8 @@ void PlayingScene::update(double delta){
     hasFallenToGameOver();
     // 7. カメラ座標の更新
     updateCamera();
+    // 8. ファイアボールの片付け
+    cleanupFireBalls();
     // デバッグ情報取得
     debugText->setText(ctx.entityCtx.player.debugMoveContext());
 }
@@ -95,6 +109,9 @@ void PlayingScene::render(){
         SDL_Rect r = {static_cast<int>(b.x), static_cast<int>(b.y),
                       static_cast<int>(b.w), static_cast<int>(b.h)};
         ctx.renderer.drawRect(r, blockColor, ctx.camera);
+    }
+    for(const auto& f : ctx.entityCtx.fireballs){
+        f->draw(ctx.renderer, ctx.camera);
     }
     // キャラクタ描画
     // カメラを考慮した書き方にする
@@ -158,6 +175,8 @@ void PlayingScene::updateScore(double delta){
 void PlayingScene::updateEntities(double delta, DrawBounds b){
     // キーの状態取得
     const InputState& is = ctx.input.getState();
+    // ファイアボール
+    for(auto& f : ctx.entityCtx.fireballs) f->update(delta, ctx.entityCtx.blocks);
     // キャラクタの更新
     // Player
     ctx.entityCtx.player.update(delta, is, b, ctx.entityCtx.blocks);
@@ -187,6 +206,8 @@ void PlayingScene::detectCollision(){
     resolveEnemyCollision(ctx.entityCtx.player.getPrevFeetCollision());
     // ダメージブロックとの衝突判定
     resolveBlockCollision();
+    // 敵とファイアボールの接触判定
+    resolveFireBallEnemyCollision();
 }
 
 /**
@@ -282,5 +303,96 @@ void PlayingScene::hasFallenToGameOver(){
     if (playerBottom > death_Y){
         ctrl.requestScene(GameScene::GameOver);
         return;
+    }
+}
+
+/**
+ * @brief ファイアボールの画面外判定を返す
+ * 
+ * @return true 
+ * @return false 
+ */
+bool PlayingScene::checkBoundsforFireBalls(SDL_Rect fr, const double world_W, const double world_H){
+    // ファイアボールのマージン
+    const double margin_H = FireBallConfig::FRAME_H;
+    const double margin_W = FireBallConfig::FRAME_W;
+    
+    // ファイアボール端の座標を取得
+    double top    = fr.y;
+    double bottom = fr.y + fr.h;
+    double right  = fr.x + fr.w;
+    double left   = fr.x;
+
+    // ワールド外へ出たFireBallは消す
+    // 上下左右判定
+    if(bottom < 0.0 - margin_H)       return true;    // 上に消えた
+    if(top    > world_H + margin_H)   return true;    // 下に消えた
+    if(right  < 0.0 - margin_W)       return true;    // 左に消えた
+    if(left   > world_W + margin_W)   return true;    // 右に消えた
+
+    return false;
+}
+
+/**
+ * @brief 画面外へ出たファイアボールを消す
+ * 
+ */
+void PlayingScene::cleanupFireBalls(){
+    // ファイアボール取得
+    auto& fireballs = ctx.entityCtx.fireballs;
+
+    // それぞれのファイアボールの状態を確認して片付ける
+    // 条件を満たすファイアボールを除いた配列を取得
+    auto it = std::remove_if(
+        fireballs.begin(), 
+        fireballs.end(), 
+        [&](const std::unique_ptr<FireBall>& f){
+            if(!f->isActive()){
+                return true;
+            }
+            SDL_Rect fr = f->getCollisionRect();
+            return checkBoundsforFireBalls(fr, ctx.worldInfo.WorldWidth, ctx.worldInfo.WorldHeight);
+        }
+    );
+    // remove_ifで消える要素はイテレータ範囲外へ動くのでeraseで消える
+    fireballs.erase(it, fireballs.end());
+}
+
+/**
+ * @brief 敵とファイアボールの接触判定処理
+ * 
+ */
+void PlayingScene::resolveFireBallEnemyCollision(){
+    // ファイアボール取得
+    auto& fireballs = ctx.entityCtx.fireballs;
+    // 敵を取得
+    auto& enemies   = ctx.entityCtx.enemies;
+
+    // それぞれの接触判定
+    for(auto& f : fireballs){
+        // 非活性のものは処理しない
+        if(!f->isActive()){
+            continue;
+        }
+        // 接触判定用矩形取得
+        SDL_Rect fbr = f->getCollisionRect();
+        // 敵との判定処理
+        for(auto& e : enemies){
+            // 非活性の敵は処理しない
+            if(!e->isAlive()){
+                continue;
+            }
+            // 接触判定用矩形取得
+            SDL_Rect er = e->getCollisionRect();
+            // 接触判定
+            if(!GameUtil::intersects(fbr, er)){
+                continue;   // 接触していないのは無視
+            }
+            // 命中時の処理
+            e->startDying();    // 敵はDying状態へ
+            f->deactivate();      // ファイアボールは非活性化
+            ctrl.setScore(ctrl.getScore() + EnemyConfig::SCORE_AT_DEATH);   // 敵削除時のスコア加算
+            break;  // ファイアボールは1体にヒットしたら終わる(貫通しない)
+        }
     }
 }

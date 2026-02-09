@@ -41,6 +41,9 @@ public:
     void update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks) override;
     SDL_Rect getCollisionRect() const override;
     void reset();
+    Direction getDirection() const{
+        return dir;
+    }
     // デバッグ用テキスト表示用getter
     std::string debugMoveContext();
 private:

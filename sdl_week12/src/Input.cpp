@@ -26,6 +26,8 @@ Action Input::actionKeyMap(SDL_Keycode k){
         return Action::MoveDown;
     case SDLK_SPACE:
         return Action::Jump;
+    case SDLK_b:
+        return Action::Fire;
     case SDLK_ESCAPE:
         return Action::Pause;
     case SDLK_RETURN:

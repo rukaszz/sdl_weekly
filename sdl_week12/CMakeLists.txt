@@ -47,6 +47,7 @@ add_executable(${PROJECT_NAME}
     src/PlayerEnemyCollisionUtil.cpp
     src/SdlSystem.cpp
     src/Bullet.cpp
+    src/FireBall.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

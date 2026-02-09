@@ -19,6 +19,7 @@ enum class Action{
     MoveUp, 
     MoveDown,
     Jump, 
+    Fire, 
     Pause,
     Enter,
     Count,  // 配列サイズ用    
@@ -42,6 +43,7 @@ static const std::unordered_map<Action, std::string> ActionNames{
     {Action::MoveUp, "MoveUp"},
     {Action::MoveDown, "MoveDown"},
     {Action::Jump, "Jump"},
+    {Action::Fire, "Fire"},
     {Action::Pause, "Pause"},
     {Action::Enter, "Enter"},
     {Action::None, "None"},
