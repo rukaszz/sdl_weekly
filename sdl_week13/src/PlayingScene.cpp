@@ -11,6 +11,8 @@
 #include <SDL2/SDL.h>
 
 #include <algorithm>
+#include <vector>
+#include <cmath>
 
 /**
  * @brief Construct a new Playing Scene:: Playing Scene object
@@ -39,42 +41,39 @@ void PlayingScene::handleEvent(const SDL_Event& e){
 
 /**
  * @brief ゲーム画面の更新処理
+ * 呼び出し順序は記載の方法で実施すること
+ * パイプライン方式で処理の結果が伝搬していく
  * 
  * @param delta 
  */
 void PlayingScene::update(double delta){
+    // 1. 入力の受け入れ
     // エスケープキーでTitleへの遷移
     const InputState& is = ctx.input.getState();
-    if(is.justPressed[(int)Action::Pause]){
-        ctrl.requestScene(GameScene::Title);
-        return;
-    }
-    if(is.justPressed[static_cast<int>(Action::Fire)]){
-        double spawn_X = ctx.entityCtx.player.getEntityCenter_X();
-        double spawn_Y = ctx.entityCtx.player.getEntityCenter_Y();
-        Direction dir = ctx.entityCtx.player.getDirection();
-
-        ctx.entityCtx.fireballs.emplace_back(
-            std::make_unique<FireBall>(spawn_X, spawn_Y, dir, ctx.entityCtx.fireballTexture)
-        );
-    }
-    // 1. 衝突処理用の前フレームのプレイヤー下部をサンプリング
+    handlePlayingInput(is);
+    // 2. 衝突処理用の前フレームのプレイヤー座標をサンプリング
     // 必ず各種Collision判定前に呼ぶ必要がある
     // 呼び出し順序に注意すること
     ctx.entityCtx.player.beginFrameCollisionSample();
-    // 2. worldInfoを用いた幅のクランプ処理
+    // 3. worldInfoを用いた幅のクランプ処理
     DrawBounds worldBounds = {ctx.worldInfo.WorldWidth, ctx.worldInfo.WorldHeight};
-    // 3. スコア更新
+    // 4. スコア更新
     updateScore(delta);
-    // 4. Characterの更新
+    // 5. 敵センサの収集とAIの更新
+    std::vector<EnemySensor> enemySensors;
+    // 敵の数だけ領域を確保
+    enemySensors.reserve(ctx,EntityCtx.enemies.size());
+    gatherEnemySensors(delta, enemySensors);
+    runEnemyAI(delta, enemySensors);
+    // 6. 物理の更新
     updateEntities(delta, worldBounds);
-    // 5. Playerとの当たり判定
+    // 7. Playerとの当たり判定
     detectCollision();
-    // 6. 落下死判定
+    // 8. 落下死判定
     hasFallenToGameOver();
-    // 7. カメラ座標の更新
+    // 9. カメラ座標の更新
     updateCamera();
-    // 8. ファイアボールの片付け
+    // 10. ファイアボールの片付け
     cleanupFireBalls();
     // デバッグ情報取得
     debugText->setText(ctx.entityCtx.player.debugMoveContext());
@@ -122,25 +121,6 @@ void PlayingScene::render(){
 }
 
 /**
- * @brief camera更新用関数
- * Playerがカメラの中心に来る
- * ただしclamp処理があるため，画面端ではplayerに追従しない
- * 
- */
-void PlayingScene::updateCamera(){
-    auto& player = ctx.entityCtx.player;
-    // playerの中央
-    const double playerCenter_X = player.getEntityCenter_X();
-
-    // プレイヤーを画面中央付近へ維持する
-    ctx.camera.x = playerCenter_X - (ctx.camera.width / 2.0);
-
-    // WorldInfo.WorldWidthでクランプする
-    const double maxCamera_X = std::max(0.0, (ctx.worldInfo.WorldWidth - ctx.camera.width));
-    ctx.camera.x = std::clamp(ctx.camera.x, 0.0, maxCamera_X);
-}
-
-/**
  * @brief PlayingSceneへ入った際の初期化処理
  * 
  */
@@ -155,6 +135,28 @@ void PlayingScene::onEnter(){
  */
 void PlayingScene::onExit(){
 
+}
+
+/**
+ * @brief 入力の処理
+ * 
+ */
+void PlayingScene::handlePlayingInput(const InputState& is){
+    if(is.justPressed[(int)Action::Pause]){
+        ctrl.requestScene(GameScene::Title);
+        return;
+    }
+    // bキーでファイアボール発射
+    if(is.justPressed[static_cast<int>(Action::Fire)]){
+        // 出現位置と向きの設定
+        double spawn_X = ctx.entityCtx.player.getEntityCenter_X();
+        double spawn_Y = ctx.entityCtx.player.getEntityCenter_Y();
+        Direction dir = ctx.entityCtx.player.getDirection();
+        // インスタンス化
+        ctx.entityCtx.fireballs.emplace_back(
+            std::make_unique<FireBall>(spawn_X, spawn_Y, dir, ctx.entityCtx.fireballTexture)
+        );
+    }
 }
 
 /**
@@ -194,6 +196,25 @@ void PlayingScene::updateEntities(double delta, DrawBounds b){
         }
     );
     enemies.erase(first, enemies.end());
+}
+
+/**
+ * @brief camera更新用関数
+ * Playerがカメラの中心に来る
+ * ただしclamp処理があるため，画面端ではplayerに追従しない
+ * 
+ */
+void PlayingScene::updateCamera(){
+    auto& player = ctx.entityCtx.player;
+    // playerの中央
+    const double playerCenter_X = player.getEntityCenter_X();
+
+    // プレイヤーを画面中央付近へ維持する
+    ctx.camera.x = playerCenter_X - (ctx.camera.width / 2.0);
+
+    // WorldInfo.WorldWidthでクランプする
+    const double maxCamera_X = std::max(0.0, (ctx.worldInfo.WorldWidth - ctx.camera.width));
+    ctx.camera.x = std::clamp(ctx.camera.x, 0.0, maxCamera_X);
 }
 
 /**
@@ -396,3 +417,132 @@ void PlayingScene::resolveFireBallEnemyCollision(){
         }
     }
 }
+
+/**
+ * @brief Enemyの行動を決定するための情報を収集する
+ * ゲーム全体から情報を収集する
+ * EnemyはoutEnemySensorの結果を基に行動を決定する→Gameと直接依存しない
+ * 
+ * @param outSensors：収集した結果(出力) 
+ */
+void gatherEnemySensors(std::vector<EnemySensor>& outEnemySensors){
+    // 出力用センサの初期化
+    outEnemySensors.clear();
+    outEnemySensors.reserve(ctx.entityCtx.enemies.size());
+
+    // プレイヤーの情報
+    SDL_Rect playerRect = ctx.entityCtx.player.getCollisionRect();
+    const double playerCenter_X = ctx.entityCtx.player.getEntityCenter_X();
+    const double playerCenter_Y = ctx.entityCtx.player.getEntityCenter_Y();
+
+    // 定数(仮)
+    constexpr double SIGHT_MAX_X = 400.0;   // 水平方向視野
+    constexpr double SIGHT_MAX_Y = 96.0;    // 垂直方向の視野
+    constexpr int PROBE_WIDTH = 4;          // センサーの領域の幅
+    constexpr int GROUND_PROBE_DEPTH = 4;   // 崖の知覚幅
+    constexpr int WALL_PROBE_DEPTH = 4;     // 壁の知覚幅
+
+    // enemiesそれぞれをチェック
+    for(const auto& ePtr : etx.entityCtx.enemies){
+        // Enemyはstd::vectorは各Enemyのポインタを持っているので，オブジェクトを参照するように
+        Enemy& enemy = *ePtr;
+        // 結果格納用のEnemySensorを初期化
+        EnemySensor s{};
+
+        // Enemyの情報
+        SDL_Rect er = enemy.getCollisionRect();
+        const double enemyCenter_X = enemy.getEntityCenter_X();
+        const double enemyCenter_Y = enemy.getEntityCenter_Y();
+        
+        // Player-Enemyの差分
+        const double dx = playerCenter_X - enemyCenter_X;
+        const double dy = playerCenter_Y - enemyCenter_Y;
+
+        // 距離・左右・上下のチェック
+        s.distanceToPlayer = std::sqrt(dx*dx + dy*dy);  // ベクトルの2点間の距離
+        s.playerOnLeft     = (playerCenter_X < enemyCenter_X);
+        s.playerBelow      = (playerCenter_Y > enemyCenter_Y);
+
+        // 視界の判定
+        // 簡単に両者のx/y軸の差分でチェックする
+        s.playerInSight = (std::abs(dx) <= SIGHT_MAX_X &&
+                           std::abs(dy) <= SIGHT_MAX_Y);
+        // キャラクタのdirから進む方向を決定する
+        const Direction dir = enemy.getDirection();
+        // 右を向いているか
+        const bool facingRight = (dir == Direction::Right);
+
+        // groundAheadの決定：一歩先に床があるか
+        SDL_Rect groundProbe{};
+        if(facingRight){
+            // 右を向いている：キャラクタのすぐ右をチェック
+            groundProbe = er.x + er.w;
+        } else {
+            // 左を向いている：キャラクタのすぐ左をチェック
+            groundProbe = er.x - PROBE_WIDTH;
+        }
+        // 体全体
+        groundProbe.y = er.y + er.h;    // 足元のちょっと下
+        groundProbe.w = PROBE_WIDTH;
+        groundProbe.h = GROUND_PROBE_DEPTH;
+        // 足場のチェック
+        s.groundAhead = false;
+        for(counst auto& b : ctx.entityCtx.blocks){
+            // 通常の床以外は判定しない
+            if(b.type != BlockType::Standable){
+                continue;
+            }
+            SDL_Rect br = GameUtil::blockToRect(b);
+            // Enemyのちょっと先の座標とブロックで接触判定
+            if(GameUtil::intersects(groundProbe, br)){
+                s.groundAhead = true;
+                break;
+            }
+        }
+        // 床判定と同様にチェック
+        // wallAheadの決定：一歩先に壁があるか
+        SDL_Rect wallProbe{};
+        if(facingRight){
+            wallProbe.x = er.x + er.w;  // 右方向チェック
+        } else {
+            wallProbe = er.x - WALL_PROBE_DEPTH;    // 左方向チェック
+        }
+        // 体全体
+        wallProbe.y = er.y;
+        wallProbe.w = WALL_PROBE_DEPTH;
+        wallProbe.h = er.h;
+        // 壁のチェック
+        s.wallAhead = false;
+        for(const auto& b : ctx.entityCtx.blocks){
+            // 通常の床以外は判定しない
+            if(b.type != BlockType::Standable){
+                continue;
+            }
+            SDL_Rect br = GameUtil::blockToRect(b);
+            // Enemyのちょっと先の座標とブロックで接触判定
+            if(GameUtil::intersects(wallProbe, br)){
+                s.wallAhead = true;
+                break;
+            }
+        }
+        // 敵の状態確認の結果を出力用の変数につめる
+        outEnemySensors.push_back(s);
+    }
+}
+
+/**
+ * @brief EnemyにSensorの結果を渡して行動を決定させる
+ * 
+ * @param delta 
+ * @param sensors 
+ */
+void runEnemyAI(double delta, const std::vector<EnemySensor>& sensors){
+    auto& enemies = ctx.entityCtx.enemies;
+    // 敵とセンサの要素数をチェック
+    const std::size_t n = std::min(enemies.size(), sensors.size());
+    // enemiesのそれぞれにSensorを渡す
+    for(std::size_t i = 0; i < n; ++i){
+        enemies[i]->think(delta, sensors[i]);
+    }
+}
+

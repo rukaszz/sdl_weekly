@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <random>
 #include <cmath>
+#include <vector>
 
 /**
  * Enemyクラスは操作するオブジェクトを管理する
@@ -51,6 +52,12 @@ Enemy::Enemy(Texture& tex)
  * @param drawableSize: 描画可能範囲 
  * @param (const std::vector<Block>&) ブロックの判定(現状は無名)
  */
+
+void Enemy::update(double delta, const InputState& , DrawBounds bounds, const std::vector<Block>& blocks){
+    stepPhysics(delta, bounds, blocks);
+    updateAnimation(delta);
+}
+/*
 void Enemy::update(double delta, const InputState& , DrawBounds bounds, const std::vector<Block>& ){
     double leftBound = 0.0;
     double rightBound = bounds.drawableWidth - static_cast<double>(sprite.getDrawWidth());
@@ -91,6 +98,7 @@ void Enemy::update(double delta, const InputState& , DrawBounds bounds, const st
         break;
     }
 }
+*/
 
 /**
  * @brief 衝突判定を返す関数
@@ -188,4 +196,49 @@ void Enemy::applyEnemyParamForSpawn(double coorX, double coorY, double spd){
     dyingTime = 0.0;
     vv = 0.0;
     anim.reset();
+}
+
+/**
+ * @brief 敵用の物理処理
+ * 
+ * @param delta 
+ * @param bounds 
+ * @param blocks 
+ */
+void Enemy::stepPhysics(double delta, DrawBounds bounds, const std::vector<Block>& blocks){
+    // blocksはまだ使わないので無効化しておく
+    (void)blocks;
+    // 死亡状態の敵は処理しない
+    if(state == EnemyState::Dead){
+        return;
+    }
+    // 敵が死にかけ(Dying)ならdyingTimeを増やす
+    if(state == EnemyState::Dying){
+        dyingTime += delta;
+        // 一定時間経過でDyingからDeadへ
+        if(dyingTime >= EnemyConfig::DYING_DURATION){
+            state = EnemyState::Dead;
+        }
+        return;
+    }
+    // 物理処理を実施する場合は以下でやる
+    x += hv * delta;
+    // y/vv/collisionは以下で
+    // world端でのclamp
+    double leftBound = 0.0;
+    double rightBound = bounds.drawableWidth - sprite.getDrawWidth();
+    x = std::clamp(x, leftBound, rightBound);
+}
+
+/**
+ * @brief 敵アニメーション更新
+ * 
+ * @param delta 
+ */
+void Enemy::updateAnimation(double delta){
+    // 生きている場合に実施
+    if(state == EnemyState::Alive){
+        anim.update(delta);
+        sprite.setFrame(anim.getFrame());
+    }
 }

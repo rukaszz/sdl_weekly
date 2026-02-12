@@ -2,15 +2,18 @@
 #define PLAYINGSCENE_H
 
 #include "Scene.hpp"
+#include "EnemySensor.hpp"
 
 #include <SDL2/SDL.h>
 
 #include <memory>
+#include <vector>
 
 struct DrawBounds;
 class Game;
 class Renderer;
 class TextTexture;
+struct InputState;
 
 class PlayingScene : public Scene{
 private:
@@ -27,6 +30,8 @@ public:
     virtual void onExit() override;
 
 private:
+    // update内部で呼ばれる処理の分割
+    void handlePlayingInput(const InputState& is);
     void updateScore(double delta);
     void updateEntities(double delta, DrawBounds b);
     void updateCamera();
@@ -38,6 +43,9 @@ private:
     bool checkBoundsforFireBalls(SDL_Rect fr, const double world_W, const double world_H);
     void cleanupFireBalls();
     void resolveFireBallEnemyCollision();
+
+    void gatherEnemySensors(std::vector<EnemySensor>& outEnemySensors);
+    void runEnemyAI(double delta, const std::vector<EnemySensor>& sensors);
 
 };
 

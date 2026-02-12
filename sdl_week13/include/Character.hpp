@@ -106,6 +106,10 @@ public:
     void setVerticalVelocity(double v){
         vv = v;
     }
+    // 向き
+    Direction getDirection() const{
+        return dir;
+    }
 };
 
 #endif  // CHARACTER_H
