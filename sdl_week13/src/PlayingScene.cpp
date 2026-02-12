@@ -62,8 +62,8 @@ void PlayingScene::update(double delta){
     // 5. 敵センサの収集とAIの更新
     std::vector<EnemySensor> enemySensors;
     // 敵の数だけ領域を確保
-    enemySensors.reserve(ctx,EntityCtx.enemies.size());
-    gatherEnemySensors(delta, enemySensors);
+    enemySensors.reserve(ctx.entityCtx.enemies.size());
+    gatherEnemySensors(enemySensors);
     runEnemyAI(delta, enemySensors);
     // 6. 物理の更新
     updateEntities(delta, worldBounds);
@@ -425,7 +425,7 @@ void PlayingScene::resolveFireBallEnemyCollision(){
  * 
  * @param outSensors：収集した結果(出力) 
  */
-void gatherEnemySensors(std::vector<EnemySensor>& outEnemySensors){
+void PlayingScene::gatherEnemySensors(std::vector<EnemySensor>& outEnemySensors){
     // 出力用センサの初期化
     outEnemySensors.clear();
     outEnemySensors.reserve(ctx.entityCtx.enemies.size());
@@ -443,7 +443,7 @@ void gatherEnemySensors(std::vector<EnemySensor>& outEnemySensors){
     constexpr int WALL_PROBE_DEPTH = 4;     // 壁の知覚幅
 
     // enemiesそれぞれをチェック
-    for(const auto& ePtr : etx.entityCtx.enemies){
+    for(const auto& ePtr : ctx.entityCtx.enemies){
         // Enemyはstd::vectorは各Enemyのポインタを持っているので，オブジェクトを参照するように
         Enemy& enemy = *ePtr;
         // 結果格納用のEnemySensorを初期化
@@ -476,36 +476,37 @@ void gatherEnemySensors(std::vector<EnemySensor>& outEnemySensors){
         SDL_Rect groundProbe{};
         if(facingRight){
             // 右を向いている：キャラクタのすぐ右をチェック
-            groundProbe = er.x + er.w;
+            groundProbe.x = er.x + er.w;
         } else {
             // 左を向いている：キャラクタのすぐ左をチェック
-            groundProbe = er.x - PROBE_WIDTH;
+            groundProbe.x = er.x - PROBE_WIDTH;
         }
         // 体全体
         groundProbe.y = er.y + er.h;    // 足元のちょっと下
         groundProbe.w = PROBE_WIDTH;
         groundProbe.h = GROUND_PROBE_DEPTH;
         // 足場のチェック
-        s.groundAhead = false;
-        for(counst auto& b : ctx.entityCtx.blocks){
-            // 通常の床以外は判定しない
-            if(b.type != BlockType::Standable){
-                continue;
-            }
-            SDL_Rect br = GameUtil::blockToRect(b);
-            // Enemyのちょっと先の座標とブロックで接触判定
-            if(GameUtil::intersects(groundProbe, br)){
-                s.groundAhead = true;
-                break;
-            }
-        }
+        s.groundAhead = true;
+        // s.groundAhead = false;
+        // for(const auto& b : ctx.entityCtx.blocks){
+        //     // 通常の床以外は判定しない
+        //     if(b.type != BlockType::Standable){
+        //         continue;
+        //     }
+        //     SDL_Rect br = GameUtil::blockToRect(b);
+        //     // Enemyのちょっと先の座標とブロックで接触判定
+        //     if(GameUtil::intersects(groundProbe, br)){
+        //         s.groundAhead = true;
+        //         break;
+        //     }
+        // }
         // 床判定と同様にチェック
         // wallAheadの決定：一歩先に壁があるか
         SDL_Rect wallProbe{};
         if(facingRight){
             wallProbe.x = er.x + er.w;  // 右方向チェック
         } else {
-            wallProbe = er.x - WALL_PROBE_DEPTH;    // 左方向チェック
+            wallProbe.x = er.x - WALL_PROBE_DEPTH;    // 左方向チェック
         }
         // 体全体
         wallProbe.y = er.y;
@@ -536,7 +537,7 @@ void gatherEnemySensors(std::vector<EnemySensor>& outEnemySensors){
  * @param delta 
  * @param sensors 
  */
-void runEnemyAI(double delta, const std::vector<EnemySensor>& sensors){
+void PlayingScene::runEnemyAI(double delta, const std::vector<EnemySensor>& sensors){
     auto& enemies = ctx.entityCtx.enemies;
     // 敵とセンサの要素数をチェック
     const std::size_t n = std::min(enemies.size(), sensors.size());

@@ -29,6 +29,7 @@ add_executable(${PROJECT_NAME}
     src/Player.cpp
     src/Game.cpp
     src/Enemy.cpp
+    src/WalkerEnemy.cpp
     src/AnimationController.cpp
     src/Text.cpp
     src/TextTexture.cpp

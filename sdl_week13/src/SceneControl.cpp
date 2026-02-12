@@ -6,6 +6,7 @@
 #include "Block.hpp"
 #include "BlockLevelLoader.hpp"
 #include "Enemy.hpp"
+#include "WalkerEnemy.hpp"
 // #include "Game.hpp"
 
 #include <iostream>
@@ -64,7 +65,16 @@ void SceneControl::loadStage(int stageIndex, GameContext& ctx){
         enemyPtr->applyEnemyParamForSpawn(es.x, es.y, es.speed);
         */
         // c++ 11/14
-        ctx.entityCtx.enemies.emplace_back(std::make_unique<Enemy>(enemyTex));
+        // ctx.entityCtx.enemies.emplace_back(std::make_unique<Enemy>(enemyTex));
+        // タイプごとに敵を生成
+        switch(es.type){
+        case EnemyType::Walker:
+            ctx.entityCtx.enemies.emplace_back(std::make_unique<WalkerEnemy>(enemyTex));
+            break;
+        default:
+            ctx.entityCtx.enemies.emplace_back(std::make_unique<WalkerEnemy>(enemyTex));
+            break;
+        }
         Enemy* e = ctx.entityCtx.enemies.back().get();
         e->applyEnemyParamForSpawn(es.x, es.y, es.speed);
     }

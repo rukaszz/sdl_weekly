@@ -6,8 +6,7 @@
 WalkerEnemy::WalkerEnemy(Texture& tex)
     : Enemy(tex)
 {
-    state = EnemyState::Alive;
-    sprite.setFrame(0);
+
 }
 
 /**
