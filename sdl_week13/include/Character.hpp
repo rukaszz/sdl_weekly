@@ -60,8 +60,8 @@ public:
     virtual SDL_Rect getCollisionRect() const = 0;
     // virtual void draw(Renderer& renderer);
     virtual void draw(Renderer& renderer, Camera& camera);
-    virtual double getEntityCenter_X();
-    virtual double getEntityCenter_Y(); 
+    virtual double getEntityCenter_X() const;
+    virtual double getEntityCenter_Y() const;
     virtual const Sprite& getSprite() const;
     virtual void setPosition(double coorX, double coorY);
     virtual void clampToBounds(const DrawBounds& b);

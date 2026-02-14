@@ -72,7 +72,7 @@ void Character::draw(Renderer& renderer, Camera& camera){
  * 
  * @return double 
  */
-double Character::getEntityCenter_X(){
+double Character::getEntityCenter_X() const{
     return x + (sprite.getDrawWidth() / 2.0);
 }
 
@@ -82,7 +82,7 @@ double Character::getEntityCenter_X(){
  * 
  * @return double 
  */
-double Character::getEntityCenter_Y(){
+double Character::getEntityCenter_Y() const{
     return y + (sprite.getDrawHeight() / 2.0);
 }
 

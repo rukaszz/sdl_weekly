@@ -430,6 +430,235 @@ void PlayingScene::gatherEnemySensors(std::vector<EnemySensor>& outEnemySensors)
     outEnemySensors.clear();
     outEnemySensors.reserve(ctx.entityCtx.enemies.size());
 
+    // ゲームの情報
+    EnemySensorContext esc{
+        .blocks = ctx.entityCtx.blocks, 
+        .worldWidth = ctx.worldInfo.WorldWidth, 
+        .playerInfo = PlayerInfo{
+            ctx.entityCtx.player.getEntityCenter_X(), 
+            ctx.entityCtx.player.getEntityCenter_Y()
+        }
+    };
+
+    // 敵ごとに情報処理
+    for(const auto& ePtr : ctx.entityCtx.enemies){
+        // Enemy個別の参照を取得(vectorはポインタで持っているため)
+        Enemy& enemy = *ePtr;
+        EnemySensor enemySensor = buildEnemySensor(enemy, esc);
+        outEnemySensors.push_back(enemySensor);
+    }
+}
+
+/**
+ * @brief ゲームの情報からEnemyの行動決定に必要な処理を実施し結果を返却する
+ * 各種処理を内部で呼び出す
+ * 
+ * 
+ * @param enemy 
+ * @param esc 
+ * @return EnemySensor 
+ */
+EnemySensor PlayingScene::buildEnemySensor(const Enemy& enemy, const EnemySensorContext& esc) const{
+    EnemySensor es{};
+    // プレイヤー情報から関係性を整理
+    fillPlayerRelation(enemy, esc, es);
+    // 床に対する行動
+    fillGroundAhead(enemy, esc, es);
+    // 壁(水平方向にあるブロック)に対する行動
+    fillWallAhead(enemy, esc, es);
+    return es;
+}
+
+/**
+ * @brief プレイヤー情報を確認し，Player-Enemy間の距離などを調べる
+ * 
+ * @param enemy：enemiesの各ポインタの参照 
+ * @param esc：Gameの情報 
+ * @param outSensor：処理結果を持つ構造体 
+ */
+void PlayingScene::fillPlayerRelation(const Enemy& enemy, 
+                                      const EnemySensorContext& esc, 
+                                      EnemySensor& outSensor) const
+{
+    // 調査対象の敵の中心座標
+    const double enemyCenter_X = enemy.getEntityCenter_X();
+    const double enemyCenter_Y = enemy.getEntityCenter_Y();
+    // Player-Enemy間の距離の差分
+    const double dx = esc.playerInfo.center_X - enemyCenter_X;
+    const double dy = esc.playerInfo.center_Y - enemyCenter_Y;
+    // ベクトル(2点間)の距離
+    outSensor.distanceToPlayer = std::sqrt(dx*dx + dy*dy);
+    // Playerが左側にいるか(左のほうがxが小さい)
+    outSensor.playerOnLeft     = (esc.playerInfo.center_X < enemyCenter_X);
+    // Playerが下にいるか(上のほうがyが小さい)
+    outSensor.playerBelow      = (esc.playerInfo.center_Y > enemyCenter_Y);
+    // 定数(仮)※あとでヘッダなどへ切り出すこと
+    constexpr double SIGHT_MAX_X = 400.0;
+    constexpr double SIGHT_MAX_Y = 96.0;
+    // プレイヤーが視界内にいるか
+    // 簡単に両者のx/y軸の差分でチェックする
+    outSensor.playerInSight = (std::abs(dx) <= SIGHT_MAX_X &&
+                               std::abs(dy) <= SIGHT_MAX_Y);
+}
+
+/**
+ * @brief Enemyの床に関する処理
+ * 次の移動先が崖か(落下するか)を調べる
+ * 
+ * @param enemy 
+ * @param esc 
+ * @param outSensor groundProbe
+ */
+void PlayingScene::fillGroundAhead(const Enemy& enemy, 
+                                   const EnemySensorContext& esc, 
+                                         EnemySensor& outSensor) const
+{
+    // Enemyの情報取得
+    // 当たり判定用矩形
+    SDL_Rect er = enemy.getCollisionRect();
+    // 進む方向(向いている方向)
+    const Direction dir = enemy.getDirection();
+    // 右を向いているか
+    const bool facingRight = (dir == Direction::Right);
+
+    // ちょっと先を調べるための変数
+    constexpr int PROBE_WIDTH           = 4;    // センサーの領域の幅
+    constexpr int GROUND_PROBE_DEPTH    = 4;    // 崖の知覚幅
+
+    // groundAheadの決定：一歩先に床があるか
+    SDL_Rect groundProbe{};
+    bool hasGround = false;
+    if(facingRight){
+        // 右を向いている：キャラクタのすぐ右をチェック
+        groundProbe.x = er.x + er.w;
+    } else {
+        // 左を向いている：キャラクタのすぐ左をチェック
+        groundProbe.x = er.x - PROBE_WIDTH;
+    }
+    // x以外の判定全体
+    groundProbe.y = er.y + er.h;    // 足元のちょっと下
+    groundProbe.w = PROBE_WIDTH;
+    groundProbe.h = GROUND_PROBE_DEPTH;
+    // ブロックとの接触をAABBで判定し，接触していれば崖ではない→進めると判断
+    for(const auto& b : esc.blocks){
+        // 通常の床/すり抜け床以外は判定しない(この条件はPhysicsの処理に合わせること)
+        if(b.type != BlockType::Standable && b.type != BlockType::DropThrough){
+        // if(b.type != BlockType::Standable){
+            continue;
+        }
+        SDL_Rect br = GameUtil::blockToRect(b);
+        // Enemyの少し先の座標とブロックで接触判定
+        if(GameUtil::intersects(groundProbe, br)){
+            hasGround = true;
+            break;
+        }
+    }
+    // world端処理(端も崖とみなして引き返す)
+    if(facingRight){
+        // 右に向いているときにProbeがworldの外に出そうか
+        if(groundProbe.x + groundProbe.w >= static_cast<int>(esc.worldWidth)){
+            hasGround = false;
+        }
+    } else {
+        // 左を向いているときにProbeがworldの外に出そうか
+        if(groundProbe.x <= 0){
+            hasGround = false;
+        }
+    }
+    // 最終的な結果返却
+    // hasGround = true;
+    outSensor.groundAhead = hasGround;
+}
+
+/**
+ * @brief Enemyの壁に関する処理
+ * 次の移動先が壁か(ブロックにめり込むか)を調べる
+ * 
+ * @param enemy 
+ * @param esc 
+ * @param outSensor 
+ */
+void PlayingScene::fillWallAhead(const Enemy& enemy, 
+                                 const EnemySensorContext& esc, 
+                                       EnemySensor& outSensor) const
+{
+    // Enemyの情報取得
+    // 当たり判定用矩形
+    SDL_Rect er = enemy.getCollisionRect();
+    // 進む方向(向いている方向)
+    const Direction dir = enemy.getDirection();
+    // 右を向いているか
+    const bool facingRight = (dir == Direction::Right);
+    // ちょっと先を調べるための変数
+    constexpr int WALL_PROBE_DEPTH = 4;
+
+    // wallAheadの決定：一歩先に壁があるか
+    SDL_Rect wallProbe{};
+    bool hasWall = false;
+    // 調べる方向の決定
+    if (facingRight) {
+        wallProbe.x = er.x + er.w;  // 右方向チェック
+    } else {
+        wallProbe.x = er.x - WALL_PROBE_DEPTH;  // 左方向チェック
+    }
+    // 体全体の情報
+    wallProbe.y = er.y;
+    wallProbe.w = WALL_PROBE_DEPTH;
+    wallProbe.h = er.h;
+    // 壁(ブロックとのチェック)
+    for(const auto& b : esc.blocks){
+        // 通常の床以外は判定しない
+        if(b.type != BlockType::Standable){
+            continue;
+        }
+        SDL_Rect br = GameUtil::blockToRect(b);
+        // Enemyのちょっと先の座標とブロックで接触判定
+        if(GameUtil::intersects(wallProbe, br)){
+            hasWall = true;
+            break;
+        }
+    }
+    // worldの端も壁扱い
+    if(facingRight){
+        // 右に向いているときにProbeがworldの外に出そうか
+        if(wallProbe.x + wallProbe.w >= static_cast<int>(esc.worldWidth)){
+            hasWall = true;
+        }
+    }else{
+        // 左を向いているときにProbeがworldの外に出そうか
+        if(wallProbe.x <= 0){
+            hasWall = true;
+        }
+    }
+    // 最終的な結果返却
+    outSensor.wallAhead = hasWall;
+}
+
+
+/**
+ * @brief EnemyにSensorの結果を渡して行動を決定させる
+ * 
+ * @param delta 
+ * @param sensors 
+ */
+void PlayingScene::runEnemyAI(double delta, const std::vector<EnemySensor>& sensors){
+    auto& enemies = ctx.entityCtx.enemies;
+    // 敵とセンサの要素数をチェック
+    const std::size_t n = std::min(enemies.size(), sensors.size());
+    // enemiesのそれぞれにSensorを渡す
+    for(std::size_t i = 0; i < n; ++i){
+        enemies[i]->think(delta, sensors[i]);
+    }
+}
+
+/*
+gatherEnemySensorsの原型
+しばらく確認用に残す
+void PlayingScene::gatherEnemySensors(std::vector<EnemySensor>& outEnemySensors){
+    // 出力用センサの初期化
+    outEnemySensors.clear();
+    outEnemySensors.reserve(ctx.entityCtx.enemies.size());
+
     // プレイヤーの情報
     const double playerCenter_X = ctx.entityCtx.player.getEntityCenter_X();
     const double playerCenter_Y = ctx.entityCtx.player.getEntityCenter_Y();
@@ -558,21 +787,5 @@ void PlayingScene::gatherEnemySensors(std::vector<EnemySensor>& outEnemySensors)
         // 敵の状態確認の結果を出力用の変数につめる
         outEnemySensors.push_back(s);
     }
-}
-
-/**
- * @brief EnemyにSensorの結果を渡して行動を決定させる
- * 
- * @param delta 
- * @param sensors 
- */
-void PlayingScene::runEnemyAI(double delta, const std::vector<EnemySensor>& sensors){
-    auto& enemies = ctx.entityCtx.enemies;
-    // 敵とセンサの要素数をチェック
-    const std::size_t n = std::min(enemies.size(), sensors.size());
-    // enemiesのそれぞれにSensorを渡す
-    for(std::size_t i = 0; i < n; ++i){
-        enemies[i]->think(delta, sensors[i]);
-    }
-}
-
+} 
+*/
