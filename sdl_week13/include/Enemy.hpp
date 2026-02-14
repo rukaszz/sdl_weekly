@@ -31,6 +31,7 @@ private:
     // 死亡演出関係
     EnemyState state = EnemyState::Alive;
     double dyingTime = 0.0; // Dying状態の経過時間
+    bool onGround = false;  // 敵が床上にいるか
 public:
     // 定数
     static inline constexpr int NUM_FRAMES = EnemyConfig::NUM_FRAMES;

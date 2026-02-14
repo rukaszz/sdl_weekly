@@ -6,6 +6,8 @@
 #include "Texture.hpp"
 #include "Enemy.hpp"
 #include "Input.hpp"
+#include "Physics.hpp"
+#include "Block.hpp"
 
 #include <iostream>
 #include <algorithm>
@@ -57,48 +59,6 @@ void Enemy::update(double delta, const InputState& , DrawBounds bounds, const st
     stepPhysics(delta, bounds, blocks);
     updateAnimation(delta);
 }
-/*
-void Enemy::update(double delta, const InputState& , DrawBounds bounds, const std::vector<Block>& ){
-    double leftBound = 0.0;
-    double rightBound = bounds.drawableWidth - static_cast<double>(sprite.getDrawWidth());
-
-    switch(state){
-    case EnemyState::Dead:
-        // 死亡状態は無視する    
-        return; 
-    case EnemyState::Dying:
-        // その場にとどまって，一定時間経過で死ぬ
-        dyingTime += delta;
-        // 一定時間経過でDying→Deadへ
-        if(dyingTime >= EnemyConfig::DYING_DURATION){
-            state = EnemyState::Dead;
-        }
-        return;
-    case EnemyState::Alive:
-        // これまでの更新処理
-        if(dir == Direction::Right){
-            x += speed * delta;
-        } else {
-            x -= speed * delta;
-        }
-
-        if(x < leftBound) {
-            x = leftBound;
-            dir = Direction::Right;
-        }
-        if(x > rightBound) {
-            x = rightBound;
-            dir = Direction::Left;
-        }
-        // アニメーション処理
-        anim.update(delta);
-        sprite.setFrame(anim.getFrame());
-        break;
-    default:
-        break;
-    }
-}
-*/
 
 /**
  * @brief 衝突判定を返す関数
@@ -154,10 +114,12 @@ void Enemy::reset(std::mt19937& rd,
 {
     setPosition(dx(rd), dy(rd));
     setSpeed(ds(rd));
+    vv = 0.0;
     std::uniform_int_distribution<int> d01(0, 1);
     dir = (d01(rd) == 0 ? Direction::Left : Direction::Right);
     state = EnemyState::Alive;
     dyingTime = 0.0;
+    onGround = false;
     anim.reset();
 }
 
@@ -195,6 +157,7 @@ void Enemy::applyEnemyParamForSpawn(double coorX, double coorY, double spd){
     state = EnemyState::Alive;
     dyingTime = 0.0;
     vv = 0.0;
+    onGround = false;
     anim.reset();
 }
 
@@ -206,13 +169,11 @@ void Enemy::applyEnemyParamForSpawn(double coorX, double coorY, double spd){
  * @param blocks 
  */
 void Enemy::stepPhysics(double delta, DrawBounds bounds, const std::vector<Block>& blocks){
-    // blocksはまだ使わないので無効化しておく
-    (void)blocks;
     // 死亡状態の敵は処理しない
     if(state == EnemyState::Dead){
         return;
     }
-    // 敵が死にかけ(Dying)ならdyingTimeを増やす
+    // 敵が死にかけ(Dying)ならdyingTimeを増やすのみ
     if(state == EnemyState::Dying){
         dyingTime += delta;
         // 一定時間経過でDyingからDeadへ
@@ -221,13 +182,63 @@ void Enemy::stepPhysics(double delta, DrawBounds bounds, const std::vector<Block
         }
         return;
     }
-    // 物理処理を実施する場合は以下でやる
+    // Playerと似た物理処理を実施する
+    // 1. 水平方向処理：派生クラスのthink()でhvは決定されている前提であることに注意
     x += hv * delta;
-    // y/vv/collisionは以下で
-    // world端でのclamp
+
+    // 2. 垂直方向処理：重力とブロック衝突
+    // 変数宣言
+    constexpr double GRAVITY = EnemyConfig::GRAVITY;
+    double sprite_H = static_cast<double>(sprite.getDrawHeight());
+    double prevTop = y;
+    double prevFeet = y + sprite_H;
+    // 重力加算
+    vv += GRAVITY * delta;
+    // 仮の新座標
+    double newTop = y + vv * delta;
+    double newFeet = newTop + sprite_H;
+
+    VerticalCollisionState vcs{
+        .prevTop    = prevTop, 
+        .newTop     = newTop, 
+        .prevFeet   = prevFeet, 
+        .newFeet    = newFeet, 
+        .x          = x, 
+        .width      = static_cast<double>(sprite.getDrawWidth()), 
+        .vv         = vv, 
+        .onGround   = onGround, 
+        .ignoreDropThrough = false,// 敵はすり抜け床に対して何もしない想定
+    };
+    // vvに応じたブロックとの物理処理
+    if(vv > 0.0){
+        // 落下中
+        Physics::resolveBlockCollisionFromTop(vcs, blocks);
+        // Physicsの結果を返す
+        y           = vcs.newFeet - sprite_H;
+        vv          = vcs.vv;
+        onGround    = vcs.onGround;
+    } else if(vv < 0.0){
+        // 上昇中(天井とのぶつかり)
+        Physics::resolveBlockCollisionFromBottom(vcs, blocks);
+        // Physicsの結果を返す
+        y           = vcs.newTop;
+        vv          = vcs.vv;
+        onGround    = vcs.onGround;
+    } else {
+        // 垂直速度がゼロなら単純に更新
+        // 基本的には到達しない
+        y = newTop;
+    }
+
+    // 3. ワールドの端でのclamp処理
+    // ※反転の処理はAI側で解決する
     double leftBound = 0.0;
     double rightBound = bounds.drawableWidth - sprite.getDrawWidth();
-    x = std::clamp(x, leftBound, rightBound);
+    if(x <= leftBound){
+        x = leftBound;
+    } else if(x >= rightBound){
+        x = rightBound;
+    }
 }
 
 /**

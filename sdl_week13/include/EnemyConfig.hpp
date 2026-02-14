@@ -12,6 +12,7 @@ struct EnemyConfig{
     static inline constexpr int SCORE_AT_FIREBALL = 100;
     static inline constexpr double DYING_DURATION = 1.5;    // 秒
     static inline constexpr double DYING_BLINK_INTERVAL = 0.1;  // 秒
+    static inline constexpr double GRAVITY = 880.0;
 };
 
 #endif  // ENEMYCONFIG_H

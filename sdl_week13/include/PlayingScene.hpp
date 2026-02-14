@@ -9,14 +9,42 @@
 #include <memory>
 #include <vector>
 
-struct DrawBounds;
 class Game;
 class Renderer;
 class TextTexture;
+class Enemy;
 struct InputState;
+struct Block;
+struct DrawBounds;
 
+/**
+ * @brief EnemyのAIが行動を判断するためのプレイヤー情報
+ * 
+ */
+struct PlayerInfo{
+    double center_X;    // プレイヤーの中心座標x
+    double center_Y;    // プレイヤーの中心座標y
+};
+
+/**
+ * @brief 敵の行動を決定するためのEnemy外部の情報
+ * gatherEnemySensorで使用する
+ * 
+ */
+struct EnemySensorContext{
+    const std::vector<Block>& blocks;
+    double worldWidth;
+    PlayerInfo playerInfo;
+};
+
+/**
+ * @brief ゲームのプレイシーン
+ * プレイ中の更新・描画処理を担当し，付随する物理処理なども併せて処理する
+ * 
+ */
 class PlayingScene : public Scene{
 private:
+    // デバッグ表示用のテキストテクスチャ
     std::unique_ptr<TextTexture> debugText;
 
 public:
@@ -43,8 +71,14 @@ private:
     bool checkBoundsforFireBalls(SDL_Rect fr, const double world_W, const double world_H);
     void cleanupFireBalls();
     void resolveFireBallEnemyCollision();
-
+    // Enemyの行動関係
     void gatherEnemySensors(std::vector<EnemySensor>& outEnemySensors);
+    // gatherEnemySensors()で呼ぶ関数※処理を分割している
+    EnemySensor buildEnemySensor(const Enemy& enemy, const EnemySensorContext& esc, EnemySensor& outSensor) const;
+    void fillPlayerRelation(const Enemy& enemy, const EnemySensorContext& esc, EnemySensor& outSensor) const;
+    void fillGroundAhead(const Enemy& enemy, const EnemySensorContext& esc, EnemySensor& outSensor) const;
+    void fillWallAhead(const Enemy& enemy, const EnemySensorContext& esc, EnemySensor& outSensor) const;
+    // EnemyのAIの実行
     void runEnemyAI(double delta, const std::vector<EnemySensor>& sensors);
 
 };
