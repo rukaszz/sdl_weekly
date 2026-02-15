@@ -30,6 +30,7 @@ add_executable(${PROJECT_NAME}
     src/Game.cpp
     src/Enemy.cpp
     src/WalkerEnemy.cpp
+    src/ChaserEnemy.cpp
     src/AnimationController.cpp
     src/Text.cpp
     src/TextTexture.cpp
@@ -64,4 +65,4 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     ${SDL2TTF_LIBRARIES}
 )
 
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
+target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -std=c++20)

@@ -63,7 +63,6 @@ private:
     void updateScore(double delta);
     void updateEntities(double delta, DrawBounds b);
     void updateCamera();
-    void checkCollision();
     void detectCollision();
     void resolveBlockCollision();
     void resolveEnemyCollision(double prevFeet);

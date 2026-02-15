@@ -1306,6 +1306,72 @@ resolveVertical/HorizontalBlockCollision()はなるべく純粋な計算で成�
 - プレイヤーを追いかけるChaser
 - 予測しにくい動作をするJumper
 
+## week13
+
+### 目標
+
+week13の目標はこれまでの左右へ動く単純な動作をする敵を，特定の行動を取る敵バリエーションを追加した．
+方針として，PlayingSceneやPhysicsに敵の動作を混在させず，Enemyクラスを継承させたクラスに行動判断用関数think()を用意した．これによって，プレイ中のupdate()で情報を収集→敵の行動へ反映という判断ロジックを実装するようにした．
+
+具体的には次の通り：
+
+- Characterクラス←Enemyクラスというこれまでの基底クラスからの継承の関係を利用する
+- PlayingScece内のupdate()処理のパイプラインにて，行動判断用の情報収集(センサー)を実装
+- Enemyを継承して2つの敵を実装
+  - WalkerEnemy：基本形．崖や壁で方向転換し，床を左右に動く敵
+  - ChaserEnemy：WalkerEnemyの発展形で，プレイヤーの方向へ追跡する行動を取る
+- また，敵のスポーンがStageConfig.hppに直書きされているため，Jsonファイルを用いて外部へ切り出すための準備をした
+
+### Enemy基底クラス
+
+全ての敵はEnemyクラスを継承する．また，EnemyクラスはCharacterクラスから派生しているため，Character←Enemy←WalkerEnemyという継承関係になっている．
+
+いわゆるどの敵でも共通して実装する処理を持っている．
+
+Enemyクラスの主な役割：
+
+- シンプルな状態マシンを保持：Alive，Dying，Dead
+  - Alive: 通常動作とアニメーション
+  - Dying: 一定時間点滅効果
+  - Dead: PlayingScene::updateEntities()でゲームから削除
+- 共通の物理演算・アニメーションを提供：
+  - virtual void think(double delta, const EnemySensor& es)
+    - オーバライドする
+    - 行動決定用関数(水平速度・方向等の設定)
+  - virtual void stepPhysics(double delta, DrawBounds, const std::vector\<Block\>&)
+    - 共有物理演算: 重力，ブロックに対する垂直衝突判定，ワールド境界での折返しなど
+- virtual void updateAnimation(double delta)
+  - スプライトのフレーム進行
+- スポーンと死亡処理：
+  - 位置と速度を初期化する applyEnemyParamForSpawn(x, y, speed)
+  - Dying→Deadシーケンスへ遷移するstartDying()
+
+重要な設計上の決定事項はとして，think()がSDLやシーン状態を直接操作しないことがある．
+EnemySensorを使用して内部の移動フィールド(hv，dirなど)を更新するのみである．
+
+### EnemySensor
+
+敵の行動決定のためにGameContextを渡すのは重たすぎると考え，さらに必要な情報に絞ったセンサー構造体を作成した．
+
+```cpp
+struct EnemySensor {
+    double distanceToPlayer; // ユークリッド距離
+    double dxToPlayer;       // Player.x - Enemy.x
+    double dyToPlayer;       // Player.y - Enemy.y
+    bool playerOnLeft;       // プレイヤーは左側か？
+    bool playerInSight;      // 簡易矩形FOV内にいるか
+    bool groundAhead;        // 1マス先に地面があるか（ないか）
+    bool wallAhead;          // 1マス先に壁/障害物があるか
+    bool playerBelow;        // プレイヤーが真下に位置するか
+};
+```
+
+これら構造体の各要素を満たすように，PlayingScene::gatherEnemySensor()を実装した．3つの処理を行う補助的な関数を実装した：
+
+- fillPlayerRelation()
+- fillGroundAhead()
+- fillWallAhead()
+
 ## アセット
 
 詳細はATTRIBUTIONを参照．

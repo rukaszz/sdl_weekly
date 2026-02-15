@@ -486,6 +486,9 @@ void PlayingScene::fillPlayerRelation(const Enemy& enemy,
     // Player-Enemy間の距離の差分
     const double dx = esc.playerInfo.center_X - enemyCenter_X;
     const double dy = esc.playerInfo.center_Y - enemyCenter_Y;
+    // 差分格納
+    outSensor.dxToPlayer = dx;
+    outSensor.dyToPlayer = dy;
     // ベクトル(2点間)の距離
     outSensor.distanceToPlayer = std::sqrt(dx*dx + dy*dy);
     // Playerが左側にいるか(左のほうがxが小さい)
@@ -541,9 +544,9 @@ void PlayingScene::fillGroundAhead(const Enemy& enemy,
     groundProbe.h = GROUND_PROBE_DEPTH;
     // ブロックとの接触をAABBで判定し，接触していれば崖ではない→進めると判断
     for(const auto& b : esc.blocks){
-        // 通常の床/すり抜け床以外は判定しない(この条件はPhysicsの処理に合わせること)
+        // 通常の床/すり抜け床以外は判定しない
+        // この条件はPhysics::resolveBlockCollisionXXXの処理に合わせること
         if(b.type != BlockType::Standable && b.type != BlockType::DropThrough){
-        // if(b.type != BlockType::Standable){
             continue;
         }
         SDL_Rect br = GameUtil::blockToRect(b);

@@ -7,6 +7,7 @@
 #include "BlockLevelLoader.hpp"
 #include "Enemy.hpp"
 #include "WalkerEnemy.hpp"
+#include "ChaserEnemy.hpp"
 // #include "Game.hpp"
 
 #include <iostream>
@@ -60,19 +61,22 @@ void SceneControl::loadStage(int stageIndex, GameContext& ctx){
     // 敵のサイズ分メモリを予約
     ctx.entityCtx.enemies.reserve(def.enemySpawns.size());
     for(const auto& es : def.enemySpawns){
-        /* c++17: 
-        auto& enemyPtr = ctx.entityCtx.enemies.emplace_back(std::make_unique<Enemy>(enemyTex));
-        enemyPtr->applyEnemyParamForSpawn(es.x, es.y, es.speed);
-        */
-        // c++ 11/14
-        // ctx.entityCtx.enemies.emplace_back(std::make_unique<Enemy>(enemyTex));
         // タイプごとに敵を生成
         switch(es.type){
         case EnemyType::Walker:
             ctx.entityCtx.enemies.emplace_back(std::make_unique<WalkerEnemy>(enemyTex));
             break;
+        case EnemyType::Chaser:
+            ctx.entityCtx.enemies.emplace_back(std::make_unique<ChaserEnemy>(enemyTex));
+            break;
+        case EnemyType::Jumper:
+            ctx.entityCtx.enemies.emplace_back(std::make_unique<JumperEnemy>(enemyTex));
+            break;
+        case EnemyType::Turret:
+            ctx.entityCtx.enemies.emplace_back(std::make_unique<TurretEnemy>(enemyTex));
+            break;
         default:
-            ctx.entityCtx.enemies.emplace_back(std::make_unique<WalkerEnemy>(enemyTex));
+            assert(false && "Unknown EnemyType");
             break;
         }
         Enemy* e = ctx.entityCtx.enemies.back().get();
