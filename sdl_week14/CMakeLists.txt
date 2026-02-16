@@ -31,6 +31,7 @@ add_executable(${PROJECT_NAME}
     src/Enemy.cpp
     src/WalkerEnemy.cpp
     src/ChaserEnemy.cpp
+    src/JumperEnemy.cpp
     src/AnimationController.cpp
     src/Text.cpp
     src/TextTexture.cpp

@@ -8,6 +8,7 @@
 #include "Enemy.hpp"
 #include "WalkerEnemy.hpp"
 #include "ChaserEnemy.hpp"
+#include "JumperEnemy.hpp"
 // #include "Game.hpp"
 
 #include <iostream>
@@ -69,13 +70,13 @@ void SceneControl::loadStage(int stageIndex, GameContext& ctx){
         case EnemyType::Chaser:
             ctx.entityCtx.enemies.emplace_back(std::make_unique<ChaserEnemy>(enemyTex));
             break;
-        /*
         case EnemyType::Jumper:
             ctx.entityCtx.enemies.emplace_back(std::make_unique<JumperEnemy>(enemyTex));
             break;
+        /*
         case EnemyType::Turret:
-            ctx.entityCtx.enemies.emplace_back(std::make_unique<TurretEnemy>(enemyTex));
-            break;
+        ctx.entityCtx.enemies.emplace_back(std::make_unique<TurretEnemy>(enemyTex));
+        break;
         */
         default:
             assert(false && "Unknown EnemyType");

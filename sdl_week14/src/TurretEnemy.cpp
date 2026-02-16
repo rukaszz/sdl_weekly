@@ -1,0 +1,43 @@
+#include "TurretEnemy.hpp"
+
+#include "EnemySensor.hpp"
+#include "Direction.hpp"
+
+/**
+ * @brief Construct a new Turret Enemy:: Turret Enemy object
+ * 
+ * @param tex 
+ */
+TurretEnemy::TurretEnemy(Texture& tex)
+    : Enemy(tex)
+{
+
+}
+
+/**
+ * @brief TurretEnemyの判断用関数
+ * 弾を撃つなどの判断をする
+ * 
+ * @param delta 
+ * @param es 
+ */
+void TurretEnemy::think(double delta, const EnemySensor& es){
+    // 動かない(砲台)
+    hv = 0.0;
+    // 発射の時間を減らす
+    fireTimer -= delta;
+    // 発射要求をfalseに
+    fireRequested = false;
+
+    // 条件：プレイヤーが視界内にいるときだけ撃つ
+    if(!es.playerInSight){
+        return;
+    }
+    // プレイヤーが視界内にいたら
+    if(fireTimer <= 0.0){
+        // プレイヤーの左右の向きで発射方向を決める
+        fireDir = es.playerOnLeft ? Direction::Left : Direction::Right;
+        fireRequested = true;
+        fireTimer = fireInterval;
+    }
+}

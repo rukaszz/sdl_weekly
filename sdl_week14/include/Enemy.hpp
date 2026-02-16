@@ -60,6 +60,9 @@ public:
     void setSpeed(double v){
         speed = v;
     }
+    bool isOnGround() const noexcept{
+        return onGround;
+    }
     EnemyState getState() const{ return state; }
     bool isAlive() const{ return state == EnemyState::Alive; };
     bool isDying() const{ return state == EnemyState::Dying; };
