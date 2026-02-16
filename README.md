@@ -1366,11 +1366,69 @@ struct EnemySensor {
 };
 ```
 
-これら構造体の各要素を満たすように，PlayingScene::gatherEnemySensor()を実装した．3つの処理を行う補助的な関数を実装した：
+これら構造体の各要素を満たすように，PlayingScene::gatherEnemySensor()を実装し，3つの処理を行う補助的な関数を呼び出すように処理を分割した：
 
 - fillPlayerRelation()
+  - Playerとの位置関係などを導出し，敵キャラクターの視界やPlayer-Enemyの距離感を計算する
 - fillGroundAhead()
+  - Enemyの若干先に矩形を置き，AABBによるブロックとの接触を判定して落下するかどうかを調べる
+  - ブロックが無い=落下するので引き返す，という判断ができる
 - fillWallAhead()
+  - Enemyの若干先に矩形をおいて，AABBによる壁(ブロック)に接触するかを調べてる
+
+### PlayingScene::update()
+
+これまでと同様にメインゲームループは固定化されたパイプラインで，決まった順番で処理を実施していく．
+
+1. プレイヤーの位置のサンプリング
+2. ワールドやスコアなどの更新
+3. EnemySensorのデータ収集
+4. EnemySensorの結果を基にEnemyの行動を決定
+5. 物理演算の更新
+   - Player-Enemyの座標更新
+   - アニメーションなどの更新
+6. 衝突の解決
+   - Player，敵, ブロック, 火の玉
+7. 処理結果に対する状態の解決
+    - 落下死，Dead状態のEnemy，規定回数バウンドしたFireBallの片付けなど
+
+### 実装できたEnemy
+
+- WalkerEnemy
+  - 基本的な敵
+  - 崖やブロックにぶつかりそうになると進行方向を反転する
+  - groundAhead/wallAheadに依存している→EnemySensorで行動を決定する
+- ChaserEnemy
+  - Playerを追尾する敵(ただし地面のみ)
+  - 現状はジャンプせずPlayerを追尾する
+  - 追尾状態ではないときは，WalkerEnemyのように徘徊するパトロール状態になる
+
+### Enemyのスポーンの調整
+
+現状はStageConfig.hppに敵のスポーン情報を直書きしており，拡張が大変である．静的配列な制御構造は残しつつステージのデザインがやりやすいように，Jsonファイルから敵の情報を読み取ってStageConfigへ渡すような処理になるように変更予定．
+
+準備として次の構造体とインターフェイスを実装している：
+
+- EnemyType
+  - 既存のenum class
+  - 敵のタイプ(Walker/Chaserなど)を定義している
+- EnemySpawn
+  - 敵のスポーンに必要な情報を持つ
+  - x/y座標，移動速度，タイプ
+- StageDefinition
+  - 既存の構造体
+  - name，定義ファイルパス，Playerのスタート位置，敵のスポーン情報を持つ
+- JsonEnemySpawn(仮)
+  - Jsonファイルから受け取ったデータを保持する構造体
+- JsonStageDefinition(仮)
+  - Jsonファイルの情報を基にするStageDefinition
+
+### week14の予定
+
+- 追加のEnemyTypeの実装
+  - Jumper：Playerが近づいたらジャンプする
+  - Turret：弾を発射し続ける砲台
+- 敵のスポーンをJsonファイルへ移行する
 
 ## アセット
 
