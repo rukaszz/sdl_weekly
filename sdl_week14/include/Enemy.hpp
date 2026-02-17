@@ -37,7 +37,7 @@ public:
     static inline constexpr int NUM_FRAMES = EnemyConfig::NUM_FRAMES;
     // コンストラクタ
     Enemy(Texture& tex);
-    ~Enemy() = default;
+    virtual ~Enemy() = default;
     // InputStateは使用しないので無名
     void update(double delta, const InputState&, DrawBounds bounds, const std::vector<Block>& blocks) override;
     // 当たり判定を返す関数

@@ -654,141 +654,30 @@ void PlayingScene::runEnemyAI(double delta, const std::vector<EnemySensor>& sens
     }
 }
 
-/*
-gatherEnemySensorsの原型
-しばらく確認用に残す
-void PlayingScene::gatherEnemySensors(std::vector<EnemySensor>& outEnemySensors){
-    // 出力用センサの初期化
-    outEnemySensors.clear();
-    outEnemySensors.reserve(ctx.entityCtx.enemies.size());
-
-    // プレイヤーの情報
-    const double playerCenter_X = ctx.entityCtx.player.getEntityCenter_X();
-    const double playerCenter_Y = ctx.entityCtx.player.getEntityCenter_Y();
-
-    // 定数(仮)
-    constexpr double SIGHT_MAX_X = 400.0;   // 水平方向視野
-    constexpr double SIGHT_MAX_Y = 96.0;    // 垂直方向の視野
-    constexpr int PROBE_WIDTH = 4;          // センサーの領域の幅
-    constexpr int GROUND_PROBE_DEPTH = 4;   // 崖の知覚幅
-    constexpr int WALL_PROBE_DEPTH = 4;     // 壁の知覚幅
-
-    // worldサイズ取得
-    const double world_W = ctx.worldInfo.WorldWidth;
-    // const double world_H = ctx.worldInfo.WorldHeight;    // 今は無効化
-
-    // enemiesそれぞれをチェック
-    for(const auto& ePtr : ctx.entityCtx.enemies){
-        // Enemyはstd::vectorは各Enemyのポインタを持っているので，オブジェクトを参照するように
-        Enemy& enemy = *ePtr;
-        // 結果格納用のEnemySensorを初期化
-        EnemySensor s{};
-
-        // Enemyの情報
-        SDL_Rect er = enemy.getCollisionRect();
-        const double enemyCenter_X = enemy.getEntityCenter_X();
-        const double enemyCenter_Y = enemy.getEntityCenter_Y();
-        
-        // Player-Enemyの差分
-        const double dx = playerCenter_X - enemyCenter_X;
-        const double dy = playerCenter_Y - enemyCenter_Y;
-
-        // 距離・左右・上下のチェック
-        s.distanceToPlayer = std::sqrt(dx*dx + dy*dy);  // ベクトルの2点間の距離
-        s.playerOnLeft     = (playerCenter_X < enemyCenter_X);
-        s.playerBelow      = (playerCenter_Y > enemyCenter_Y);
-
-        // 視界の判定
-        // 簡単に両者のx/y軸の差分でチェックする
-        s.playerInSight = (std::abs(dx) <= SIGHT_MAX_X &&
-                           std::abs(dy) <= SIGHT_MAX_Y);
-
-        // キャラクタのdirから進む方向を決定する
-        const Direction dir = enemy.getDirection();
-
-        // 右を向いているか
-        const bool facingRight = (dir == Direction::Right);
-
-        // groundAheadの決定：一歩先に床があるか
-        SDL_Rect groundProbe{};
-        if(facingRight){
-            // 右を向いている：キャラクタのすぐ右をチェック
-            groundProbe.x = er.x + er.w;
-        } else {
-            // 左を向いている：キャラクタのすぐ左をチェック
-            groundProbe.x = er.x - PROBE_WIDTH;
-        }
-        // 体全体
-        groundProbe.y = er.y + er.h;    // 足元のちょっと下
-        groundProbe.w = PROBE_WIDTH;
-        groundProbe.h = GROUND_PROBE_DEPTH;
-        // 足場のチェック
-        s.groundAhead = false;
-        for(const auto& b : ctx.entityCtx.blocks){
-            // 通常の床以外は判定しない
-            if(b.type != BlockType::Standable){
+/**
+ * @brief Turretの敵から弾を発射させる
+ * 
+ */
+void PlayingScene::spawnTurretBullets(){
+    //EnemyBullet型の変数準備
+    auto& bullets = ctx.entityCtx.enemyBullets;
+    Texture& tex = ctx.entityCtx.fireballTexture;   // ファイアボールのテクスチャを流用
+    // Enemiesをそれぞれ見る
+    for(auto& e : ctx.entityCtx.enemies){
+        // Enemy<-Turretなので，dynamic_castで確認
+        if(auto* turret = dynamic_cast<TurretEnemy*>(e.get())){
+            // 撃つべきタイミングでなければ何もしない
+            if(!turret->shouldFire()){
                 continue;
             }
-            SDL_Rect br = GameUtil::blockToRect(b);
-            // Enemyのちょっと先の座標とブロックで接触判定
-            if(GameUtil::intersects(groundProbe, br)){
-                s.groundAhead = true;
-                break;
-            }
+            // if文を超えたら発射するので，fireRequestedをfalseにしてクールダウン
+            turret->clearFireRequest();
+            // 発射用の情報取得
+            double x = turret->getEntityCenter_X();
+            double y = turret->getEntityCenter_Y();
+            Direction dir = turret->getFireDirection();
+            // EnemyBulletをインスタンス化して発射
+            bullets.emplace_back(std::make_unique<EnemyBullet>(x, y, dir, tex));
         }
-        // world端も崖とみなす
-        if(facingRight){
-            // 右に向いているときにProbeがworldの外に出そうか
-            if(groundProbe.x + groundProbe.w >= static_cast<int>(world_W)){
-                s.groundAhead = false;
-            }
-        } else {
-            // 左を向いているときにProbeがworldの外に出そうか
-            if(groundProbe.x <= 0){
-                s.groundAhead = false;
-            }
-        }
-
-        // 床判定と同様にチェック
-        // wallAheadの決定：一歩先に壁があるか
-        SDL_Rect wallProbe{};
-        if(facingRight){
-            wallProbe.x = er.x + er.w;  // 右方向チェック
-        } else {
-            wallProbe.x = er.x - WALL_PROBE_DEPTH;    // 左方向チェック
-        }
-        // 体全体
-        wallProbe.y = er.y;
-        wallProbe.w = WALL_PROBE_DEPTH;
-        wallProbe.h = er.h;
-        // 壁のチェック
-        s.wallAhead = false;
-        for(const auto& b : ctx.entityCtx.blocks){
-            // 通常の床以外は判定しない
-            if(b.type != BlockType::Standable){
-                continue;
-            }
-            SDL_Rect br = GameUtil::blockToRect(b);
-            // Enemyのちょっと先の座標とブロックで接触判定
-            if(GameUtil::intersects(wallProbe, br)){
-                s.wallAhead = true;
-                break;
-            }
-        }
-        // world端も壁とみなす
-        if(facingRight){
-            // 右に向いているときにProbeがworldの外に出そうか
-            if(wallProbe.x + wallProbe.w >= static_cast<int>(world_W)){
-                s.wallAhead = true;
-            }
-        } else {
-            // 左を向いているときにProbeがworldの外に出そうか
-            if(wallProbe.x <= 0){
-                s.wallAhead = true;
-            }
-        }
-        // 敵の状態確認の結果を出力用の変数につめる
-        outEnemySensors.push_back(s);
     }
-} 
-*/
+}

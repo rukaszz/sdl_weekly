@@ -1,5 +1,5 @@
-#ifndef FIREBALL_H
-#define FIREBALL_H
+#ifndef ENEMYBURRET_H
+#define ENEMYBURRET_H
 
 #include "Direction.hpp"
 #include "Bullet.hpp"
@@ -13,15 +13,15 @@ class Renderer;
 struct Block;
 struct Camera;
 
-class FireBall : public Bullet{
+class EnemyBurret : public Bullet{
 private:
     // ファイアボールの生存状態管理
     bool active = true;
     // バウンド回数計測
     int bounceCount = 0;
 public:
-    FireBall(double x, double y, Direction dir, Texture& tex);
-    ~FireBall() = default;
+    EnemyBurret(double x, double y, Direction dir, Texture& tex);
+    ~EnemyBurret() = default;
     void update(double delta, const std::vector<Block>& blocks) override;
     SDL_Rect getCollisionRect() const override;
     // 生存状態関係メソッド
@@ -35,4 +35,4 @@ public:
     }
 };
 
-#endif  // FIREBALL_H
+#endif  // ENEMYBURRET_H

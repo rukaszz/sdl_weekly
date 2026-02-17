@@ -72,6 +72,7 @@ private:
     void resolveFireBallEnemyCollision();
     // Enemyの行動関係
     void gatherEnemySensors(std::vector<EnemySensor>& outEnemySensors);
+    void spawnTurretBullets();
     // gatherEnemySensors()で呼ぶ関数※処理を分割している
     EnemySensor buildEnemySensor(const Enemy& enemy, const EnemySensorContext& esc) const;
     void fillPlayerRelation(const Enemy& enemy, const EnemySensorContext& esc, EnemySensor& outSensor) const;
