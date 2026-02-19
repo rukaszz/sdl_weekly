@@ -3,7 +3,6 @@
 
 struct EnemyBulletConfig{
     static inline constexpr double SPEED_X = 400.0; 
-    static inline constexpr double GRAVITY = 0.0;
     
     static inline constexpr int FRAME_W = 32;
     static inline constexpr int FRAME_H = 32;

@@ -1,6 +1,7 @@
 #ifndef JUMPERENEMY_H
 #define JUMPERENEMY_H
 
+#include "JumperConfig.hpp"
 #include "EnemySensor.hpp"
 #include "Enemy.hpp"
 
@@ -10,11 +11,7 @@ class Texture;
 
 class JumperEnemy : public Enemy{
 private:
-    double jumpCooldown = 0.0;      // ジャンプの休息時間
-    double minInterval = 1.0;   
-    double maxInterval = 2.0;   
-    double jumpSpeed = 1000.0;       // 垂直速度
-    double moveSpeedScale = 0.3;    // 横方向の速度
+    double jumpCooldown = 0.0;                              // ジャンプの休息時間
     
     // ランダム要素
     std::mt19937 rng;

@@ -1,6 +1,7 @@
 #ifndef TURRETENEMY_H
 #define TURRETENEMY_H
 
+#include "TurretConfig.hpp"
 #include "EnemySensor.hpp"
 #include "Direction.hpp"
 #include "Enemy.hpp"
@@ -9,8 +10,7 @@ class Texture;
 
 class TurretEnemy : public Enemy{
 private:
-    double fireInterval = 1.5;  // 秒
-    double fireTimer = 0.0;
+    double fireTimer = TurretConfig::FIRE_INTERVAL;     // 初弾もちょっと待つ
     bool fireRequested = false;
     Direction fireDir = Direction::Right;   // デフォルト右
 public:

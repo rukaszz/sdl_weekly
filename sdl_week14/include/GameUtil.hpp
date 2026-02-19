@@ -68,6 +68,36 @@ namespace GameUtil{
         auto ts = std::find_if(s.rbegin(), s.rend(), [](unsigned char ch){ return !std::isspace(ch); }).base();
         s.erase(ts, s.end());
     }
+
+    /**
+     * @brief EntityのSDL_Rectを受け取り，Worldの外にいるかを判定する関数
+     * 
+     * @param r 
+     * @param world_W 
+     * @param world_H 
+     * @param margin_W 
+     * @param margin_H 
+     * @return true 
+     * @return false 
+     */
+    inline bool isOutOfWorldBounds(SDL_Rect r, 
+                                   double world_W, double world_H,
+                                   double margin_W, double margin_H
+                                  )
+    {
+        // SDL_Rectの分解
+        double top    = r.y;
+        double bottom = r.y + r.h;
+        double right  = r.x + r.w;
+        double left   = r.x;
+
+        if(bottom < 0.0 - margin_H) return true;
+        if (top    > world_H + margin_H)  return true;
+        if (right  < 0.0 - margin_W)      return true;
+        if (left   > world_W + margin_W)  return true;
+
+        return false;
+    }
 }
 
 #endif  // GAMEUTIL_H

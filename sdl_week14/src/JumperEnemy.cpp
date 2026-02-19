@@ -1,9 +1,11 @@
 #include "JumperEnemy.hpp"
+#include "JumperConfig.hpp"
 #include "EnemySensor.hpp"
 #include "Direction.hpp"
 
 #include <random>
 #include <cmath>
+#include <algorithm>
 
 /**
  * @brief Construct a new Jumper Enemy:: Jumper Enemy object
@@ -14,7 +16,7 @@
 JumperEnemy::JumperEnemy(Texture& tex)
     : Enemy(tex), 
       rng(std::random_device{}()), 
-      dist(minInterval, maxInterval)
+      dist(JumperConfig::MIN_INTERVAL, JumperConfig::MAX_INTERVAL)
 {
 
 }
@@ -28,14 +30,15 @@ JumperEnemy::JumperEnemy(Texture& tex)
 void JumperEnemy::think(double delta, const EnemySensor& es){
     // 基本は動かない
     hv = 0.0;
-    // Playerが歯科以外なら何もしない
+
+    // クールダウンは常に減らす
+    jumpCooldown = std::max(0.0, jumpCooldown - delta);
+
+    // Playerが視界外なら何もしない
     // 壁や崖回避ロジックも実装しない
-    if(!es.playerInSight){
-        jumpCooldown = std::max(0.0, jumpCooldown - delta);
+    if(!es.playerInSight || es.distanceToPlayer > JumperConfig::MIN_TRIGGER_DISTANCE){
         return;
     }
-    // クールダウン更新
-    jumpCooldown -= delta;
 
     // ジャンプの条件：地面にいる かつ クールダウンが0.0
     if(isOnGround() && jumpCooldown <= 0.0){
@@ -57,6 +60,11 @@ void JumperEnemy::think(double delta, const EnemySensor& es){
     }
 }
 
+/**
+ * @brief 次のジャンプ間隔を乱数生成器を用いて決定する関数
+ * 
+ * @return double 
+ */
 double JumperEnemy::nextInterval(){
     return dist(rng);
 }

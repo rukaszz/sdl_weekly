@@ -372,12 +372,41 @@ void PlayingScene::cleanupFireBalls(){
                 return true;
             }
             SDL_Rect fr = f->getCollisionRect();
+            return GameUtil::isOutOfWorldBounds(
+                fr, 
+                ctx.worldInfo.WorldWidth, 
+                ctx.worldInfo.WorldHeight,
+                FireBallConfig::FRAME_W,
+                FireBallConfig::FRAME_H, 
+            );
+        }
+    );
+    // remove_ifで消える要素はイテレータ範囲外へ動くのでeraseで消える
+    fireballs.erase(it, fireballs.end());
+}
+
+/*
+void PlayingScene::cleanupFireBalls(){
+    // ファイアボール取得
+    auto& fireballs = ctx.entityCtx.fireballs;
+
+    // それぞれのファイアボールの状態を確認して片付ける
+    // 条件を満たすファイアボールを除いた配列を取得
+    auto it = std::remove_if(
+        fireballs.begin(), 
+        fireballs.end(), 
+        [&](const std::unique_ptr<FireBall>& f){
+            if(!f->isActive()){
+                return true;
+            }
+            SDL_Rect fr = f->getCollisionRect();
             return checkBoundsforFireBalls(fr, ctx.worldInfo.WorldWidth, ctx.worldInfo.WorldHeight);
         }
     );
     // remove_ifで消える要素はイテレータ範囲外へ動くのでeraseで消える
     fireballs.erase(it, fireballs.end());
 }
+*/
 
 /**
  * @brief 敵とファイアボールの接触判定処理
@@ -665,6 +694,7 @@ void PlayingScene::spawnTurretBullets(){
     // Enemiesをそれぞれ見る
     for(auto& e : ctx.entityCtx.enemies){
         // Enemy<-Turretなので，dynamic_castで確認
+        // ループ内で呼ばれるが，ゲームの規模的に許容できると判断
         if(auto* turret = dynamic_cast<TurretEnemy*>(e.get())){
             // 撃つべきタイミングでなければ何もしない
             if(!turret->shouldFire()){
