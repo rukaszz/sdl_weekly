@@ -82,6 +82,8 @@ void Game::loadResources(){
     enemyTexture = std::make_unique<Texture>(renderer->get(), "assets/image/dark_rhb.png");
     // ファイアボール
     fireballTexture = std::make_unique<Texture>(renderer->get(), "assets/image/fireball.png");
+    // 敵の弾(現状はファイアボールと同じ)
+    enemyBulletTexture = std::make_unique<Texture>(renderer->get(), "assets/image/fireball.png");
     // テキスト
     font = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
     // スコア
@@ -136,7 +138,9 @@ void Game::buildContexts(){
             enemies,    // 空vector
             blocks,     // 空vector
             *fireballTexture, 
-            fireballs   // 空vector
+            fireballs,  // 空vector
+            *enemyBulletTexture, 
+            enemyBullets   // 空vector
         }, 
         TextRenderContext{
             *font,

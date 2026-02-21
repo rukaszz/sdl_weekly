@@ -12,7 +12,8 @@ namespace StageConfig{
             600.0,  // playerStart_Y
             {{.x = 500.0, .y = 200.0, .speed = 150.0, .type = EnemyType::Jumper}, 
              {.x = 200.0, .y = 400.0, .speed = 100.0, .type = EnemyType::Walker},
-             {.x = 400.0, .y = 636.0, .speed = 50.0,  .type = EnemyType::Chaser}
+             {.x = 400.0, .y = 636.0, .speed = 50.0,  .type = EnemyType::Chaser}, 
+             {.x = 700.0, .y = 636.0, .speed = 50.0,  .type = EnemyType::Turret}
             }
         }, 
         {

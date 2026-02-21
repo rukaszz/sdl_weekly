@@ -4,9 +4,12 @@
 #include "Game.hpp"
 #include "GameUtil.hpp"
 
+#include "TurretEnemy.hpp"
+
 #include "GameConfig.hpp"
 #include "EnemyConfig.hpp"
 #include "FireBallConfig.hpp"
+#include "EnemyBulletConfig.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -65,6 +68,7 @@ void PlayingScene::update(double delta){
     enemySensors.reserve(ctx.entityCtx.enemies.size());
     gatherEnemySensors(enemySensors);
     runEnemyAI(delta, enemySensors);
+    spawnTurretBullets();
     // 6. 物理の更新
     updateEntities(delta, worldBounds);
     // 7. Playerとの当たり判定
@@ -75,6 +79,8 @@ void PlayingScene::update(double delta){
     updateCamera();
     // 10. ファイアボールの片付け
     cleanupFireBalls();
+    // EnemyBulletの片付け
+    cleanupEnemyBullets();
     // デバッグ情報取得
     debugText->setText(ctx.entityCtx.player.debugMoveContext());
 }
@@ -377,7 +383,7 @@ void PlayingScene::cleanupFireBalls(){
                 ctx.worldInfo.WorldWidth, 
                 ctx.worldInfo.WorldHeight,
                 FireBallConfig::FRAME_W,
-                FireBallConfig::FRAME_H, 
+                FireBallConfig::FRAME_H
             );
         }
     );
@@ -690,7 +696,7 @@ void PlayingScene::runEnemyAI(double delta, const std::vector<EnemySensor>& sens
 void PlayingScene::spawnTurretBullets(){
     //EnemyBullet型の変数準備
     auto& bullets = ctx.entityCtx.enemyBullets;
-    Texture& tex = ctx.entityCtx.fireballTexture;   // ファイアボールのテクスチャを流用
+    Texture& tex = ctx.entityCtx.enemyBulletTexture;   // 現状はファイアボールを使っているので差し替える
     // Enemiesをそれぞれ見る
     for(auto& e : ctx.entityCtx.enemies){
         // Enemy<-Turretなので，dynamic_castで確認
@@ -710,4 +716,35 @@ void PlayingScene::spawnTurretBullets(){
             bullets.emplace_back(std::make_unique<EnemyBullet>(x, y, dir, tex));
         }
     }
+}
+
+/**
+ * @brief EnemyBulletの後処理を実施する関数
+ * 
+ */
+void PlayingScene::cleanupEnemyBullets(){
+    // ファイアボール取得
+    auto& enemyBullets = ctx.entityCtx.enemyBullets;
+
+    // それぞれのファイアボールの状態を確認して片付ける
+    // 条件を満たすファイアボールを除いた配列を取得
+    auto it = std::remove_if(
+        enemyBullets.begin(), 
+        enemyBullets.end(), 
+        [&](const std::unique_ptr<EnemyBullet>& eb){
+            if(!eb->isActive()){
+                return true;
+            }
+            SDL_Rect ebr = eb->getCollisionRect();
+            return GameUtil::isOutOfWorldBounds(
+                ebr, 
+                ctx.worldInfo.WorldWidth, 
+                ctx.worldInfo.WorldHeight,
+                EnemyBulletConfig::FRAME_W,
+                EnemyBulletConfig::FRAME_H
+            );
+        }
+    );
+    // remove_ifで消える要素はイテレータ範囲外へ動くのでeraseで消える
+    enemyBullets.erase(it, enemyBullets.end());
 }

@@ -32,6 +32,7 @@ add_executable(${PROJECT_NAME}
     src/WalkerEnemy.cpp
     src/ChaserEnemy.cpp
     src/JumperEnemy.cpp
+    src/TurretEnemy.cpp
     src/AnimationController.cpp
     src/Text.cpp
     src/TextTexture.cpp
@@ -51,6 +52,7 @@ add_executable(${PROJECT_NAME}
     src/SdlSystem.cpp
     src/Bullet.cpp
     src/FireBall.cpp
+    src/EnemyBullet.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

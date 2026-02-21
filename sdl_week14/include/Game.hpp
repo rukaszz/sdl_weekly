@@ -11,6 +11,7 @@
 #include "Player.hpp"
 #include "Enemy.hpp"
 #include "FireBall.hpp"
+#include "EnemyBullet.hpp"
 #include "Text.hpp"
 #include "TextTexture.hpp"
 #include "GameContext.hpp"
@@ -43,6 +44,8 @@ private:
     std::vector<std::unique_ptr<Enemy>> enemies;
     std::unique_ptr<Texture> fireballTexture;
     std::vector<std::unique_ptr<FireBall>> fireballs;
+    std::unique_ptr<Texture> enemyBulletTexture;
+    std::vector<std::unique_ptr<EnemyBullet>> enemyBullets;
     // ブロック
     std::vector<Block> blocks;
     // テキスト表示用

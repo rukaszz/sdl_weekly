@@ -45,13 +45,13 @@ void JumperEnemy::think(double delta, const EnemySensor& es){
         // 水平方向移動は，Player方向へ少しだけ移動する
         if(es.playerOnLeft){    // Playerが左側
             dir = Direction::Left;
-            hv = -speed * moveSpeedScale;
+            hv = -speed * JumperConfig::MOVE_SPEED_SCALE;
         } else {    // Playerが右側
             dir = Direction::Right;
-            hv = speed * moveSpeedScale;
+            hv = speed * JumperConfig::MOVE_SPEED_SCALE;
         }
         // 垂直速度のセット(上方向)
-        vv = -jumpSpeed;
+        vv = -JumperConfig::JUMP_SPEED;
         // 次のジャンプまでの間隔をランダムに設定
         jumpCooldown = nextInterval();
     } else {

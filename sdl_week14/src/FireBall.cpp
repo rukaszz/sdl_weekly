@@ -35,12 +35,6 @@ FireBall::FireBall(double x, double y, Direction dir, Texture& tex)
 }
 
 /**
- * @brief Destroy the FireBall:: FireBall object
- * 
- */
-FireBall::~FireBall() = default;
-
-/**
  * @brief ファイアボールの挙動を設定
  * 現状は床(上から下)とのバウンドがメイン
  * 
