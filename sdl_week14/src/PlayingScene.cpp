@@ -118,6 +118,9 @@ void PlayingScene::render(){
     for(const auto& f : ctx.entityCtx.fireballs){
         f->draw(ctx.renderer, ctx.camera);
     }
+    for(const auto& eb : ctx.entityCtx.enemyBullets){
+        eb->draw(ctx.renderer, ctx.camera);
+    }
     // キャラクタ描画
     // カメラを考慮した書き方にする
     ctx.entityCtx.player.draw(ctx.renderer, ctx.camera);
@@ -185,6 +188,8 @@ void PlayingScene::updateEntities(double delta, DrawBounds b){
     const InputState& is = ctx.input.getState();
     // ファイアボール
     for(auto& f : ctx.entityCtx.fireballs) f->update(delta, ctx.entityCtx.blocks);
+    // EnemyBullet
+    for(auto& eb : ctx.entityCtx.enemyBullets) eb->update(delta, ctx.entityCtx.blocks);
     // キャラクタの更新
     // Player
     ctx.entityCtx.player.update(delta, is, b, ctx.entityCtx.blocks);
@@ -235,6 +240,8 @@ void PlayingScene::detectCollision(){
     resolveBlockCollision();
     // 敵とファイアボールの接触判定
     resolveFireBallEnemyCollision();
+    // Player-敵弾の接触判定
+    resolvePlayerEnemyBulletCollision();
 }
 
 /**
@@ -747,4 +754,36 @@ void PlayingScene::cleanupEnemyBullets(){
     );
     // remove_ifで消える要素はイテレータ範囲外へ動くのでeraseで消える
     enemyBullets.erase(it, enemyBullets.end());
+}
+
+/**
+ * @brief プレイヤーと敵弾の接触判定処理
+ * 
+ */
+void PlayingScene::resolvePlayerEnemyBulletCollision(){
+    // ファイアボール取得
+    auto& player = ctx.entityCtx.player;
+    // 敵を取得
+    auto& enemyBullet   = ctx.entityCtx.enemyBullets;
+
+    // それぞれの接触判定
+    for(auto& eb : enemyBullet){
+        // 非活性のものは処理しない
+        if(!eb->isActive()){
+            continue;
+        }
+        // 接触判定用矩形取得
+        SDL_Rect ebr = eb->getCollisionRect();
+        // Playerとの判定処理
+        // 接触判定用矩形取得
+        SDL_Rect pr = player.getCollisionRect();
+        // 接触判定
+        if(!GameUtil::intersects(ebr, pr)){
+            continue;   // 接触していないのは無視
+        }
+        // 命中時の処理
+        ctrl.requestScene(GameScene::GameOver); // GameOverSceneへの遷移要請
+        eb->deactivate();   // 敵弾は非活性化
+        break;              // 敵弾への接触は現状GameOverとしてゲームを終わる
+    }
 }

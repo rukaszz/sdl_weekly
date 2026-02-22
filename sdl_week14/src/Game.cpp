@@ -83,7 +83,7 @@ void Game::loadResources(){
     // ファイアボール
     fireballTexture = std::make_unique<Texture>(renderer->get(), "assets/image/fireball.png");
     // 敵の弾(現状はファイアボールと同じ)
-    enemyBulletTexture = std::make_unique<Texture>(renderer->get(), "assets/image/fireball.png");
+    enemyBulletTexture = std::make_unique<Texture>(renderer->get(), "assets/image/enemy_bullet.png");
     // テキスト
     font = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
     // スコア

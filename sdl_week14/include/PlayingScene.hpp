@@ -70,6 +70,7 @@ private:
     bool checkBoundsforFireBalls(SDL_Rect fr, const double world_W, const double world_H);
     void cleanupFireBalls();
     void resolveFireBallEnemyCollision();
+    void resolvePlayerEnemyBulletCollision();
     // Enemyの行動関係
     void gatherEnemySensors(std::vector<EnemySensor>& outEnemySensors);
     void spawnTurretBullets();
