@@ -16,13 +16,10 @@ private:
 public:
     TurretEnemy(Texture& tex);
     void think(double delta, const EnemySensor& es) override;
+    bool consumeFireRequest(Direction& outDir) noexcept;
     // 弾を発射できるかを返す
     bool shouldFire() const noexcept{
         return fireRequested;
-    }
-    // 弾発射の要求をリセット
-    void clearFireRequest() noexcept{
-        fireRequested = false;
     }
     // 弾の射出方向を返す
     Direction getFireDirection() const noexcept{

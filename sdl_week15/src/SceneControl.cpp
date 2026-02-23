@@ -56,9 +56,11 @@ void SceneControl::loadStage(int stageIndex, GameContext& ctx){
     assert(0 <= stageIndex && stageIndex < static_cast<int>(StageConfig::STAGES.size()));
     // ステージ定義を取得
     const auto& def = StageConfig::STAGES[stageIndex];
-    // ブロック/敵のクリア
+    // vector管理系のオブジェクトのクリア
     ctx.entityCtx.blocks.clear();
     ctx.entityCtx.enemies.clear();
+    ctx.entityCtx.fireballs.clear();
+    ctx.entityCtx.enemyBullets.clear();
     Texture& enemyTex = ctx.entityCtx.enemyTexture;
     // 敵のサイズ分メモリを予約
     ctx.entityCtx.enemies.reserve(def.enemySpawns.size());

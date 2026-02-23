@@ -3,6 +3,7 @@
 
 #include "Scene.hpp"
 #include "EnemySensor.hpp"
+#include "ProjectileSystem.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -44,6 +45,8 @@ struct EnemySensorContext{
  */
 class PlayingScene : public Scene{
 private:
+    // 弾系オブジェクト管理用
+    ProjectileSystem projectiles;
     // デバッグ表示用のテキストテクスチャ
     std::unique_ptr<TextTexture> debugText;
 

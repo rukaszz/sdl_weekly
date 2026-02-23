@@ -46,3 +46,20 @@ void TurretEnemy::think(double delta, const EnemySensor& es){
         fireTimer = TurretConfig::FIRE_INTERVAL;
     }
 }
+
+/**
+ * @brief 発射要求に応える関数
+ * ※PlayingSceneなどがfireRequestedを触らないようにするため
+ * 
+ * @param outDir 
+ * @return true 
+ * @return false 
+ */
+bool TurretEnemy::consumeFireRequest(Direction& outDir) noexcept{
+    if(!fireRequested){
+        return false;
+    }
+    outDir = fireDir;
+    fireRequested = false;
+    return true;
+}

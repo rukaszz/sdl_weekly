@@ -22,9 +22,14 @@
  * 
  */
 PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
-    : Scene(
-        sc, 
-        gc
+    : Scene(sc, gc)
+    , projectiles(
+        ctx.entityCtx.fireballs, 
+        ctx.entityCtx.enemyBullets, 
+        ctx.entityCtx.blocks, 
+        ctx.worldInfo, 
+        ctx.entityCtx.fireballTexture, 
+        ctx.entityCtx.enemyBulletTexture
     )
 {
     debugText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 0, 255, 255});
@@ -68,19 +73,26 @@ void PlayingScene::update(double delta){
     enemySensors.reserve(ctx.entityCtx.enemies.size());
     gatherEnemySensors(enemySensors);
     runEnemyAI(delta, enemySensors);
-    spawnTurretBullets();
-    // 6. 物理の更新
+    // spawnTurretBullets();
+    // 敵弾生成(Turretへの射出要求を消費)
+    projectiles.spawnEnemyBulletsFromEnemies(ctx.entityCtx.enemies);
+    // 6. 物理の更新(弾系はここで更新していない)
     updateEntities(delta, worldBounds);
+    // 弾更新(プレイヤー弾/敵弾で統一)
+    projectiles.update(delta);
     // 7. Playerとの当たり判定
-    detectCollision();
+    detectCollision();  // ここではPlayer-Enemy, Player-Blockのみを判定したい
+    // 弾の当たり判定は System に移す(detectCollisionから除外している)
+    projectiles.resolveCollisions(ctx.entityCtx.player, ctx.entityCtx.enemies, ctrl);
     // 8. 落下死判定
     hasFallenToGameOver();
     // 9. カメラ座標の更新
     updateCamera();
-    // 10. ファイアボールの片付け
-    cleanupFireBalls();
+    // 10. 弾系オブジェクトの片付け
+    projectiles.cleanup();
+    // cleanupFireBalls();
     // EnemyBulletの片付け
-    cleanupEnemyBullets();
+    // cleanupEnemyBullets();
     // デバッグ情報取得
     debugText->setText(ctx.entityCtx.player.debugMoveContext());
 }
@@ -158,13 +170,15 @@ void PlayingScene::handlePlayingInput(const InputState& is){
     // bキーでファイアボール発射
     if(is.justPressed[static_cast<int>(Action::Fire)]){
         // 出現位置と向きの設定
-        double spawn_X = ctx.entityCtx.player.getEntityCenter_X();
-        double spawn_Y = ctx.entityCtx.player.getEntityCenter_Y();
-        Direction dir = ctx.entityCtx.player.getDirection();
-        // インスタンス化
-        ctx.entityCtx.fireballs.emplace_back(
-            std::make_unique<FireBall>(spawn_X, spawn_Y, dir, ctx.entityCtx.fireballTexture)
-        );
+        const double spawn_X = ctx.entityCtx.player.getEntityCenter_X();
+        const double spawn_Y = ctx.entityCtx.player.getEntityCenter_Y();
+        const Direction dir = ctx.entityCtx.player.getDirection();
+        // projectileでファイアボールを管理
+        projectiles.spawnPlayerFireball(spawn_X, spawn_Y, dir);
+        // // インスタンス化
+        // ctx.entityCtx.fireballs.emplace_back(
+        //     std::make_unique<FireBall>(spawn_X, spawn_Y, dir, ctx.entityCtx.fireballTexture)
+        // );
     }
 }
 
@@ -187,9 +201,9 @@ void PlayingScene::updateEntities(double delta, DrawBounds b){
     // キーの状態取得
     const InputState& is = ctx.input.getState();
     // ファイアボール
-    for(auto& f : ctx.entityCtx.fireballs) f->update(delta, ctx.entityCtx.blocks);
+    // for(auto& f : ctx.entityCtx.fireballs) f->update(delta, ctx.entityCtx.blocks);
     // EnemyBullet
-    for(auto& eb : ctx.entityCtx.enemyBullets) eb->update(delta, ctx.entityCtx.blocks);
+    // for(auto& eb : ctx.entityCtx.enemyBullets) eb->update(delta, ctx.entityCtx.blocks);
     // キャラクタの更新
     // Player
     ctx.entityCtx.player.update(delta, is, b, ctx.entityCtx.blocks);
@@ -239,9 +253,9 @@ void PlayingScene::detectCollision(){
     // ダメージブロックとの衝突判定
     resolveBlockCollision();
     // 敵とファイアボールの接触判定
-    resolveFireBallEnemyCollision();
+    // resolveFireBallEnemyCollision();
     // Player-敵弾の接触判定
-    resolvePlayerEnemyBulletCollision();
+    // resolvePlayerEnemyBulletCollision();
 }
 
 /**
@@ -371,6 +385,7 @@ bool PlayingScene::checkBoundsforFireBalls(SDL_Rect fr, const double world_W, co
  * @brief 画面外へ出た/非活性になったファイアボールを消す
  * 
  */
+/*
 void PlayingScene::cleanupFireBalls(){
     // ファイアボール取得
     auto& fireballs = ctx.entityCtx.fireballs;
@@ -397,34 +412,13 @@ void PlayingScene::cleanupFireBalls(){
     // remove_ifで消える要素はイテレータ範囲外へ動くのでeraseで消える
     fireballs.erase(it, fireballs.end());
 }
-
-/*
-void PlayingScene::cleanupFireBalls(){
-    // ファイアボール取得
-    auto& fireballs = ctx.entityCtx.fireballs;
-
-    // それぞれのファイアボールの状態を確認して片付ける
-    // 条件を満たすファイアボールを除いた配列を取得
-    auto it = std::remove_if(
-        fireballs.begin(), 
-        fireballs.end(), 
-        [&](const std::unique_ptr<FireBall>& f){
-            if(!f->isActive()){
-                return true;
-            }
-            SDL_Rect fr = f->getCollisionRect();
-            return checkBoundsforFireBalls(fr, ctx.worldInfo.WorldWidth, ctx.worldInfo.WorldHeight);
-        }
-    );
-    // remove_ifで消える要素はイテレータ範囲外へ動くのでeraseで消える
-    fireballs.erase(it, fireballs.end());
-}
 */
 
 /**
  * @brief 敵とファイアボールの接触判定処理
  * 
  */
+/*
 void PlayingScene::resolveFireBallEnemyCollision(){
     // ファイアボール取得
     auto& fireballs = ctx.entityCtx.fireballs;
@@ -459,6 +453,7 @@ void PlayingScene::resolveFireBallEnemyCollision(){
         }
     }
 }
+*/
 
 /**
  * @brief Enemyの行動を決定するための情報を収集する
@@ -700,6 +695,7 @@ void PlayingScene::runEnemyAI(double delta, const std::vector<EnemySensor>& sens
  * @brief Turretの敵から弾を発射させる
  * 
  */
+/*
 void PlayingScene::spawnTurretBullets(){
     //EnemyBullet型の変数準備
     auto& bullets = ctx.entityCtx.enemyBullets;
@@ -724,11 +720,13 @@ void PlayingScene::spawnTurretBullets(){
         }
     }
 }
+*/
 
 /**
  * @brief EnemyBulletの後処理を実施する関数
  * 
  */
+/*
 void PlayingScene::cleanupEnemyBullets(){
     // ファイアボール取得
     auto& enemyBullets = ctx.entityCtx.enemyBullets;
@@ -755,11 +753,13 @@ void PlayingScene::cleanupEnemyBullets(){
     // remove_ifで消える要素はイテレータ範囲外へ動くのでeraseで消える
     enemyBullets.erase(it, enemyBullets.end());
 }
+*/
 
 /**
  * @brief プレイヤーと敵弾の接触判定処理
  * 
  */
+/*
 void PlayingScene::resolvePlayerEnemyBulletCollision(){
     // ファイアボール取得
     auto& player = ctx.entityCtx.player;
@@ -787,3 +787,4 @@ void PlayingScene::resolvePlayerEnemyBulletCollision(){
         break;              // 敵弾への接触は現状GameOverとしてゲームを終わる
     }
 }
+*/
