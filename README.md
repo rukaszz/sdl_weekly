@@ -1430,6 +1430,63 @@ struct EnemySensor {
   - Turret：弾を発射し続ける砲台
 - 敵のスポーンをJsonファイルへ移行する
 
+## week14について
+
+### week14の概要
+
+Jumper/Turret型の敵を実装した．JumperはこれまでのEnemySensorに関するセンサーによる情報の収集→敵の行動判断，というプロセスでかんたんに実装ができた．しかし一方で，TurretEnemyは一筋縄では行かなかった．
+
+また，使用しているPCがアップデートによって内蔵NICのドライバが読み込まれなくなり，ネットワークへ接続できない期間があった．
+
+### JumperEmeyについて
+
+- JumperEnemy
+  - 概要
+    - Playerが近づくとジャンプする
+    - ジャンプは一定の高さ
+    - ジャンプの周期はある程度ランダムである
+  - JumperEnemy::think()
+    - 条件1：いわゆる視界を設定し，プレイヤーが一定距離まで近づいているか
+    - 条件2：地面に接地しており，かつ，ジャンプのクールダウンが0か
+  - ジャンプのランダム性
+    - 乱数生成器で1〜2秒のランダムな時間でジャンプする
+    - 次のジャンプはJumperEnemy::nextInterval()でクールダウンを設定する
+
+### TurretEnemyについて
+
+- TurretEnemy
+  - 概要
+    - Playerが一定距離まで近づくと敵弾を発射する
+    - TurretEnemyはその場から動かない
+    - Walkerなどと同様に，踏みつけやファイアボールで死ぬ
+  - 問題点
+    - 当初はFireBallのロジックを踏襲し，等速直線運動をする弾を発射する想定だった
+    - ただFireBallはEnemyとの衝突を念頭に設計しているため，衝突検知のロジックでPlayer/Enemyのどちらから発射されたか，Player/Enemyのどちらにぶつかったかを切り分ける必要があった
+      - 当たり判定のロジックが複雑化する
+  - 実装方針
+    - FireBallクラスを使用するのではなく，EnemyBulletクラスを新しく用意する
+    - EnemyBulletは基本的にFireBallを踏襲しているが，updateロジックなどは単純化する
+    - TurretEnemyはEnemyBulletを発射する
+  - TurretEnemy::think()
+    - 発射条件
+      - 条件1：プレイヤーが視界内にいるか
+      - 条件2：プレイヤーの距離が射程圏内か
+      - 条件3：高さが一定の間に収まっているか→当てるために発射しているように見せるため
+    - TurretEnemyは方向(Direction)を持っている
+
+#### 今回の敵の実装に関する問題点
+
+1. 現状FireBallとほとんど処理が同じ
+   - 処理は共通化できる部分が多く，Projectileクラスにまとめて似た処理は統一する
+2. EnemySensorの収集頻度が高すぎる
+   - update処理を見直して，収集する，データや更新するデータの処理を見直す必要あり
+3. PlayingSceneの肥大化
+   - GameクラスのGod Class化を抑えるためにSceneに分割したとはいえ，PlayingSceneの責務がかなり大きくなっている
+   - update処理の見直しも含めてリファクタリングが必要
+
+### JunperEnemyについて
+
+
 ## アセット
 
 詳細はATTRIBUTIONを参照．

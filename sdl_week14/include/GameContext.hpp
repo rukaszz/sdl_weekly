@@ -21,7 +21,6 @@ struct Block;
 struct Camera;
 // class Player;
 // class Enemy;
-struct WorldInfo;
 
 // 世界の広さ(ステージの広さ)
 struct WorldInfo{
