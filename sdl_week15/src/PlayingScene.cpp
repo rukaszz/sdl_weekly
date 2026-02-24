@@ -90,9 +90,6 @@ void PlayingScene::update(double delta){
     updateCamera();
     // 10. 弾系オブジェクトの片付け
     projectiles.cleanup();
-    // cleanupFireBalls();
-    // EnemyBulletの片付け
-    // cleanupEnemyBullets();
     // デバッグ情報取得
     debugText->setText(ctx.entityCtx.player.debugMoveContext());
 }
@@ -175,10 +172,6 @@ void PlayingScene::handlePlayingInput(const InputState& is){
         const Direction dir = ctx.entityCtx.player.getDirection();
         // projectileでファイアボールを管理
         projectiles.spawnPlayerFireball(spawn_X, spawn_Y, dir);
-        // // インスタンス化
-        // ctx.entityCtx.fireballs.emplace_back(
-        //     std::make_unique<FireBall>(spawn_X, spawn_Y, dir, ctx.entityCtx.fireballTexture)
-        // );
     }
 }
 
@@ -200,10 +193,6 @@ void PlayingScene::updateScore(double delta){
 void PlayingScene::updateEntities(double delta, DrawBounds b){
     // キーの状態取得
     const InputState& is = ctx.input.getState();
-    // ファイアボール
-    // for(auto& f : ctx.entityCtx.fireballs) f->update(delta, ctx.entityCtx.blocks);
-    // EnemyBullet
-    // for(auto& eb : ctx.entityCtx.enemyBullets) eb->update(delta, ctx.entityCtx.blocks);
     // キャラクタの更新
     // Player
     ctx.entityCtx.player.update(delta, is, b, ctx.entityCtx.blocks);
@@ -252,10 +241,6 @@ void PlayingScene::detectCollision(){
     resolveEnemyCollision(ctx.entityCtx.player.getPrevFeetCollision());
     // ダメージブロックとの衝突判定
     resolveBlockCollision();
-    // 敵とファイアボールの接触判定
-    // resolveFireBallEnemyCollision();
-    // Player-敵弾の接触判定
-    // resolvePlayerEnemyBulletCollision();
 }
 
 /**
@@ -380,80 +365,6 @@ bool PlayingScene::checkBoundsforFireBalls(SDL_Rect fr, const double world_W, co
 
     return false;
 }
-
-/**
- * @brief 画面外へ出た/非活性になったファイアボールを消す
- * 
- */
-/*
-void PlayingScene::cleanupFireBalls(){
-    // ファイアボール取得
-    auto& fireballs = ctx.entityCtx.fireballs;
-
-    // それぞれのファイアボールの状態を確認して片付ける
-    // 条件を満たすファイアボールを除いた配列を取得
-    auto it = std::remove_if(
-        fireballs.begin(), 
-        fireballs.end(), 
-        [&](const std::unique_ptr<FireBall>& f){
-            if(!f->isActive()){
-                return true;
-            }
-            SDL_Rect fr = f->getCollisionRect();
-            return GameUtil::isOutOfWorldBounds(
-                fr, 
-                ctx.worldInfo.WorldWidth, 
-                ctx.worldInfo.WorldHeight,
-                FireBallConfig::FRAME_W,
-                FireBallConfig::FRAME_H
-            );
-        }
-    );
-    // remove_ifで消える要素はイテレータ範囲外へ動くのでeraseで消える
-    fireballs.erase(it, fireballs.end());
-}
-*/
-
-/**
- * @brief 敵とファイアボールの接触判定処理
- * 
- */
-/*
-void PlayingScene::resolveFireBallEnemyCollision(){
-    // ファイアボール取得
-    auto& fireballs = ctx.entityCtx.fireballs;
-    // 敵を取得
-    auto& enemies   = ctx.entityCtx.enemies;
-
-    // それぞれの接触判定
-    for(auto& f : fireballs){
-        // 非活性のものは処理しない
-        if(!f->isActive()){
-            continue;
-        }
-        // 接触判定用矩形取得
-        SDL_Rect fbr = f->getCollisionRect();
-        // 敵との判定処理
-        for(auto& e : enemies){
-            // 非活性の敵は処理しない
-            if(!e->isAlive()){
-                continue;
-            }
-            // 接触判定用矩形取得
-            SDL_Rect er = e->getCollisionRect();
-            // 接触判定
-            if(!GameUtil::intersects(fbr, er)){
-                continue;   // 接触していないのは無視
-            }
-            // 命中時の処理
-            e->startDying();    // 敵はDying状態へ
-            f->deactivate();      // ファイアボールは非活性化
-            ctrl.setScore(ctrl.getScore() + EnemyConfig::SCORE_AT_FIREBALL);   // 敵削除時のスコア加算
-            break;  // ファイアボールは1体にヒットしたら終わる(貫通しない)
-        }
-    }
-}
-*/
 
 /**
  * @brief Enemyの行動を決定するための情報を収集する
@@ -691,100 +602,3 @@ void PlayingScene::runEnemyAI(double delta, const std::vector<EnemySensor>& sens
     }
 }
 
-/**
- * @brief Turretの敵から弾を発射させる
- * 
- */
-/*
-void PlayingScene::spawnTurretBullets(){
-    //EnemyBullet型の変数準備
-    auto& bullets = ctx.entityCtx.enemyBullets;
-    Texture& tex = ctx.entityCtx.enemyBulletTexture;   // 現状はファイアボールを使っているので差し替える
-    // Enemiesをそれぞれ見る
-    for(auto& e : ctx.entityCtx.enemies){
-        // Enemy<-Turretなので，dynamic_castで確認
-        // ループ内で呼ばれるが，ゲームの規模的に許容できると判断
-        if(auto* turret = dynamic_cast<TurretEnemy*>(e.get())){
-            // 撃つべきタイミングでなければ何もしない
-            if(!turret->shouldFire()){
-                continue;
-            }
-            // if文を超えたら発射するので，fireRequestedをfalseにしてクールダウン
-            turret->clearFireRequest();
-            // 発射用の情報取得
-            double x = turret->getEntityCenter_X();
-            double y = turret->getEntityCenter_Y();
-            Direction dir = turret->getFireDirection();
-            // EnemyBulletをインスタンス化して発射
-            bullets.emplace_back(std::make_unique<EnemyBullet>(x, y, dir, tex));
-        }
-    }
-}
-*/
-
-/**
- * @brief EnemyBulletの後処理を実施する関数
- * 
- */
-/*
-void PlayingScene::cleanupEnemyBullets(){
-    // ファイアボール取得
-    auto& enemyBullets = ctx.entityCtx.enemyBullets;
-
-    // それぞれのファイアボールの状態を確認して片付ける
-    // 条件を満たすファイアボールを除いた配列を取得
-    auto it = std::remove_if(
-        enemyBullets.begin(), 
-        enemyBullets.end(), 
-        [&](const std::unique_ptr<EnemyBullet>& eb){
-            if(!eb->isActive()){
-                return true;
-            }
-            SDL_Rect ebr = eb->getCollisionRect();
-            return GameUtil::isOutOfWorldBounds(
-                ebr, 
-                ctx.worldInfo.WorldWidth, 
-                ctx.worldInfo.WorldHeight,
-                EnemyBulletConfig::FRAME_W,
-                EnemyBulletConfig::FRAME_H
-            );
-        }
-    );
-    // remove_ifで消える要素はイテレータ範囲外へ動くのでeraseで消える
-    enemyBullets.erase(it, enemyBullets.end());
-}
-*/
-
-/**
- * @brief プレイヤーと敵弾の接触判定処理
- * 
- */
-/*
-void PlayingScene::resolvePlayerEnemyBulletCollision(){
-    // ファイアボール取得
-    auto& player = ctx.entityCtx.player;
-    // 敵を取得
-    auto& enemyBullet   = ctx.entityCtx.enemyBullets;
-
-    // それぞれの接触判定
-    for(auto& eb : enemyBullet){
-        // 非活性のものは処理しない
-        if(!eb->isActive()){
-            continue;
-        }
-        // 接触判定用矩形取得
-        SDL_Rect ebr = eb->getCollisionRect();
-        // Playerとの判定処理
-        // 接触判定用矩形取得
-        SDL_Rect pr = player.getCollisionRect();
-        // 接触判定
-        if(!GameUtil::intersects(ebr, pr)){
-            continue;   // 接触していないのは無視
-        }
-        // 命中時の処理
-        ctrl.requestScene(GameScene::GameOver); // GameOverSceneへの遷移要請
-        eb->deactivate();   // 敵弾は非活性化
-        break;              // 敵弾への接触は現状GameOverとしてゲームを終わる
-    }
-}
-*/

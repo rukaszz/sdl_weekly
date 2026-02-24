@@ -27,7 +27,7 @@ public:
         std::vector<std::unique_ptr<FireBall>>& fireballs,
         std::vector<std::unique_ptr<EnemyBullet>>& enemyBullets,
         const std::vector<Block>& blocks,
-        WorldInfo& worldInfo,
+        const WorldInfo& worldInfo,
         Texture& fireballTexture,
         Texture& enemyBulletTexture
     );
@@ -48,7 +48,7 @@ private:
     std::vector<std::unique_ptr<FireBall>>& fireballs;
     std::vector<std::unique_ptr<EnemyBullet>>& enemyBullets;
     const std::vector<Block>& blocks;
-    WorldInfo& world;
+    const WorldInfo& world;
     Texture& fireballTexture;
     Texture& enemyBulletTexture;
 

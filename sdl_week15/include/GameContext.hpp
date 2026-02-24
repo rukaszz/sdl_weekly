@@ -7,6 +7,8 @@
 #include "FireBall.hpp"
 #include "EnemyBullet.hpp"
 
+#include "WorldInfo.hpp"
+
 #include <vector>
 #include <random>
 #include <memory>
@@ -21,12 +23,6 @@ struct Block;
 struct Camera;
 // class Player;
 // class Enemy;
-
-// 世界の広さ(ステージの広さ)
-struct WorldInfo{
-    double WorldWidth;
-    double WorldHeight;
-};
 
 /**
  * @brief 主にプレイヤーに関わるオブジェクト(エンティティ)を管理
