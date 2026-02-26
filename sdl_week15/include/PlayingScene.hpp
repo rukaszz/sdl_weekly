@@ -74,20 +74,6 @@ private:
     void resolveEnemyCollision(double prevFeet);
     void hasFallenToGameOver();
     bool checkBoundsforFireBalls(SDL_Rect fr, const double world_W, const double world_H);
-    void cleanupFireBalls();
-    void resolveFireBallEnemyCollision();
-    void resolvePlayerEnemyBulletCollision();
-    // Enemyの行動関係
-    void gatherEnemySensors(std::vector<EnemySensor>& outEnemySensors);
-    void spawnTurretBullets();
-    void cleanupEnemyBullets();
-    // gatherEnemySensors()で呼ぶ関数※処理を分割している
-    EnemySensor buildEnemySensor(const Enemy& enemy, const EnemySensorContext& esc) const;
-    void fillPlayerRelation(const Enemy& enemy, const EnemySensorContext& esc, EnemySensor& outSensor) const;
-    void fillGroundAhead(const Enemy& enemy, const EnemySensorContext& esc, EnemySensor& outSensor) const;
-    void fillWallAhead(const Enemy& enemy, const EnemySensorContext& esc, EnemySensor& outSensor) const;
-    // EnemyのAIの実行
-    void runEnemyAI(double delta, const std::vector<EnemySensor>& sensors);
 };
 
 #endif  // PLAYINGSCENE_H

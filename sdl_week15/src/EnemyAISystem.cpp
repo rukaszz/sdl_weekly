@@ -133,9 +133,6 @@ void EnemyAISystem::fillPlayerRelation(const Enemy& enemy,
     outSensor.playerOnLeft     = (esc.playerInfo.center_X < enemyCenter_X);
     // Playerが下にいるか(上のほうがyが小さい)
     outSensor.playerBelow      = (esc.playerInfo.center_Y > enemyCenter_Y);
-    // 定数(仮)※あとでヘッダなどへ切り出すこと
-    constexpr double SIGHT_MAX_X = 400.0;
-    constexpr double SIGHT_MAX_Y = 96.0;
     // プレイヤーが視界内にいるか
     // 簡単に両者のx/y軸の差分でチェックする
     outSensor.playerInSight = (std::abs(dx) <= EnemyAIConfig::SIGHT_MAX_X &&
@@ -161,10 +158,6 @@ void EnemyAISystem::fillGroundAhead(const Enemy& enemy,
     const Direction dir = enemy.getDirection();
     // 右を向いているか
     const bool facingRight = (dir == Direction::Right);
-
-    // ちょっと先を調べるための変数
-    // constexpr int PROBE_WIDTH           = 4;    // センサーの領域の幅
-    // constexpr int GROUND_PROBE_DEPTH    = 4;    // 崖の知覚幅
 
     // groundAheadの決定：一歩先に床があるか
     SDL_Rect groundProbe{};
@@ -230,8 +223,6 @@ void EnemyAISystem::fillWallAhead(const Enemy& enemy,
     const Direction dir = enemy.getDirection();
     // 右を向いているか
     const bool facingRight = (dir == Direction::Right);
-    // ちょっと先を調べるための変数
-    // constexpr int WALL_PROBE_DEPTH = 4;
 
     // wallAheadの決定：一歩先に壁があるか
     SDL_Rect wallProbe{};
