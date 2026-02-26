@@ -1,7 +1,7 @@
 #ifndef FIREBALLCONFIG_H
 #define FIREBALLCONFIG_H
 
-struct FireBallConfig{
+namespace FireBallConfig{
     static inline constexpr double SPEED_X = 400.0; 
     static inline constexpr double GRAVITY = 800.0;
     static inline constexpr double BOUNCE = 0.8;    // 反発係数
@@ -12,7 +12,6 @@ struct FireBallConfig{
     static inline constexpr int FRAME_H = 32;
     static inline constexpr int NUM_FRAMES = 4;
     static inline constexpr double ANIM_INTERVAL = 0.08;
-};
-
+}   // namespace FireBallConfig
 
 #endif  // FIREBALLCONFIG_H

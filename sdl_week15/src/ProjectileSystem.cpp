@@ -29,11 +29,11 @@
  */
 ProjectileSystem::ProjectileSystem(
     std::vector<std::unique_ptr<FireBall>>& fireballs_,
-        std::vector<std::unique_ptr<EnemyBullet>>& enemyBullets_,
-        const std::vector<Block>& blocks_,
-        const WorldInfo& worldInfo_,
-        Texture& fireballTexture_,
-        Texture& enemyBulletTexture_
+    std::vector<std::unique_ptr<EnemyBullet>>& enemyBullets_,
+    const std::vector<Block>& blocks_,
+    const WorldInfo& worldInfo_,
+    Texture& fireballTexture_,
+    Texture& enemyBulletTexture_
 )
     : fireballs(fireballs_)
     , enemyBullets(enemyBullets_)
@@ -223,56 +223,4 @@ void ProjectileSystem::cleanup(){
     // cleanupEnemyBullets();
     cleanupProjectiles(enemyBullets, world, EnemyBulletConfig::FRAME_W, EnemyBulletConfig::FRAME_H);
 
-}
-
-/**
- * @brief ファイアボールを片付ける
- * 
- */
-void ProjectileSystem::cleanupFireballs(){
-    // それぞれのファイアボールの状態を確認して片付ける
-    // 条件を満たすファイアボールを除いた配列を取得
-    auto it = std::remove_if(
-        fireballs.begin(), 
-        fireballs.end(), 
-        [&](const std::unique_ptr<FireBall>& f){
-            if(!f->isActive()){
-                return true;
-            }
-            const SDL_Rect fr = f->getCollisionRect();
-            return GameUtil::isOutOfWorldBounds(
-                fr, 
-                world.WorldWidth, 
-                world.WorldHeight,
-                FireBallConfig::FRAME_W,
-                FireBallConfig::FRAME_H
-            );
-        }
-    );
-    // remove_ifで消える要素はイテレータ範囲外へ動くのでeraseで消える
-    // 消す条件の確認は上のラムダ式で実施している
-    fireballs.erase(it, fireballs.end());
-}
-void ProjectileSystem::cleanupEnemyBullets(){
-    // それぞれのEnemyBulletの状態を確認して片付ける
-    // 条件を満たすEnemyBulletを除いた配列を取得
-    auto it = std::remove_if(
-        enemyBullets.begin(), 
-        enemyBullets.end(), 
-        [&](const std::unique_ptr<EnemyBullet>& eb){
-            if(!eb->isActive()){
-                return true;
-            }
-            const SDL_Rect ebr = eb->getCollisionRect();
-            return GameUtil::isOutOfWorldBounds(
-                ebr, 
-                world.WorldWidth, 
-                world.WorldHeight,
-                EnemyBulletConfig::FRAME_W,
-                EnemyBulletConfig::FRAME_H
-            );
-        }
-    );
-    // remove_ifで消える要素はイテレータ範囲外へ動くのでeraseで消える
-    enemyBullets.erase(it, enemyBullets.end());
 }

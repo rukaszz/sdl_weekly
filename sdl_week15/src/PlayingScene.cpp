@@ -31,6 +31,12 @@ PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
         ctx.entityCtx.fireballTexture, 
         ctx.entityCtx.enemyBulletTexture
     )
+    , enemyAI(
+        ctx.entityCtx.enemies, 
+        ctx.entityCtx.blocks, 
+        ctx.worldInfo, 
+        ctx.entityCtx.player
+    )
 {
     debugText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 0, 255, 255});
 }
@@ -68,11 +74,12 @@ void PlayingScene::update(double delta){
     // 4. スコア更新
     updateScore(delta);
     // 5. 敵センサの収集とAIの更新
-    std::vector<EnemySensor> enemySensors;
+    // std::vector<EnemySensor> enemySensors;
     // 敵の数だけ領域を確保
-    enemySensors.reserve(ctx.entityCtx.enemies.size());
-    gatherEnemySensors(enemySensors);
-    runEnemyAI(delta, enemySensors);
+    // enemySensors.reserve(ctx.entityCtx.enemies.size());
+    // gatherEnemySensors(enemySensors);
+    // runEnemyAI(delta, enemySensors);
+    enemyAI.update(delta);
     // spawnTurretBullets();
     // 敵弾生成(Turretへの射出要求を消費)
     projectiles.spawnEnemyBulletsFromEnemies(ctx.entityCtx.enemies);

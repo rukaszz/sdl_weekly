@@ -1,6 +1,9 @@
 #ifndef PROJECTILESYSTEM_H
 #define PROJECTILESYSTEM_H
 
+#include <memory>
+#include <vector>
+
 #include "Direction.hpp"
 
 class Texture;
@@ -8,14 +11,10 @@ class Player;
 class Enemy;
 class FireBall;
 class EnemyBullet;
-class GameContext;
 class SceneControl;
 
 struct Block;
 struct WorldInfo;
-
-#include <memory>
-#include <vector>
 
 /**
  * @brief 弾に関する処理をSceneから分離させる
@@ -55,8 +54,6 @@ private:
     void resolveFireballEnemyCollision(std::vector<std::unique_ptr<Enemy>>& enemies, SceneControl& ctrl);
     void resolvePlayerEnemyBulletCollision(Player& player, SceneControl& ctrl);
 
-    void cleanupFireballs();
-    void cleanupEnemyBullets();
 };
 
 #endif  // PROJECTILESYSTEM_H

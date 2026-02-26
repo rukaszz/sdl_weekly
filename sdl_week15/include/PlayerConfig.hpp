@@ -2,7 +2,7 @@
 #define PLAYERCONFIG_H
 
 // Player用定数
-struct PlayerConfig{
+namespace PlayerConfig{
     static inline constexpr int POS_X = 50;     // 初期位置x
     static inline constexpr int POS_Y = 600;    // 初期位置y
     static inline constexpr int FRAME_W = 114;  // スプライトの幅
@@ -20,6 +20,6 @@ struct PlayerConfig{
     static inline constexpr double ACCELERATION = 2000.0;    // 加速度[px/s^2]
     static inline constexpr double FRICTION = 500.0;    // 摩擦係数[px/s^2]
     static inline constexpr double JUMPABLE_BUFFER_TIME = 0.08;  // 接地直前でもジャンプ可能となる猶予：約5フレーム(0.016*5)
-};
+}   // namespace PlayerConfig
 
 #endif  // PLAYERCONFIG_H

@@ -1,6 +1,30 @@
 #ifndef ENEMYSENSOR_H
 #define ENEMYSENSOR_H
 
+#include <vector>
+
+struct Block;
+
+/**
+ * @brief EnemyのAIが行動を判断するためのプレイヤー情報
+ * 
+ */
+struct PlayerInfo{
+    double center_X;    // プレイヤーの中心座標x
+    double center_Y;    // プレイヤーの中心座標y
+};
+
+/**
+ * @brief 敵の行動を決定するためのEnemy外部の情報
+ * gatherEnemySensorで使用する
+ * 
+ */
+struct EnemySensorContext{
+    const std::vector<Block>& blocks;
+    double worldWidth;
+    PlayerInfo playerInfo;
+};
+
 /**
  * @brief AIが判断に用いるGameの情報
  * 
