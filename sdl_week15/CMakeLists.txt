@@ -55,6 +55,7 @@ add_executable(${PROJECT_NAME}
     src/EnemyBullet.cpp
     src/ProjectileSystem.cpp
     src/EnemyAISystem.cpp
+    src/CollisionSystem.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

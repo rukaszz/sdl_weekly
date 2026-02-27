@@ -36,6 +36,11 @@ PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
         ctx.entityCtx.blocks, 
         ctx.worldInfo, 
         ctx.entityCtx.player
+    ), collision(
+        ctx.entityCtx.player, 
+        ctx.entityCtx.enemies, 
+        ctx.entityCtx.blocks, 
+        ctx.worldInfo
     )
 {
     debugText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 0, 255, 255});
@@ -82,11 +87,13 @@ void PlayingScene::update(double delta){
     // 弾更新(プレイヤー弾/敵弾で統一)
     projectiles.update(delta);
     // 7. Playerとの当たり判定
-    detectCollision();  // ここではPlayer-Enemy, Player-Blockのみを判定したい
+    //detectCollision();  // ここではPlayer-Enemy, Player-Blockのみを判定したい
+    collision.resolve(ctrl);
     // 弾の当たり判定は System に移す(detectCollisionから除外している)
     projectiles.resolveCollisions(ctx.entityCtx.player, ctx.entityCtx.enemies, ctrl);
     // 8. 落下死判定
-    hasFallenToGameOver();
+    // hasFallenToGameOver();
+    collision.checkFallDeath(ctrl);
     // 9. カメラ座標の更新
     updateCamera();
     // 10. 弾系オブジェクトの片付け
@@ -232,138 +239,110 @@ void PlayingScene::updateCamera(){
     ctx.camera.x = std::clamp(ctx.camera.x, 0.0, maxCamera_X);
 }
 
-/**
- * @brief 描画するオブジェクトの衝突処理
- * 
- * 必ず呼び出す前にprevFeetCollisionをサンプリングしている必要がある
- */
-void PlayingScene::detectCollision(){
-    // 敵との衝突判定
-    resolveEnemyCollision(ctx.entityCtx.player.getPrevFeetCollision());
-    // ダメージブロックとの衝突判定
-    resolveBlockCollision();
-}
+// /**
+//  * @brief 描画するオブジェクトの衝突処理
+//  * 
+//  * 必ず呼び出す前にprevFeetCollisionをサンプリングしている必要がある
+//  */
+// void PlayingScene::detectCollision(){
+//     // 敵との衝突判定
+//     resolveEnemyCollision(ctx.entityCtx.player.getPrevFeetCollision());
+//     // ダメージブロックとの衝突判定
+//     resolveBlockCollision();
+// }
 
-/**
- * @brief ブロックとの衝突処理用
- * 
- */
-void PlayingScene::resolveBlockCollision(){
-    // ダメージブロックとの衝突判定
-    SDL_Rect playerRect = ctx.entityCtx.player.getCollisionRect();
-    for(const auto& b : ctx.entityCtx.blocks){
-        // ダメージ床, クリアオブジェクト以外は判定しない
-        if(b.type != BlockType::Damage && b.type != BlockType::Clear){
-            continue;   
-        }
-        SDL_Rect br = GameUtil::blockToRect(b);
-        // 衝突しているかをまず判定(Rect)
-        if(!GameUtil::intersects(playerRect, br)){
-            continue;
-        }
-        if(b.type == BlockType::Damage){
-            ctrl.requestScene(GameScene::GameOver);
-        }else if(b.type == BlockType::Clear){
-            // ステージ遷移
-            ctrl.requestScene(GameScene::Clear);
-        }
-        return;
-    }
-}
+// /**
+//  * @brief ブロックとの衝突処理用
+//  * 
+//  */
+// void PlayingScene::resolveBlockCollision(){
+//     // ダメージブロックとの衝突判定
+//     SDL_Rect playerRect = ctx.entityCtx.player.getCollisionRect();
+//     for(const auto& b : ctx.entityCtx.blocks){
+//         // ダメージ床, クリアオブジェクト以外は判定しない
+//         if(b.type != BlockType::Damage && b.type != BlockType::Clear){
+//             continue;   
+//         }
+//         SDL_Rect br = GameUtil::blockToRect(b);
+//         // 衝突しているかをまず判定(Rect)
+//         if(!GameUtil::intersects(playerRect, br)){
+//             continue;
+//         }
+//         if(b.type == BlockType::Damage){
+//             ctrl.requestScene(GameScene::GameOver);
+//         }else if(b.type == BlockType::Clear){
+//             // ステージ遷移
+//             ctrl.requestScene(GameScene::Clear);
+//         }
+//         return;
+//     }
+// }
 
-/**
- * @brief 敵との衝突用の処理
- * 敵の踏みつけ/削除/スコア加算/GameOverの処理を行う
- * 
- */
-void PlayingScene::resolveEnemyCollision(double prevFeet){
-    // PlayerのRect取得
-    auto& player = ctx.entityCtx.player;
-    // プレイヤーのRect基準のあたり判定取得
-    // ※update→Physics →clamp→getCollisionRectの順番が必要
-    SDL_Rect playerRect = player.getCollisionRect();
-    // 衝突処理用変数：collisionのfeetを使う
-    // double prevFeet = player.getPrevFeetCollision();
-    double newFeet  = player.getFeetCollision();
-    double playerVv = player.getVerticalVelocity();
+// /**
+//  * @brief 敵との衝突用の処理
+//  * 敵の踏みつけ/削除/スコア加算/GameOverの処理を行う
+//  * 
+//  */
+// void PlayingScene::resolveEnemyCollision(double prevFeet){
+//     // PlayerのRect取得
+//     auto& player = ctx.entityCtx.player;
+//     // プレイヤーのRect基準のあたり判定取得
+//     // ※update→Physics →clamp→getCollisionRectの順番が必要
+//     SDL_Rect playerRect = player.getCollisionRect();
+//     // 衝突処理用変数：collisionのfeetを使う
+//     // double prevFeet = player.getPrevFeetCollision();
+//     double newFeet  = player.getFeetCollision();
+//     double playerVv = player.getVerticalVelocity();
     
-    // 接触のループ
-    for(std::size_t i = 0; i < ctx.entityCtx.enemies.size(); ++i){
-        auto& e = ctx.entityCtx.enemies[i];
-        // 生きている敵のみ対象(Dying/Deadは除外)
-        if(!e->isAlive()){
-            continue;
-        }
-        // 矩形の当たり判定取得
-        SDL_Rect enemyRect = e->getCollisionRect();
-        // 接触判定
-        auto result = PlayerEnemyCollision::resolvePlayerEnemyCollision(
-            playerRect, 
-            prevFeet, 
-            newFeet, 
-            playerVv, 
-            enemyRect
-        );
+//     // 接触のループ
+//     for(std::size_t i = 0; i < ctx.entityCtx.enemies.size(); ++i){
+//         auto& e = ctx.entityCtx.enemies[i];
+//         // 生きている敵のみ対象(Dying/Deadは除外)
+//         if(!e->isAlive()){
+//             continue;
+//         }
+//         // 矩形の当たり判定取得
+//         SDL_Rect enemyRect = e->getCollisionRect();
+//         // 接触判定
+//         auto result = PlayerEnemyCollision::resolvePlayerEnemyCollision(
+//             playerRect, 
+//             prevFeet, 
+//             newFeet, 
+//             playerVv, 
+//             enemyRect
+//         );
 
-        // 接触判定結果で処理を分ける
-        if(result == PlayerEnemyCollisionResult::None){
-            continue;
-        }
-        if(result == PlayerEnemyCollisionResult::StompEnemy){
-            // 敵を踏みつけ(後で敵を消す)
-            e->startDying();    // Dying状態へ遷移
-            // プレイヤーはバウンドする
-            player.setVerticalVelocity(-std::abs(PlayerConfig::JUMP_VELOCITY));
-            // スコア加算
-            ctrl.setScore(ctrl.getScore() + EnemyConfig::SCORE_AT_STOMP);
-            continue;   // 同フレーム中に同一の敵を二度ふまないようにcountinue
-        }
-        if(result == PlayerEnemyCollisionResult::PlayerHit){
-            ctrl.requestScene(GameScene::GameOver);
-            return;
-        }
-    }
-}
+//         // 接触判定結果で処理を分ける
+//         if(result == PlayerEnemyCollisionResult::None){
+//             continue;
+//         }
+//         if(result == PlayerEnemyCollisionResult::StompEnemy){
+//             // 敵を踏みつけ(後で敵を消す)
+//             e->startDying();    // Dying状態へ遷移
+//             // プレイヤーはバウンドする
+//             player.setVerticalVelocity(-std::abs(PlayerConfig::JUMP_VELOCITY));
+//             // スコア加算
+//             ctrl.setScore(ctrl.getScore() + EnemyConfig::SCORE_AT_STOMP);
+//             continue;   // 同フレーム中に同一の敵を二度ふまないようにcountinue
+//         }
+//         if(result == PlayerEnemyCollisionResult::PlayerHit){
+//             ctrl.requestScene(GameScene::GameOver);
+//             return;
+//         }
+//     }
+// }
 
-/**
- * @brief 落下死判定関数
- * 
- */
-void PlayingScene::hasFallenToGameOver(){
-    //double death_Y = GameConfig::WINDOW_HEIGHT + PlayerConfig::FRAME_H; // 画面外へ落下死たら終了
-    double death_Y = ctx.worldInfo.WorldHeight + PlayerConfig::FRAME_H; // 規定したworldInfoを使う
-    double playerBottom = ctx.entityCtx.player.getCollisionRect().y
-                          + ctx.entityCtx.player.getCollisionRect().h;
-    if (playerBottom > death_Y){
-        ctrl.requestScene(GameScene::GameOver);
-        return;
-    }
-}
-
-/**
- * @brief ファイアボールの画面外判定を返す
- * 
- * @return true 
- * @return false 
- */
-bool PlayingScene::checkBoundsforFireBalls(SDL_Rect fr, const double world_W, const double world_H){
-    // ファイアボールのマージン
-    const double margin_H = FireBallConfig::FRAME_H;
-    const double margin_W = FireBallConfig::FRAME_W;
-    
-    // ファイアボール端の座標を取得
-    double top    = fr.y;
-    double bottom = fr.y + fr.h;
-    double right  = fr.x + fr.w;
-    double left   = fr.x;
-
-    // ワールド外へ出たFireBallは消す
-    // 上下左右判定
-    if(bottom < 0.0 - margin_H)       return true;    // 上に消えた
-    if(top    > world_H + margin_H)   return true;    // 下に消えた
-    if(right  < 0.0 - margin_W)       return true;    // 左に消えた
-    if(left   > world_W + margin_W)   return true;    // 右に消えた
-
-    return false;
-}
-
+// /**
+//  * @brief 落下死判定関数
+//  * 
+//  */
+// void PlayingScene::hasFallenToGameOver(){
+//     //double death_Y = GameConfig::WINDOW_HEIGHT + PlayerConfig::FRAME_H; // 画面外へ落下死たら終了
+//     double death_Y = ctx.worldInfo.WorldHeight + PlayerConfig::FRAME_H; // 規定したworldInfoを使う
+//     double playerBottom = ctx.entityCtx.player.getCollisionRect().y
+//                           + ctx.entityCtx.player.getCollisionRect().h;
+//     if (playerBottom > death_Y){
+//         ctrl.requestScene(GameScene::GameOver);
+//         return;
+//     }
+// }

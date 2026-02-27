@@ -22,6 +22,7 @@ struct PlayerInfo{
 struct EnemySensorContext{
     const std::vector<Block>& blocks;
     double worldWidth;
+    double worldHeight;
     PlayerInfo playerInfo;
 };
 

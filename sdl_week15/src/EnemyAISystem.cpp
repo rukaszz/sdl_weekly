@@ -48,7 +48,6 @@ void EnemyAISystem::update(double delta){
     if(sensors.capacity() < enemies.size()){
         sensors.reserve(enemies.size());
     }
-    sensors.reserve(enemies.size());
     // センサーのデータ収集
     gatherEnemySensors();
     // Enemyの行動決定
@@ -71,6 +70,7 @@ void EnemyAISystem::gatherEnemySensors(){
     EnemySensorContext esc{
         .blocks = blocks, 
         .worldWidth = world.WorldWidth, 
+        .worldHeight = world.WorldHeight, 
         .playerInfo = PlayerInfo{
             player.getEntityCenter_X(), 
             player.getEntityCenter_Y()
@@ -162,13 +162,8 @@ void EnemyAISystem::fillGroundAhead(const Enemy& enemy,
     // groundAheadの決定：一歩先に床があるか
     SDL_Rect groundProbe{};
     bool hasGround = false;
-    if(facingRight){
-        // 右を向いている：キャラクタのすぐ右をチェック
-        groundProbe.x = er.x + er.w;
-    } else {
-        // 左を向いている：キャラクタのすぐ左をチェック
-        groundProbe.x = er.x - EnemyAIConfig::PROBE_WIDTH;
-    }
+    // 右向き・左向きで判定用xを変える
+    groundProbe.x = facingRight ? (er.x + er.w) : (er.x - EnemyAIConfig::PROBE_WIDTH);
     // x以外の判定全体
     groundProbe.y = er.y + er.h;    // 足元のちょっと下
     groundProbe.w = EnemyAIConfig::PROBE_WIDTH;
@@ -274,6 +269,7 @@ void EnemyAISystem::fillWallAhead(const Enemy& enemy,
  */
 void EnemyAISystem::runEnemyAI(double delta){
     // 敵とセンサの要素数をチェック(gatherが正しく動作する限り同サイズになる)
+    // gatherする対象をフィルタするならenemiesのインデックスにsensorsが一致しなければならない
     assert(enemies.size() == sensors.size());
     // enemiesのそれぞれにSensorを渡す
     for(std::size_t i = 0; i < enemies.size(); ++i){
