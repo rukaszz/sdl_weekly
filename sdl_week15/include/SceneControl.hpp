@@ -5,6 +5,7 @@
 
 #include <SDL2/SDL.h>
 
+class GameEventBuffer;
 struct GameContext;
 
 /**
@@ -32,7 +33,8 @@ public:
     void startNewGame();
     bool goToNextStage();
     void loadStage(int stageIndex, GameContext& ctx);
-
+    void consumeEvents(const GameEventBuffer& geb);
+    
     virtual void requestScene(GameScene id) = 0;
 
     // getter

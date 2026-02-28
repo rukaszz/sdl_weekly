@@ -1,5 +1,10 @@
 #include "SceneControl.hpp"
 
+#include <iostream>
+#include <cassert>
+#include <algorithm>
+#include <memory>
+
 #include "Block.hpp"
 #include "BlockLevelLoader.hpp"
 #include "Player.hpp"
@@ -10,17 +15,13 @@
 #include "TurretEnemy.hpp"
 #include "FireBall.hpp"
 #include "EnemyBullet.hpp"
+#include "GameEventBuffer.hpp"
 
 #include "WorldInfo.hpp"
 #include "GameConfig.hpp"
 #include "StageConfig.hpp"
 #include "GameContext.hpp"
-// #include "Game.hpp"
-
-#include <iostream>
-#include <cassert>
-#include <algorithm>
-#include <memory>
+#include "GameUtil.hpp"
 
 /**
  * @brief ゲームを始める関数
@@ -114,6 +115,8 @@ void SceneControl::loadStage(int stageIndex, GameContext& ctx){
         });
         std::cerr << "[BlockLevelLoaderFallBack] " << e.what() << std::endl;
     }
+    // ステージに配置されたブロックのRectをキャッシュ
+    GameUtil::rebuildBlockRects(ctx.entityCtx.blocks, ctx.entityCtx.blockRectCaches);
     // worldInfoの再計算
     ctx.worldInfo.WorldWidth  = static_cast<double>(GameConfig::WINDOW_WIDTH); 
     ctx.worldInfo.WorldHeight = static_cast<double>(GameConfig::WINDOW_HEIGHT);
@@ -124,4 +127,49 @@ void SceneControl::loadStage(int stageIndex, GameContext& ctx){
     // プレイヤーの位置初期化
     ctx.entityCtx.player.reset();
     ctx.entityCtx.player.setPosition(def.playerStart_X, def.playerStart_Y);
+}
+
+/**
+ * @brief 各Sceneで呼ばれた要求を分解してシーンの遷移を実施する
+ * 
+ * @param geb 
+ */
+void SceneControl::consumeEvents(const GameEventBuffer& geb){
+    // シーン遷移要求があったか
+    bool hasSceneReq = false;
+    // 決定される次のシーン
+    GameScene nextScene{};
+
+    // 遷移要求バッファを分解して遷移
+    for(const auto& e : geb.items()){
+        if(const auto* rse = std::get_if<RequestSceneEvent>(e)){
+            if(!hasSceneReq){
+                // 優先順位：GameOver > Clear > Title
+                auto& requestScene = rse->scene;
+                switch (requestScene){
+                case GameOver:
+                    nextScene = requestScene;
+                    hasSceneReq = true;
+                    break;
+                case Clear:
+                    nextScene = requestScene;
+                    hasSceneReq = true;
+                    break;
+                case Title:
+                    nextScene = requestScene;
+                    hasSceneReq = true;
+                    break;
+                default:
+                    nextScene = pickHigherPriority(nextScene, sc->scene);
+                    break;
+                }
+            }
+            if(const auto* s = std;;get_if<addSceneEvent>(&e)){
+                setScore(getScore() + s->delta);
+            }
+        }
+        if(hasSceneReq){
+            rewuestScene(nextScene);
+        }
+    }
 }

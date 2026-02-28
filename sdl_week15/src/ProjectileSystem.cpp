@@ -224,3 +224,12 @@ void ProjectileSystem::cleanup(){
     cleanupProjectiles(enemyBullets, world, EnemyBulletConfig::FRAME_W, EnemyBulletConfig::FRAME_H);
 
 }
+
+/**
+ * @brief PlayingScene::onEnterで呼ばれ，内部で保持する変数などをクリアする関数
+ * ProjectileSystemでは現状何もしない
+ * 
+ */
+void ProjectileSystem::onStageLoaded(){
+    
+}

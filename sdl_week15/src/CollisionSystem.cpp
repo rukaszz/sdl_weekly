@@ -173,3 +173,12 @@ void CollisionSystem::checkFallDeath(SceneControl& ctrl){
         return;
     }
 }
+
+/**
+ * @brief PlayingScene::onEnterで呼ばれ，内部で保持する変数などをクリアする関数
+ * CollisionSystemでは現状何もしない
+ * 
+ */
+void CollisionSystem::onStageLoaded(){
+
+}

@@ -182,7 +182,7 @@ void EnemyAISystem::fillGroundAhead(const Enemy& enemy,
             continue;
         }
         // blocksの矩形取得
-        const SDL_Rect& br = blockRects[i];
+        const SDL_Rect& br = esc.blockRects[i];
         // Enemyの少し先の座標とブロックで接触判定
         if(GameUtil::intersects(groundProbe, br)){
             hasGround = true;
@@ -294,6 +294,63 @@ void EnemyAISystem::fillWallAhead(const Enemy& enemy,
     wallProbe.w = EnemyAIConfig::WALL_PROBE_DEPTH;
     wallProbe.h = er.h;
     // 壁(ブロックとのチェック)
+    for(std::size_t i = 0; i < esc.blocks.size(); ++i){
+        // ブロック取得
+        const auto& b = esc.blocks[i];
+        // 通常の床以外は判定しない
+        if(b.type != BlockType::Standable){
+            continue;
+        }
+        const auto& br = esc.blockRects[i];
+        // Enemyのちょっと先の座標とブロックで接触判定
+        if(GameUtil::intersects(wallProbe, br)){
+            hasWall = true;
+            break;
+        }
+    }
+    // worldの端も壁扱い
+    if(facingRight){
+        // 右に向いているときにProbeがworldの外に出そうか
+        if(wallProbe.x + wallProbe.w >= static_cast<int>(esc.worldWidth)){
+            hasWall = true;
+        }
+    }else{
+        // 左を向いているときにProbeがworldの外に出そうか
+        if(wallProbe.x <= 0){
+            hasWall = true;
+        }
+    }
+    // 最終的な結果返却
+    outSensor.wallAhead = hasWall;
+}
+
+/*
+void EnemyAISystem::fillWallAhead(const Enemy& enemy, 
+                                  const EnemySensorContext& esc, 
+                                        EnemySensor& outSensor) const
+{
+    // Enemyの情報取得
+    // 当たり判定用矩形
+    SDL_Rect er = enemy.getCollisionRect();
+    // 進む方向(向いている方向)
+    const Direction dir = enemy.getDirection();
+    // 右を向いているか
+    const bool facingRight = (dir == Direction::Right);
+
+    // wallAheadの決定：一歩先に壁があるか
+    SDL_Rect wallProbe{};
+    bool hasWall = false;
+    // 調べる方向の決定
+    if (facingRight) {
+        wallProbe.x = er.x + er.w;  // 右方向チェック
+    } else {
+        wallProbe.x = er.x - EnemyAIConfig::WALL_PROBE_DEPTH;  // 左方向チェック
+    }
+    // 体全体の情報
+    wallProbe.y = er.y;
+    wallProbe.w = EnemyAIConfig::WALL_PROBE_DEPTH;
+    wallProbe.h = er.h;
+    // 壁(ブロックとのチェック)
     for(const auto& b : esc.blocks){
         // 通常の床以外は判定しない
         if(b.type != BlockType::Standable){
@@ -321,6 +378,7 @@ void EnemyAISystem::fillWallAhead(const Enemy& enemy,
     // 最終的な結果返却
     outSensor.wallAhead = hasWall;
 }
+*/
 
 /**
  * @brief EnemyにSensorの結果を渡して行動を決定させる
@@ -336,4 +394,14 @@ void EnemyAISystem::runEnemyAI(double delta){
     for(std::size_t i = 0; i < enemies.size(); ++i){
         enemies[i]->think(delta, sensors[i]);
     }
+}
+
+/**
+ * @brief ステージロード時にセンサーを初期化する
+ * 
+ */
+void EnemyAISystem::onStageLoaded(){
+    sensors.clear();
+    sensors.shrink_to_fit();    // enemiesは倒されると減るので領域を数に合わせる
+    sensorAccum = 0.0;
 }

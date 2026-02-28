@@ -21,6 +21,14 @@ struct WorldInfo;
  * 
  */
 class ProjectileSystem{
+private:
+    std::vector<std::unique_ptr<FireBall>>& fireballs;
+    std::vector<std::unique_ptr<EnemyBullet>>& enemyBullets;
+    const std::vector<Block>& blocks;
+    const WorldInfo& world;
+    Texture& fireballTexture;
+    Texture& enemyBulletTexture;
+
 public: 
     ProjectileSystem(
         std::vector<std::unique_ptr<FireBall>>& fireballs,
@@ -45,14 +53,8 @@ public:
     void resolveCollisions(Player& player, std::vector<std::unique_ptr<Enemy>>& enemies, SceneControl& ctrl);
     // 生存管理(非活性・画面外は消す)
     void cleanup();
-private:
-    std::vector<std::unique_ptr<FireBall>>& fireballs;
-    std::vector<std::unique_ptr<EnemyBullet>>& enemyBullets;
-    const std::vector<Block>& blocks;
-    const WorldInfo& world;
-    Texture& fireballTexture;
-    Texture& enemyBulletTexture;
 
+private:
     void resolveFireballEnemyCollision(std::vector<std::unique_ptr<Enemy>>& enemies, SceneControl& ctrl);
     void resolvePlayerEnemyBulletCollision(Player& player, SceneControl& ctrl);
 

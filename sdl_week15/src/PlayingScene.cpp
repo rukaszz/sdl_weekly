@@ -110,6 +110,49 @@ void PlayingScene::render(){
     // テキスト描画
     ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
     ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);
+    // ブロック描画  const auto& b : ctx.entityCtx.blocks
+    for(std::size_t i = 0; i < ctx.entityCtx.blocks.size(); ++i){
+        // ブロック, 色の取得
+        const auto& b = ctx.entityCtx.blocks[i];
+        SDL_Color blockColor;
+        // 床のタイプで描画を変更
+        switch(b.type){
+        case BlockType::Standable:
+            blockColor = {255, 255, 255, 255};  // 白
+            break;
+        case BlockType::DropThrough:
+            blockColor = {128, 128, 255, 255};  // 青
+            break;
+        case BlockType::Damage:
+            blockColor = {255, 0, 0, 255};      // 赤
+            break;
+        case BlockType::Clear:
+            blockColor = {255, 216, 0, 255};    // 黃
+            break;
+        }
+        // blocksの矩形取得
+        const SDL_Rect& br = ctx.entityCtx.blockRectCaches[i];
+        ctx.renderer.drawRect(br, blockColor, ctx.camera);
+    }
+    for(const auto& f : ctx.entityCtx.fireballs){
+        f->draw(ctx.renderer, ctx.camera);
+    }
+    for(const auto& eb : ctx.entityCtx.enemyBullets){
+        eb->draw(ctx.renderer, ctx.camera);
+    }
+    // キャラクタ描画
+    // カメラを考慮した書き方にする
+    ctx.entityCtx.player.draw(ctx.renderer, ctx.camera);
+    for(auto& e : ctx.entityCtx.enemies) e->draw(ctx.renderer, ctx.camera);
+    // デバッグ情報表示
+    debugText->draw(ctx.renderer, 20, 80);
+}
+
+/*
+void PlayingScene::render(){
+    // テキスト描画
+    ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
+    ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);
     // ブロック描画
     for(const auto& b : ctx.entityCtx.blocks){
         SDL_Color blockColor;
@@ -145,6 +188,7 @@ void PlayingScene::render(){
     // デバッグ情報表示
     debugText->draw(ctx.renderer, 20, 80);
 }
+*/
 
 /**
  * @brief PlayingSceneへ入った際の初期化処理
@@ -153,8 +197,10 @@ void PlayingScene::render(){
 void PlayingScene::onEnter(){
     int stageIndex = ctrl.getCurrentStageIndex();
     ctrl.loadStage(stageIndex, ctx);
-    // ステージに配置されたブロックのRectをキャッシュ
-    GameUtil::rebuildBlockRects(ctx.entityCtx.blocks, ctx.entityCtx.blockRectCaches);
+    // ステージが変わった通知を各システムへ送信する
+    projectiles.onStageLoaded();
+    enemyAI.onStageLoaded();
+    collision.onStageLoaded();
 }
 
 /**

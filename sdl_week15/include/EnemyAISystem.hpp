@@ -21,6 +21,8 @@ private:
     const WorldInfo& world;
     const Player& player;
     std::vector<EnemySensor> sensors;
+    // EnemySensorの頻度制御用変数
+    double sensorAccum = 0.0;
 public:
     EnemyAISystem(
         std::vector<std::unique_ptr<Enemy>>& enemies_, 
