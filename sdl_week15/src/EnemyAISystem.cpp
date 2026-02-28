@@ -26,11 +26,13 @@
 EnemyAISystem::EnemyAISystem(
     std::vector<std::unique_ptr<Enemy>>& enemies_, 
     const std::vector<Block>& blocks_, 
+    const std::vector<SDL_Rect>& blockRects_, 
     const WorldInfo& world_, 
     const Player& player_
 )
     : enemies(enemies_)
     , blocks(blocks_)
+    , blockRects(blockRects_)
     , world(world_)
     , player(player_)
 {
@@ -69,6 +71,7 @@ void EnemyAISystem::gatherEnemySensors(){
     // ゲームの情報
     EnemySensorContext esc{
         .blocks = blocks, 
+        .blockRects = blockRects,
         .worldWidth = world.WorldWidth, 
         .worldHeight = world.WorldHeight, 
         .playerInfo = PlayerInfo{
@@ -169,6 +172,63 @@ void EnemyAISystem::fillGroundAhead(const Enemy& enemy,
     groundProbe.w = EnemyAIConfig::PROBE_WIDTH;
     groundProbe.h = EnemyAIConfig::GROUND_PROBE_DEPTH;
     // ブロックとの接触をAABBで判定し，接触していれば崖ではない→進めると判断
+    // block→BlockType用，blockRect→当たり判定用
+    for(std::size_t i = 0; i < esc.blocks.size(); ++i){
+        // blocks取得
+        const auto& b = esc.blocks[i];
+        // 通常の床/すり抜け床以外は判定しない
+        // この条件はPhysics::resolveBlockCollisionXXXの処理に合わせること
+        if(b.type != BlockType::Standable && b.type != BlockType::DropThrough){
+            continue;
+        }
+        // blocksの矩形取得
+        const SDL_Rect& br = blockRects[i];
+        // Enemyの少し先の座標とブロックで接触判定
+        if(GameUtil::intersects(groundProbe, br)){
+            hasGround = true;
+            break;
+        }
+    }
+    // world端処理(端も崖とみなして引き返す)
+    if(facingRight){
+        // 右に向いているときにProbeがworldの外に出そうか
+        if(groundProbe.x + groundProbe.w >= static_cast<int>(esc.worldWidth)){
+            hasGround = false;
+        }
+    } else {
+        // 左を向いているときにProbeがworldの外に出そうか
+        if(groundProbe.x <= 0){
+            hasGround = false;
+        }
+    }
+    // 最終的な結果返却
+    // hasGround = true;
+    outSensor.groundAhead = hasGround;
+}
+
+/*
+void EnemyAISystem::fillGroundAhead(const Enemy& enemy, 
+                                    const EnemySensorContext& esc, 
+                                          EnemySensor& outSensor) const
+{
+    // Enemyの情報取得
+    // 当たり判定用矩形
+    SDL_Rect er = enemy.getCollisionRect();
+    // 進む方向(向いている方向)
+    const Direction dir = enemy.getDirection();
+    // 右を向いているか
+    const bool facingRight = (dir == Direction::Right);
+
+    // groundAheadの決定：一歩先に床があるか
+    SDL_Rect groundProbe{};
+    bool hasGround = false;
+    // 右向き・左向きで判定用xを変える
+    groundProbe.x = facingRight ? (er.x + er.w) : (er.x - EnemyAIConfig::PROBE_WIDTH);
+    // x以外の判定全体
+    groundProbe.y = er.y + er.h;    // 足元のちょっと下
+    groundProbe.w = EnemyAIConfig::PROBE_WIDTH;
+    groundProbe.h = EnemyAIConfig::GROUND_PROBE_DEPTH;
+    // ブロックとの接触をAABBで判定し，接触していれば崖ではない→進めると判断
     for(const auto& b : esc.blocks){
         // 通常の床/すり抜け床以外は判定しない
         // この条件はPhysics::resolveBlockCollisionXXXの処理に合わせること
@@ -198,6 +258,7 @@ void EnemyAISystem::fillGroundAhead(const Enemy& enemy,
     // hasGround = true;
     outSensor.groundAhead = hasGround;
 }
+*/
 
 /**
  * @brief Enemyの壁に関する処理

@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include <SDL2/SDL.h>
+
 struct Block;
 
 /**
@@ -21,6 +23,7 @@ struct PlayerInfo{
  */
 struct EnemySensorContext{
     const std::vector<Block>& blocks;
+    const std::vector<SDL_Rect>& blockRects;
     double worldWidth;
     double worldHeight;
     PlayerInfo playerInfo;

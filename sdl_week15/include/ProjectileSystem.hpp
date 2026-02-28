@@ -37,6 +37,8 @@ public:
     void spawnEnemyBulletsFromEnemies(std::vector<std::unique_ptr<Enemy>>& enemies);
 
     // その他関数
+    // ステージロード時のキャッシュ更新用
+    void onStageLoaded();
     // 更新系はplayer/enemy両方更新する
     void update(double delta);
     // 当たり判定(弾 vs entity)

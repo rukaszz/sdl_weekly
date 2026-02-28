@@ -1,28 +1,34 @@
 #ifndef GAMECONTEXT_H
 #define GAMECONTEXT_H
 
-#include "Texture.hpp"
-#include "Player.hpp"
-#include "Enemy.hpp"
-#include "FireBall.hpp"
-#include "EnemyBullet.hpp"
-
-#include "WorldInfo.hpp"
-
 #include <vector>
 #include <random>
 #include <memory>
 
+#include <SDL2/SDL.h>
+
+// #include "Texture.hpp"
+// #include "Player.hpp"
+// #include "Enemy.hpp"
+// #include "FireBall.hpp"
+// #include "EnemyBullet.hpp"
+// #include "WorldInfo.hpp"
+
 // 前方宣言
 class Renderer;
-// class Texture;
+class Texture;
 class TextTexture;
 class Text;
 class Input;
+class Player;
+class Enemy;
+class FireBall;
+class EnemyBullet;
+
 struct Block;
 struct Camera;
-// class Player;
-// class Enemy;
+struct WorldInfo;
+
 
 /**
  * @brief 主にプレイヤーに関わるオブジェクト(エンティティ)を管理
@@ -33,6 +39,7 @@ struct EntityContext{
     Texture& enemyTexture;
     std::vector<std::unique_ptr<Enemy>>& enemies;
     std::vector<Block>& blocks;
+    std::vector<SDL_Rect>& blockRectCaches;    // ブロックの矩形キャッシュ用
     Texture& fireballTexture;
     std::vector<std::unique_ptr<FireBall>>& fireballs;
     Texture& enemyBulletTexture;

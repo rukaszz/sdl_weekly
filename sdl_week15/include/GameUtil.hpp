@@ -12,6 +12,8 @@
 #include "Block.hpp"
 
 #include <SDL2/SDL.h>
+
+#include <vector>
 #include <algorithm>
 #include <cctype>
 #include <string>
@@ -34,7 +36,6 @@ namespace GameUtil{
                 );
     }
 
-
     /**
      * @brief Blockの値をSDL_Rectへ変換する関数
      * SDL_Rect型で返すのでintでキャストしている
@@ -49,6 +50,30 @@ namespace GameUtil{
             static_cast<int>(b.w),
             static_cast<int>(b.h)
         };
+    }
+
+    /**
+     * @brief blocksを精査して衝突判定用の矩形をキャッシュする関数
+     * 
+     * @param blocks 
+     * @param outRects 
+     */
+    inline void rebuildBlockRects(const std::vector<Block>& blocks, std::vector<SDL_Rect>& outRects){
+        // 領域確保
+        outRects.clear();
+        outRects.reserve(blocks.size());
+
+        // blocksを精査してoutRectsへ格納
+        // block: double, collision: intなのでcastしている
+        for(const auto& b : blocks){
+            SDL_Rect r{
+                static_cast<int>(b.x), 
+                static_cast<int>(b.y), 
+                static_cast<int>(b.w), 
+                static_cast<int>(b.h) 
+            };
+            outRects.push_back(r);
+        }
     }
 
     /**

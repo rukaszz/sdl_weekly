@@ -135,12 +135,13 @@ void Game::buildContexts(){
         EntityContext{
             *player,
             *enemyTexture,
-            enemies,    // 空vector
-            blocks,     // 空vector
+            enemies,            // 空vector
+            blocks,             // 空vector
+            blockRectCaches,    // 空vector(blocksのRectのcache)
             *fireballTexture, 
-            fireballs,  // 空vector
+            fireballs,          // 空vector
             *enemyBulletTexture, 
-            enemyBullets   // 空vector
+            enemyBullets        // 空vector
         }, 
         TextRenderContext{
             *font,

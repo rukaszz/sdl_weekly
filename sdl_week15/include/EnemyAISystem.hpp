@@ -4,6 +4,8 @@
 #include <vector>
 #include <memory>
 
+#include <SDL2/SDL.h>
+
 #include "EnemySensor.hpp"
 
 class Player;
@@ -15,6 +17,7 @@ class EnemyAISystem{
 private:
     std::vector<std::unique_ptr<Enemy>>& enemies;
     const std::vector<Block>& blocks;
+    const std::vector<SDL_Rect>& blockRects;
     const WorldInfo& world;
     const Player& player;
     std::vector<EnemySensor> sensors;
@@ -22,6 +25,7 @@ public:
     EnemyAISystem(
         std::vector<std::unique_ptr<Enemy>>& enemies_, 
         const std::vector<Block>& blocks_, 
+        const std::vector<SDL_Rect>& blockRects_, 
         const WorldInfo& world_, 
         const Player& player_
     );
@@ -29,7 +33,8 @@ public:
     // コピー禁止
     EnemyAISystem(const EnemyAISystem&) = delete;
     EnemyAISystem& operator=(const EnemyAISystem&) = delete;
-
+    // ステージロード時のキャッシュ更新用
+    void onStageLoaded();
     void update(double delta);
     void runEnemyAI(double delta);
 private:

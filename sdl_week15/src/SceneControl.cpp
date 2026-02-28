@@ -1,15 +1,20 @@
 #include "SceneControl.hpp"
 
-#include "GameConfig.hpp"
-#include "StageConfig.hpp"
-#include "GameContext.hpp"
 #include "Block.hpp"
 #include "BlockLevelLoader.hpp"
+#include "Player.hpp"
 #include "Enemy.hpp"
 #include "WalkerEnemy.hpp"
 #include "ChaserEnemy.hpp"
 #include "JumperEnemy.hpp"
 #include "TurretEnemy.hpp"
+#include "FireBall.hpp"
+#include "EnemyBullet.hpp"
+
+#include "WorldInfo.hpp"
+#include "GameConfig.hpp"
+#include "StageConfig.hpp"
+#include "GameContext.hpp"
 // #include "Game.hpp"
 
 #include <iostream>
@@ -85,6 +90,7 @@ void SceneControl::loadStage(int stageIndex, GameContext& ctx){
         break;
         */
         default:
+            // ここには来ない想定なのでassertする
             assert(false && "Unknown EnemyType");
             break;
         }

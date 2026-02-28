@@ -27,11 +27,13 @@ CollisionSystem::CollisionSystem(
     Player& player_,
     std::vector<std::unique_ptr<Enemy>>& enemies_, 
     const std::vector<Block>& blocks_, 
+    const std::vector<SDL_Rect>& blockRects_,
     const WorldInfo& world_
 )
     : player(player_)
     , enemies(enemies_)
     , blocks(blocks_)
+    , blockRects(blockRects_)
     , world(world_)
 {
 
@@ -56,6 +58,34 @@ void CollisionSystem::resolve(SceneControl& ctrl){
 void CollisionSystem::resolveBlockCollision(SceneControl& ctrl){
     // ダメージブロックとの衝突判定
     SDL_Rect playerRect = player.getCollisionRect();
+    // block→BlockType用，blockRect→当たり判定用
+    for(std::size_t i = 0; i < blocks.size(); ++i){
+        // blocks取得
+        const auto& b = blocks[i];
+        // ダメージ床, クリアオブジェクト以外は判定しない
+        if(b.type != BlockType::Damage && b.type != BlockType::Clear){
+            continue;   
+        }
+        // blocksの矩形取得
+        const SDL_Rect& br = blockRects[i];
+        // 衝突しているかをまず判定(Rect)
+        if(!GameUtil::intersects(playerRect, br)){
+            continue;
+        }
+        if(b.type == BlockType::Damage){
+            ctrl.requestScene(GameScene::GameOver);
+        }else if(b.type == BlockType::Clear){
+            // ステージ遷移
+            ctrl.requestScene(GameScene::Clear);
+        }
+        return;
+    }
+}
+
+/*
+void CollisionSystem::resolveBlockCollision(SceneControl& ctrl){
+    // ダメージブロックとの衝突判定
+    SDL_Rect playerRect = player.getCollisionRect();
     for(const auto& b : blocks){
         // ダメージ床, クリアオブジェクト以外は判定しない
         if(b.type != BlockType::Damage && b.type != BlockType::Clear){
@@ -75,6 +105,8 @@ void CollisionSystem::resolveBlockCollision(SceneControl& ctrl){
         return;
     }
 }
+
+*/
 
 /**
  * @brief 敵との衝突用の処理

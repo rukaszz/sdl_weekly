@@ -51,10 +51,6 @@ private:
     void updateScore(double delta);
     void updateEntities(double delta, DrawBounds b);
     void updateCamera();
-    void detectCollision();
-    void resolveBlockCollision();
-    void resolveEnemyCollision(double prevFeet);
-    void hasFallenToGameOver();
 };
 
 #endif  // PLAYINGSCENE_H

@@ -70,7 +70,7 @@ public:
 public:
     // update()内の処理を分割するための関数群
     // 敵の行動判断用
-    virtual void think(double delta, const EnemySensor& es){}
+    virtual void think(double /*delta*/, const EnemySensor& /*es*/){}
     // 物理処理用
     virtual void stepPhysics(double delta, DrawBounds bounds, const std::vector<Block>& blocks);
     // アニメーション更新用

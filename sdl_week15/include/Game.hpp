@@ -3,6 +3,14 @@
 
 #include "GameScene.hpp"
 
+#include <memory>
+#include <vector>
+#include <random>
+#include <optional>
+#include <array>
+
+#include <SDL2/SDL.h>
+
 #include "SdlSystem.hpp"
 #include "Window.hpp"
 #include "Renderer.hpp"
@@ -18,12 +26,9 @@
 #include "Input.hpp"
 #include "Block.hpp"
 #include "Camera.hpp"
+#include "WorldInfo.hpp"
 
-#include <memory>
-#include <vector>
-#include <random>
-#include <optional>
-#include <array>
+
 
 class Game : public SceneControl{
 private:
@@ -48,6 +53,7 @@ private:
     std::vector<std::unique_ptr<EnemyBullet>> enemyBullets;
     // ブロック
     std::vector<Block> blocks;
+    std::vector<SDL_Rect> blockRectCaches;
     // テキスト表示用
     std::unique_ptr<Text> font;
     std::unique_ptr<TextTexture> scoreText;
