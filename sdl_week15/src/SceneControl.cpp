@@ -18,10 +18,43 @@
 #include "GameEventBuffer.hpp"
 
 #include "WorldInfo.hpp"
+#include "GameScene.hpp"
 #include "GameConfig.hpp"
 #include "StageConfig.hpp"
 #include "GameContext.hpp"
 #include "GameUtil.hpp"
+
+// SceneControl内でのみ使えるヘルパ関数
+namespace{
+    /**
+     * @brief シーンの優先順位を返す関数
+     * 優先順位：GameOver > Clear > Title > ...
+     * 
+     * @param gs 
+     * @return constexpr int 
+     */
+    constexpr int scenePriority(GameScene gs){
+        switch (gs){
+            case GameScene::GameOver: return 0;
+            case GameScene::Clear:    return 1;
+            case GameScene::Title:    return 2;
+            case GameScene::Result:   return 3;
+            case GameScene::Playing:  return 4;
+        }
+        return 999;  // #include <utility> std::unreachable();
+    }
+
+    /**
+     * @brief 与えられたゲームシーンを比較して優先順位が高いものを返す
+     * 
+     * @param a 
+     * @param b 
+     * @return GameScene 
+     */
+    GameScene pickHigherPriority(GameScene a, GameScene b){
+        return (scenePriority(a) <= scenePriority(b)) ? a : b;
+    }
+}
 
 /**
  * @brief ゲームを始める関数
@@ -138,38 +171,37 @@ void SceneControl::consumeEvents(const GameEventBuffer& geb){
     // シーン遷移要求があったか
     bool hasSceneReq = false;
     // 決定される次のシーン
-    GameScene nextScene{};
+    GameScene nextScene = GameScene::Playing;   // Playingがデフォルト値
+
+    // スコア計算用
+    int scoreDelta = 0;
 
     // 遷移要求バッファを分解して遷移
-    for(const auto& e : geb.items()){
-        if(const auto* rse = std::get_if<RequestSceneEvent>(e)){
-            if(!hasSceneReq){
+    for(const auto& ev : geb.items()){
+        // RequestSceneEventの値を指定して取り出す→中身はGameScene型のデータ
+        if(const auto* rse = std::get_if<RequestSceneEvent>(&ev)){  // 引数はポインタ
+            if(!hasSceneReq){   // Sceneの遷移要求が無い
                 // 優先順位：GameOver > Clear > Title
-                auto& requestScene = rse->scene;
-                switch (requestScene){
-                case GameOver:
-                    nextScene = requestScene;
-                    hasSceneReq = true;
-                    break;
-                case Clear:
-                    nextScene = requestScene;
-                    hasSceneReq = true;
-                    break;
-                case Title:
-                    nextScene = requestScene;
-                    hasSceneReq = true;
-                    break;
-                default:
-                    nextScene = pickHigherPriority(nextScene, sc->scene);
-                    break;
-                }
+                nextScene = rse->scene; // 取り出したGameSceneを次のシーンへ
+                hasSceneReq = true;
+            } else {    // すでにSceneの遷移要求があるとき
+                // 優先順位に基づいて遷移するシーンを決定
+                nextScene = pickHigherPriority(nextScene, rse->scene);
             }
-            if(const auto* s = std;;get_if<addSceneEvent>(&e)){
-                setScore(getScore() + s->delta);
-            }
+            continue;
         }
-        if(hasSceneReq){
-            rewuestScene(nextScene);
+        // スコアを加算するイベントがあるなら追加する
+        if(const auto* ase = std::get_if<AddSceneEvent>(&ev)){
+            scoreDelta += ase->delta;
+            continue;
         }
+    }
+    // スコア加算イベントの結果を反映
+    if(scoreDelta != 0){
+        setScore(getScore() + scoreDelta);
+    }
+    // 最終的に決定されたシーン遷移要求を反映
+    if(hasSceneReq){
+        requestScene(nextScene);
     }
 }

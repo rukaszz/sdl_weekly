@@ -320,7 +320,7 @@ week05 では，Game が管理しているオブジェクト群から Scene に�
     - Scene に必要な「ゲーム内オブジェクト」をひとまとめにし，Game 本体の詳細構造を Scene から隠蔽する
     - Scene は GameContext 経由でのみオブジェクトにアクセスする
 
-Game は std::unique_ptr\<Scene\> scenes\[3\] と Scene* currentScene を持ち，changeScene() でシーンを切り替える．シーン切り替え時には onExit() / onEnter() を必ず呼ぶことで，各 Scene 自身が「入室時・退室時の初期化／後始末」を管理できるようにした．
+Game は std::unique_ptr\<Scene\> scenes\[3\] と Scene/currentScene を持ち，changeScene() でシーンを切り替える．シーン切り替え時には onExit()/onEnter() を必ず呼ぶことで，各 Scene 自身が「入室時・退室時の初期化/後始末」を管理できるようにした．
 
 #### SceneControlの導入
 
@@ -1360,7 +1360,7 @@ struct EnemySensor {
     double dyToPlayer;       // Player.y - Enemy.y
     bool playerOnLeft;       // プレイヤーは左側か？
     bool playerInSight;      // 簡易矩形FOV内にいるか
-    bool groundAhead;        // 1マス先に地面があるか（ないか）
+    bool groundAhead;        // 1マス先に地面があるか(ないか)
     bool wallAhead;          // 1マス先に壁/障害物があるか
     bool playerBelow;        // プレイヤーが真下に位置するか
 };
@@ -1474,7 +1474,9 @@ Jumper/Turret型の敵を実装した．JumperはこれまでのEnemySensorに�
       - 条件3：高さが一定の間に収まっているか→当てるために発射しているように見せるため
     - TurretEnemyは方向(Direction)を持っている
 
-#### 今回の敵の実装に関する問題点
+#### week15の予定
+
+今回の実装に関する問題点として次のものがあります：
 
 1. 現状FireBallとほとんど処理が同じ
    - 処理は共通化できる部分が多く，Projectileクラスにまとめて似た処理は統一する
@@ -1484,8 +1486,115 @@ Jumper/Turret型の敵を実装した．JumperはこれまでのEnemySensorに�
    - GameクラスのGod Class化を抑えるためにSceneに分割したとはいえ，PlayingSceneの責務がかなり大きくなっている
    - update処理の見直しも含めてリファクタリングが必要
 
-### JunperEnemyについて
+## week15
 
+### week15の概要
+
+week15ではweek14で実装したTurretEnemy/EnemyBullet周りを起点として，PlayingSceneへ混在していた処理をSystemというクラスへ分離し，更新処理の責務を整理した．
+具体的には，
+
+- 弾管理のProjectileSystem
+- 敵の行動判断用のEnemyAISystem
+- 衝突判定をまとめるCollisionSystem
+
+これらを導入し，さらにrequestScene()によるSceneの遷移やスコア加算などの「ゲーム全体へ影響する処理」を各シーンで直接呼び出す方式から，GameEvent/GameEventBufferによるイベント駆動へ移行する準備を進めた．
+
+### TurretEnemy / EnemyBulletの整理
+
+week14の課題だった「敵弾の扱い」を明確化するため，TurretEnemyは発射判断のみを担当し，弾生成はSystem側へ寄せた．
+
+- TurretEnemy
+  - 概要
+    - プレイヤーが視界内かつ射程圏内で，敵弾発射要求を出す
+    - 自身は移動しない砲台
+  - 実装内容
+    - fireRequested(発射要求フラグ)を導入し，「撃つべきタイミング」と「弾生成」を分離
+    - 連射抑制のため，fireRequested == trueの間は追加で要求を出さない(=要求の二重発行防止)
+    - 発射位置調整のため MUZZLE_OFFSET(X/Y)を導入し，弾の出現座標を調整した
+- EnemyBullet
+  - 概要
+    - プレイヤー向けの弾としてFireBallとは別クラスで管理
+    - FireBallとは異なり，等速直線運動，当たり判定はPlayerである
+  - 目的
+    - 「発射元(Player/Enemy)」と「命中対象(Enemy/Player)」の切り分けをFireBallの流用で無理に行わず，責務を分離してロジックの複雑化を避けた
+
+### ProjectileSystemの実装
+
+弾に関する処理(更新・生成・衝突・片付け)をPlayingSceneから切り出し，弾の管理責務を集約した．
+
+- ProjectileSystemの主な役割
+  - 弾の生成
+    - Player入力によるFireBall生成
+    - TurretEnemyの発射要求を消費してEnemyBulletを生成
+  - 弾の更新
+    - FireBall/EnemyBulletのupdate()をまとめて呼び出す
+  - 弾の衝突判定
+    - FireBall vs Enemy
+    - EnemyBullet vs Player
+  - 弾の寿命管理(cleanup)
+    - 非活性化・画面外などの条件で削除する
+    - cleanup処理はテンプレート化し，FireBall/EnemyBulletで共通化した
+
+### EnemyAISystemの実装
+
+Enemyの行動判断に必要な情報収集(EnemySensorの構築)と，Enemyへのthink()呼び出しをSystemとして分離した．
+これにより，PlayingSceneが「敵AIの詳細」を直接持たずに更新順序だけを管理する構造に近づいた．
+
+- EnemyAISystemの主な役割
+  - EnemySensorの収集
+    - Playerとの位置関係(距離，dx/dy，視界判定)
+    - 崖判定(groundAhead)
+    - 壁判定(wallAhead)
+  - 収集したSensorをEnemyへ渡してthink()を実行
+- 改善点(week15時点)
+  - 定数はEnemyAIConfig.hppへ切り出し，マジックナンバーを除去した
+  - BlockのAABB判定で毎回Block→Rect変換するコストが問題になったため，今後キャッシュを導入する前提を明確化した
+
+### CollisionSystemの実装
+
+Player-Enemy / Player-Block(Damage/Clearなど)の衝突処理をCollisionSystemへ切り出し，PlayingSceneから判定ロジックを分離した．
+
+- CollisionSystemの主な役割
+  - Player vs Enemy
+    - 踏みつけ判定(StompEnemy)
+    - 被弾判定(PlayerHit → GameOver)
+    - 踏みつけ時のバウンド処理(Playerの垂直速度更新)
+    - スコア加算
+  - Player vs Block(Damage/Clear)
+    - Damage → GameOver
+    - Clear → ClearScene
+- 設計上のポイント
+  - 「前フレームの足元座標(prevFeet)」を利用する判定のため，更新順序(サンプリング→更新→判定)が重要である点を明示した
+
+### GameEvent / GameEventBufferの導入
+
+PlayingSceneや各SystemからSceneControl::requestScene()やsetScore()を直接呼ぶ構造は結合が強く，処理順序の事故(同フレームで複数要求が出るなど)を誘発しやすい．
+そのため，イベントをバッファへ積み，フレーム末尾にまとめて反映する方式へ移行する準備として，GameEventとGameEventBufferを実装した．
+
+- GameEvent
+  - std::variant により，継承や仮想関数なしで型安全にイベント種別を表現
+  - 例：
+    - RequestSceneEvent(シーン遷移要求)
+    - AddScoreEvent(スコア加算要求)
+- GameEventBuffer
+  - イベントのキュー(vector)を保持し，発行側はpush，消費側はitemsで参照できる
+- SceneControl::consumeEvents()
+  - バッファ内のイベントを走査
+    - スコア加算は合算して反映
+    - シーン遷移要求は優先順位を比較して最終的な遷移先を1つに決定
+  - 同フレームに「Clear」と「GameOver」など複数要求が出ても，決定規則に従って遷移を安定させる狙いがある
+
+### week16の予定
+
+week15の分離により構造は整理されたが，次の課題が残っている：
+
+1. Stageロード後に必要なキャッシュ更新処理の整理
+   - BlockのRectキャッシュなどをonStageLoaded()で統一して更新する仕組みを固める
+2. GameEvent方式の導入範囲拡大
+   - PlayingScene内の直接呼び出しを段階的にイベント発行へ置き換える
+   - 他Scene(Title/Clear/GameOverなど)へ適用するかは、競合可能性とメリットを見て判断する
+3. update頻度の見直し
+   - EnemySensor収集の頻度(毎フレーム必須か)を再検討し，必要ならセンサー更新の間引きやキャッシュ導入を行う
 
 ## アセット
 

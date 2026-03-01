@@ -17,6 +17,42 @@
 #include <SDL2/SDL.h>
 #include <algorithm>
 
+// ProjectileSystem.cpp内で閉じているヘルパ関数
+namespace{
+    /**
+     * @brief 弾の種類を問わずに非活性/画面外へ出た弾を片付ける関数
+     * cleanup()で呼ばれるヘルパ関数なので，static宣言する→実装もこのファイル内で完結させる
+     * 
+     * @tparam T 
+     * @param vec 
+     * @param world 
+     * @param frame_W 
+     * @param frame_H 
+     */
+    template<typename T> 
+    void cleanupProjectiles(
+        std::vector<std::unique_ptr<T>>& vec, 
+        const WorldInfo& world, 
+        int frame_W, 
+        int frame_H
+    )
+    {
+        // 条件を満たす要素を削除
+        auto pred = [&](const std::unique_ptr<T>& p){
+            // 非活性は削除対象
+            if(!p->isActive()){
+                return true;
+            }
+            // 画面外へ出た弾も削除対象
+            const SDL_Rect r = p->getCollisionRect();
+            return GameUtil::isOutOfWorldBounds(r, world.WorldWidth, world.WorldHeight, frame_W, frame_H);
+        };
+        auto it = std::remove_if(vec.begin(), vec.end(), pred);
+        // remove_ifで削除対象を取り除いたイテレータを取得してeraseで消す
+        vec.erase(it, vec.end());
+    }
+}
+
 /**
  * @brief Construct a new Projectile System:: Projectile System object
  * 
@@ -178,39 +214,6 @@ void ProjectileSystem::resolvePlayerEnemyBulletCollision(Player& player, SceneCo
 }
 
 /**
- * @brief 弾の種類を問わずに非活性/画面外へ出た弾を片付ける関数
- * cleanup()で呼ばれるヘルパ関数なので，static宣言する→実装もこのファイル内で完結させる
- * 
- * @tparam T 
- * @param vec 
- * @param world 
- * @param frame_W 
- * @param frame_H 
- */
-template<typename T> 
-static void cleanupProjectiles(
-    std::vector<std::unique_ptr<T>>& vec, 
-    const WorldInfo& world, 
-    int frame_W, 
-    int frame_H
-)
-{
-    // 条件を満たす要素を削除
-    auto pred = [&](const std::unique_ptr<T>& p){
-        // 非活性は削除対象
-        if(!p->isActive()){
-            return true;
-        }
-        // 画面外へ出た弾も削除対象
-        const SDL_Rect r = p->getCollisionRect();
-        return GameUtil::isOutOfWorldBounds(r, world.WorldWidth, world.WorldHeight, frame_W, frame_H);
-    };
-    auto it = std::remove_if(vec.begin(), vec.end(), pred);
-    // remove_ifで削除対象を取り除いたイテレータを取得してeraseで消す
-    vec.erase(it, vec.end());
-}
-
-/**
  * @brief 各弾の状態を確認し不要な片付ける関数
  * 画面外へ出ている/非活性になっているなど
  * 
@@ -231,5 +234,5 @@ void ProjectileSystem::cleanup(){
  * 
  */
 void ProjectileSystem::onStageLoaded(){
-    
+
 }

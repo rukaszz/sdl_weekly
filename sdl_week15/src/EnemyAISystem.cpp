@@ -402,6 +402,7 @@ void EnemyAISystem::runEnemyAI(double delta){
  */
 void EnemyAISystem::onStageLoaded(){
     sensors.clear();
-    sensors.shrink_to_fit();    // enemiesは倒されると減るので領域を数に合わせる
+    // 必要になればshrink_to_fit()を実施する
+    // sensors.shrink_to_fit();    // enemiesは倒されると減るので領域を数に合わせる
     sensorAccum = 0.0;
 }
