@@ -19,6 +19,7 @@
 
 #include "WorldInfo.hpp"
 #include "GameScene.hpp"
+#include "GameEvent.hpp"
 #include "GameConfig.hpp"
 #include "StageConfig.hpp"
 #include "GameContext.hpp"
@@ -191,7 +192,7 @@ void SceneControl::consumeEvents(const GameEventBuffer& geb){
             continue;
         }
         // スコアを加算するイベントがあるなら追加する
-        if(const auto* ase = std::get_if<AddSceneEvent>(&ev)){
+        if(const auto* ase = std::get_if<AddScoreEvent>(&ev)){
             scoreDelta += ase->delta;
             continue;
         }

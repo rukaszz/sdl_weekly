@@ -4,8 +4,8 @@
 // variantは継承と仮想関数を使用せずに多態性を実現するためのライブラリ
 // 「宣言したどれか1つの型」を保持して取り扱える
 #include <variant>
-
-enum class GameScene;
+#include "GameScene.hpp"
+// enum class GameScene;
 
 struct RequestSceneEvent{
     GameScene scene;

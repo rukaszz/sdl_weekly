@@ -4,7 +4,7 @@
 #include "GameEvent.hpp"
 
 #include <vector>
-#include <utility>
+#include <utility>  // std::forward
 
 class GameEventBuffer{
 private:
