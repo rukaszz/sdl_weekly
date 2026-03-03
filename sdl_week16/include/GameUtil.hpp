@@ -28,7 +28,7 @@
  * @return false 
  */
 namespace GameUtil{
-    inline bool intersects(const SDL_Rect a, const SDL_Rect b){       
+    inline bool intersects(const SDL_Rect& a, const SDL_Rect& b){       
         return !(a.x + a.w <= b.x || // 矩形aがbの左にある
                  b.x + b.w <= a.x || // 矩形bがaの左にある
                  a.y + a.h <= b.y || // 矩形aがbの上にある

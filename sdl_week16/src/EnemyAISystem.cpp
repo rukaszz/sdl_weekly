@@ -206,60 +206,6 @@ void EnemyAISystem::fillGroundAhead(const Enemy& enemy,
     outSensor.groundAhead = hasGround;
 }
 
-/*
-void EnemyAISystem::fillGroundAhead(const Enemy& enemy, 
-                                    const EnemySensorContext& esc, 
-                                          EnemySensor& outSensor) const
-{
-    // Enemyの情報取得
-    // 当たり判定用矩形
-    SDL_Rect er = enemy.getCollisionRect();
-    // 進む方向(向いている方向)
-    const Direction dir = enemy.getDirection();
-    // 右を向いているか
-    const bool facingRight = (dir == Direction::Right);
-
-    // groundAheadの決定：一歩先に床があるか
-    SDL_Rect groundProbe{};
-    bool hasGround = false;
-    // 右向き・左向きで判定用xを変える
-    groundProbe.x = facingRight ? (er.x + er.w) : (er.x - EnemyAIConfig::PROBE_WIDTH);
-    // x以外の判定全体
-    groundProbe.y = er.y + er.h;    // 足元のちょっと下
-    groundProbe.w = EnemyAIConfig::PROBE_WIDTH;
-    groundProbe.h = EnemyAIConfig::GROUND_PROBE_DEPTH;
-    // ブロックとの接触をAABBで判定し，接触していれば崖ではない→進めると判断
-    for(const auto& b : esc.blocks){
-        // 通常の床/すり抜け床以外は判定しない
-        // この条件はPhysics::resolveBlockCollisionXXXの処理に合わせること
-        if(b.type != BlockType::Standable && b.type != BlockType::DropThrough){
-            continue;
-        }
-        SDL_Rect br = GameUtil::blockToRect(b); // TODO：コストが高いのであとでキャッシュにする
-        // Enemyの少し先の座標とブロックで接触判定
-        if(GameUtil::intersects(groundProbe, br)){
-            hasGround = true;
-            break;
-        }
-    }
-    // world端処理(端も崖とみなして引き返す)
-    if(facingRight){
-        // 右に向いているときにProbeがworldの外に出そうか
-        if(groundProbe.x + groundProbe.w >= static_cast<int>(esc.worldWidth)){
-            hasGround = false;
-        }
-    } else {
-        // 左を向いているときにProbeがworldの外に出そうか
-        if(groundProbe.x <= 0){
-            hasGround = false;
-        }
-    }
-    // 最終的な結果返却
-    // hasGround = true;
-    outSensor.groundAhead = hasGround;
-}
-*/
-
 /**
  * @brief Enemyの壁に関する処理
  * 次の移動先が壁か(ブロックにめり込むか)を調べる
@@ -323,62 +269,6 @@ void EnemyAISystem::fillWallAhead(const Enemy& enemy,
     // 最終的な結果返却
     outSensor.wallAhead = hasWall;
 }
-
-/*
-void EnemyAISystem::fillWallAhead(const Enemy& enemy, 
-                                  const EnemySensorContext& esc, 
-                                        EnemySensor& outSensor) const
-{
-    // Enemyの情報取得
-    // 当たり判定用矩形
-    SDL_Rect er = enemy.getCollisionRect();
-    // 進む方向(向いている方向)
-    const Direction dir = enemy.getDirection();
-    // 右を向いているか
-    const bool facingRight = (dir == Direction::Right);
-
-    // wallAheadの決定：一歩先に壁があるか
-    SDL_Rect wallProbe{};
-    bool hasWall = false;
-    // 調べる方向の決定
-    if (facingRight) {
-        wallProbe.x = er.x + er.w;  // 右方向チェック
-    } else {
-        wallProbe.x = er.x - EnemyAIConfig::WALL_PROBE_DEPTH;  // 左方向チェック
-    }
-    // 体全体の情報
-    wallProbe.y = er.y;
-    wallProbe.w = EnemyAIConfig::WALL_PROBE_DEPTH;
-    wallProbe.h = er.h;
-    // 壁(ブロックとのチェック)
-    for(const auto& b : esc.blocks){
-        // 通常の床以外は判定しない
-        if(b.type != BlockType::Standable){
-            continue;
-        }
-        SDL_Rect br = GameUtil::blockToRect(b); // TODO：コストが高いのであとでキャッシュにする
-        // Enemyのちょっと先の座標とブロックで接触判定
-        if(GameUtil::intersects(wallProbe, br)){
-            hasWall = true;
-            break;
-        }
-    }
-    // worldの端も壁扱い
-    if(facingRight){
-        // 右に向いているときにProbeがworldの外に出そうか
-        if(wallProbe.x + wallProbe.w >= static_cast<int>(esc.worldWidth)){
-            hasWall = true;
-        }
-    }else{
-        // 左を向いているときにProbeがworldの外に出そうか
-        if(wallProbe.x <= 0){
-            hasWall = true;
-        }
-    }
-    // 最終的な結果返却
-    outSensor.wallAhead = hasWall;
-}
-*/
 
 /**
  * @brief EnemyにSensorの結果を渡して行動を決定させる

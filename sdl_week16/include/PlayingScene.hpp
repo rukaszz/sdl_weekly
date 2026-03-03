@@ -5,6 +5,7 @@
 #include "ProjectileSystem.hpp"
 #include "EnemyAISystem.hpp"
 #include "CollisionSystem.hpp"
+#include "GameEventBuffer.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -32,6 +33,8 @@ private:
     EnemyAISystem enemyAI;
     // 衝突処理管理用
     CollisionSystem collision;
+    // イベント管理用
+    GameEventBuffer events;
     // デバッグ表示用のテキストテクスチャ
     std::unique_ptr<TextTexture> debugText;
 

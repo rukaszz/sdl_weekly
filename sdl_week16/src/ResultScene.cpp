@@ -48,7 +48,8 @@ void ResultScene::update(double delta){
     const InputState& is = ctx.input.getState();
     // Enterでタイトル画面へ(Titleへ進むのでEnter)
     if(is.justPressed[(int)Action::Enter]){
-        ctrl.requestScene(GameScene::Title);
+        // ctrl.requestScene(GameScene::Title);
+        ctx.events.requestScene(GameScene::Title);
     }
 }
 

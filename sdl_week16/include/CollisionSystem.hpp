@@ -6,6 +6,8 @@
 
 #include <SDL2/SDL.h>
 
+class IGameEvents;
+
 class SceneControl;
 class Player;
 class Enemy;
@@ -30,12 +32,13 @@ public:
     ~CollisionSystem() = default;
     // ステージロード時のキャッシュ更新用
     void onStageLoaded();
-    void resolve(SceneControl& ctrl);
-    void checkFallDeath(SceneControl& ctrl);
+    void resolve(IGameEvents& events);
+    // void checkFallDeath(SceneControl& ctrl);
+    void checkFallDeath(IGameEvents& events);
 private:
     // updadeで呼ばれるcollision処理の関数群
-    void resolveBlockCollision(SceneControl& ctrl);
-    void resolveEnemyCollision(SceneControl& ctrl);
+    void resolveBlockCollision(IGameEvents& events);
+    void resolveEnemyCollision(IGameEvents& events);
 };
 
 #endif  // COLLISIONSYSTEM_H

@@ -2,11 +2,12 @@
 #define GAMEEVENTBUFFER_H
 
 #include "GameEvent.hpp"
+#include "IGameEvents.hpp"
 
 #include <vector>
 #include <utility>  // std::forward
 
-class GameEventBuffer{
+class GameEventBuffer : public IGameEvents{
 private:
     std::vector<GameEvent> q;
 public:
@@ -25,9 +26,19 @@ public:
     // T&&は常に右辺値(rvalue)ではないため，rvalue/lvalueで振る舞いを変えなければならない
     // 単にeを渡すとlvalueとして，move(e)ではrvalueとして強制的に渡ってしまう
     // forwardを使うと，引数がrvalueかlvalueかを判断して渡せる
+    /*
     template<typename T>
     void push(T&& e){
         q.emplace_back(std::forward<T>(e));
+    }
+    */
+    // そもそもシーンのリクエストにclearやitemsを触れる余地を残さないように
+    // IGameEventsというインターフェースを継承して公開範囲を限定させた
+    void requestScene(GameScene gs) override{
+        q.emplace_back(RequestSceneEvent{gs});
+    }
+    void addScore(int delta) override{
+        q.emplace_back(AddScoreEvent{delta});
     }
     void clear(){
         q.clear();

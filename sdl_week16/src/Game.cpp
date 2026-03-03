@@ -23,6 +23,7 @@
 #include "TextTexture.hpp"
 #include "Input.hpp"
 #include "BlockLevelLoader.hpp"
+#include "GameEventBuffer.hpp"
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -132,6 +133,7 @@ void Game::buildContexts(){
         *input, 
         camera,
         worldInfo, 
+        events,
         EntityContext{
             *player,
             *enemyTexture,
@@ -279,8 +281,6 @@ void Game::run(){
             update(fixedDelta);
             acc -= fixedNs;
         }
-        // シーンの更新
-        applySceneChangeIfAny();
         // 補間係数(描画用)
         // const double alpha = std::clamp(acc.count() / static_cast<double>(fixedNs.count()), 0.0, 1.0);
         // 描画
@@ -353,6 +353,11 @@ void Game::update(double delta){
     // input->update(); // ここでupdadeするとキー入力がSceneへ伝搬しない
     currentScene->update(delta);
     input->update();
+    // イベントの確定
+    consumeEvents(events);
+    events.clear();
+    // シーンの更新
+    applySceneChangeIfAny();
 }
 
 /**

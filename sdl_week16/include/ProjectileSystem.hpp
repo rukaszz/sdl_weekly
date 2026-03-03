@@ -12,6 +12,7 @@ class Enemy;
 class FireBall;
 class EnemyBullet;
 class SceneControl;
+class IGameEvents;
 
 struct Block;
 struct WorldInfo;
@@ -50,13 +51,13 @@ public:
     // 更新系はplayer/enemy両方更新する
     void update(double delta);
     // 当たり判定(弾 vs entity)
-    void resolveCollisions(Player& player, std::vector<std::unique_ptr<Enemy>>& enemies, SceneControl& ctrl);
+    void resolveCollisions(Player& player, std::vector<std::unique_ptr<Enemy>>& enemies, IGameEvents& events);
     // 生存管理(非活性・画面外は消す)
     void cleanup();
 
 private:
-    void resolveFireballEnemyCollision(std::vector<std::unique_ptr<Enemy>>& enemies, SceneControl& ctrl);
-    void resolvePlayerEnemyBulletCollision(Player& player, SceneControl& ctrl);
+    void resolveFireballEnemyCollision(std::vector<std::unique_ptr<Enemy>>& enemies, IGameEvents& events);
+    void resolvePlayerEnemyBulletCollision(Player& player, IGameEvents& events);
 
 };
 

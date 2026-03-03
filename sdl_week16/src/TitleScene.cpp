@@ -3,7 +3,6 @@
 
 #include "TitleScene.hpp"
 #include "Game.hpp"
-#include "SceneControl.hpp"
 #include "Renderer.hpp"
 #include "Input.hpp"
 
@@ -51,8 +50,8 @@ void TitleScene::update(double delta){
     const InputState& is = ctx.input.getState();
     if(is.justPressed[(int)Action::Enter]){
         ctrl.startNewGame();
-        ctrl.resetGame();
-        ctrl.requestScene(GameScene::Playing);
+        // ctrl.requestScene(GameScene::Playing);
+        ctx.events.requestScene(GameScene::Playing);
         return;
     }
 }

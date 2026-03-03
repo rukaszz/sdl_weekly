@@ -24,6 +24,7 @@ class Player;
 class Enemy;
 class FireBall;
 class EnemyBullet;
+class IGameEvents;
 
 struct Block;
 struct Camera;
@@ -73,6 +74,7 @@ struct GameContext{
     Input& input;
     Camera& camera;
     WorldInfo& worldInfo;
+    IGameEvents& events;
 
     EntityContext entityCtx;
     TextRenderContext textRenderCtx;

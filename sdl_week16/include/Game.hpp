@@ -22,13 +22,14 @@
 #include "EnemyBullet.hpp"
 #include "Text.hpp"
 #include "TextTexture.hpp"
-#include "GameContext.hpp"
 #include "Input.hpp"
 #include "Block.hpp"
 #include "Camera.hpp"
 #include "WorldInfo.hpp"
+#include "GameEventBuffer.hpp"
+#include "SceneControl.hpp"
 
-
+#include "GameContext.hpp"
 
 class Game : public SceneControl{
 private:
@@ -64,6 +65,8 @@ private:
     Camera camera;
     // ステージ(世界)の情報
     WorldInfo worldInfo;
+    // ゲーム全体のイベント管理用
+    GameEventBuffer events;
 
     // 変数系
     bool running = true;
@@ -77,7 +80,7 @@ private:
     std::uniform_real_distribution<double> distY;
     // speed
     std::uniform_real_distribution<double> distSpeed;
-    // シーン管理用
+    // ゲーム全体の情報管理用
     std::unique_ptr<GameContext> ctx;
 
 public:

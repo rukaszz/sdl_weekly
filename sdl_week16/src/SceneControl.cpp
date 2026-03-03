@@ -54,7 +54,7 @@ namespace{
     GameScene pickHigherPriority(GameScene a, GameScene b){
         return (scenePriority(a) <= scenePriority(b)) ? a : b;
     }
-}
+}   // namespace
 
 /**
  * @brief ゲームを始める関数

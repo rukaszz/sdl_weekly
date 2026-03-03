@@ -53,18 +53,21 @@ void ClearScene::update(double delta){
     if(is.justPressed[(int)Action::Enter]){
         if(ctrl.goToNextStage()){
             // ステージインデックスを勧めてシーンを切り替える
-            ctrl.requestScene(GameScene::Playing);
+            // ctrl.requestScene(GameScene::Playing);
+            ctx.events.requestScene(GameScene::Playing);
         } else {
             // 全ステージクリア
             // タイトルへ戻すだけ
             // 後でリザルト画面(ResultScene)を作る
-            ctrl.requestScene(GameScene::Result);
+            // ctrl.requestScene(GameScene::Result);
+            ctx.events.requestScene(GameScene::Result);
         }
     }
     // ESCでタイトル画面へ
     if(is.justPressed[(int)Action::Pause]){
         // 諦めてタイトルへ戻るなのでTitleScene
-        ctrl.requestScene(GameScene::Title);
+        // ctrl.requestScene(GameScene::Title);
+        ctx.events.requestScene(GameScene::Title);
     }
 }
 

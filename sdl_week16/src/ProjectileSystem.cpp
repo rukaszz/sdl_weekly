@@ -7,6 +7,7 @@
 #include "SceneControl.hpp"
 #include "GameUtil.hpp"
 #include "WorldInfo.hpp"
+#include "IGameEvents.hpp"
 
 #include "EnemyConfig.hpp"
 #include "FireBallConfig.hpp"
@@ -140,11 +141,11 @@ void ProjectileSystem::spawnEnemyBulletsFromEnemies(std::vector<std::unique_ptr<
  * @param enemies 
  * @param ctrl 
  */
-void ProjectileSystem::resolveCollisions(Player& player, std::vector<std::unique_ptr<Enemy>>& enemies, SceneControl& ctrl){
+void ProjectileSystem::resolveCollisions(Player& player, std::vector<std::unique_ptr<Enemy>>& enemies, IGameEvents& events){
     // FireBall vs Enemy
-    resolveFireballEnemyCollision(enemies, ctrl);
+    resolveFireballEnemyCollision(enemies, events);
     // EnemyBullet vs Player
-    resolvePlayerEnemyBulletCollision(player, ctrl);
+    resolvePlayerEnemyBulletCollision(player, events);
 }
 
 /**
@@ -153,7 +154,7 @@ void ProjectileSystem::resolveCollisions(Player& player, std::vector<std::unique
  * @param enemies 
  * @param ctrl 
  */
-void ProjectileSystem::resolveFireballEnemyCollision(std::vector<std::unique_ptr<Enemy>>& enemies, SceneControl& ctrl){
+void ProjectileSystem::resolveFireballEnemyCollision(std::vector<std::unique_ptr<Enemy>>& enemies, IGameEvents& events){
     // ファイアボールを分解
     for(auto& f : fireballs){
         // 非活性のファイアボールは処理しない
@@ -177,7 +178,8 @@ void ProjectileSystem::resolveFireballEnemyCollision(std::vector<std::unique_ptr
             // FireBall-Enemyが接触したら
             e->startDying();
             f->deactivate();
-            ctrl.setScore(ctrl.getScore() + EnemyConfig::SCORE_AT_FIREBALL);
+            // ctrl.setScore(ctrl.getScore() + EnemyConfig::SCORE_AT_FIREBALL);
+            events.addScore(EnemyConfig::SCORE_AT_FIREBALL);
             break;  // ヒットしたら終了(ファイアボールは貫通しない)
         }
     }
@@ -189,7 +191,7 @@ void ProjectileSystem::resolveFireballEnemyCollision(std::vector<std::unique_ptr
  * @param player 
  * @param ctrl 
  */
-void ProjectileSystem::resolvePlayerEnemyBulletCollision(Player& player, SceneControl& ctrl){
+void ProjectileSystem::resolvePlayerEnemyBulletCollision(Player& player, IGameEvents& events){
     // Playerの当たり判定用矩形取得
     const SDL_Rect pr = player.getCollisionRect();
     // 個々のEnemyBulletと判定
@@ -207,7 +209,7 @@ void ProjectileSystem::resolvePlayerEnemyBulletCollision(Player& player, SceneCo
         // 弾は非活性に
         eb->deactivate();
         // playerに当たったのでGameOverに
-        ctrl.requestScene(GameScene::GameOver);
+        events.requestScene(GameScene::GameOver);
         // 処理は抜ける
         break;
     }

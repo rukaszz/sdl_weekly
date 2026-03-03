@@ -89,11 +89,11 @@ void PlayingScene::update(double delta){
     // 弾更新(プレイヤー弾/敵弾で統一)
     projectiles.update(delta);
     // 7. Playerとの当たり判定
-    collision.resolve(ctrl);
+    collision.resolve(ctx.events);
     // 弾の当たり判定は System に移す(detectCollisionから除外している)
-    projectiles.resolveCollisions(ctx.entityCtx.player, ctx.entityCtx.enemies, ctrl);
+    projectiles.resolveCollisions(ctx.entityCtx.player, ctx.entityCtx.enemies, ctx.events);
     // 8. 落下死判定
-    collision.checkFallDeath(ctrl);
+    collision.checkFallDeath(ctx.events);
     // 9. カメラ座標の更新
     updateCamera();
     // 10. 弾系オブジェクトの片付け
@@ -148,48 +148,6 @@ void PlayingScene::render(){
     debugText->draw(ctx.renderer, 20, 80);
 }
 
-/*
-void PlayingScene::render(){
-    // テキスト描画
-    ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
-    ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);
-    // ブロック描画
-    for(const auto& b : ctx.entityCtx.blocks){
-        SDL_Color blockColor;
-        // 床のタイプで描画を変更
-        switch(b.type){
-        case BlockType::Standable:
-            blockColor = {255, 255, 255, 255};  // 白
-            break;
-        case BlockType::DropThrough:
-            blockColor = {128, 128, 255, 255};  // 青
-            break;
-        case BlockType::Damage:
-            blockColor = {255, 0, 0, 255};      // 赤
-            break;
-        case BlockType::Clear:
-            blockColor = {255, 216, 0, 255};    // 黃
-            break;
-        }
-        SDL_Rect r = {static_cast<int>(b.x), static_cast<int>(b.y),
-                      static_cast<int>(b.w), static_cast<int>(b.h)};
-        ctx.renderer.drawRect(r, blockColor, ctx.camera);
-    }
-    for(const auto& f : ctx.entityCtx.fireballs){
-        f->draw(ctx.renderer, ctx.camera);
-    }
-    for(const auto& eb : ctx.entityCtx.enemyBullets){
-        eb->draw(ctx.renderer, ctx.camera);
-    }
-    // キャラクタ描画
-    // カメラを考慮した書き方にする
-    ctx.entityCtx.player.draw(ctx.renderer, ctx.camera);
-    for(auto& e : ctx.entityCtx.enemies) e->draw(ctx.renderer, ctx.camera);
-    // デバッグ情報表示
-    debugText->draw(ctx.renderer, 20, 80);
-}
-*/
-
 /**
  * @brief PlayingSceneへ入った際の初期化処理
  * 
@@ -217,7 +175,8 @@ void PlayingScene::onExit(){
  */
 void PlayingScene::handlePlayingInput(const InputState& is){
     if(is.justPressed[(int)Action::Pause]){
-        ctrl.requestScene(GameScene::Title);
+        // ctrl.requestScene(GameScene::Title);
+        ctx.events.requestScene(GameScene::Title);
         return;
     }
     // bキーでファイアボール発射
