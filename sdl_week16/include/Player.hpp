@@ -9,6 +9,7 @@
 #include "Character.hpp"
 #include "AnimationController.hpp"
 #include "Sprite.hpp"
+#include "GameEvent.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -31,6 +32,8 @@ private:
     double coyoteTimer = 0.0;
     // 接地直前でもジャンプ可能とする時間の猶予
     double jumpableBufferTimer = 0.0;
+    // プレイヤーの状態
+    PlayerForm form = PlayerForm::Small;
 public:
     // 定数
     // アニメーション枚数
@@ -41,7 +44,7 @@ public:
     void update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks) override;
     SDL_Rect getCollisionRect() const override;
     void reset();
-    // デバッグ用テキスト表示用getter
+    // デバッグ用テキスト表示用
     std::string debugMoveContext();
 private:
     // update()関係
@@ -55,6 +58,14 @@ private:
     void physicsProcessing(const std::vector<Block>& blocks, const bool dropThrough);
     void clampHorizontalPosition(const DrawBounds& bounds);
     void animationProcessing(double delta, const bool moving);
+public:
+    // getter/setter
+    PlayerForm getForm() const{
+        return form;
+    }
+    void setForm(PlayerForm pf){
+        form = pf;
+    }
 };
 
 #endif  // PLAYER_H

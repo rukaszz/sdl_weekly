@@ -25,6 +25,7 @@ class Enemy;
 class FireBall;
 class EnemyBullet;
 class IGameEvents;
+class Item;
 
 struct Block;
 struct Camera;
@@ -41,6 +42,7 @@ struct EntityContext{
     std::vector<std::unique_ptr<Enemy>>& enemies;
     std::vector<Block>& blocks;
     std::vector<SDL_Rect>& blockRectCaches;    // ブロックの矩形キャッシュ用
+    std::vector<Item>& items;
     Texture& fireballTexture;
     std::vector<std::unique_ptr<FireBall>>& fireballs;
     Texture& enemyBulletTexture;

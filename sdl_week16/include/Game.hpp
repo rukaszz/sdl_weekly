@@ -24,6 +24,7 @@
 #include "TextTexture.hpp"
 #include "Input.hpp"
 #include "Block.hpp"
+#include "Item.hpp"
 #include "Camera.hpp"
 #include "WorldInfo.hpp"
 #include "GameEventBuffer.hpp"
@@ -55,6 +56,8 @@ private:
     // ブロック
     std::vector<Block> blocks;
     std::vector<SDL_Rect> blockRectCaches;
+    // アイテム
+    std::vector<Item>& items;
     // テキスト表示用
     std::unique_ptr<Text> font;
     std::unique_ptr<TextTexture> scoreText;

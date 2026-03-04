@@ -140,6 +140,7 @@ void Game::buildContexts(){
             enemies,            // 空vector
             blocks,             // 空vector
             blockRectCaches,    // 空vector(blocksのRectのcache)
+            items,              // 空vector
             *fireballTexture, 
             fireballs,          // 空vector
             *enemyBulletTexture, 
