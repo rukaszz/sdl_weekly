@@ -28,11 +28,6 @@ public:
                     // 巨大化
                     player.setForm(PlayerForm::Super);
                 }
-                // きのこ取得イベント
-                if(cie.type == ItemType::Coin){
-                    // コイン取得でスコア加算
-                    events.addScore(100);   // TODO：後でマジックナンバーを取り除く
-                }
             }
         );
     }

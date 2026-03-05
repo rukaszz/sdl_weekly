@@ -3,10 +3,8 @@
 
 #include <vector>
 
-#include "Item.hpp"
-#include "GameEventBuffer.hpp"
-#include "GameUtil.hpp"
-
+class GameEventBuffer;
+class Item;
 class Player;
 
 class ItemSystem{
