@@ -102,6 +102,43 @@ void PlayingScene::update(double delta){
     debugText->setText(ctx.entityCtx.player.debugMoveContext());
 }
 
+/*
+void PlayingScene::update(double delta){
+    // 1. 入力の受け入れ
+    // エスケープキーでTitleへの遷移
+    const InputState& is = ctx.input.getState();
+    handlePlayingInput(is);
+    // 2. 衝突処理用の前フレームのプレイヤー座標をサンプリング
+    // 必ず各種Collision判定前に呼ぶ必要がある
+    // 呼び出し順序に注意すること
+    ctx.entityCtx.player.beginFrameCollisionSample();
+    // 3. worldInfoを用いた幅のクランプ処理
+    DrawBounds worldBounds = {ctx.worldInfo.WorldWidth, ctx.worldInfo.WorldHeight};
+    // 4. スコア更新
+    updateScore(delta);
+    // 5. 敵センサの収集とAIの更新
+    enemyAI.update(delta);
+    // 敵弾生成(Turretへの射出要求を消費)
+    projectiles.spawnEnemyBulletsFromEnemies(ctx.entityCtx.enemies);
+    // 6. 物理の更新(弾系はここで更新していない)
+    updateEntities(delta, worldBounds);
+    // 弾更新(プレイヤー弾/敵弾で統一)
+    projectiles.update(delta);
+    // 7. Playerとの当たり判定
+    collision.resolve(ctx.events);
+    // 弾の当たり判定は System に移す(detectCollisionから除外している)
+    projectiles.resolveCollisions(ctx.entityCtx.player, ctx.entityCtx.enemies, ctx.events);
+    // 8. 落下死判定
+    collision.checkFallDeath(ctx.events);
+    // 9. カメラ座標の更新
+    updateCamera();
+    // 10. 弾系オブジェクトの片付け
+    projectiles.cleanup();
+    // デバッグ情報取得
+    debugText->setText(ctx.entityCtx.player.debugMoveContext());
+}
+*/
+
 /**
  * @brief ゲーム中の画面描画処理
  * 

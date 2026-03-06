@@ -38,29 +38,4 @@ struct StageDefinition{
     std::vector<EnemySpawn> enemySpawns;
 };
 
-/**
- * @brief 敵のスポーン時の設定管理用
- * JsonStageDefinitionへ渡る
- * 
- */
-struct JsonEnemySpawn{
-    double x;
-    double y;
-    double speed;
-    std::string type; // "walker" / "chaser" / ...
-};
-
-/**
- * @brief ステージ構成に関する定義間利用
- * ここで組み立ててStageDefinitionへ渡す
- * 
- */
-struct JsonStageDefinition{
-    std::string name;
-    std::string levelFile;
-    double playerStart_X;
-    double playerStart_Y;
-    std::vector<JsonEnemySpawn> enemies;
-};
-
 #endif  // STAGEDEFINITION_H

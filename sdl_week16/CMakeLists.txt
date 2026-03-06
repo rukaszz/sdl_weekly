@@ -9,6 +9,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 
 # pkg-configを利用
 find_package(PkgConfig REQUIRED)
+find_package(nlomann_json CONFIG REQUIRED)
 
 # テスト用
 enable_testing()

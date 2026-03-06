@@ -39,6 +39,7 @@ private:
     // updadeで呼ばれるcollision処理の関数群
     void resolveBlockCollision(IGameEvents& events);
     void resolveEnemyCollision(IGameEvents& events);
+    void resolveBlockHits(IGameEvents& events);
 };
 
 #endif  // COLLISIONSYSTEM_H

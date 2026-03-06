@@ -3,12 +3,12 @@
 
 #include "StageDefinition.hpp"
 
+#include <vector>
 #include <string>
 
 class StageDefinitionLoader{
 public:
-    static StageDefinition loadFromJson(const std::string& path);
-
+    static std::vector<StageDefinition> loadStagesFromJson(const std::string& path);
 };
 
 #endif  // STAGEDEFINITIONLOADER_H

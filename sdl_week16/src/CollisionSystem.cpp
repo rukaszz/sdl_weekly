@@ -1,5 +1,7 @@
 #include "CollisionSystem.hpp"
 
+#include <cstdint>
+
 #include "GameScene.hpp"
 #include "SceneControl.hpp"
 #include "Player.hpp"
@@ -50,6 +52,8 @@ void CollisionSystem::resolve(IGameEvents& events){
     resolveEnemyCollision(events);
     // ダメージブロックとの衝突判定
     resolveBlockCollision(events);
+    // ブロックとの衝突判定(下から)
+    resolveBlockHits(events)
 }
 
 /**
@@ -158,4 +162,39 @@ void CollisionSystem::checkFallDeath(IGameEvents& events){
  */
 void CollisionSystem::onStageLoaded(){
 
+}
+
+/**
+ * @brief ブロックへの能動的な(下からの)接触判定
+ * TODO：とりあえず上昇中のRectによる判定のみを実施しているが，
+ * プレイヤーのy座標のサンプリングをした厳密な処理版を作成する必要あり
+ * 
+ * @param events 
+ */
+void CollisionSystem::resolveBlockHits(IGameEvents& events){
+    // Playerの衝突判定用矩形
+    const SDL_Rect pr = player.getCollisionRect();
+    // 垂直移動速度
+    const double vv = player.getVertivalVelocity();
+    // 上昇中のみ判定
+    if(vv >= 0.0){
+        return;
+    }
+    // ブロックの走査
+    for(std::size_t i = 0; i < blocks.size(); ++i){
+        // ブロックの取得
+        const auto& b = blocks[i];
+        // Question/breakable以外は叩け無い
+        if(b.type != BlockType::Question && b.type != BlockType::Breakable){
+            return;
+        }
+        // キャッシュしたブロックの衝突判定用矩形を取得
+        const SDL_Rect& br = blockRects[i];
+        // 衝突判定 player vs blocks
+        if(!GameUtil::intersects(pr, br)){
+            continue;   
+        }
+        // 下から叩いた判定をしたいが，現状はイベントを発行する
+        events.hitBlock(i);
+    }
 }
