@@ -57,7 +57,7 @@ private:
     std::vector<Block> blocks;
     std::vector<SDL_Rect> blockRectCaches;
     // アイテム
-    std::vector<Item>& items;
+    std::vector<Item> items;
     // テキスト表示用
     std::unique_ptr<Text> font;
     std::unique_ptr<TextTexture> scoreText;

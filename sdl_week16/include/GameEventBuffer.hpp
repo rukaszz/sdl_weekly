@@ -15,6 +15,8 @@ class GameEventBuffer : public IGameEvents{
 private:
     std::vector<GameEvent> q;
 public:
+    GameEventBuffer() = default;
+    ~GameEventBuffer() = default;
     /*
     push()の素直な実装：
     void push(GameEvent e){ q.push_back(std::move(e)); }
@@ -52,12 +54,12 @@ public:
     }
     // アイテム取得イベント
     void collectItem(ItemType it) override{
-        q.emplace_back(CollectionItemEvent{it});
+        q.emplace_back(CollectItemEvent{it});
     }
     // プレイヤー形態変更イベント
-    void setPlayerForm(PlayerForm pf) override{
-        q.emplace_back(SetPlayerFormEvent{pf});
-    }
+    // void setPlayerForm(PlayerForm pf) override{
+    //     q.emplace_back(SetPlayerFormEvent{pf});
+    // }
     // ブロック接触イベント
     void hitBlock(std::size_t bi) override{
         q.emplace_back(BlockHitEvent{bi});
@@ -74,7 +76,7 @@ public:
      * @brief 特定のイベントだけ消費して削除する処理
      * vectorのeraseはO(n^2)かかるが，この方法はO(n)で終わる
      * Predはstd::holds_alternativeを用いて取り出したい型を指定する(bool値)
-     * Fnはstd::getによるムーブが発生する関数が指定される(getのムーブオーバーロード)
+     * Fnはstd::getなどイベントを取り出す関数が指定される
      * 
      * 注意：qはvariantであること
      * 途中でエラーが生じると，qの状態が不整合になる可能性がある※valueless_by_exception

@@ -44,6 +44,8 @@ public:
     void update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks) override;
     SDL_Rect getCollisionRect() const override;
     void reset();
+    // プレイヤーの頭のサンプリング
+    void beginFrameCollitionSample();
     // デバッグ用テキスト表示用
     std::string debugMoveContext();
 private:

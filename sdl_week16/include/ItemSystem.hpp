@@ -12,12 +12,12 @@ private:
     std::vector<Item>& items;
 
 public:
-    explicit ItemSystem(std::vector<Item>& items_) : items(items_){}
+    explicit ItemSystem(std::vector<Item>& items_);
     ~ItemSystem() = default;
 
     void onStageLoaded();
     void processSpawn(GameEventBuffer& events);
-    void resolvePlayerCollition(Player& player, GameEventBuffer& events);
+    void resolvePlayerCollision(Player& player, GameEventBuffer& events);
     void cleanup();
 };
 

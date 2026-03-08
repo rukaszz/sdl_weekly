@@ -93,7 +93,8 @@ SDL_Rect Player::getCollisionRect() const{
         static_cast<int>(x) + PlayerConfig::COLLISION_MARGIN_X, 
         static_cast<int>(y) + PlayerConfig::COLLISION_MARGIN_Y,
         sprite.getDrawWidth() - PlayerConfig::COLLISION_MARGIN_X *2,
-        sprite.getDrawHeight() - PlayerConfig::COLLISION_MARGIN_Y * 2};
+        sprite.getDrawHeight() - PlayerConfig::COLLISION_MARGIN_Y * 2
+    };
 }
 
 /**
@@ -345,4 +346,14 @@ std::string Player::debugMoveContext(){
           + "jbt: "     + std::to_string(jumpableBufferTimer)
           + "isJ: "     + std::to_string(isJumping);
     return mvCtx;
+}
+
+/**
+ * @brief 当たり判定用に用いる前フレームのプレイヤーのTop(y)とFeet(y+h)
+ * をサンプリングする関数を呼ぶ
+ * 
+ */
+void Player::beginFrameCollitionSample(){
+    beginFrameTopCollisionSample();
+    beginFrameFeetCollisionSample();
 }

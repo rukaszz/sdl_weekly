@@ -25,6 +25,8 @@ protected:
     // 1フレーム前のRect上部
     // 頭上のブロック接触用
     double prevTopPhysics;
+    // 接触判定用
+    double prevTopCollision;
     // 1フレーム前のRect下部
     // ブロックとの接触など物理の判定に用いる
     // Sprite の高さベース(= 描画上の矩形)のbottom
@@ -87,14 +89,26 @@ public:
     double getPrevFeetPhysics() const{
         return prevFeetPhysics;
     }
+    // prevTopCollision
+    void beginFrameTopCollisionSample() {
+        SDL_Rect r = getCollisionRect();
+        prevTopCollision = r.y;
+    }
+    double getTopCollision() const {
+        SDL_Rect r = getCollisionRect();
+        return static_cast<double>(r.y);
+    }
+    double getPrevTopCollision() const {
+        return prevTopCollision;
+    }
     // prevFeetCollision
-    void beginFrameCollisionSample() {
+    void beginFrameFeetCollisionSample() {
         SDL_Rect r = getCollisionRect();
         prevFeetCollision = r.y + r.h;
     }
     double getFeetCollision() const {
         SDL_Rect r = getCollisionRect();
-        return r.y + r.h;
+        return static_cast<double>(r.y + r.h);
     }
     double getPrevFeetCollision() const {
         return prevFeetCollision;

@@ -16,7 +16,7 @@ public:
     virtual void addScore(int delta) = 0;
     virtual void spawnItem(ItemType it, double x, double y) = 0;
     virtual void collectItem(ItemType it) = 0;
-    virtual void setPlayerForm(PlayerForm pf) = 0;
+    //virtual void setPlayerForm(PlayerForm pf) = 0;
     virtual void hitBlock(std::size_t blockIndex) = 0;
 };
 

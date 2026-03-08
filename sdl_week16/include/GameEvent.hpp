@@ -62,7 +62,7 @@ struct SpawnItemEvent {
  * @brief アイテムの種類を扱う型
  * 
  */
-struct CollectionItemEvent{
+struct CollectItemEvent{
     ItemType type;
 };
 
@@ -86,7 +86,7 @@ struct BlockHitEvent{
 using GameEvent = std::variant<RequestSceneEvent, 
                                AddScoreEvent, 
                                SpawnItemEvent, 
-                               CollectionItemEvent,
+                               CollectItemEvent,
                                SetPlayerFormEvent, 
                                BlockHitEvent
                                >;

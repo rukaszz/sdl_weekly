@@ -75,7 +75,8 @@ void PlayingScene::update(double delta){
     // 2. 衝突処理用の前フレームのプレイヤー座標をサンプリング
     // 必ず各種Collision判定前に呼ぶ必要がある
     // 呼び出し順序に注意すること
-    ctx.entityCtx.player.beginFrameCollisionSample();
+    //ctx.entityCtx.player.beginFrameFeetCollisionSample();
+    ctx.entityCtx.player.beginFrameCollitionSample();
     // 3. worldInfoを用いた幅のクランプ処理
     DrawBounds worldBounds = {ctx.worldInfo.WorldWidth, ctx.worldInfo.WorldHeight};
     // 4. スコア更新
@@ -111,7 +112,7 @@ void PlayingScene::update(double delta){
     // 2. 衝突処理用の前フレームのプレイヤー座標をサンプリング
     // 必ず各種Collision判定前に呼ぶ必要がある
     // 呼び出し順序に注意すること
-    ctx.entityCtx.player.beginFrameCollisionSample();
+    ctx.entityCtx.player.beginFrameFeetCollisionSample();
     // 3. worldInfoを用いた幅のクランプ処理
     DrawBounds worldBounds = {ctx.worldInfo.WorldWidth, ctx.worldInfo.WorldHeight};
     // 4. スコア更新

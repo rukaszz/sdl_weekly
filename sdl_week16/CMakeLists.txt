@@ -9,7 +9,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 
 # pkg-configを利用
 find_package(PkgConfig REQUIRED)
-find_package(nlomann_json CONFIG REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 # テスト用
 enable_testing()
@@ -21,42 +21,44 @@ pkg_check_modules(SDL2IMAGE REQUIRED SDL2_image)
 pkg_check_modules(SDL2TTF REQUIRED SDL2_ttf)
 
 add_executable(${PROJECT_NAME}
-    src/main.cpp
-    src/Window.cpp
-    src/Renderer.cpp
-    src/Sprite.cpp
-    src/Texture.cpp
-    src/Character.cpp
-    src/Player.cpp
-    src/Game.cpp
-    src/Enemy.cpp
-    src/WalkerEnemy.cpp
-    src/ChaserEnemy.cpp
-    src/JumperEnemy.cpp
-    src/TurretEnemy.cpp
     src/AnimationController.cpp
-    src/Text.cpp
-    src/TextTexture.cpp
-    src/SceneControl.cpp
-    src/Scene.cpp
-    src/TitleScene.cpp
-    src/PlayingScene.cpp
-    src/GameOverScene.cpp 
-    src/ClearScene.cpp
-    src/ResultScene.cpp
-    src/Input.cpp   
     src/Block.cpp
     src/BlockLevelLoader.cpp
-    src/Physics.cpp
-    src/Camera.cpp
-    src/PlayerEnemyCollisionUtil.cpp
-    src/SdlSystem.cpp
     src/Bullet.cpp
-    src/FireBall.cpp
-    src/EnemyBullet.cpp
-    src/ProjectileSystem.cpp
-    src/EnemyAISystem.cpp
+    src/Camera.cpp
+    src/Character.cpp
+    src/ChaserEnemy.cpp
+    src/ClearScene.cpp
     src/CollisionSystem.cpp
+    src/Enemy.cpp
+    src/EnemyAISystem.cpp
+    src/EnemyBullet.cpp
+    src/FireBall.cpp
+    src/Game.cpp
+    src/GameOverScene.cpp 
+    src/Input.cpp
+    src/ItemSystem.cpp
+    src/JumperEnemy.cpp
+    src/Physics.cpp
+    src/Player.cpp
+    src/PlayerEnemyCollisionUtil.cpp
+    src/PlayingScene.cpp
+    src/ProjectileSystem.cpp
+    src/Renderer.cpp
+    src/ResultScene.cpp
+    src/Scene.cpp
+    src/SceneControl.cpp
+    src/SdlSystem.cpp
+    src/Sprite.cpp
+    src/StageDefinitionLoader.cpp
+    src/Text.cpp
+    src/TextTexture.cpp
+    src/Texture.cpp
+    src/TitleScene.cpp
+    src/TurretEnemy.cpp
+    src/WalkerEnemy.cpp
+    src/Window.cpp
+    src/main.cpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
@@ -70,6 +72,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     ${SDL2_LIBRARIES}
     ${SDL2IMAGE_LIBRARIES}
     ${SDL2TTF_LIBRARIES}
+    nlohmann_json::nlohmann_json
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -std=c++20)

@@ -18,11 +18,11 @@ public:
     void process(GameEventBuffer& events){
         events.consumeIf(
             // Pred
-            [](const GameEvent& ev){return std::holds_alternative<CollectionItemEvent>(ev);}, 
+            [](const GameEvent& ev){return std::holds_alternative<CollectItemEvent>(ev);}, 
             // Fn
             [&](const GameEvent& ev){
-                // PredでヒットしたCollectionItemEventの要素をムーブ
-                const auto& cie = std::get<CollectionItemEvent>(ev);
+                // PredでヒットしたCollectItemEventの要素をムーブ
+                const auto& cie = std::get<CollectItemEvent>(ev);
                 // きのこ取得イベント
                 if(cie.type == ItemType::Mushroom){
                     // 巨大化

@@ -1,7 +1,8 @@
-#include "ItemSystem.cpp"
+#include "ItemSystem.hpp"
 
 #include <vector>
 #include <variant>
+#include <algorithm>
 
 #include "Item.hpp"
 #include "GameEventBuffer.hpp"
@@ -13,7 +14,7 @@
  * 
  * @param items_ 
  */
-explicit ItemSystem::ItemSystem(std::vector<Item>& items_)
+ItemSystem::ItemSystem(std::vector<Item>& items_)
     : items(items_)
 {
 
@@ -33,14 +34,14 @@ void ItemSystem::onStageLoaded(){
  * 
  * @param events 
  */
-void ItemSystem::processSpawns(GameEventsBuffer& events){
+void ItemSystem::processSpawn(GameEventBuffer& events){
     events.consumeIf(
         // Pred: SpawnItemEventのチェック
         [](const GameEvent& ev){ return std::holds_alternative<SpawnItemEvent>(ev);},
         // Fn: SpawnItemEventの消費
         [&](const GameEvent& ev){
             const auto& si = std::get<SpawnItemEvent>(ev);
-            item.push_back(Item{si.type, si.x, si.y, true});    // 活性なのでactive
+            items.push_back(Item(si.type, si.x, si.y));    // 活性なのでactive
         }
     );
 }
@@ -55,25 +56,25 @@ void ItemSystem::processSpawns(GameEventsBuffer& events){
 void ItemSystem::resolvePlayerCollision(Player& player, GameEventBuffer& events){
     // playerの衝突判定用矩形の取得
     const SDL_Rect pr = player.getCollisionRect();
-    // item vectorの探索
-    for(auto& i : items){
+    // items vectorの探索
+    for(auto& item : items){
         // 活性のみ処理
-        if(!i.active){
+        if(!item.isActive()){
             continue;
         }
         // アイテムの衝突判定用矩形取得
-        const SDL_Rect ir = i.getCollisionRect();
+        const SDL_Rect ir = item.getCollisionRect();
         // 衝突していないのは処理しない
-        if(!GameUtil::intersects(rt, ir)){
+        if(!GameUtil::intersects(pr, ir)){
             continue;
         }
         // ここに到達=プレイヤーと接触しているので非活性に
-        i.active = false;
+        item.deactivate();
         // アイテム取得イベント発生
-        events.collectItem(i.type);
+        events.collectItem(item.getItemType());
         // PlayerStateSystemではきのこなどプレイヤーの状態に関わるもののみ処理する
         // コインなどプレイヤーの状態に直接寄与しないものはここで処理する
-        if(i.type == ItemType::Coin){
+        if(item.getItemType() == ItemType::Coin){
             // コイン取得でスコア加算
             events.addScore(100);   // TODO：後でマジックナンバーを取り除く
         }
@@ -81,20 +82,17 @@ void ItemSystem::resolvePlayerCollision(Player& player, GameEventBuffer& events)
 }
 
 /**
- * @brief item vectorの整頓
+ * @brief items vectorの整頓
  * 非活性なitemを数えてインデックスから省いて配列から取り除く
  * 
  */
 void ItemSystem::cleanup(){
-    // 活性を数える変数
-    std::size_t out = 0;
-    // 配列を1回舐める
-    for(std::size_t i = 0; i < item.size(); ++i){
-        // activeなitemのみoutで数える
-        if(item[i].active){
-            items[out++] = item[i];
+    auto it = std::remove_if(
+        items.begin(), 
+        items.end(), 
+        [](const Item& item){
+            return !item.isActive();
         }
-        // outに合わせてサイズ調整
-        items.resize(out);
-    }
+    );
+    items.erase(it, items.end());
 }

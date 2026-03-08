@@ -1,33 +1,4 @@
-// 定数
-#include "GameConfig.hpp"
-#include "PlayerConfig.hpp"
-#include "EnemyConfig.hpp"
-
-#include "SdlSystem.hpp"
-#include "Window.hpp"
-#include "Renderer.hpp"
-#include "Scene.hpp"
-#include "TitleScene.hpp"
-#include "PlayingScene.hpp"
-#include "GameOverScene.hpp"
-#include "ClearScene.hpp"
-#include "ResultScene.hpp"
-#include "Texture.hpp"
-#include "Character.hpp"
-#include "Player.hpp"
-#include "Enemy.hpp"
-#include "FireBall.hpp"
 #include "Game.hpp"
-#include "GameUtil.hpp"
-#include "Text.hpp"
-#include "TextTexture.hpp"
-#include "Input.hpp"
-#include "BlockLevelLoader.hpp"
-#include "GameEventBuffer.hpp"
-
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
 
 #include <stdexcept>
 #include <iostream>
@@ -37,6 +8,44 @@
 #include <unordered_map>
 #include <random>
 #include <chrono>
+
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+
+// 定数
+#include "GameConfig.hpp"
+#include "PlayerConfig.hpp"
+#include "EnemyConfig.hpp"
+
+// SDL System
+#include "SdlSystem.hpp"
+#include "Window.hpp"
+#include "Renderer.hpp"
+#include "Texture.hpp"
+
+// Scene
+#include "Scene.hpp"
+#include "TitleScene.hpp"
+#include "PlayingScene.hpp"
+#include "GameOverScene.hpp"
+#include "ClearScene.hpp"
+#include "ResultScene.hpp"
+
+// Utirity
+#include "GameUtil.hpp"
+#include "Text.hpp"
+#include "TextTexture.hpp"
+#include "Input.hpp"
+#include "BlockLevelLoader.hpp"
+#include "GameEventBuffer.hpp"
+
+// Entity
+#include "Character.hpp"
+#include "Player.hpp"
+#include "Enemy.hpp"
+#include "FireBall.hpp"
+#include "Item.hpp"
 
 /**
  * @brief Construct a new Game:: Game object
