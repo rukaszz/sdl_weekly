@@ -1,0 +1,15 @@
+{
+  "stages": [
+    {
+      "name": "Stage 1",
+      "levelFile": "assets/levels/level1.txt",
+      "playerStart": { "x": 100.0, "y": 600.0 },
+      "enemies": [
+        {"x": 500.0, "y": 200.0, "speed": 150.0, "type": "Jumper"}, 
+        {"x": 200.0, "y": 400.0, "speed": 100.0, "type": "Walker"},
+        {"x": 400.0, "y": 636.0, "speed": 50.0,  "type": "Chaser"}, 
+        {"x": 700.0, "y": 636.0, "speed": 50.0,  "type": "Turret"}
+      ]
+    }
+  ]
+}
