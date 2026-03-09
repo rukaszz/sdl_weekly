@@ -9,6 +9,7 @@
 #include "DrawBounds.hpp"
 #include "GameConfig.hpp"
 #include "PlayerConfig.hpp"
+#include "GameEvent.hpp"
 
 #include <SDL2/SDL.h>
 #include <algorithm>
@@ -114,6 +115,8 @@ void Player::reset(){
     jumpElapsed = 0.0;
     coyoteTimer = 0.0;
     jumpableBufferTimer = 0.0;
+    // PlayerFormのリセット
+    setForm(PlayerForm::Small);
     // アニメーションリセット
     anim.reset();
 }
@@ -353,7 +356,7 @@ std::string Player::debugMoveContext(){
  * をサンプリングする関数を呼ぶ
  * 
  */
-void Player::beginFrameCollitionSample(){
+void Player::beginFrameCollisionSample(){
     beginFrameTopCollisionSample();
     beginFrameFeetCollisionSample();
 }

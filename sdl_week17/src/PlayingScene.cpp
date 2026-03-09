@@ -43,7 +43,14 @@ PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
         ctx.entityCtx.blocks, 
         ctx.entityCtx.blockRectCaches, 
         ctx.worldInfo
+    ), blockSystem(
+        ctx.entityCtx.blocks
+    ), items(
+        ctx.entityCtx.items
+    ), playerState(
+        ctx.entityCtx.player
     )
+
 {
     debugText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 0, 255, 255});
 }
@@ -76,7 +83,7 @@ void PlayingScene::update(double delta){
     // 必ず各種Collision判定前に呼ぶ必要がある
     // 呼び出し順序に注意すること
     //ctx.entityCtx.player.beginFrameFeetCollisionSample();
-    ctx.entityCtx.player.beginFrameCollitionSample();
+    ctx.entityCtx.player.beginFrameCollisionSample();
     // 3. worldInfoを用いた幅のクランプ処理
     DrawBounds worldBounds = {ctx.worldInfo.WorldWidth, ctx.worldInfo.WorldHeight};
     // 4. スコア更新
@@ -93,6 +100,13 @@ void PlayingScene::update(double delta){
     collision.resolve(ctx.events);
     // 弾の当たり判定は System に移す(detectCollisionから除外している)
     projectiles.resolveCollisions(ctx.entityCtx.player, ctx.entityCtx.enemies, ctx.events);
+    
+    // ブロック叩き〜その後の処理まで
+    blockSystem.process(events);
+    items.processSpawn(events);
+    items.resolvePlayerCollision(ctx.entityCtx.player, events);
+    playerState.process(events);
+
     // 8. 落下死判定
     collision.checkFallDeath(ctx.events);
     // 9. カメラ座標の更新
@@ -193,7 +207,10 @@ void PlayingScene::render(){
 void PlayingScene::onEnter(){
     int stageIndex = ctrl.getCurrentStageIndex();
     ctrl.loadStage(stageIndex, ctx);
+    // ブロックのキャッシュ再構築
+    GameUtil::rebuildBlockRects(ctx.entityCtx.blocks, ctx.entityCtx.blockRectCaches);
     // ステージが変わった通知を各システムへ送信する
+    items.onStageLoaded();
     projectiles.onStageLoaded();
     enemyAI.onStageLoaded();
     collision.onStageLoaded();

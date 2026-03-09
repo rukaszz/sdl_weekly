@@ -1,16 +1,19 @@
 #ifndef PLAYINGSCENE_H
 #define PLAYINGSCENE_H
 
+#include <memory>
+#include <vector>
+
+#include <SDL2/SDL.h>
+
 #include "Scene.hpp"
 #include "ProjectileSystem.hpp"
 #include "EnemyAISystem.hpp"
 #include "CollisionSystem.hpp"
 #include "GameEventBuffer.hpp"
-
-#include <SDL2/SDL.h>
-
-#include <memory>
-#include <vector>
+#include "BlockSystem.hpp"
+#include "ItemSystem.hpp"
+#include "PlayerStateSystem.hpp"
 
 class Game;
 class Renderer;
@@ -35,6 +38,12 @@ private:
     CollisionSystem collision;
     // イベント管理用
     GameEventBuffer events;
+    // ブロック管理用
+    BlockSystem blockSystem;
+    // アイテム管理用
+    ItemSystem items;
+    // Playerの状態管理用
+    PlayerStateSystem playerState;
     // デバッグ表示用のテキストテクスチャ
     std::unique_ptr<TextTexture> debugText;
 

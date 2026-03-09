@@ -45,7 +45,7 @@ public:
     SDL_Rect getCollisionRect() const override;
     void reset();
     // プレイヤーの頭のサンプリング
-    void beginFrameCollitionSample();
+    void beginFrameCollisionSample();
     // デバッグ用テキスト表示用
     std::string debugMoveContext();
 private:

@@ -3,9 +3,13 @@
 
 #include <vector>
 
+class Renderer;
 class GameEventBuffer;
 class Item;
 class Player;
+
+struct Camera;
+
 
 class ItemSystem{
 private:
@@ -19,6 +23,7 @@ public:
     void processSpawn(GameEventBuffer& events);
     void resolvePlayerCollision(Player& player, GameEventBuffer& events);
     void cleanup();
+    void render(Renderer& renderer, Camera& camera);
 };
 
 #endif  // ITEMSYSTEM_H

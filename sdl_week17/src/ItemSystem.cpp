@@ -4,6 +4,8 @@
 #include <variant>
 #include <algorithm>
 
+#include "Renderer.hpp"
+#include "Camera.hpp"
 #include "Item.hpp"
 #include "GameEventBuffer.hpp"
 #include "GameUtil.hpp"
@@ -95,4 +97,13 @@ void ItemSystem::cleanup(){
         }
     );
     items.erase(it, items.end());
+}
+
+void ItemSystem::render(Renderer& renderer, Camera& camera){
+    for(const auto& item : items){
+        if(!item.isActive()){
+            continue;
+        }
+        renderer.drawRect(item.getCollisionRect(), item.getDebugColor(), camera);
+    }
 }

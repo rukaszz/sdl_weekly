@@ -353,7 +353,7 @@ std::string Player::debugMoveContext(){
  * をサンプリングする関数を呼ぶ
  * 
  */
-void Player::beginFrameCollitionSample(){
+void Player::beginFrameCollisionSample(){
     beginFrameTopCollisionSample();
     beginFrameFeetCollisionSample();
 }
