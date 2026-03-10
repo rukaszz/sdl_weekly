@@ -28,6 +28,7 @@
 #include "Camera.hpp"
 #include "WorldInfo.hpp"
 #include "GameEventBuffer.hpp"
+#include "IGameEvents.hpp"
 #include "SceneControl.hpp"
 
 #include "GameContext.hpp"

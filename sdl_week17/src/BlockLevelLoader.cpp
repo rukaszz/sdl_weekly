@@ -64,6 +64,15 @@ std::vector<Block> BlockLevelLoader::loadFromFile(const std::string& path){
         case 'C':
             type = BlockType::Clear;
             break;
+        case 'Q':
+            type = BlockType::Question;
+            break;
+        case 'U':
+            type = BlockType::UsedQuestion;
+            break;
+        case 'B':
+            type = BlockType::Breakable;
+            break;
         default:
             // 不明なタイプは無視
             continue;

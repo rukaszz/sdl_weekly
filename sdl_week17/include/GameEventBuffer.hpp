@@ -61,8 +61,8 @@ public:
     //     q.emplace_back(SetPlayerFormEvent{pf});
     // }
     // ブロック接触イベント
-    void hitBlock(std::size_t bi) override{
-        q.emplace_back(BlockHitEvent{bi});
+    void hitBlock(std::size_t bh) override{
+        q.emplace_back(BlockHitEvent{bh});
     }
     // イベントバッファのクリア
     void clear(){

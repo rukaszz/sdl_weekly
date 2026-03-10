@@ -186,7 +186,7 @@ void CollisionSystem::resolveBlockHits(IGameEvents& events){
     for(std::size_t i = 0; i < blocks.size(); ++i){
         // ブロックの取得
         const auto& b = blocks[i];
-        // Question/breakable以外は叩け無い
+        // Question/breakable以外は叩く判定をしない
         if(b.type != BlockType::Question && b.type != BlockType::Breakable){
             continue;
         }
@@ -194,7 +194,7 @@ void CollisionSystem::resolveBlockHits(IGameEvents& events){
         const SDL_Rect& br = blockRects[i];
         // 横方向の重なり判定
         const bool horizontallyOverlaps = (pr.x + pr.w > br.x)
-                                       && (br.x + br.w > pr.w);
+                                       && (br.x + br.w > pr.x);
         // 前フレームで頭がブロック底辺より下 かつ 今フレームで底辺を突き抜けるか
         const double blockBottom = static_cast<double>(br.y + br.h);
         const bool crossedFromBelow = (prevTop >= blockBottom)

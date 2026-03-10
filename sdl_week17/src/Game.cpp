@@ -142,7 +142,8 @@ void Game::buildContexts(){
         *input, 
         camera,
         worldInfo, 
-        events,
+        events,     // GameEventBuffer& eventBuffer: イベント消費用
+        events,     // IGameEvents& events: イベント発行用
         EntityContext{
             *player,
             *enemyTexture,

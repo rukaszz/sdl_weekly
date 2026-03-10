@@ -24,6 +24,7 @@ class Player;
 class Enemy;
 class FireBall;
 class EnemyBullet;
+class GameEventBuffer;
 class IGameEvents;
 class Item;
 
@@ -76,7 +77,8 @@ struct GameContext{
     Input& input;
     Camera& camera;
     WorldInfo& worldInfo;
-    IGameEvents& events;
+    GameEventBuffer& eventBuffer;   // イベント消費用
+    IGameEvents& events;            // イベント発行用
 
     EntityContext entityCtx;
     TextRenderContext textRenderCtx;

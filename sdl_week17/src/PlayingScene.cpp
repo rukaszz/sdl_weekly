@@ -97,22 +97,25 @@ void PlayingScene::update(double delta){
     // 弾更新(プレイヤー弾/敵弾で統一)
     projectiles.update(delta);
     // 7. Playerとの当たり判定
+    // イベント発行用のIGameEventsを使う
     collision.resolve(ctx.events);
     // 弾の当たり判定は System に移す(detectCollisionから除外している)
     projectiles.resolveCollisions(ctx.entityCtx.player, ctx.entityCtx.enemies, ctx.events);
-    
-    // ブロック叩き〜その後の処理まで
-    blockSystem.process(events);
-    items.processSpawn(events);
-    items.resolvePlayerCollision(ctx.entityCtx.player, events);
-    playerState.process(events);
-
-    // 8. 落下死判定
+    // 落下死判定
     collision.checkFallDeath(ctx.events);
+    
+    // 8. ブロック叩き〜その後の処理まで
+    // イベント消費用のGameEventBufferを使う
+    blockSystem.process(ctx.eventBuffer);
+    items.processSpawn(ctx.eventBuffer);
+    items.resolvePlayerCollision(ctx.entityCtx.player, ctx.eventBuffer);
+    playerState.process(ctx.eventBuffer);
+    
     // 9. カメラ座標の更新
     updateCamera();
-    // 10. 弾系オブジェクトの片付け
+    // 10. 消費系オブジェクトの片付け
     projectiles.cleanup();
+    items.cleanup();
     // デバッグ情報取得
     debugText->setText(ctx.entityCtx.player.debugMoveContext());
 }
@@ -181,11 +184,21 @@ void PlayingScene::render(){
         case BlockType::Clear:
             blockColor = {255, 216, 0, 255};    // 黃
             break;
+        case BlockType::Question:
+            blockColor = {255, 165, 0, 255};    // 橙
+            break;
+        case BlockType::UsedQuestion:
+            blockColor = {255, 200, 214, 255};  // 薄橙
+            break;
+        case BlockType::Breakable:
+            blockColor = {101, 67, 33, 255};    // 黃
+            break;
         }
         // blocksの矩形取得
         const SDL_Rect& br = ctx.entityCtx.blockRectCaches[i];
         ctx.renderer.drawRect(br, blockColor, ctx.camera);
     }
+    items.render(ctx.renderer, ctx.camera);
     for(const auto& f : ctx.entityCtx.fireballs){
         f->draw(ctx.renderer, ctx.camera);
     }

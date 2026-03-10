@@ -34,9 +34,9 @@ public:
                     // アイテムを出す(中央より若干上)
                     const double spawn_X = b.x + b.w * 0.5 - 16;
                     const double spawn_Y = b.y - 32;
-                    events.spawnItem(ItemType::Coin, spawn_X, spawn_Y);
+                    events.spawnItem(ItemType::Mushroom, spawn_X, spawn_Y);
                     // Questionブロックヒット時にスコア加算(要検討)
-                    events.addScore(50);
+                    // events.addScore(50);
                 }
                 // NOTE：Breakableの場合は消すので，RectCacheとの整合性を取る必要あり
                 // 種類変更はindex維持，破壊はactive=falseにして内部で保持
