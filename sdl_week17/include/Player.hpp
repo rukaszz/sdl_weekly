@@ -34,6 +34,10 @@ private:
     double jumpableBufferTimer = 0.0;
     // プレイヤーの状態
     PlayerForm form = PlayerForm::Small;
+    // 天井のブロックを叩いたか
+    bool ceilingBlockHit = false;
+    // 叩いたブロックのインデックス
+    std::size_t hitBlockIndex = static_cast<std::size_t>(-1);
 public:
     // 定数
     // アニメーション枚数
@@ -60,6 +64,7 @@ private:
     void physicsProcessing(const std::vector<Block>& blocks, const bool dropThrough);
     void clampHorizontalPosition(const DrawBounds& bounds);
     void animationProcessing(double delta, const bool moving);
+    void clearCeilingBlockHit();
 public:
     // getter/setter
     PlayerForm getForm() const{
@@ -67,6 +72,12 @@ public:
     }
     void setForm(PlayerForm pf){
         form = pf;
+    }
+    bool hasCeilingBlockHit() const{
+        return ceilingBlockHit;
+    }
+    std::size_t getHitBlockIndex() const{
+        return hitBlockIndex;
     }
 };
 

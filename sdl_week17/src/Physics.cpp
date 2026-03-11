@@ -80,9 +80,15 @@ void Physics::resolveBlockCollisionFromBottom(VerticalCollisionState& vcs, const
     double prevTop = vcs.prevTop;
     double newTop = vcs.newTop;
     // ブロック群をチェック
-    for(const auto& b : blocks){
-        // Standableのみ処理する
-        if(b.type != BlockType::Standable){
+    //for(const auto& b : blocks){
+    for(std::size_t i = 0; i< blocks.size(); ++i){
+        const auto& b = blocks[i];
+        // 一部ブロックは天井扱いしない(=すり抜ける)
+        if(b.type != BlockType::Standable
+        && b.type != BlockType::Question
+        && b.type != BlockType::UsedQuestion
+        && b.type != BlockType::Breakable)
+        {
             continue;
         }
         // ブロックの底/左/右の計算
@@ -102,6 +108,8 @@ void Physics::resolveBlockCollisionFromBottom(VerticalCollisionState& vcs, const
         if(horizontallyOverlaps && verticallyOverlaps){
             vcs.newTop = blockBottom;
             vcs.vv = 0.0;
+            vcs.hitCeilingBlock = true;
+            vcs.hitBlockIndex = i;
             break;
         }
     }

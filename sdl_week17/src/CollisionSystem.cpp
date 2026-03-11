@@ -165,12 +165,31 @@ void CollisionSystem::onStageLoaded(){
 }
 
 /**
- * @brief ブロックへの能動的な(下からの)接触判定
- * TODO：とりあえず上昇中のRectによる判定のみを実施しているが，
- * プレイヤーのy座標のサンプリングをした厳密な処理版を作成する必要あり
+ * @brief Player側のPhysicsの処理結果を基に，ブロックの頭突き処理を実施する
  * 
  * @param events 
  */
+void CollisionSystem::resolveBlockHits(IGameEvents& events){
+    // このフレームで天井にヒットしているか
+    if(!player.hasCeilingBlockHit()){
+        return;
+    }
+    // 頭突きしたインデックスを取得
+    const std::size_t i = player.getHitBlockIndex();
+    // インデックスがblocksの範囲外か
+    if(i >= blocks.size()){
+        return;
+    }
+    // ブロックのタイプ確認
+    const auto& b = blocks[i];
+    if(b.type != BlockType::Question && b.type != BlockType::Breakable){
+        return;
+    }
+    // ブロック頭突きイベント発行
+    events.hitBlock(i);
+}
+
+/*
 void CollisionSystem::resolveBlockHits(IGameEvents& events){
     // Playerの衝突判定用データ取得
     const SDL_Rect pr = player.getCollisionRect();
@@ -206,3 +225,4 @@ void CollisionSystem::resolveBlockHits(IGameEvents& events){
         }
     }
 }
+*/

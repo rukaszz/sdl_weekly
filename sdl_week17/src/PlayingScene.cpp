@@ -44,7 +44,8 @@ PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
         ctx.entityCtx.blockRectCaches, 
         ctx.worldInfo
     ), blockSystem(
-        ctx.entityCtx.blocks
+        ctx.entityCtx.blocks, 
+        ctx.entityCtx.player
     ), items(
         ctx.entityCtx.items
     ), playerState(

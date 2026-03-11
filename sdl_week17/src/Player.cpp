@@ -60,7 +60,8 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
     beginFrameTopPhysicsSample();
     // 足元(プレイヤーの最下部)の位置
     beginFrameFeetPhysicsSample();   // prevFeetPhisicsのサンプリング
-
+    // ブロック頭突き変数初期化
+    clearCeilingBlockHit();
     // 水平移動用変数
     double moveDir = 0.0;
     // 移動中以外はfalse
@@ -289,7 +290,11 @@ void Player::physicsProcessing(const std::vector<Block>& blocks, const bool drop
         Physics::resolveBlockCollisionFromBottom(vcs, blocks);
         y  = vcs.newTop;
         vv = vcs.vv;
-        // onGround は false のまま
+        // 戻ってきたvcsから頭突き判定を確認
+        if(vcs.hitCeilingBlock){
+            ceilingBlockHit = true;
+            hitBlockIndex = vcs.hitBlockIndex;
+        }
     } else {
         // vv == 0.0 → 何もしない
     }
@@ -345,9 +350,10 @@ std::string Player::debugMoveContext(){
     mvCtx = "hv: "      + std::to_string(hv)
           + "vv: "      + std::to_string(vv)
           + "onG: "     + std::to_string(onGround)
-          + "cyt: "     + std::to_string(coyoteTimer)
-          + "jbt: "     + std::to_string(jumpableBufferTimer)
-          + "isJ: "     + std::to_string(isJumping);
+          + "frm: "     + std::to_string(static_cast<int>(form));
+        //   + "cyt: "     + std::to_string(coyoteTimer)
+        //   + "jbt: "     + std::to_string(jumpableBufferTimer)
+        //   + "isJ: "     + std::to_string(isJumping);
     return mvCtx;
 }
 
@@ -359,4 +365,13 @@ std::string Player::debugMoveContext(){
 void Player::beginFrameCollisionSample(){
     beginFrameTopCollisionSample();
     beginFrameFeetCollisionSample();
+}
+
+/**
+ * @brief 天井ブロック判定の初期化
+ * 
+ */
+void Player::clearCeilingBlockHit(){
+    ceilingBlockHit = false;
+    hitBlockIndex = static_cast<std::size_t>(-1);
 }

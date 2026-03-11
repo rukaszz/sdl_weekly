@@ -6,13 +6,16 @@
 
 #include "Block.hpp"
 #include "GameEventBuffer.hpp"
+#include "Player.hpp"
 
 class BlockSystem{
 private:
     std::vector<Block>& blocks;
+    Player& player;
 
 public:
-    explicit BlockSystem(std::vector<Block>& blocks_) : blocks(blocks_){}
+    explicit BlockSystem(std::vector<Block>& blocks_, Player& player_) 
+        : blocks(blocks_), player(player_){}
 
     void process(GameEventBuffer& events){
         events.consumeIf(
@@ -41,6 +44,13 @@ public:
                 // NOTE：Breakableの場合は消すので，RectCacheとの整合性を取る必要あり
                 // 種類変更はindex維持，破壊はactive=falseにして内部で保持
                 // 内部保持はタイミングを見て消す？
+                if(b.type == BlockType::Breakable){
+                    if(player.getForm() == PlayerForm::Super){
+                        b.active = false;   // 破壊されるので消す的な状態へ
+                        events.addScore(50);
+                    }
+                    return;
+                }
             }
         );
     }

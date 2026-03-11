@@ -21,6 +21,8 @@ struct VerticalCollisionState{
     double vv;                  // 落下速度
     bool   onGround;            // 接地しているか
     bool   ignoreDropThrough;   // DropThroughの衝突を無視するかのフラグ
+    bool   hitCeilingBlock = false; // 天井にヒットしたか
+    std::size_t hitBlockIndex = static_cast<std::size_t>(-1);   // ヒットしたブロックのインデックス
 };
 
 /**
