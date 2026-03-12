@@ -208,8 +208,10 @@ void ProjectileSystem::resolvePlayerEnemyBulletCollision(Player& player, IGameEv
         // 衝突した
         // 弾は非活性に
         eb->deactivate();
-        // playerに当たったのでGameOverに
-        events.requestScene(GameScene::GameOver);
+        if(player.tryTakeDamage()){
+            // playerに当たったのでGameOverに
+            events.requestScene(GameScene::GameOver);
+        }
         // 処理は抜ける
         break;
     }

@@ -133,9 +133,14 @@ void CollisionSystem::resolveEnemyCollision(IGameEvents& events){
             events.addScore(EnemyConfig::SCORE_AT_STOMP);
             continue;   // 同フレーム中に同一の敵を二度ふまないようにcountinue
         }
+        // 敵との接触
         if(result == PlayerEnemyCollisionResult::PlayerHit){
-            events.requestScene(GameScene::GameOver);
-            return;
+            // プレイヤーがSuper状態ならfalse
+            if(player.tryTakeDamage()){
+                events.requestScene(GameScene::GameOver);
+                return;
+            }
+            continue;
         }
     }
 }
@@ -149,7 +154,6 @@ void CollisionSystem::checkFallDeath(IGameEvents& events){
     double death_Y = world.WorldHeight + PlayerConfig::FRAME_H; // 規定したworldInfoを使う
     double playerBottom = player.getCollisionRect().y + player.getCollisionRect().h;
     if (playerBottom > death_Y){
-        // ctrl.requestScene(GameScene::GameOver);
         events.requestScene(GameScene::GameOver);
         return;
     }
@@ -188,41 +192,3 @@ void CollisionSystem::resolveBlockHits(IGameEvents& events){
     // ブロック頭突きイベント発行
     events.hitBlock(i);
 }
-
-/*
-void CollisionSystem::resolveBlockHits(IGameEvents& events){
-    // Playerの衝突判定用データ取得
-    const SDL_Rect pr = player.getCollisionRect();
-    const double prevTop = player.getPrevTopCollision();
-    const double newTop = player.getTopCollision();
-    // 垂直移動速度
-    const double vv = player.getVerticalVelocity();
-    // 上昇中のみ判定
-    if(vv >= 0.0){
-        return;
-    }
-    // ブロックの走査
-    for(std::size_t i = 0; i < blocks.size(); ++i){
-        // ブロックの取得
-        const auto& b = blocks[i];
-        // Question/breakable以外は叩く判定をしない
-        if(b.type != BlockType::Question && b.type != BlockType::Breakable){
-            continue;
-        }
-        // キャッシュしたブロックの衝突判定用矩形を取得
-        const SDL_Rect& br = blockRects[i];
-        // 横方向の重なり判定
-        const bool horizontallyOverlaps = (pr.x + pr.w > br.x)
-                                       && (br.x + br.w > pr.x);
-        // 前フレームで頭がブロック底辺より下 かつ 今フレームで底辺を突き抜けるか
-        const double blockBottom = static_cast<double>(br.y + br.h);
-        const bool crossedFromBelow = (prevTop >= blockBottom)
-                                   && (newTop <= blockBottom);
-        // 衝突判定 player vs blocks
-        if(horizontallyOverlaps && crossedFromBelow){
-            events.hitBlock(i);
-            break;
-        }
-    }
-}
-*/

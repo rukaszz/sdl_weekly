@@ -68,6 +68,10 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
     bool moving = false;
     // DropThroughの判定
     bool dropThrough = false;
+    // 無敵時間減衰
+    if(invincibleTimer > 0.0){
+        invincibleTimer = std::max(0.0, invincibleTimer - delta);
+    }
     // 2. 入力処理
     inputProcessing(delta, 
                     input, 
@@ -113,9 +117,11 @@ void Player::reset(){
     // 設置状態(trueにしてclampで正常にする)
     onGround = false;
     isJumping = false;
+    // タイマーなど
     jumpElapsed = 0.0;
     coyoteTimer = 0.0;
     jumpableBufferTimer = 0.0;
+    invincibleTimer = 0.0;
     // PlayerFormのリセット
     setForm(PlayerForm::Small);
     // 天井判定リセット
@@ -351,7 +357,8 @@ std::string Player::debugMoveContext(){
     std::string mvCtx = "";
     mvCtx = "hv: "      + std::to_string(hv)
           + "vv: "      + std::to_string(vv)
-          + "onG: "     + std::to_string(onGround)
+        //  + "onG: "     + std::to_string(onGround)
+          + "inv: "     + std::to_string(invincibleTimer)
           + "frm: "     + std::to_string(static_cast<int>(form));
         //   + "cyt: "     + std::to_string(coyoteTimer)
         //   + "jbt: "     + std::to_string(jumpableBufferTimer)
@@ -376,4 +383,18 @@ void Player::beginFrameCollisionSample(){
 void Player::clearCeilingBlockHit(){
     ceilingBlockHit = false;
     hitBlockIndex = static_cast<std::size_t>(-1);
+}
+
+bool Player::tryTakeDamage(){
+    // 無敵時間なら処理しない
+    if(isInvincible()){
+        return false;
+    }
+    // Super状態ならSmallに遷移※GameOverにしない
+    if(form == PlayerForm::Super){
+        form = PlayerForm::Small;
+        startInvincible(PlayerConfig::DAMAGE_INVINCIBLE_TIME);
+        return false;
+    }
+    return true;
 }

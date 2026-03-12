@@ -32,6 +32,8 @@ private:
     double coyoteTimer = 0.0;
     // 接地直前でもジャンプ可能とする時間の猶予
     double jumpableBufferTimer = 0.0;
+    // 無敵時間
+    double invincibleTimer = 0.0;
     // プレイヤーの状態
     PlayerForm form = PlayerForm::Small;
     // 天井のブロックを叩いたか
@@ -50,6 +52,7 @@ public:
     void reset();
     // プレイヤーの頭のサンプリング
     void beginFrameCollisionSample();
+    bool tryTakeDamage();
     // デバッグ用テキスト表示用
     std::string debugMoveContext();
 private:
@@ -66,6 +69,9 @@ private:
     void animationProcessing(double delta, const bool moving);
     void clearCeilingBlockHit();
 public:
+    void startInvincible(double duration){
+        invincibleTimer = duration;
+    }
     // getter/setter
     PlayerForm getForm() const{
         return form;
@@ -78,6 +84,13 @@ public:
     }
     std::size_t getHitBlockIndex() const{
         return hitBlockIndex;
+    }
+    bool isInvincible() const{
+        return invincibleTimer > 0.0;
+    }
+    // ダメージを受けられるか
+    bool canTakeDamage() const{
+        return !isInvincible();
     }
 };
 
