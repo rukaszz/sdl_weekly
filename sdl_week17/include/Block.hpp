@@ -12,6 +12,7 @@ enum class BlockType : std::uint8_t {
     Question,       // アイテムが入っているブロック
     UsedQuestion,   // アイテムを取り出した後のブロック
     Breakable,      // 破壊可能なブロック
+    Empty,          // 表示・処理をしない状態
 };
 
 struct Block{

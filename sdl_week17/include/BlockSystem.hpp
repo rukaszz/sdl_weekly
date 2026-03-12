@@ -46,7 +46,7 @@ public:
                 // 内部保持はタイミングを見て消す？
                 if(b.type == BlockType::Breakable){
                     if(player.getForm() == PlayerForm::Super){
-                        b.active = false;   // 破壊されるので消す的な状態へ
+                        b.type = BlockType::Empty;   // 破壊されるので消す的な状態へ
                         events.addScore(50);
                     }
                     return;

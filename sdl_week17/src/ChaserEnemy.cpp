@@ -17,7 +17,7 @@ ChaserEnemy::ChaserEnemy(Texture& tex)
  * @param es 
  */
 void ChaserEnemy::think(double /*delta*/, const EnemySensor& es){
-    
+    // プレイヤーが見えたときは壁を通り抜ける
     if(!es.playerInSight){
         // hv = 0.0;    // プレイヤーが見えていないなら何もしない
         // プレイヤーがいないときは歩き回る

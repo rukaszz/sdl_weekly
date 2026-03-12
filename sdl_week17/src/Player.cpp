@@ -118,6 +118,8 @@ void Player::reset(){
     jumpableBufferTimer = 0.0;
     // PlayerFormのリセット
     setForm(PlayerForm::Small);
+    // 天井判定リセット
+    clearCeilingBlockHit();
     // アニメーションリセット
     anim.reset();
 }

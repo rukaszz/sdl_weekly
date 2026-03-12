@@ -170,7 +170,10 @@ void PlayingScene::render(){
     for(std::size_t i = 0; i < ctx.entityCtx.blocks.size(); ++i){
         // ブロック, 色の取得
         const auto& b = ctx.entityCtx.blocks[i];
-        SDL_Color blockColor;
+        if(b.type == BlockType::Empty){
+            continue;
+        }
+        SDL_Color blockColor{};
         // 床のタイプで描画を変更
         switch(b.type){
         case BlockType::Standable:
@@ -194,10 +197,14 @@ void PlayingScene::render(){
         case BlockType::Breakable:
             blockColor = {101, 67, 33, 255};    // 黃
             break;
+        case BlockType::Empty:
+            continue;
         }
         // blocksの矩形取得
         const SDL_Rect& br = ctx.entityCtx.blockRectCaches[i];
-        ctx.renderer.drawRect(br, blockColor, ctx.camera);
+        if(b.type != BlockType::Empty){
+            ctx.renderer.drawRect(br, blockColor, ctx.camera);
+        }
     }
     items.render(ctx.renderer, ctx.camera);
     for(const auto& f : ctx.entityCtx.fireballs){

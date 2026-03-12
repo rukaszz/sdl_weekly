@@ -14,7 +14,12 @@ void Physics::resolveHorizontalBlockCollision(HorizontalCollisionState& hcs, con
     double entityBottom = hcs.y + hcs.height;
     for(const auto& b : blocks){
         // Standableのみ処理する
-        if(b.type == BlockType::Clear){
+        if(b.type != BlockType::Standable 
+        && b.type != BlockType::DropThrough
+        && b.type != BlockType::Question
+        && b.type != BlockType::UsedQuestion
+        && b.type != BlockType::Breakable)
+        {
             continue;
         }
         // ブロックの座標
@@ -142,7 +147,12 @@ void Physics::resolveBlockCollisionFromTop(VerticalCollisionState& vcs, const st
     // ブロック群をチェック
     for(const auto& b : blocks){
         // 乗れる床/すり抜け床以外は以下の処理をしない
-        if(b.type != BlockType::Standable && b.type != BlockType::DropThrough){
+        if(b.type != BlockType::Standable 
+        && b.type != BlockType::DropThrough
+        && b.type != BlockType::Question
+        && b.type != BlockType::UsedQuestion
+        && b.type != BlockType::Breakable)
+        {
             continue;
         }
         // すり抜け床かつignoreDropThroughならスキップ
