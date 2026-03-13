@@ -161,7 +161,7 @@ void CollisionSystem::checkFallDeath(IGameEvents& events){
 
 /**
  * @brief PlayingScene::onEnterで呼ばれ，内部で保持する変数などをクリアする関数
- * CollisionSystemでは現状何もしない
+ * CollisionSystemでは現状保持状態がないので何もしない
  * 
  */
 void CollisionSystem::onStageLoaded(){

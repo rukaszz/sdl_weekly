@@ -9,3 +9,4 @@ CMakeCache.txt
 Makefile
 *_forZip/
 *.zip
+/feedback/

@@ -4,7 +4,6 @@
 #include "EnemyBullet.hpp"
 #include "Enemy.hpp"
 #include "Player.hpp"
-#include "SceneControl.hpp"
 #include "GameUtil.hpp"
 #include "WorldInfo.hpp"
 #include "IGameEvents.hpp"
@@ -206,7 +205,7 @@ void ProjectileSystem::resolvePlayerEnemyBulletCollision(Player& player, IGameEv
             continue;
         }
         // 衝突した
-        // 弾は非活性に
+        // 弾は非活性に※無的中でも非活性
         eb->deactivate();
         if(player.tryTakeDamage()){
             // playerに当たったのでGameOverに
@@ -234,7 +233,7 @@ void ProjectileSystem::cleanup(){
 
 /**
  * @brief PlayingScene::onEnterで呼ばれ，内部で保持する変数などをクリアする関数
- * ProjectileSystemでは現状何もしない
+ * ProjectileSystemでは現状保持状態がないので何もしない
  * 
  */
 void ProjectileSystem::onStageLoaded(){

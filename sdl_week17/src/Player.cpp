@@ -398,3 +398,33 @@ bool Player::tryTakeDamage(){
     }
     return true;
 }
+
+/**
+ * @brief 被ダメージ時の無敵時間中の点滅表現用関数
+ * 
+ * @return true 
+ * @return false 
+ */
+bool Player::shouldRender() const{
+    // 無敵じゃないときは処理しない=trueを返す
+    if(!isInvincible()){
+        return true;
+    }
+    // delta時間で減少するinvincibleTimerで点滅用にtrue/false切り替え
+    const int phase = static_cast<int>(invincibleTimer * 20.0);
+    return (phase % 2) == 0;
+}
+
+/**
+ * @brief Characterのdrawをオーバライドしている
+ * 点滅用にCharacter::draw()の呼び出しを切り替える
+ * 
+ * @param renderer 
+ * @param camera 
+ */
+void Player::draw(Renderer& renderer, Camera& camera){
+    if(!shouldRender()){
+        return;
+    }
+    Character::draw(renderer, camera);
+}

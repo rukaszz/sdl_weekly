@@ -49,6 +49,7 @@ public:
 
     void update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks) override;
     SDL_Rect getCollisionRect() const override;
+    void draw(Renderer& renderer, Camera& camera) override;
     void reset();
     // プレイヤーの頭のサンプリング
     void beginFrameCollisionSample();
@@ -68,7 +69,8 @@ private:
     void clampHorizontalPosition(const DrawBounds& bounds);
     void animationProcessing(double delta, const bool moving);
     void clearCeilingBlockHit();
-public:
+    bool shouldRender() const;
+public: // getterなどのインターフェイス
     void startInvincible(double duration){
         invincibleTimer = duration;
     }
