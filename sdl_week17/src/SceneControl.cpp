@@ -9,6 +9,7 @@
 #include "BlockLevelLoader.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
+#include "Item.hpp"
 #include "WalkerEnemy.hpp"
 #include "ChaserEnemy.hpp"
 #include "JumperEnemy.hpp"
@@ -16,11 +17,13 @@
 #include "FireBall.hpp"
 #include "EnemyBullet.hpp"
 #include "GameEventBuffer.hpp"
+#include "StageDefinitionLoader.hpp"
 
 #include "WorldInfo.hpp"
 #include "GameScene.hpp"
 #include "GameConfig.hpp"
 #include "StageConfig.hpp"
+#include "StageDefinition.hpp"
 #include "GameContext.hpp"
 #include "GameUtil.hpp"
 
@@ -40,6 +43,7 @@ namespace{
             case GameScene::Title:    return 2;
             case GameScene::Result:   return 3;
             case GameScene::Playing:  return 4;
+            case GameScene::Count: /* Do nothing */ break;
         }
         return 999;  // #include <utility> std::unreachable();
     }
@@ -55,6 +59,15 @@ namespace{
         return (scenePriority(a) <= scenePriority(b)) ? a : b;
     }
 }   // namespace
+
+/**
+ * @brief 起動時に1回呼ばれ，ステージの定義をメンバ変数へmoveする 
+ * 
+ * @param defs 
+ */
+void SceneControl::initStages(std::vector<StageDefinition> defs){
+    stageDefinitions = std::move(defs);
+}
 
 /**
  * @brief ゲームを始める関数
@@ -75,7 +88,8 @@ void SceneControl::startNewGame() {
  */
 bool SceneControl::goToNextStage() {
     ++currentStageIndex;
-    if (currentStageIndex >= static_cast<int>(StageConfig::STAGES.size())) {
+    // if (currentStageIndex >= static_cast<int>(StageConfig::STAGES.size())) {
+    if (currentStageIndex >= static_cast<int>(stageDefinitions.size())) {
         // 全ステージクリア
         return false;
     }
@@ -92,14 +106,19 @@ bool SceneControl::goToNextStage() {
  */
 void SceneControl::loadStage(int stageIndex, GameContext& ctx){
     // stageIndexは負にならず，StageConfigのsize()を超えない
-    assert(0 <= stageIndex && stageIndex < static_cast<int>(StageConfig::STAGES.size()));
+    assert(0 <= stageIndex && stageIndex < static_cast<int>(stageDefinitions.size()));
+    // const auto& stageJsonData = StageDefinitionLoader::loadStagesFromJson("./assets/stage/stage.json");
     // ステージ定義を取得
-    const auto& def = StageConfig::STAGES[stageIndex];
+    // const auto& def = StageConfig::STAGES[stageIndex];
+    // const auto& def = stageJsonData[stageIndex];
+    const auto& def = stageDefinitions[stageIndex];
     // vector管理系のオブジェクトのクリア
     ctx.entityCtx.blocks.clear();
     ctx.entityCtx.enemies.clear();
     ctx.entityCtx.fireballs.clear();
     ctx.entityCtx.enemyBullets.clear();
+    ctx.entityCtx.items.clear();
+    // 敵のテクスチャ読み込み
     Texture& enemyTex = ctx.entityCtx.enemyTexture;
     // 敵のサイズ分メモリを予約
     ctx.entityCtx.enemies.reserve(def.enemySpawns.size());
@@ -150,6 +169,11 @@ void SceneControl::loadStage(int stageIndex, GameContext& ctx){
     }
     // ステージに配置されたブロックのRectをキャッシュ
     GameUtil::rebuildBlockRects(ctx.entityCtx.blocks, ctx.entityCtx.blockRectCaches);
+    // アイテムの配置
+    ctx.entityCtx.items.reserve(def.itemSpawns.size());
+    for(const auto& is : def.itemSpawns){
+        ctx.entityCtx.items.emplace_back(is.x, is.y, is.type);
+    }
     // worldInfoの再計算
     ctx.worldInfo.WorldWidth  = static_cast<double>(GameConfig::WINDOW_WIDTH); 
     ctx.worldInfo.WorldHeight = static_cast<double>(GameConfig::WINDOW_HEIGHT);

@@ -4,19 +4,11 @@
 #include <string>
 #include <vector>
 
-/**
- * @brief 敵のタイプ
- * 
- */
-enum class EnemyType{
-    Walker, 
-    Chaser, 
-    Jumper, 
-    Turret, 
-};
+#include "GameEvent.hpp"
+#include "EnemyType.hpp"
 
 /**
- * @brief 敵の出現(読み込み)に関わる変数
+ * @brief 敵の出現(読み込み)に関わる構造体
  * 
  */
 struct EnemySpawn{
@@ -24,6 +16,16 @@ struct EnemySpawn{
     double y;
     double speed;
     EnemyType type;
+};
+
+/**
+ * @brief アイテム出現(ステージ読み込み時)に関わる構造体
+ * 
+ */
+struct ItemSpawn{
+    double x;
+    double y;
+    ItemType type;
 };
 
 /**
@@ -35,7 +37,8 @@ struct StageDefinition{
     std::string levelFile;  // "assets/levels/levelN.txt"など
     double playerStart_X;   // ステージの開始位置
     double playerStart_Y;
-    std::vector<EnemySpawn> enemySpawns;
+    std::vector<EnemySpawn> enemySpawns;    // 敵出現の情報
+    std::vector<ItemSpawn> itemSpawns;      // アイテム出現の情報
 };
 
 #endif  // STAGEDEFINITION_H

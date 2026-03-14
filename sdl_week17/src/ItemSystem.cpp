@@ -27,7 +27,7 @@ ItemSystem::ItemSystem(std::vector<Item>& items_)
  * 
  */
 void ItemSystem::onStageLoaded(){
-    items.clear();
+    // 現状は内部キャッシュを持たないので何もしない
 }
 
 /**
@@ -43,7 +43,8 @@ void ItemSystem::processSpawn(GameEventBuffer& events){
         // Fn: SpawnItemEventの消費
         [&](const GameEvent& ev){
             const auto& si = std::get<SpawnItemEvent>(ev);
-            items.push_back(Item(si.type, si.x, si.y));    // 活性なのでactive
+            // items.push_back(Item(si.x, si.y, si.type));    
+            items.emplace_back(si.x, si.y, si.type);    // 活性なのでactive
         }
     );
 }

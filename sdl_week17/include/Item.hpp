@@ -7,13 +7,13 @@
 
 class Item{
 private:
-    ItemType type;      // アイテムの種類
     double x;           // 出現位置x
     double y;           // 出現位置y
+    ItemType type;      // アイテムの種類
     bool active = true; // 活性非活性
 public:
-    Item(ItemType type_, double x_, double y_)
-        : type(type_), x(x_), y(y_), active(true) {}
+    Item(double x_, double y_, ItemType type_)
+        : x(x_), y(y_), type(type_), active(true) {}
     ~Item() = default;
 
     // getter/setter

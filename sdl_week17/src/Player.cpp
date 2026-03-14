@@ -392,7 +392,7 @@ bool Player::tryTakeDamage(){
     }
     // Super状態ならSmallに遷移※GameOverにしない
     if(form == PlayerForm::Super){
-        form = PlayerForm::Small;
+        setForm(PlayerForm::Small);
         startInvincible(PlayerConfig::DAMAGE_INVINCIBLE_TIME);
         return false;
     }

@@ -39,6 +39,7 @@
 #include "Input.hpp"
 #include "BlockLevelLoader.hpp"
 #include "GameEventBuffer.hpp"
+#include "StageDefinitionLoader.hpp"
 
 // Entity
 #include "Character.hpp"
@@ -102,6 +103,9 @@ void Game::loadResources(){
     // FPS
     fpsText = std::make_unique<TextTexture>(*renderer, *font, SDL_Color{255, 255, 255, 255});
     fpsText->setText("");
+    // ステージ
+    auto defs = StageDefinitionLoader::loadStagesFromJson("./assets/stage/stage.json");
+    initStages(std::move(defs));
 }
 
 /**

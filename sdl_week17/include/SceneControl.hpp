@@ -1,7 +1,10 @@
 #ifndef SCENECONTROL_H
 #define SCENECONTROL_H
 
+#include <vector>
+
 #include "GameScene.hpp"
+#include "StageDefinition.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -18,6 +21,8 @@ class SceneControl{
 private:
     // ステージ遷移用index
     int currentStageIndex = 0;
+    // 各ステージの定義(Jsonの解析結果が入る)
+    std::vector<StageDefinition> stageDefinitions;
 
 protected:
     // シーン変更処理のヘルパとしてしばらく残す
@@ -30,6 +35,7 @@ public:
     virtual void setScore(uint32_t v) = 0;
     virtual ~SceneControl() = default;
 
+    void initStages(std::vector<StageDefinition> defs);
     void startNewGame();
     bool goToNextStage();
     void loadStage(int stageIndex, GameContext& ctx);
@@ -40,6 +46,10 @@ public:
     // getter
     int getCurrentStageIndex() const{
         return currentStageIndex;
+    }
+    // stageDefinitionsのサイズ=ステージ数
+    int getStageCount() const{
+        return static_cast<int>(stageDefinitions.size());
     }
 };
 
