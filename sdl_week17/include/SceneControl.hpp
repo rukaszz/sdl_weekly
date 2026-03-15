@@ -49,7 +49,7 @@ public:
     }
     // stageDefinitionsのサイズ=ステージ数
     int getStageCount() const{
-        return static_cast<int>(stageDefinitions.size());
+        return static_cast<std::size_t>(stageDefinitions.size());
     }
 };
 

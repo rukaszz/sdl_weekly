@@ -66,6 +66,9 @@ namespace{
  * @param defs 
  */
 void SceneControl::initStages(std::vector<StageDefinition> defs){
+    if(defs.empty()){
+        throw std::runtime_error("No stage definitions loaded");
+    }    
     stageDefinitions = std::move(defs);
 }
 

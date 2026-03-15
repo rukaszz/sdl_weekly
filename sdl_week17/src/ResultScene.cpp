@@ -114,8 +114,10 @@ void ResultScene::onEnter(){
     blinkVisible = true;
     const auto cleared = ctrl.getCurrentStageIndex(); // == total
     // const auto total   = StageConfig::STAGES.size();
-    const auto total   = ctrl.getStageCount();
-    stageText->setText("Stage: " + std::to_string(cleared) + " / " + std::to_string(total));
+    // const auto total   = ctrl.getStageCount();
+    // stageText->setText("Stage: " + std::to_string(cleared) + " / " + std::to_string(total));
+    const int total = ctrl.getStageCount();
+    stageText->setText("Stage: " + std::to_string(total) + " / " + std::to_string(total));
 }
 
 /**

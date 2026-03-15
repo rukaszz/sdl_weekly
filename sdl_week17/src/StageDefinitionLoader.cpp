@@ -32,7 +32,7 @@ namespace{
      * @return ItemType 
      */
     ItemType parseItemType(const std::string& s){
-        if(s == "Coin") return ItemType::Coin;
+        if(s == "Coin")     return ItemType::Coin;
         if(s == "Mushroom") return ItemType::Mushroom;
         throw std::runtime_error("Unknown ItemType: " + s);
     }
@@ -59,7 +59,7 @@ std::vector<StageDefinition> StageDefinitionLoader::loadStagesFromJson(const std
     // jsonファイル解析
     for(const auto& stageJson : j.at("stages")){
         // StageDefinitionの各要素を取り出す
-        StageDefinition sd;
+        StageDefinition sd{};
         sd.name          = stageJson.at("name").get<std::string>();
         sd.levelFile     = stageJson.at("levelFile").get<std::string>();
         sd.playerStart_X = stageJson.at("playerStart").at("x").get<double>();
@@ -69,7 +69,7 @@ std::vector<StageDefinition> StageDefinitionLoader::loadStagesFromJson(const std
         if(stageJson.contains("enemies")){
             for(const auto& enemyJson : stageJson.at("enemies")){
                 // EnemySpawnの各要素を取り出す
-                EnemySpawn es;
+                EnemySpawn es{};
                 es.type  = parseEnemyType(enemyJson.at("type").get<std::string>());
                 es.x     = enemyJson.at("x").get<double>();
                 es.y     = enemyJson.at("y").get<double>();
@@ -82,7 +82,7 @@ std::vector<StageDefinition> StageDefinitionLoader::loadStagesFromJson(const std
         if(stageJson.contains("items")){
             for(const auto& itemJson : stageJson.at("items")){
                 // ItemSpawnに対応する各要素を取り出す
-                ItemSpawn is;
+                ItemSpawn is{};
                 is.x    = itemJson.at("x").get<double>();
                 is.y    = itemJson.at("y").get<double>();
                 is.type = parseItemType(itemJson.at("type").get<std::string>());
