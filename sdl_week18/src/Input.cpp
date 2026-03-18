@@ -26,6 +26,9 @@ Action Input::actionKeyMap(SDL_Keycode k){
         return Action::MoveDown;
     case SDLK_SPACE:
         return Action::Jump;
+    case SDLK_LSHIFT:   // 両SHIFTキーに対応
+    case SDLK_RSHIFT:
+        return Action::Dash;
     case SDLK_b:
         return Action::Fire;
     case SDLK_ESCAPE:

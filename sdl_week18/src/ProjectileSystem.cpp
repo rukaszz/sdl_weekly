@@ -1,5 +1,9 @@
 #include "ProjectileSystem.hpp"
 
+#include <SDL2/SDL.h>
+#include <algorithm>
+#include <cmath>
+
 #include "FireBall.hpp"
 #include "EnemyBullet.hpp"
 #include "Enemy.hpp"
@@ -13,9 +17,6 @@
 #include "EnemyBulletConfig.hpp"
 
 #include "TurretEnemy.hpp"  // dynamic_cast対象
-
-#include <SDL2/SDL.h>
-#include <algorithm>
 
 // ProjectileSystem.cpp内で閉じているヘルパ関数
 namespace{
@@ -86,6 +87,10 @@ ProjectileSystem::ProjectileSystem(
  * 
  */
 void ProjectileSystem::update(double delta){
+    // クールダウンの減衰処理
+    if(playerFireCooldownTimer > 0.0){
+        playerFireCooldownTimer = std::max(0.0, playerFireCooldownTimer - delta);
+    }
     // ファイアボール
     for(auto& f : fireballs){
         f->update(delta, blocks);
@@ -106,6 +111,60 @@ void ProjectileSystem::update(double delta){
 void ProjectileSystem::spawnPlayerFireball(double x, double y, Direction dir){
     fireballs.emplace_back(std::make_unique<FireBall>(x, y, dir, fireballTexture));
 }
+
+/**
+ * @brief メンバ変数のfireballsでactive状態のものを数えて返す
+ * 
+ * @return int 
+ */
+int ProjectileSystem::countActivePlayerFireballs() const{
+    int count = 0;
+    for(const auto& f : fireballs){
+        if(f->isActive()){
+            ++count;
+        }
+    }
+    return count;
+}
+
+/**
+ * @brief プレイヤーがファイアボールを撃てるかをチェックする関数
+ * 
+ * @return true 
+ * @return false 
+ */
+bool ProjectileSystem::canSpawnPlayerFireball() const{
+    // クールダウン中は撃てない
+    if(playerFireCooldownTimer > 0.0){
+        return false;
+    }
+    // 規定の数が画面にあれば撃てない
+    if(countActivePlayerFireballs() >= FireBallConfig::MAX_PLAYER_FIREBALLS){
+        return false;
+    }
+    return true;
+}
+
+/**
+ * @brief ファイアボールが画面に出現できるか(撃てるか)を判定してから撃つ
+ * 
+ * @param x 
+ * @param y 
+ * @param dir 
+ * @return true 
+ * @return false 
+ */
+bool ProjectileSystem::trySpawnPlayerFireball(double x, double y, Direction dir){
+    // ファイアボール撃てるか判定
+    if(!canSpawnPlayerFireball()){
+        return false;
+    }
+    spawnPlayerFireball(x, y, dir);
+    // クールダウン設定
+    playerFireCooldownTimer = FireBallConfig::PLAYER_FIRE_COOLDOWN;
+    return true;
+}
+
 
 /**
  * @brief 敵弾の生成
@@ -233,9 +292,8 @@ void ProjectileSystem::cleanup(){
 
 /**
  * @brief PlayingScene::onEnterで呼ばれ，内部で保持する変数などをクリアする関数
- * ProjectileSystemでは現状保持状態がないので何もしない
  * 
  */
 void ProjectileSystem::onStageLoaded(){
-
+    playerFireCooldownTimer = 0.0;
 }

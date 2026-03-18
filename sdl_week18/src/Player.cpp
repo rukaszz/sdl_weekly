@@ -122,6 +122,7 @@ void Player::reset(){
     coyoteTimer = 0.0;
     jumpableBufferTimer = 0.0;
     invincibleTimer = 0.0;
+    isDashing = false;
     // PlayerFormのリセット
     setForm(PlayerForm::Small);
     // 天井判定リセット
@@ -136,7 +137,7 @@ void Player::reset(){
  * @param bounds 
  */
 void Player::clampHorizontalPosition(const DrawBounds& bounds){
-    x = std::clamp(x, 0.0, bounds.drawableWidth - sprite.getDrawWidth());
+    x = std::clamp(x, bounds.minX, bounds.drawableWidth - sprite.getDrawWidth());
 }
 
 /**
@@ -185,6 +186,9 @@ void Player::inputProcessing(double delta,
                              bool& moving, 
                              bool& dropThrough)
 {
+    // ダッシュ中か
+    isDashing = input.pressed[static_cast<int>(Action::Dash)];
+    // 左右
     if(input.pressed[static_cast<int>(Action::MoveLeft)]){
         moveDir -= 1.0;
         dir = Direction::Left;
@@ -237,17 +241,24 @@ void Player::inputProcessing(double delta,
  * @param moveDir 
  */
 void Player::moveElementsUpdate(double delta, const InputState& input, const double moveDir){
+    // ダッシュ/非ダッシュ時でパラメータを切り替える
+    // 最高速度
+    const double maxSpeed = isDashing ? PlayerConfig::DASH_MAX_SPEED : PlayerConfig::RUN_MAX_SPEED;
+    // 加速度
+    const double accel = isDashing ? PlayerConfig::DASH_ACCELERATION : PlayerConfig::ACCELERATION;
+    // 摩擦係数
+    const double friction = isDashing ? PlayerConfig::DASH_FRICTION : PlayerConfig::FRICTION;
     // 物理の更新
     // 水平方向移動
     if(moveDir != 0.0){
-        hv += moveDir * PlayerConfig::ACCELERATION *delta;
-        hv = std::clamp(hv, -speed, speed);
+        hv += moveDir * accel *delta;
+        hv = std::clamp(hv, -maxSpeed, maxSpeed);
     } else {
         // 入力がないなら摩擦で減速する
         if(hv > 0.0){
-            hv = std::max(0.0, hv - PlayerConfig::FRICTION * delta);
+            hv = std::max(0.0, hv - friction * delta);
         } else if(hv < 0.0){
-            hv = std::min(0.0, hv + PlayerConfig::FRICTION * delta);
+            hv = std::min(0.0, hv + friction * delta);
         }
     }
     x += hv * delta;
@@ -348,25 +359,6 @@ void Player::animationProcessing(double delta, const bool moving){
 }
 
 /**
- * @brief デバッグ用テキスト出力関数
- * PlayingSceneで画面に文字を表示するために文字列を構成する
- * 
- * @return std::string 
- */
-std::string Player::debugMoveContext(){
-    std::string mvCtx = "";
-    mvCtx = "hv: "      + std::to_string(hv)
-          + "vv: "      + std::to_string(vv)
-        //  + "onG: "     + std::to_string(onGround)
-          + "inv: "     + std::to_string(invincibleTimer)
-          + "frm: "     + std::to_string(static_cast<int>(form));
-        //   + "cyt: "     + std::to_string(coyoteTimer)
-        //   + "jbt: "     + std::to_string(jumpableBufferTimer)
-        //   + "isJ: "     + std::to_string(isJumping);
-    return mvCtx;
-}
-
-/**
  * @brief 当たり判定用に用いる前フレームのプレイヤーのTop(y)とFeet(y+h)
  * をサンプリングする関数を呼ぶ
  * 
@@ -433,4 +425,24 @@ void Player::draw(Renderer& renderer, Camera& camera){
         return;
     }
     Character::draw(renderer, camera);
+}
+
+/**
+ * @brief デバッグ用テキスト出力関数
+ * PlayingSceneで画面に文字を表示するために文字列を構成する
+ * 
+ * @return std::string 
+ */
+std::string Player::debugMoveContext(){
+    std::string mvCtx = "";
+    mvCtx = "hv: "      + std::to_string(hv)
+          + "vv: "      + std::to_string(vv)
+        //  + "onG: "     + std::to_string(onGround)
+          + "inv: "     + std::to_string(invincibleTimer)
+          + "frm: "     + std::to_string(static_cast<int>(form));
+        //   + "cyt: "     + std::to_string(coyoteTimer)
+        //   + "jbt: "     + std::to_string(jumpableBufferTimer)
+        //   + "isJ: "     + std::to_string(isJumping)
+          + "Dsh: "     + std::to_string(isDashing);
+    return mvCtx;
 }

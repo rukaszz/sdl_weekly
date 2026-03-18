@@ -24,6 +24,7 @@ add_executable(${PROJECT_NAME}
     src/AnimationController.cpp
     src/Block.cpp
     src/BlockLevelLoader.cpp
+    src/BlockSystem.cpp
     src/Bullet.cpp
     src/Camera.cpp
     src/Character.cpp

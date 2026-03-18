@@ -14,6 +14,7 @@
 #include "BlockSystem.hpp"
 #include "ItemSystem.hpp"
 #include "PlayerStateSystem.hpp"
+#include "BossBattleState.hpp"
 
 class Game;
 class Renderer;
@@ -37,7 +38,7 @@ private:
     // 衝突処理管理用
     CollisionSystem collision;
     // イベント管理用
-    GameEventBuffer events;
+    // GameEventBuffer events;
     // ブロック管理用
     BlockSystem blockSystem;
     // アイテム管理用
@@ -46,6 +47,8 @@ private:
     PlayerStateSystem playerState;
     // デバッグ表示用のテキストテクスチャ
     std::unique_ptr<TextTexture> debugText;
+    // ボス演出系
+    BossBattleState bossBattle;
 
 public:
     PlayingScene(SceneControl& sc, GameContext& gc);

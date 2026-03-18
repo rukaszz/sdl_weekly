@@ -23,12 +23,16 @@ struct WorldInfo;
  */
 class ProjectileSystem{
 private:
+    // ファイアボール
     std::vector<std::unique_ptr<FireBall>>& fireballs;
+    Texture& fireballTexture;
+    // 敵弾
     std::vector<std::unique_ptr<EnemyBullet>>& enemyBullets;
+    Texture& enemyBulletTexture;
     const std::vector<Block>& blocks;
     const WorldInfo& world;
-    Texture& fireballTexture;
-    Texture& enemyBulletTexture;
+    // プレイヤー弾の発射間隔
+    double playerFireCooldownTimer = 0.0;
 
 public: 
     ProjectileSystem(
@@ -54,11 +58,19 @@ public:
     void resolveCollisions(Player& player, std::vector<std::unique_ptr<Enemy>>& enemies, IGameEvents& events);
     // 生存管理(非活性・画面外は消す)
     void cleanup();
+    // 弾発射制御系
+    // プレイヤーはファイアボール撃てるか
+    bool canSpawnPlayerFireball() const;
+    // ファイアボールが撃てるか判定してから撃つ関数
+    bool trySpawnPlayerFireball(double x, double y, Direction dir);
 
 private:
+    // fireball vs enemy
     void resolveFireballEnemyCollision(std::vector<std::unique_ptr<Enemy>>& enemies, IGameEvents& events);
+    // player vs enemy bullet
     void resolvePlayerEnemyBulletCollision(Player& player, IGameEvents& events);
-
+    // 活性状態のファイアボール計測
+    int countActivePlayerFireballs() const;
 };
 
 #endif  // PROJECTILESYSTEM_H

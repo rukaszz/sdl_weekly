@@ -19,6 +19,7 @@ enum class Action{
     MoveUp, 
     MoveDown,
     Jump, 
+    Dash,
     Fire, 
     Pause,
     Enter,
@@ -37,12 +38,17 @@ struct InputState{
     bool justPressed[(int)Action::Count + 1] = {false};
 };
 
+/**
+ * @brief アクションと対応する名称のマッピング
+ * 
+ */
 static const std::unordered_map<Action, std::string> ActionNames{
     {Action::MoveLeft,  "MoveLeft"},
     {Action::MoveRight, "MoveRight"},
     {Action::MoveUp,    "MoveUp"},
     {Action::MoveDown,  "MoveDown"},
     {Action::Jump,      "Jump"},
+    {Action::Dash,      "Dash"},
     {Action::Fire,      "Fire"},
     {Action::Pause,     "Pause"},
     {Action::Enter,     "Enter"},

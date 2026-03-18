@@ -6,6 +6,9 @@
 #include "Direction.hpp"
 #include "DrawBounds.hpp"
 
+#include <vector>
+#include <string>
+
 #include "Character.hpp"
 #include "AnimationController.hpp"
 #include "Sprite.hpp"
@@ -13,17 +16,18 @@
 
 #include <SDL2/SDL.h>
 
-#include <vector>
-#include <string>
 
 class Texture;
 class Renderer;
 struct Block;
+struct Camera;
 
 class Player : public Character{
 private:
     // 接地状態管理
     bool onGround = false;
+    // ダッシュ状態管理
+    bool isDashing = false;
     // ジャンプ状態管理
     bool isJumping = false;     // ジャンプ中か
     double jumpElapsed = 0.0;   // ジャンプボタン押下からの経過時間
@@ -93,6 +97,10 @@ public: // getterなどのインターフェイス
     // ダメージを受けられるか
     bool canTakeDamage() const{
         return !isInvincible();
+    }
+    // ダッシュ中か
+    bool isDashingNow() const{
+        return isDashing;
     }
 };
 

@@ -87,6 +87,11 @@ void PlayingScene::update(double delta){
     ctx.entityCtx.player.beginFrameCollisionSample();
     // 3. worldInfoを用いた幅のクランプ処理
     DrawBounds worldBounds = {ctx.worldInfo.WorldWidth, ctx.worldInfo.WorldHeight};
+    // ボス戦では制限した範囲内にPlayerを閉じ込める
+    if(bossBattle.active){
+        worldBounds.minX          = bossBattle.cameraMinX;
+        worldBounds.drawableWidth = bossBattle.cameraMaxX;
+    }
     // 4. スコア更新
     updateScore(delta);
     // 5. 敵センサの収集とAIの更新
@@ -120,43 +125,6 @@ void PlayingScene::update(double delta){
     // デバッグ情報取得
     debugText->setText(ctx.entityCtx.player.debugMoveContext());
 }
-
-/*
-void PlayingScene::update(double delta){
-    // 1. 入力の受け入れ
-    // エスケープキーでTitleへの遷移
-    const InputState& is = ctx.input.getState();
-    handlePlayingInput(is);
-    // 2. 衝突処理用の前フレームのプレイヤー座標をサンプリング
-    // 必ず各種Collision判定前に呼ぶ必要がある
-    // 呼び出し順序に注意すること
-    ctx.entityCtx.player.beginFrameFeetCollisionSample();
-    // 3. worldInfoを用いた幅のクランプ処理
-    DrawBounds worldBounds = {ctx.worldInfo.WorldWidth, ctx.worldInfo.WorldHeight};
-    // 4. スコア更新
-    updateScore(delta);
-    // 5. 敵センサの収集とAIの更新
-    enemyAI.update(delta);
-    // 敵弾生成(Turretへの射出要求を消費)
-    projectiles.spawnEnemyBulletsFromEnemies(ctx.entityCtx.enemies);
-    // 6. 物理の更新(弾系はここで更新していない)
-    updateEntities(delta, worldBounds);
-    // 弾更新(プレイヤー弾/敵弾で統一)
-    projectiles.update(delta);
-    // 7. Playerとの当たり判定
-    collision.resolve(ctx.events);
-    // 弾の当たり判定は System に移す(detectCollisionから除外している)
-    projectiles.resolveCollisions(ctx.entityCtx.player, ctx.entityCtx.enemies, ctx.events);
-    // 8. 落下死判定
-    collision.checkFallDeath(ctx.events);
-    // 9. カメラ座標の更新
-    updateCamera();
-    // 10. 弾系オブジェクトの片付け
-    projectiles.cleanup();
-    // デバッグ情報取得
-    debugText->setText(ctx.entityCtx.player.debugMoveContext());
-}
-*/
 
 /**
  * @brief ゲーム中の画面描画処理
@@ -250,6 +218,7 @@ void PlayingScene::onExit(){
  * 
  */
 void PlayingScene::handlePlayingInput(const InputState& is){
+    // Escキー
     if(is.justPressed[(int)Action::Pause]){
         // ctrl.requestScene(GameScene::Title);
         ctx.events.requestScene(GameScene::Title);
@@ -263,7 +232,8 @@ void PlayingScene::handlePlayingInput(const InputState& is){
             const double spawn_Y = ctx.entityCtx.player.getEntityCenter_Y();
             const Direction dir = ctx.entityCtx.player.getDirection();
             // projectileでファイアボールを管理
-            projectiles.spawnPlayerFireball(spawn_X, spawn_Y, dir);
+            // projectiles.spawnPlayerFireball(spawn_X, spawn_Y, dir);
+            projectiles.trySpawnPlayerFireball(spawn_X, spawn_Y, dir);
         }
     }
 }
@@ -319,8 +289,31 @@ void PlayingScene::updateCamera(){
     // プレイヤーを画面中央付近へ維持する
     ctx.camera.x = playerCenter_X - (ctx.camera.width / 2.0);
 
+    // カメラ追従の補正
+    if(bossBattle.active){
+        // ボス戦の場合はボス戦に向けた補正をする
+        ctx.camera.x = std::clamp(ctx.camera.x, bossBattle.cameraMinX, bossBattle.cameraMaxX);
+    } else {
+        // WorldInfo.WorldWidthでクランプする
+        const double maxCamera_X = std::max(0.0, (ctx.worldInfo.WorldWidth - ctx.camera.width));
+        ctx.camera.x = std::clamp(ctx.camera.x, 0.0, maxCamera_X);
+    }
+    
+}
+
+
+/*
+ボス戦追加前
+void PlayingScene::updateCamera(){
+    auto& player = ctx.entityCtx.player;
+    // playerの中央
+    const double playerCenter_X = player.getEntityCenter_X();
+
+    // プレイヤーを画面中央付近へ維持する
+    ctx.camera.x = playerCenter_X - (ctx.camera.width / 2.0);
+
     // WorldInfo.WorldWidthでクランプする
     const double maxCamera_X = std::max(0.0, (ctx.worldInfo.WorldWidth - ctx.camera.width));
     ctx.camera.x = std::clamp(ctx.camera.x, 0.0, maxCamera_X);
 }
-
+*/
