@@ -29,6 +29,20 @@ struct ItemSpawn{
 };
 
 /**
+ * @brief ボス戦に関わるデータの構造体
+ * 
+ */
+struct BossBattleDefinition{
+    bool enabled = false;
+    double trigger_X = 0.0;
+    double cameraMin_X = 0.0;
+    double cameraMan_X = 0.0;
+    double bossSpawn_X = 0.0;
+    double bossSpawn_Y = 0.0;
+    int hp = 30;
+};
+
+/**
  * @brief ステージ定義管理用
  * レベルファイルのパスやプレイヤーの初期位置などを持つ
  */
@@ -39,6 +53,7 @@ struct StageDefinition{
     double playerStart_Y;
     std::vector<EnemySpawn> enemySpawns;    // 敵出現の情報
     std::vector<ItemSpawn> itemSpawns;      // アイテム出現の情報
+    BossBattleDefinition bossBattleDef;     // ボス戦情報
 };
 
 #endif  // STAGEDEFINITION_H

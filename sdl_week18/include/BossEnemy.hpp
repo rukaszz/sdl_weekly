@@ -8,25 +8,35 @@ class BossEnemy : public Enemy{
 private:
     // TODO：後でマジックナンバーは消す
     int hp = 30;
-    // ダメージを受けられるか
-    bool canTakeDamage = true;
+    // ダメージを受けた際の一時的な無敵時間
+    double damageInvincibleTimer = 0.0;
     // ボス弾の発射クールダウン
     double bossFireCooldownTimer = 0.0;
     // 発射要求
     bool fireRequested = false;
     // 攻撃方向
     Direction fireDir = Direction::Right;   // デフォルト右
+    // 負けたか(倒されたらtrue)
+    bool defeated = false;
 
 public:
-    BossEnemy(Texture& tex);
+    explicit BossEnemy(Texture& tex);
     ~BossEnemy() = default;
+
     // 敵の行動判断用
     void think(double delta, const EnemySensor& es) override;
-
+    // 更新関数
+    void update(double delta, const InputState& is, DrawBounds b, const std::vector<Block>& blocks) override;
     // ダメージを受ける関数
     void takeDamage(int damage);
     // 発射要求
     bool consumeFireRequest(Direction& outDir) noexcept;
+
+    // getter/setter
+    // ボスの敗北状況を返す
+    bool isDefeated() const noexcept{
+        return defeated;
+    }
     // 弾を発射できるかを返す
     bool shouldFire() const noexcept{
         return fireRequested;
@@ -34,6 +44,10 @@ public:
     // 弾の射出方向を返す
     Direction getFireDirection() const noexcept{
         return fireDir;
+    }
+    // HPの設定
+    void setInitialHp(int v) noexcept{
+        hp = v;
     }
 };
 

@@ -233,7 +233,7 @@ void Enemy::stepPhysics(double delta, DrawBounds bounds, const std::vector<Block
     // 3. ワールドの端でのclamp処理
     // ※反転の処理はAI側で解決する
     double leftBound = 0.0;
-    double rightBound = bounds.drawableWidth - sprite.getDrawWidth();
+    double rightBound = bounds.max_X - sprite.getDrawWidth();
     if(x <= leftBound){
         x = leftBound;
     } else if(x >= rightBound){

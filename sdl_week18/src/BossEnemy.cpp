@@ -47,6 +47,31 @@ void BossEnemy::think(double delta, const EnemySensor& es){
 }
 
 /**
+ * @brief ボスのHPを減らす関数
+ * 
+ * @param damage 
+ */
+void BossEnemy::takeDamage(int damage){
+    // 敗北しているなら何もしない
+    if(defeated){
+        return;
+    }
+    // 無敵時間なら減らさない
+    if(damageInvincibleTimer > 0.0){
+        return;
+    }
+    // 被弾処理
+    hp -= damage;
+    damageInvincibleTimer = 1.0;
+    // hpが0以下になったら敗北処理
+    if(hp <= 0){
+        hp = 0;
+        defeated = true;
+        startDying();
+    }
+}
+
+/**
  * @brief 発射要求に応える関数
  * ※PlayingSceneなどがfireRequestedを触らないようにするため
  * 

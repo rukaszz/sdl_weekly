@@ -2,9 +2,12 @@
 #define BOSSBATTLESTATE_H
 
 struct BossBattleState{
-    bool active = false;
-    double cameraMinX = 0.0;
-    double cameraMaxX = 0.0;
+    bool hasBoss = false;       // このステージにボス戦があるか
+    bool active = false;        // ボス戦が開始したか
+    bool isBossDefeated = false;// ボスを撃破したか
+    double trigger_X = 0.0;     // ボス戦開始位置
+    double cameraMin_X = 0.0;   // ボス戦中のステージの左端
+    double cameraMax_X = 0.0;   // ボス戦中のステージの右端
     // int bossPhase = 0;   // ボスの形態
     // bool bossDefeated = false;   // ボスに勝ったか
 };

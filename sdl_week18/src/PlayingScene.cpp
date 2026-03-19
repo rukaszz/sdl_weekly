@@ -86,11 +86,11 @@ void PlayingScene::update(double delta){
     //ctx.entityCtx.player.beginFrameFeetCollisionSample();
     ctx.entityCtx.player.beginFrameCollisionSample();
     // 3. worldInfoを用いた幅のクランプ処理
-    DrawBounds worldBounds = {ctx.worldInfo.WorldWidth, ctx.worldInfo.WorldHeight};
+    DrawBounds worldBounds = {0.0, 0.0, ctx.worldInfo.WorldWidth, ctx.worldInfo.WorldHeight};
     // ボス戦では制限した範囲内にPlayerを閉じ込める
     if(bossBattle.active){
-        worldBounds.minX          = bossBattle.cameraMinX;
-        worldBounds.drawableWidth = bossBattle.cameraMaxX;
+        worldBounds.min_X = bossBattle.cameraMin_X;
+        worldBounds.max_X = bossBattle.cameraMax_X;
     }
     // 4. スコア更新
     updateScore(delta);

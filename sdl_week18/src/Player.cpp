@@ -137,7 +137,7 @@ void Player::reset(){
  * @param bounds 
  */
 void Player::clampHorizontalPosition(const DrawBounds& bounds){
-    x = std::clamp(x, bounds.minX, bounds.drawableWidth - sprite.getDrawWidth());
+    x = std::clamp(x, bounds.min_X, bounds.max_X - sprite.getDrawWidth());
 }
 
 /**
