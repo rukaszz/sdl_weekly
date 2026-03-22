@@ -189,7 +189,11 @@ void SceneControl::loadStage(int stageIndex, GameContext& ctx){
     ctx.entityCtx.player.setPosition(def.playerStart_X, def.playerStart_Y);
     // ボス戦の情報があれば読み込む
     if(def.bossBattleDef.enabled){
-        ctx.entityCtx.boss.setPosition(def.bossBattleDef.bossSpawn_X, def.bossBattleDef.bossSpawn_Y);
+        ctx.entityCtx.boss.reset(
+            def.bossBattleDef.hp, 
+            def.bossBattleDef.bossSpawn_X, 
+            def.bossBattleDef.bossSpawn_Y
+        );
     }
 }
 

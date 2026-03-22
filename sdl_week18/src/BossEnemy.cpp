@@ -71,7 +71,6 @@ void BossEnemy::think(double delta, const EnemySensor& es){
  * @param blocks 
  */
 void BossEnemy::update(double delta, const InputState& is, DrawBounds b, const std::vector<Block>& blocks){
-    (void)is;
     // 敗北しているか
     if(defeated){
         // Dyingなどの演出で回す用
@@ -102,6 +101,7 @@ void BossEnemy::reset(int initHp, double spawn_X, double spawn_Y){
     fireDir = Direction::Left;
     hv = 0.0;
     vv = 0.0;
+    anim.reset();
 }
 
 /**

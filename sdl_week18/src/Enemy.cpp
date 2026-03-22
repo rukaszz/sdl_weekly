@@ -47,7 +47,7 @@ Enemy::Enemy(Texture& tex)
 
 /**
  * @brief Construct a new Enemy:: Enemy object
- * XXX <- Enemyにて，XXXを個別にオブジェクト化する
+ * XXX <- Enemyにて，XXXを個別にオブジェクト化する際に使用する
  * 
  * @param tex 
  * @param speed_ 

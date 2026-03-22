@@ -334,15 +334,7 @@ void PlayingScene::initBossBattle(){
     bossBattle.trigger_X      = def.bossBattleDef.trigger_X;
     bossBattle.cameraMin_X    = def.bossBattleDef.cameraMin_X;
     bossBattle.cameraMax_X    = def.bossBattleDef.cameraMax_X;
-    // もしボス戦があるステージであれば
-    if(bossBattle.hasBoss){
-        // ボスのデータを設定
-        ctx.entityCtx.boss.reset(
-            def.bossBattleDef.hp, 
-            def.bossBattleDef.bossSpawn_X, 
-            def.bossBattleDef.bossSpawn_Y
-        );
-    }
+    // ボスのスポーン位置などはloadStage()でやる
 }
 
 /**
