@@ -32,8 +32,9 @@ namespace{
      * @return ItemType 
      */
     ItemType parseItemType(const std::string& s){
-        if(s == "Coin")     return ItemType::Coin;
-        if(s == "Mushroom") return ItemType::Mushroom;
+        if(s == "Coin")       return ItemType::Coin;
+        if(s == "Mushroom")   return ItemType::Mushroom;
+        if(s == "FireFlower") return ItemType::FireFlower;
         throw std::runtime_error("Unknown ItemType: " + s);
     }
 }   // namespace
@@ -62,8 +63,20 @@ std::vector<StageDefinition> StageDefinitionLoader::loadStagesFromJson(const std
         StageDefinition sd{};
         sd.name          = stageJson.at("name").get<std::string>();
         sd.levelFile     = stageJson.at("levelFile").get<std::string>();
+        // プレイヤーの初期位置
         sd.playerStart_X = stageJson.at("playerStart").at("x").get<double>();
         sd.playerStart_Y = stageJson.at("playerStart").at("y").get<double>();
+        // ボスの情報取得
+        if(stageJson.contains("boss")){
+            const auto& bossJson = stageJson.at("boss");
+            sd.bossBattleDef.enabled     = bossJson.at("enabled").get<bool>();
+            sd.bossBattleDef.trigger_X   = bossJson.at("trigger_X").get<double>();
+            sd.bossBattleDef.cameraMin_X = bossJson.at("cameraMin_X").get<double>();
+            sd.bossBattleDef.cameraMax_X = bossJson.at("cameraMax_X").get<double>();
+            sd.bossBattleDef.bossSpawn_X = bossJson.at("spawn_X").get<double>();
+            sd.bossBattleDef.bossSpawn_Y = bossJson.at("spawn_Y").get<double>();
+            sd.bossBattleDef.hp          = bossJson.at("hp").get<int>();
+        }
 
         // enemiesの子要素分解
         if(stageJson.contains("enemies")){

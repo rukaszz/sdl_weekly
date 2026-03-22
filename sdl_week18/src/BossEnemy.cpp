@@ -1,7 +1,16 @@
 #include "BossEnemy.hpp"
 
+#include <algorithm>
+
+#include "Block.hpp"
+#include "BossConfig.hpp"
+#include "DrawBounds.hpp"
 #include "Direction.hpp"
 #include "EnemySensor.hpp"
+#include "Enemy.hpp"
+#include "Input.hpp"
+#include "StageDefinition.hpp"
+#include "Sprite.hpp"
 
 /**
  * @brief Construct a new Boss Enemy:: Boss Enemy object
@@ -9,9 +18,16 @@
  * @param tex 
  */
 BossEnemy::BossEnemy(Texture& tex)
-    : Enemy(tex)
+    : Enemy(
+        tex,
+        BossConfig::RUN_MAX_SPEED,
+        BossConfig::FRAME_W,
+        BossConfig::FRAME_H,
+        BossConfig::NUM_FRAMES,
+        BossConfig::ANIM_INTERVAL
+    )
 {
-
+    sprite.setFrame(0);
 }
 
 /**
@@ -44,6 +60,48 @@ void BossEnemy::think(double delta, const EnemySensor& es){
         fireRequested = true;
         bossFireCooldownTimer = 1.5;
     }
+}
+
+/**
+ * @brief ボスの更新関数
+ * 
+ * @param delta 
+ * @param is 
+ * @param b 
+ * @param blocks 
+ */
+void BossEnemy::update(double delta, const InputState& is, DrawBounds b, const std::vector<Block>& blocks){
+    (void)is;
+    // 敗北しているか
+    if(defeated){
+        // Dyingなどの演出で回す用
+        Enemy::update(delta, is, b, blocks);
+        return;
+    }
+    // 無敵時間中なら無敵時間減衰
+    if(damageInvincibleTimer > 0.0){
+        damageInvincibleTimer = std::max(0.0, damageInvincibleTimer - delta);
+    }
+    Enemy::update(delta, is, b, blocks);
+}
+
+/**
+ * @brief ステージロード時に呼び出してデータをセットする
+ * 
+ * @param hp_ 
+ * @param spawn_X 
+ * @param spawn_Y 
+ */
+void BossEnemy::reset(int initHp, double spawn_X, double spawn_Y){
+    hp = initHp;
+    setPosition(spawn_X, spawn_Y);
+    defeated = false;
+    damageInvincibleTimer = 0.0;
+    bossFireCooldownTimer = 0.0;
+    fireRequested =false;
+    fireDir = Direction::Left;
+    hv = 0.0;
+    vv = 0.0;
 }
 
 /**

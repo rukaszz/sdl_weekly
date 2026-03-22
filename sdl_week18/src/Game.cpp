@@ -45,6 +45,7 @@
 #include "Character.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
+#include "BossEnemy.hpp"
 #include "FireBall.hpp"
 #include "Item.hpp"
 
@@ -91,6 +92,8 @@ void Game::loadResources(){
     playerTexture = std::make_unique<Texture>(renderer->get(), "assets/image/rhb.png");
     // 敵
     enemyTexture = std::make_unique<Texture>(renderer->get(), "assets/image/dark_rhb.png");
+    // ボス
+    bossTexture = std::make_unique<Texture>(renderer->get(), "assets/image/boss.png");
     // ファイアボール
     fireballTexture = std::make_unique<Texture>(renderer->get(), "assets/image/fireball.png");
     // 敵の弾(現状はファイアボールと同じ)
@@ -116,7 +119,8 @@ void Game::loadResources(){
  */
 void Game::buildWorld(){
     player = std::make_unique<Player>(*playerTexture);
-    player->setPosition(PlayerConfig::POS_X, PlayerConfig::POS_Y);
+    // player->setPosition(PlayerConfig::POS_X, PlayerConfig::POS_Y);
+    boss = std::make_unique<BossEnemy>(*bossTexture);
     // 世界の広さ
     worldInfo = {static_cast<double>(GameConfig::WINDOW_WIDTH), 
                  static_cast<double>(GameConfig::WINDOW_HEIGHT)
@@ -152,6 +156,7 @@ void Game::buildContexts(){
             *player,
             *enemyTexture,
             enemies,            // 空vector
+            *boss,
             blocks,             // 空vector
             blockRectCaches,    // 空vector(blocksのRectのcache)
             items,              // 空vector

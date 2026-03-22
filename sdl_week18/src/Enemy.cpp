@@ -46,6 +46,41 @@ Enemy::Enemy(Texture& tex)
 }
 
 /**
+ * @brief Construct a new Enemy:: Enemy object
+ * XXX <- Enemyにて，XXXを個別にオブジェクト化する
+ * 
+ * @param tex 
+ * @param speed_ 
+ * @param frame_W 
+ * @param frame_H 
+ * @param numFrames 
+ * @param animInterval 
+ */
+Enemy::Enemy(
+    Texture& tex, 
+    double speed_, 
+    int frame_W, 
+    int frame_H, 
+    int numFrames, 
+    double animInterval
+) : Character(
+    0.0,                // x
+    0.0,                // y
+    speed_,             // speed
+    0.0,                // hv
+    0.0,                // vv
+    Direction::Right,   // dir
+    tex, 
+    frame_W, 
+    frame_H,    
+    numFrames, 
+    animInterval
+)
+{
+
+}
+
+/**
  * @brief Enemyの動きを記述する(※現状は左右に動くだけ)
  * ウィンドウの描画範囲を超えないように画面内に座標を抑える
  * 

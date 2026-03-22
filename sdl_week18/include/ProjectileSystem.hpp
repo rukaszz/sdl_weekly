@@ -9,6 +9,7 @@
 class Texture;
 class Player;
 class Enemy;
+class BossEnemy;
 class FireBall;
 class EnemyBullet;
 class SceneControl;
@@ -46,9 +47,12 @@ public:
     // 弾発射系
     // プレイヤーの入力でプレイヤー弾(ファイアボール)生成
     void spawnPlayerFireball(double x, double y, Direction dir);
+    // 弾発射用関数
+    void spawnEnemyBullet(double x, double y, Direction dir);
     // 敵AIの判断に結果から敵弾生成(EnemyBullet)
     void spawnEnemyBulletsFromEnemies(std::vector<std::unique_ptr<Enemy>>& enemies);
-
+    // Bossの弾発射処理
+    void spawnBossBullets(BossEnemy& boss);
     // その他関数
     // ステージロード時のキャッシュ更新用
     void onStageLoaded();
@@ -69,6 +73,8 @@ private:
     void resolveFireballEnemyCollision(std::vector<std::unique_ptr<Enemy>>& enemies, IGameEvents& events);
     // player vs enemy bullet
     void resolvePlayerEnemyBulletCollision(Player& player, IGameEvents& events);
+    // fireball vs boss
+    void resolveFireballBossCollision(BossEnemy& boss, IGameEvents& events);
     // 活性状態のファイアボール計測
     int countActivePlayerFireballs() const;
 };

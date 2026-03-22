@@ -36,7 +36,7 @@ struct BossBattleDefinition{
     bool enabled = false;
     double trigger_X = 0.0;
     double cameraMin_X = 0.0;
-    double cameraMan_X = 0.0;
+    double cameraMax_X = 0.0;
     double bossSpawn_X = 0.0;
     double bossSpawn_Y = 0.0;
     int hp = 30;

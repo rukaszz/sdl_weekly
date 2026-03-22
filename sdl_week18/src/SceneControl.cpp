@@ -9,6 +9,7 @@
 #include "BlockLevelLoader.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
+#include "BossEnemy.hpp"
 #include "Item.hpp"
 #include "WalkerEnemy.hpp"
 #include "ChaserEnemy.hpp"
@@ -186,6 +187,10 @@ void SceneControl::loadStage(int stageIndex, GameContext& ctx){
     // プレイヤーの位置初期化
     ctx.entityCtx.player.reset();
     ctx.entityCtx.player.setPosition(def.playerStart_X, def.playerStart_Y);
+    // ボス戦の情報があれば読み込む
+    if(def.bossBattleDef.enabled){
+        ctx.entityCtx.boss.setPosition(def.bossBattleDef.bossSpawn_X, def.bossBattleDef.bossSpawn_Y);
+    }
 }
 
 /**
@@ -230,4 +235,23 @@ void SceneControl::consumeEvents(const GameEventBuffer& geb){
     if(hasSceneReq){
         requestScene(nextScene);
     }
+}
+
+/**
+ * @brief Sceneオブジェクトでステージ定義を取得する用関数
+ * 
+ * @return const StageDefinition& 
+ */
+const StageDefinition& SceneControl::getCurrentStageDefinition() const{
+    // ステージインデックスがステージ定義の数より大きいのはNG
+    assert(0 <= currentStageIndex
+        && currentStageIndex < static_cast<int>(stageDefinitions.size()));
+    return stageDefinitions[currentStageIndex];
+}
+
+bool SceneControl::isBossStage() const{
+    // ステージインデックスがステージ定義の数より大きいのはNG
+    assert(0 <= currentStageIndex
+        && currentStageIndex < static_cast<int>(stageDefinitions.size()));
+    return stageDefinitions[currentStageIndex].bossBattleDef.enabled;
 }

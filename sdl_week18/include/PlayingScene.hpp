@@ -66,6 +66,12 @@ private:
     void updateScore(double delta);
     void updateEntities(double delta, DrawBounds b);
     void updateCamera();
+    // ボス関係※現状1体なのでSystemに分割しない
+    void initBossBattle();
+    void updateBossBattleState();
+    EnemySensor buildBossSensor() const;
+    void updateBoss(double delta, DrawBounds bounds);
+    void spawnBossBulletIfRequested();
 };
 
 #endif  // PLAYINGSCENE_H

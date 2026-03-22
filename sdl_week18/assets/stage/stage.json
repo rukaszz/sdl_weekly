@@ -4,6 +4,9 @@
       "name": "Stage 1",
       "levelFile": "assets/level/level1.txt",
       "playerStart": { "x": 100.0, "y": 600.0 },
+      "boss": {"enabled": false, "trigger_X": 0.0, 
+               "cameraMin_X": 0.0, "cameraMax_X": 0.0, 
+               "spawn_X": 0.0, "spawn_Y": 0.0, "hp": 0}, 
       "enemies": [
         {"x": 500.0, "y": 200.0, "speed": 150.0, "type": "Jumper"}, 
         {"x": 200.0, "y": 400.0, "speed": 100.0, "type": "Walker"},
@@ -20,6 +23,9 @@
       "name": "Stage 2", 
       "levelFile": "assets/level/level2.txt",
       "playerStart": {"x": 100.0, "y": 600.0}, 
+      "boss": {"enabled": false, "trigger_X": 0.0, 
+               "cameraMin_X": 0.0, "cameraMax_X": 0.0, 
+               "spawn_X": 0.0, "spawn_Y": 0.0, "hp": 0}, 
       "enemies": [
         {"x": 100.0, "y": 100.0, "speed": 50.0,  "type": "Walker"}, 
         {"x": 200.0, "y": 200.0, "speed": 80.0,  "type": "Walker"},
@@ -27,6 +33,22 @@
         {"x": 400.0, "y": 400.0, "speed": 140.0, "type": "Walker"},
         {"x": 500.0, "y": 500.0, "speed": 170.0, "type": "Walker"},
         {"x": 600.0, "y": 600.0, "speed": 200.0, "type": "Walker"}
+      ], 
+      "items": [
+        {"x": 400.0, "y": 300.0, "type": "Coin"}, 
+        {"x": 260.0, "y": 180.0, "type": "Coin"},  
+        {"x": 600.0, "y": 300.0, "type": "Coin"}
+      ]
+    }, 
+    {
+      "name": "Stage 3", 
+      "levelFile": "assets/level/level3.txt",
+      "playerStart": {"x": 100.0, "y": 600.0}, 
+      "boss": {"enabled": true, "trigger_X": 300.0,
+               "cameraMin_X": 500.0, "cameraMax_X": 800.0, 
+               "spawn_X": 700.0, "spawn_Y": 100.0, "hp": 30}, 
+      "enemies": [
+        {"x": 100.0, "y": 100.0, "speed": 50.0,  "type": "Walker"}
       ], 
       "items": [
         {"x": 400.0, "y": 300.0, "type": "Coin"}, 

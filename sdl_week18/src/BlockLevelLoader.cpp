@@ -89,33 +89,6 @@ std::vector<Block> BlockLevelLoader::loadFromFile(const std::string& path){
         BlockType blocktype = parseBlockType(typeChar);
         BlockRewardType rewardType = parseBlockRewardType(rewardChar);
 
-        // switch(typeChar){
-        // case 'S':
-        //     type = BlockType::Standable;
-        //     break;
-        // case 'T':
-        //     type = BlockType::DropThrough;
-        //     break;
-        // case 'D':
-        //     type = BlockType::Damage;
-        //     break;
-        // case 'C':
-        //     type = BlockType::Clear;
-        //     break;
-        // case 'Q':
-        //     type = BlockType::Question;
-        //     break;
-        // case 'U':
-        //     type = BlockType::UsedQuestion;
-        //     break;
-        // case 'B':
-        //     type = BlockType::Breakable;
-        //     break;
-        // default:
-        //     // 不明なタイプは無視
-        //     continue;
-        // }
-
         // 読み取った結果を格納
         result.push_back(Block{x, y, w, h, blocktype, rewardType});
     }

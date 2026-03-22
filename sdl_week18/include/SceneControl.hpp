@@ -2,6 +2,7 @@
 #define SCENECONTROL_H
 
 #include <vector>
+#include <cassert>
 
 #include "GameScene.hpp"
 #include "StageDefinition.hpp"
@@ -44,13 +45,15 @@ public:
     virtual void requestScene(GameScene id) = 0;
 
     // getter
+    const StageDefinition& getCurrentStageDefinition() const;
     int getCurrentStageIndex() const{
         return currentStageIndex;
     }
     // stageDefinitionsのサイズ=ステージ数
     int getStageCount() const{
-        return static_cast<std::size_t>(stageDefinitions.size());
+        return static_cast<int>(stageDefinitions.size());
     }
+    bool isBossStage() const;
 };
 
 #endif  // SCENECONTROL_H

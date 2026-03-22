@@ -22,6 +22,7 @@ class Text;
 class Input;
 class Player;
 class Enemy;
+class BossEnemy;
 class FireBall;
 class EnemyBullet;
 class GameEventBuffer;
@@ -41,6 +42,7 @@ struct EntityContext{
     Player& player;
     Texture& enemyTexture;
     std::vector<std::unique_ptr<Enemy>>& enemies;
+    BossEnemy& boss;
     std::vector<Block>& blocks;
     std::vector<SDL_Rect>& blockRectCaches;    // ブロックの矩形キャッシュ用
     std::vector<Item>& items;

@@ -8,11 +8,14 @@
 #include "EnemyBullet.hpp"
 #include "Enemy.hpp"
 #include "Player.hpp"
+#include "BossEnemy.hpp"
+
 #include "GameUtil.hpp"
 #include "WorldInfo.hpp"
 #include "IGameEvents.hpp"
 
 #include "EnemyConfig.hpp"
+#include "BossConfig.hpp"
 #include "FireBallConfig.hpp"
 #include "EnemyBulletConfig.hpp"
 
@@ -165,6 +168,18 @@ bool ProjectileSystem::trySpawnPlayerFireball(double x, double y, Direction dir)
     return true;
 }
 
+/**
+ * @brief 共通の弾発射関数
+ * 
+ * @param x 
+ * @param y 
+ * @param dir 
+ */
+void ProjectileSystem::spawnEnemyBullet(double x, double y, Direction dir){
+    enemyBullets.emplace_back(
+        std::make_unique<EnemyBullet>(x, y, dir, enemyBulletTexture)
+    );
+}
 
 /**
  * @brief 敵弾の生成
@@ -287,7 +302,6 @@ void ProjectileSystem::cleanup(){
     // 敵弾片付け
     // cleanupEnemyBullets();
     cleanupProjectiles(enemyBullets, world, EnemyBulletConfig::FRAME_W, EnemyBulletConfig::FRAME_H);
-
 }
 
 /**
@@ -296,4 +310,56 @@ void ProjectileSystem::cleanup(){
  */
 void ProjectileSystem::onStageLoaded(){
     playerFireCooldownTimer = 0.0;
+}
+
+/**
+ * @brief 
+ * 
+ * @param boss 
+ * @param events 
+ */
+void ProjectileSystem::resolveFireballBossCollision(BossEnemy& boss, IGameEvents& events){
+    // 撃破済みなら判定しない
+    if(boss.isDefeated()){
+        return;
+    }
+    // ボスの当たり判定矩形を取得
+    const SDL_Rect bossRect = boss.getCollisionRect();
+    for(auto& f : fireballs){
+        // 非活性は処理しない
+        if(f->isActive()){
+            continue;
+        }
+        // 衝突していないならスキップ
+        if(!GameUtil::intersects(f->getCollisionRect(), bossRect)){
+            continue;
+        }
+        // ヒット：ファイアボール非活性化→ボスへダメージ
+        f->deactivate();
+        boss.takeDamage(BossConfig::FIREBALL_DAMAGE);
+        // スコア加算(するなら)
+        // if(boss.isDefeated()){
+        //     events.addScore(BossConfig::SCORE_AT_DEATH);
+        // }
+        break;  // 1フレームに1ヒットする
+    }
+}
+
+/**
+ * @brief ボスの弾発射処理
+ * 
+ * @param boss 
+ */
+void ProjectileSystem::spawnBossBullets(BossEnemy& boss){
+    // 方向決定
+    Direction dir;
+    if(!boss.consumeFireRequest(dir)){
+        return;
+    }
+    // ボス中心から発射
+    const double x = boss.getEntityCenter_X();
+    const double y = boss.getEntityCenter_Y();
+    enemyBullets.emplace_back(
+        std::make_unique<EnemyBullet>(x, y, dir, enemyBulletTexture)
+    );
 }

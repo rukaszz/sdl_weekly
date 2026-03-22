@@ -32,6 +32,16 @@ private:
     EnemyState state = EnemyState::Alive;
     double dyingTime = 0.0; // Dying状態の経過時間
     bool onGround = false;  // 敵が床上にいるか
+
+protected:
+    Enemy(
+        Texture& tex, 
+        double speed_, 
+        int frame_W, 
+        int frame_H, 
+        int numFrames, 
+        double animInterval
+    );
 public:
     // 定数
     static inline constexpr int NUM_FRAMES = EnemyConfig::NUM_FRAMES;

@@ -18,6 +18,7 @@
 #include "Texture.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
+#include "BossEnemy.hpp"
 #include "FireBall.hpp"
 #include "EnemyBullet.hpp"
 #include "Text.hpp"
@@ -50,6 +51,9 @@ private:
     std::unique_ptr<Player> player;
     std::unique_ptr<Texture> enemyTexture;
     std::vector<std::unique_ptr<Enemy>> enemies;
+    std::unique_ptr<Texture> bossTexture;
+    std::unique_ptr<BossEnemy> boss;
+
     std::unique_ptr<Texture> fireballTexture;
     std::vector<std::unique_ptr<FireBall>> fireballs;
     std::unique_ptr<Texture> enemyBulletTexture;

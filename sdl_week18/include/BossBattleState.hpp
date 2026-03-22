@@ -9,7 +9,6 @@ struct BossBattleState{
     double cameraMin_X = 0.0;   // ボス戦中のステージの左端
     double cameraMax_X = 0.0;   // ボス戦中のステージの右端
     // int bossPhase = 0;   // ボスの形態
-    // bool bossDefeated = false;   // ボスに勝ったか
 };
 
 #endif  // BOSSBATTLESTATE_H

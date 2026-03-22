@@ -1,8 +1,11 @@
 #ifndef BOSSENEMY_H
 #define BOSSENEMY_H
 
+#include "Character.hpp"
 #include "EnemySensor.hpp"
 #include "Enemy.hpp"
+
+struct StageDefinition;
 
 class BossEnemy : public Enemy{
 private:
@@ -27,6 +30,8 @@ public:
     void think(double delta, const EnemySensor& es) override;
     // 更新関数
     void update(double delta, const InputState& is, DrawBounds b, const std::vector<Block>& blocks) override;
+    // ステージロード時の初期化
+    void reset(int initHp, double spawn_X, double spawn_Y);
     // ダメージを受ける関数
     void takeDamage(int damage);
     // 発射要求
