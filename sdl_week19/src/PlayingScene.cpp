@@ -88,7 +88,7 @@ void PlayingScene::update(double delta){
     //ctx.entityCtx.player.beginFrameFeetCollisionSample();
     ctx.entityCtx.player.beginFrameCollisionSample();
     // ボス戦開始点を超えたか判定
-    updateBossTrigger();
+    updateBossBattleTrigger();
     // 3. worldInfoを用いた幅のクランプ処理
     DrawBounds worldBounds = {
         .min_X = 0.0, 
@@ -106,8 +106,9 @@ void PlayingScene::update(double delta){
     // 5. 敵センサの収集とAIの更新
     enemyAI.update(delta);
     // ボス戦状態なら処理する
-    if(bossBattle.active){
+    if(bossBattle.isActive()){
         updateBoss(delta, worldBounds);
+        spawnBossBulletIfRequested();
     }
     // 敵弾生成(Turretへの射出要求を消費)
     projectiles.spawnEnemyBulletsFromEnemies(ctx.entityCtx.enemies);
@@ -118,18 +119,16 @@ void PlayingScene::update(double delta){
     // 7. Playerとの当たり判定
     // イベント発行用のIGameEventsを使う
     collision.resolve(ctx.events);
-    // bossのポインタ取得(ボス戦があるステージかつボスが負けていないとき以外はnullptr)
-    BossEnemy* bossPtr = (bossBattle.hasBoss && !bossBattle.isBossDefeated)
-        ? &ctx.entityCtx.boss : nullptr;
     // 弾の当たり判定は System に移す(detectCollisionから除外している)
     projectiles.resolveCollisions(
         ctx.entityCtx.player, 
         ctx.entityCtx.enemies, 
-        bossPtr, 
+        ctx.entityCtx.boss,
+        bossBattle.isActive, 
         ctx.events
     );
     // 落下死判定
-    collision.checkFallDeath(ctx.events);
+    collision.checkFallDeath(ctx.events);    
     
     // 8. ブロック叩き〜その後の処理まで
     // イベント消費用のGameEventBufferを使う
@@ -351,7 +350,7 @@ void PlayingScene::initBossBattle(){
  * ボスが負けたかなどの状態をチェックする
  * 
  */
-void PlayingScene::updateBossTrigger(){
+void PlayingScene::updateBossBattleTrigger(){
     // ボス戦が無いステージでは処理しない
     if(!bossBattle.hasBoss || bossBattle.active || bossBattle.isBossDefeated){
         return;

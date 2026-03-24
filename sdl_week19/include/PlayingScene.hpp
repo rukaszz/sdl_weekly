@@ -67,11 +67,17 @@ private:
     void updateEntities(double delta, DrawBounds b);
     void updateCamera();
     // ボス関係※現状1体なのでSystemに分割しない
+    // ステージ入場時に1回呼ぶ初期化関数
     void initBossBattle();
-    void updateBossTrigger();
+    // トリガー監視関数
+    void updateBossBattleTrigger();
+    // think()/update()をする関数
     void updateBoss(double delta, DrawBounds bounds);
-    EnemySensor buildBossSensor() const;
-    void updateBossDefeatState();
+    // ボスがDying/Deadになったときの関数
+    void updadeBossBattleResult();
+    //EnemySensor buildBossSensor() const;
+    //void updateBossDefeatState();
+    // Projectile連携関数
     void spawnBossBulletIfRequested();
 };
 

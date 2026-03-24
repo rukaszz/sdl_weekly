@@ -70,7 +70,8 @@ public:
     void resolveCollisions(
         Player& player, 
         std::vector<std::unique_ptr<Enemy>>& enemies, 
-        BossEnemy* boss, 
+        BossEnemy& boss,
+        bool bossBattleActive,  
         IGameEvents& events
     );
     // 生存管理(非活性・画面外は消す)

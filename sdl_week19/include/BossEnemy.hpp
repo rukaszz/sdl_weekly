@@ -39,8 +39,8 @@ public:
         return hp;
     }
     // 無敵時間中かの判定を返す
-    bool isDamageInvincible() const noexcept{
-        return damageInvincibleTimer > 0.0;
+    bool canTakeDamage() const noexcept{
+        return (damageInvincibleTimer <= 0.0 && isAlive());
     }
 };
 

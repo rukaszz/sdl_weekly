@@ -217,15 +217,16 @@ void ProjectileSystem::spawnEnemyBulletsFromEnemies(std::vector<std::unique_ptr<
 void ProjectileSystem::resolveCollisions(
     Player& player, 
     std::vector<std::unique_ptr<Enemy>>& enemies, 
-    BossEnemy* boss, 
+    BossEnemy& boss, 
+    bool bossBattleActive, 
     IGameEvents& events
 )
 {
     // FireBall vs Enemy
     resolveFireballEnemyCollision(enemies, events);
     // FireBall vs Boss
-    if(boss != nullptr){
-        resolveFireballBossCollision(*boss, events);
+    if(bossBattleActive){
+        resolveFireballBossCollision(boss, events);
     }
     // EnemyBullet vs Player
     resolvePlayerEnemyBulletCollision(player, events);
