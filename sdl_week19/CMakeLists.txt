@@ -25,6 +25,7 @@ add_executable(${PROJECT_NAME}
     src/Block.cpp
     src/BlockLevelLoader.cpp
     src/BlockSystem.cpp
+    src/BossAISystem.cpp
     src/BossEnemy.cpp
     src/Bullet.cpp
     src/Camera.cpp

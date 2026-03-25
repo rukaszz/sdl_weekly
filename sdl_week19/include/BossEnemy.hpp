@@ -1,10 +1,8 @@
 #ifndef BOSSENEMY_H
 #define BOSSENEMY_H
 
-#include "EnemySensor.hpp"
 #include "Enemy.hpp"
-
-struct StageDefinition;
+#include "EnemySensor.hpp"
 
 class BossEnemy : public Enemy{
 private:

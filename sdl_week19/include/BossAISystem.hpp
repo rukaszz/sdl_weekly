@@ -38,6 +38,9 @@ public:
     void onStageLoaded();
     // 更新関数
     void update(double delta);
+
+private:
+    EnemySensor buildBossSensor() const;
 };
 
 #endif  // BOSSAISYSTEM_H

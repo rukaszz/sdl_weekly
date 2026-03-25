@@ -50,14 +50,6 @@ void BossEnemy::think(double delta, const EnemySensor& es){
     if(!es.playerInSight){
         return;
     }
-    // 一定距離内か
-    if(es.distanceToPlayer > BossConfig::SIGHT_RANGE){
-        return;
-    }
-    // 一定の高さに収まっているか
-    if(std::abs(es.dyToPlayer) > BossConfig::ATTACK_HEIGHT_TOLERANCE){
-        return;
-    }
     // 発射要求があるか
     if(fireRequested){
         return;
@@ -116,7 +108,7 @@ void BossEnemy::takeDamage(int damage){
         return;
     }
     // 無敵時間なら減らさない
-    if(damageInvincibleTimer > 0.0){
+    if(!canTakeDamage()){
         return;
     }
     // 被弾処理

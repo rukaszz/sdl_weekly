@@ -18,6 +18,7 @@
 #include "BossConfig.hpp"
 #include "FireBallConfig.hpp"
 #include "EnemyBulletConfig.hpp"
+#include "BossBattleState.hpp"
 
 /**
  * @brief Construct a new Playing Scene:: Playing Scene object
@@ -32,13 +33,19 @@ PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
         ctx.worldInfo, 
         ctx.entityCtx.fireballTexture, 
         ctx.entityCtx.enemyBulletTexture
-    )
-    , enemyAI(
+    ), enemyAI(
         ctx.entityCtx.enemies, 
         ctx.entityCtx.blocks, 
         ctx.entityCtx.blockRectCaches, 
         ctx.worldInfo, 
         ctx.entityCtx.player
+    ), bossAI(
+        ctx.entityCtx.boss,
+        ctx.entityCtx.player,
+        ctx.entityCtx.blocks, 
+        ctx.entityCtx.blockRectCaches, 
+        ctx.worldInfo, 
+        bossBattle
     ), collision(
         ctx.entityCtx.player, 
         ctx.entityCtx.enemies, 
@@ -97,7 +104,7 @@ void PlayingScene::update(double delta){
         .max_Y = ctx.worldInfo.WorldHeight
     };
     // ボス戦では制限した範囲内にPlayerを閉じ込める
-    if(bossBattle.active){
+    if(bossBattle.isActive()){
         worldBounds.min_X = bossBattle.cameraMin_X;
         worldBounds.max_X = bossBattle.cameraMax_X;
     }
@@ -105,15 +112,16 @@ void PlayingScene::update(double delta){
     updateScore(delta);
     // 5. 敵センサの収集とAIの更新
     enemyAI.update(delta);
-    // ボス戦状態なら処理する
-    if(bossBattle.isActive()){
+    bossAI.update(delta);
+    // 6. 物理の更新(弾系はここで更新していない)
+    updateEntities(delta, worldBounds);
+    // ボス戦状態かつボス生存状態なら処理する
+    if(bossBattle.isActive() && ctx.entityCtx.boss.isAlive()){
         updateBoss(delta, worldBounds);
         spawnBossBulletIfRequested();
     }
     // 敵弾生成(Turretへの射出要求を消費)
     projectiles.spawnEnemyBulletsFromEnemies(ctx.entityCtx.enemies);
-    // 6. 物理の更新(弾系はここで更新していない)
-    updateEntities(delta, worldBounds);
     // 弾更新(プレイヤー弾/敵弾で統一)
     projectiles.update(delta);
     // 7. Playerとの当たり判定
@@ -124,7 +132,7 @@ void PlayingScene::update(double delta){
         ctx.entityCtx.player, 
         ctx.entityCtx.enemies, 
         ctx.entityCtx.boss,
-        bossBattle.isActive, 
+        bossBattle.isActive(), 
         ctx.events
     );
     // 落下死判定
@@ -136,7 +144,9 @@ void PlayingScene::update(double delta){
     items.processSpawn(ctx.eventBuffer);
     items.resolvePlayerCollision(ctx.entityCtx.player, ctx.eventBuffer);
     playerState.process(ctx.eventBuffer);
-    
+    // トリガーの監視
+    updateBossBattleResult();
+
     // 9. カメラ座標の更新
     updateCamera();
     // 10. 消費系オブジェクトの片付け
@@ -205,7 +215,7 @@ void PlayingScene::render(){
     // カメラを考慮した書き方にする
     ctx.entityCtx.player.draw(ctx.renderer, ctx.camera);
     for(auto& e : ctx.entityCtx.enemies) e->draw(ctx.renderer, ctx.camera);
-    if(bossBattle.active && !bossBattle.isBossDefeated){
+    if(bossBattle.isActive() && !bossBattle.isDefeated()){
         ctx.entityCtx.boss.draw(ctx.renderer, ctx.camera);
     }
     // デバッグ情報表示
@@ -316,7 +326,7 @@ void PlayingScene::updateCamera(){
     ctx.camera.x = playerCenter_X - (ctx.camera.width / 2.0);
 
     // カメラ追従の補正
-    if(bossBattle.active){
+    if(bossBattle.isActive()){
         // ボス戦の場合はボス戦に向けた補正をする
         const double bossCameraMaxLeft = bossBattle.cameraMax_X - ctx.camera.width;
         ctx.camera.x = std::clamp(ctx.camera.x, bossBattle.cameraMin_X, bossCameraMaxLeft);
@@ -336,9 +346,8 @@ void PlayingScene::initBossBattle(){
     // StageDefinitionを取得
     const auto& def = ctrl.getCurrentStageDefinition();
     // BossBattleState
-    bossBattle.hasBoss        = def.bossBattleDef.enabled;
-    bossBattle.active         = false;
-    bossBattle.isBossDefeated = false;
+    bossBattle.phase          = def.bossBattleDef.enabled
+        ? BossBattlePhase::WaitingTrigger : BossBattlePhase::None;
     bossBattle.trigger_X      = def.bossBattleDef.trigger_X;
     bossBattle.cameraMin_X    = def.bossBattleDef.cameraMin_X;
     bossBattle.cameraMax_X    = def.bossBattleDef.cameraMax_X;
@@ -352,45 +361,14 @@ void PlayingScene::initBossBattle(){
  */
 void PlayingScene::updateBossBattleTrigger(){
     // ボス戦が無いステージでは処理しない
-    if(!bossBattle.hasBoss || bossBattle.active || bossBattle.isBossDefeated){
+    if(!bossBattle.isWaiting()){
         return;
     }
     // プレイヤーの中心座標
     const double player_X = ctx.entityCtx.player.getEntityCenter_X();
     if(player_X >= bossBattle.trigger_X){
-        bossBattle.active = true;
+        bossBattle.phase = BossBattlePhase::Active;
     }
-}
-
-/**
- * @brief ボス用のAI判定用センサーの取得
- * 
- * @return EnemySensor 
- */
-EnemySensor PlayingScene::buildBossSensor() const{
-    // 必要な変数の定義
-    EnemySensor es{};
-    const auto& boss = ctx.entityCtx.boss;
-    const auto& player=ctx.entityCtx.player;
-    // player - bossの中心座標
-    const double bossCenter_X = boss.getEntityCenter_X();
-    const double bossCenter_Y = boss.getEntityCenter_Y();
-    const double playerCenter_X = player.getEntityCenter_X();
-    const double playerCenter_Y = player.getEntityCenter_Y();
-    // player - bossの距離
-    const double dx = playerCenter_X - bossCenter_X;
-    const double dy = playerCenter_Y - bossCenter_Y;
-
-    // センサーの収集
-    es.dxToPlayer = dx;
-    es.dyToPlayer = dy;
-    es.distanceToPlayer = std::sqrt(dx*dx + dy*dy);
-    es.playerOnLeft = (playerCenter_X < bossCenter_X);
-    es.playerBelow = (playerCenter_Y > bossCenter_Y);
-    es.playerInSight = (std::abs(dx) <= BossConfig::SIGHT_RANGE && std::abs(dy) <= BossConfig::ATTACK_HEIGHT_TOLERANCE);
-    es.groundAhead = true;
-    es.wallAhead = false;
-    return es;
 }
 
 /**
@@ -402,8 +380,6 @@ void PlayingScene::updateBoss(double delta, DrawBounds bounds){
     auto& boss = ctx.entityCtx.boss;
     const InputState& is = ctx.input.getState();
 
-    const EnemySensor es = buildBossSensor();
-    boss.think(delta, es);
     boss.update(delta, is, bounds, ctx.entityCtx.blocks);
 }
 
@@ -413,7 +389,7 @@ void PlayingScene::updateBoss(double delta, DrawBounds bounds){
  */
 void PlayingScene::spawnBossBulletIfRequested(){
     // ボス戦のみ処理
-    if(!bossBattle.active){
+    if(!bossBattle.isActive()){
         return;
     }
     auto& boss = ctx.entityCtx.boss;
@@ -432,15 +408,15 @@ void PlayingScene::spawnBossBulletIfRequested(){
  * @brief ボスに勝ったかどうかの判定を行う関数
  * 
  */
-void PlayingScene::updateBossDefeatState(){
+void PlayingScene::updateBossBattleResult(){
     // ボス戦がない または ボスが活性でないなら何もしない
-    if(!bossBattle.hasBoss || !bossBattle.active){
+    if(!bossBattle.isActive()){
         return;
     }
     // ボスが死んだ際の処理
-    if(ctx.entityCtx.boss.isDead()){
-        bossBattle.active = false;
-        bossBattle.isBossDefeated = true;
-        ctx.events.requestScene(GameScene::Clear);
+    if(!ctx.entityCtx.boss.isDead()){
+        return;
     }
+    bossBattle.phase = BossBattlePhase::Defeated;
+    ctx.events.requestScene(GameScene::Clear);
 }

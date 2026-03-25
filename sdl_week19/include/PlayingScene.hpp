@@ -9,6 +9,7 @@
 #include "Scene.hpp"
 #include "ProjectileSystem.hpp"
 #include "EnemyAISystem.hpp"
+#include "BossAISystem.hpp"
 #include "CollisionSystem.hpp"
 #include "GameEventBuffer.hpp"
 #include "BlockSystem.hpp"
@@ -35,6 +36,8 @@ private:
     ProjectileSystem projectiles;
     // Enemyの行動判定用のSensor処理
     EnemyAISystem enemyAI;
+    // Bossの行動判定用Sensor処理
+    BossAISystem bossAI;
     // 衝突処理管理用
     CollisionSystem collision;
     // イベント管理用
@@ -74,9 +77,7 @@ private:
     // think()/update()をする関数
     void updateBoss(double delta, DrawBounds bounds);
     // ボスがDying/Deadになったときの関数
-    void updadeBossBattleResult();
-    //EnemySensor buildBossSensor() const;
-    //void updateBossDefeatState();
+    void updateBossBattleResult();
     // Projectile連携関数
     void spawnBossBulletIfRequested();
 };
