@@ -54,7 +54,11 @@ public:
     void update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks) override;
     SDL_Rect getCollisionRect() const override;
     void draw(Renderer& renderer, Camera& camera) override;
-    void reset();
+    // void reset();    // 単純なリセットすぎる
+    // 完全なリセット(new game用)
+    void resetForNewGame();
+    // 次のステージへ移動する用
+    void resetForStageTransition();
     // プレイヤーの頭のサンプリング
     void beginFrameCollisionSample();
     bool tryTakeDamage();

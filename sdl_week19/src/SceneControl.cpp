@@ -121,93 +121,6 @@ void SceneControl::loadStage(int stageIndex, GameContext& ctx){
     loadBoss(def, ctx);
 }
 
-/*
-void SceneControl::loadStage(int stageIndex, GameContext& ctx){
-    // stageIndexは負にならず，StageConfigのsize()を超えない
-    assert(0 <= stageIndex && stageIndex < static_cast<int>(stageDefinitions.size()));
-    // const auto& stageJsonData = StageDefinitionLoader::loadStagesFromJson("./assets/stage/stage.json");
-    // ステージ定義を取得
-    // const auto& def = StageConfig::STAGES[stageIndex];
-    // const auto& def = stageJsonData[stageIndex];
-    const auto& def = stageDefinitions[stageIndex];
-    // vector管理系のオブジェクトのクリア
-    ctx.entityCtx.blocks.clear();
-    ctx.entityCtx.enemies.clear();
-    ctx.entityCtx.fireballs.clear();
-    ctx.entityCtx.enemyBullets.clear();
-    ctx.entityCtx.items.clear();
-    // 敵のテクスチャ読み込み
-    Texture& enemyTex = ctx.entityCtx.enemyTexture;
-    // 敵のサイズ分メモリを予約
-    ctx.entityCtx.enemies.reserve(def.enemySpawns.size());
-    for(const auto& es : def.enemySpawns){
-        // タイプごとに敵を生成
-        switch(es.type){
-        case EnemyType::Walker:
-            ctx.entityCtx.enemies.emplace_back(std::make_unique<WalkerEnemy>(enemyTex));
-            break;
-        case EnemyType::Chaser:
-            ctx.entityCtx.enemies.emplace_back(std::make_unique<ChaserEnemy>(enemyTex));
-            break;
-        case EnemyType::Jumper:
-            ctx.entityCtx.enemies.emplace_back(std::make_unique<JumperEnemy>(enemyTex));
-            break;
-        case EnemyType::Turret:
-            ctx.entityCtx.enemies.emplace_back(std::make_unique<TurretEnemy>(enemyTex));
-            break;
-        default:
-            // ここには来ない想定なのでassertする
-            assert(false && "Unknown EnemyType");
-            break;
-        }
-        Enemy* e = ctx.entityCtx.enemies.back().get();
-        e->applyEnemyParamForSpawn(es.x, es.y, es.speed);
-    }
-    
-    // レベルファイル読み込み
-    try{
-        ctx.entityCtx.blocks = BlockLevelLoader::loadFromFile(def.levelFile);
-    }catch(const std::exception& e){
-        // 最低限のフォールバック
-        // ハードコードで床を描画
-        ctx.entityCtx.blocks.clear();
-        ctx.entityCtx.blocks.push_back(Block{
-            0.0,
-            GameConfig::WINDOW_HEIGHT - 50.0,
-            static_cast<double>(GameConfig::WINDOW_WIDTH),
-            50.0, 
-            BlockType::Standable
-        });
-        std::cerr << "[BlockLevelLoaderFallBack] " << e.what() << std::endl;
-    }
-    // ステージに配置されたブロックのRectをキャッシュ
-    GameUtil::rebuildBlockRects(ctx.entityCtx.blocks, ctx.entityCtx.blockRectCaches);
-    // アイテムの配置
-    ctx.entityCtx.items.reserve(def.itemSpawns.size());
-    for(const auto& is : def.itemSpawns){
-        ctx.entityCtx.items.emplace_back(is.x, is.y, is.type);
-    }
-    // worldInfoの再計算
-    ctx.worldInfo.WorldWidth  = static_cast<double>(GameConfig::WINDOW_WIDTH); 
-    ctx.worldInfo.WorldHeight = static_cast<double>(GameConfig::WINDOW_HEIGHT);
-    for(const auto& b : ctx.entityCtx.blocks){
-        ctx.worldInfo.WorldWidth  = std::max(ctx.worldInfo.WorldWidth, b.x + b.w);
-        ctx.worldInfo.WorldHeight = std::max(ctx.worldInfo.WorldHeight, b.y + b.h);
-    }
-    // プレイヤーの位置初期化
-    ctx.entityCtx.player.reset();
-    ctx.entityCtx.player.setPosition(def.playerStart_X, def.playerStart_Y);
-    // ボス戦の情報があれば読み込む
-    if(def.bossBattleDef.enabled){
-        ctx.entityCtx.boss.reset(
-            def.bossBattleDef.hp, 
-            def.bossBattleDef.bossSpawn_X, 
-            def.bossBattleDef.bossSpawn_Y
-        );
-    }
-}
-*/
-
 /**
  * @brief 各Sceneで呼ばれた要求を分解してシーンの遷移を実施する
  * 
@@ -279,6 +192,7 @@ bool SceneControl::currentStageHasBoss() const{
  */
 void SceneControl::clearStageEntities(GameContext& ctx){
     ctx.entityCtx.blocks.clear();
+    ctx.entityCtx.blockRectCaches.clear();
     ctx.entityCtx.enemies.clear();
     ctx.entityCtx.fireballs.clear();
     ctx.entityCtx.enemyBullets.clear();
@@ -386,7 +300,7 @@ void SceneControl::rebuildWorldInfo(GameContext& ctx){
  * @param ctx 
  */
 void SceneControl::resetPlayer(const StageDefinition& def, GameContext& ctx){
-    ctx.entityCtx.player.reset();
+    ctx.entityCtx.player.resetForStageTransition();
     ctx.entityCtx.player.setPosition(def.playerStart_X, def.playerStart_Y);
 }
 

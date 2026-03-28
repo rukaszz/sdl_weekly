@@ -13,6 +13,7 @@ namespace BossConfig{
     static inline constexpr double DAMAGE_INVINCIBLE_TIME = 1.5;    // ダメージ後の無敵時間
     static inline constexpr int CONTACT_DAMAGE = 1;         // 接触時のダメージ
     static inline constexpr int FIREBALL_DAMAGE = 1;        // ファイアボールのダメージ
+    static inline constexpr double DYING_DURATION = 1.5;    // 秒
     // ボスの視界
     static inline constexpr double SIGHT_RANGE = 600.0;     // X軸
     static inline constexpr double ATTACK_HEIGHT_TOLERANCE = 96.0;  // Y軸

@@ -11,6 +11,7 @@
 #include "Game.hpp"
 #include "GameUtil.hpp"
 
+#include "BossEnemy.hpp"
 #include "TurretEnemy.hpp"
 
 #include "GameConfig.hpp"
@@ -115,10 +116,10 @@ void PlayingScene::update(double delta){
     bossAI.update(delta);
     // 6. 物理の更新(弾系はここで更新していない)
     updateEntities(delta, worldBounds);
-    // ボス戦状態かつボス生存状態なら処理する
-    if(bossBattle.isActive() && ctx.entityCtx.boss.isAlive()){
+    // ボス戦状態なら処理する
+    if(bossBattle.isActive()){
         updateBoss(delta, worldBounds);
-        spawnBossBulletIfRequested();
+        projectiles.spawnBossBullets(ctx.entityCtx.boss);
     }
     // 敵弾生成(Turretへの射出要求を消費)
     projectiles.spawnEnemyBulletsFromEnemies(ctx.entityCtx.enemies);
@@ -215,7 +216,7 @@ void PlayingScene::render(){
     // カメラを考慮した書き方にする
     ctx.entityCtx.player.draw(ctx.renderer, ctx.camera);
     for(auto& e : ctx.entityCtx.enemies) e->draw(ctx.renderer, ctx.camera);
-    if(bossBattle.isActive() && !bossBattle.isDefeated()){
+    if(bossBattle.isActive()){
         ctx.entityCtx.boss.draw(ctx.renderer, ctx.camera);
     }
     // デバッグ情報表示
@@ -384,32 +385,10 @@ void PlayingScene::updateBoss(double delta, DrawBounds bounds){
 }
 
 /**
- * @brief ボスの弾発射処理
- * 
- */
-void PlayingScene::spawnBossBulletIfRequested(){
-    // ボス戦のみ処理
-    if(!bossBattle.isActive()){
-        return;
-    }
-    auto& boss = ctx.entityCtx.boss;
-    Direction dir;  // データはconsumeFireRequest()で受け取る
-    // 弾を発射可能か判定 & 発射方向も取得
-    if(!boss.consumeFireRequest(dir)){
-        return;
-    }
-    // 発射処理
-    const double spawn_X = boss.getEntityCenter_X();
-    const double spawn_Y = boss.getEntityCenter_Y();
-    projectiles.spawnEnemyBullet(spawn_X, spawn_Y, dir);
-}
-
-/**
  * @brief ボスに勝ったかどうかの判定を行う関数
  * 
  */
 void PlayingScene::updateBossBattleResult(){
-    // ボス戦がない または ボスが活性でないなら何もしない
     if(!bossBattle.isActive()){
         return;
     }

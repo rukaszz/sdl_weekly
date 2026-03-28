@@ -107,6 +107,7 @@ SDL_Rect Player::getCollisionRect() const{
  * @brief プレイヤーの状態を初期状態に戻す
  * 
  */
+/*
 void Player::reset(){
     // Playerの座標
     setPosition(PlayerConfig::POS_X, PlayerConfig::POS_Y);
@@ -125,6 +126,59 @@ void Player::reset(){
     isDashing = false;
     // PlayerFormのリセット
     setForm(PlayerForm::Small);
+    // 天井判定リセット
+    clearCeilingBlockHit();
+    // アニメーションリセット
+    anim.reset();
+}
+*/
+
+/**
+ * @brief プレイヤーの状態を初期状態に戻す
+ * 
+ */
+void Player::resetForNewGame(){
+    // Playerの座標
+    setPosition(PlayerConfig::POS_X, PlayerConfig::POS_Y);
+    // 水平速度
+    hv = 0.0;
+    // 垂直速度
+    vv = 0.0;
+    // 設置状態(trueにしてclampで正常にする)
+    onGround = false;
+    isJumping = false;
+    // タイマーなど
+    jumpElapsed = 0.0;
+    coyoteTimer = 0.0;
+    jumpableBufferTimer = 0.0;
+    invincibleTimer = 0.0;
+    isDashing = false;
+    // PlayerFormのリセット
+    setForm(PlayerForm::Small);
+    // 天井判定リセット
+    clearCeilingBlockHit();
+    // アニメーションリセット
+    anim.reset();
+}
+
+/**
+ * @brief プレイヤーの状態を初期状態に戻す
+ * 
+ */
+void Player::resetForStageTransition(){
+    // 水平速度
+    hv = 0.0;
+    // 垂直速度
+    vv = 0.0;
+    // 設置状態(trueにしてclampで正常にする)
+    onGround = false;
+    isJumping = false;
+    // タイマーなど
+    jumpElapsed = 0.0;
+    coyoteTimer = 0.0;
+    jumpableBufferTimer = 0.0;
+    invincibleTimer = 0.0;  // 無敵時間は状態維持の対象外
+    isDashing = false;
     // 天井判定リセット
     clearCeilingBlockHit();
     // アニメーションリセット

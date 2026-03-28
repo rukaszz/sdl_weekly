@@ -78,8 +78,7 @@ private:
     void updateBoss(double delta, DrawBounds bounds);
     // ボスがDying/Deadになったときの関数
     void updateBossBattleResult();
-    // Projectile連携関数
-    void spawnBossBulletIfRequested();
+
 };
 
 #endif  // PLAYINGSCENE_H

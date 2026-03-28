@@ -258,6 +258,7 @@ void Game::resetGame(){
     score = 0;
     camera.x = 0.0;
     camera.y = 0.0;
+    player->resetForNewGame();
 }
 
 /**

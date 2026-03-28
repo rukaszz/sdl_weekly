@@ -74,8 +74,8 @@ void BossEnemy::think(double delta, const EnemySensor& es){
  */
 void BossEnemy::update(double delta, const InputState& is, DrawBounds b, const std::vector<Block>& blocks){
     // 無敵時間中なら無敵時間減衰
-    if(damageInvincibleTimer > 0.0){
-        damageInvincibleTimer = std::max(0.0, damageInvincibleTimer - delta);
+    if(invincibleTimer > 0.0){
+        invincibleTimer = std::max(0.0, invincibleTimer - delta);
     }
     Enemy::update(delta, is, b, blocks);
 }
@@ -90,7 +90,7 @@ void BossEnemy::update(double delta, const InputState& is, DrawBounds b, const s
 void BossEnemy::reset(int initHp, double spawn_X, double spawn_Y){
     hp = initHp;
     setPosition(spawn_X, spawn_Y);
-    damageInvincibleTimer = 0.0;
+    invincibleTimer = 0.0;
     bossFireCooldownTimer = 0.0;
     fireRequested =false;
     fireDir = Direction::Left;
@@ -113,7 +113,7 @@ void BossEnemy::takeDamage(int damage){
     }
     // 被弾処理
     hp -= damage;
-    damageInvincibleTimer = BossConfig::DAMAGE_INVINCIBLE_TIME;
+    invincibleTimer = BossConfig::DAMAGE_INVINCIBLE_TIME;
     // hpが0以下になったら敗北処理
     if(hp <= 0){
         hp = 0;
@@ -136,4 +136,34 @@ bool BossEnemy::consumeFireRequest(Direction& outDir) noexcept{
     outDir = fireDir;
     fireRequested = false;
     return true;
+}
+
+/**
+ * @brief 被ダメージ時の無敵時間中の点滅表現用関数
+ * 
+ * @return true 
+ * @return false 
+ */
+bool BossEnemy::shouldRender() const{
+    // 無敵時間中しか処理しない=trueを返す
+    if(!(invincibleTimer > 0.0)){
+        return true;
+    }
+    // delta時間で減少するinvincibleTimerで点滅用にtrue/false切り替え
+    const int phase = static_cast<int>(invincibleTimer * 20.0);
+    return (phase % 2) == 0;
+}
+
+/**
+ * @brief Characterのdrawをオーバライドしている
+ * 点滅用にCharacter::draw()の呼び出しを切り替える
+ * 
+ * @param renderer 
+ * @param camera 
+ */
+void BossEnemy::draw(Renderer& renderer, Camera& camera){
+    if(!shouldRender()){
+        return;
+    }
+    Enemy::draw(renderer, camera);
 }
