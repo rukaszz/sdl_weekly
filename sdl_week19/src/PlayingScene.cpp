@@ -19,6 +19,7 @@
 #include "BossConfig.hpp"
 #include "FireBallConfig.hpp"
 #include "EnemyBulletConfig.hpp"
+#include "UIConfig.hpp"
 #include "BossBattleState.hpp"
 
 /**
@@ -218,6 +219,7 @@ void PlayingScene::render(){
     for(auto& e : ctx.entityCtx.enemies) e->draw(ctx.renderer, ctx.camera);
     if(bossBattle.isActive()){
         ctx.entityCtx.boss.draw(ctx.renderer, ctx.camera);
+        renderBossHpBar();  // 注：Dyingでも表示させる
     }
     // デバッグ情報表示
     debugText->draw(ctx.renderer, 20, 80);
@@ -398,4 +400,57 @@ void PlayingScene::updateBossBattleResult(){
     }
     bossBattle.phase = BossBattlePhase::Defeated;
     ctx.events.requestScene(GameScene::Clear);
+}
+
+/**
+ * @brief ボスのHPバーの描画関数
+ * render()で呼び出す
+ * 
+ */
+void PlayingScene::renderBossHpBar(){
+    // TODO：
+    // 座標
+    const int bar_W = UIConfig::BossHpBarConfig::BAR_W;
+    const int bar_H = UIConfig::BossHpBarConfig::BAR_H;
+    const int bar_X = static_cast<int>((ctx.camera.width - bar_W)/2.0); // 画面中央
+    const int bar_Y = UIConfig::BossHpBarConfig::BAR_Y;
+    // ボスのHP取得
+    const int hp = ctx.entityCtx.boss.getHp();
+    const int maxHp = ctx.entityCtx.boss.getMaxHp();
+    if(maxHp <= 0){
+        return;
+    }
+    // バーの比率
+    double hpRatio = std::clamp(static_cast<double>(hp) / static_cast<double>(maxHp), 0.0, 1.0);
+    // HPバーの幅を比率に合わせる
+    const int filled_W = static_cast<int>(bar_W * hpRatio);
+    // HPバーの矩形定義(Frameは少し大き目)
+    const int offset = UIConfig::BossHpBarConfig::FRAME_OFFSET;
+    const SDL_Rect frameRect = {bar_X-offset, bar_Y-offset, bar_W+(offset*2), bar_H+(offset*2)};
+    const SDL_Rect bgRect   = {bar_X, bar_Y, bar_W, bar_H};
+    const SDL_Rect fillRect   = {bar_X, bar_Y, filled_W, bar_H};
+    // HPバーの矩形色定義
+    // 枠
+    const SDL_Color frameColor   = UIConfig::BossHpBarConfig::FRAME_COLOR;
+    // 背景
+    const SDL_Color bgColor      = UIConfig::BossHpBarConfig::BG_COLOR;
+    // HPバーの色
+    SDL_Color fillColor{};
+    if(hpRatio > 0.6){
+        // 緑
+        fillColor = UIConfig::BossHpBarConfig::HIGH_HP_COLOR;
+    } else if(hpRatio > 0.3){
+        // 黄
+        fillColor = UIConfig::BossHpBarConfig::MIDDLE_HP_COLOR;
+    } else {
+        // 赤
+        fillColor = UIConfig::BossHpBarConfig::LOW_HP_COLOR;
+    }
+    // 描画：枠→背景→HPバーの順
+    // 枠
+    ctx.renderer.drawRect(frameRect, frameColor);
+    // 背景
+    ctx.renderer.drawRect(bgRect, bgColor);
+    // HPバー
+    ctx.renderer.drawRect(fillRect, fillColor);
 }

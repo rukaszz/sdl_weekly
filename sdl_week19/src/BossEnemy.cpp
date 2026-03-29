@@ -89,6 +89,7 @@ void BossEnemy::update(double delta, const InputState& is, DrawBounds b, const s
  */
 void BossEnemy::reset(int initHp, double spawn_X, double spawn_Y){
     hp = initHp;
+    maxHp = initHp;
     setPosition(spawn_X, spawn_Y);
     invincibleTimer = 0.0;
     bossFireCooldownTimer = 0.0;

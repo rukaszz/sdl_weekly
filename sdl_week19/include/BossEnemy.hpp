@@ -8,6 +8,7 @@ class BossEnemy : public Enemy{
 private:
     // TODO：後でマジックナンバーは消す
     int hp = 0;
+    int maxHp = 0;  // HPバーの比率計算用
     // ダメージを受けた際の一時的な無敵時間
     double invincibleTimer = 0.0;
     // ボス弾の発射クールダウン
@@ -33,18 +34,21 @@ public:
     void takeDamage(int damage);
     // 発射要求
     bool consumeFireRequest(Direction& outDir) noexcept;
-    // 描画できるかの判定
-    bool shouldRender() const;
 
     // getter/setter
     int getHp() const noexcept{
         return hp;
     }
+    int getMaxHp() const noexcept{
+        return maxHp;
+    }
     // 無敵時間中かの判定を返す
     bool canTakeDamage() const noexcept{
         return (invincibleTimer <= 0.0 && isAlive());
     }
-    // 描画してよいか判定
+private:
+    // 描画できるかの判定
+    bool shouldRender() const;
 };
 
 #endif  // BOSSENEMY_H

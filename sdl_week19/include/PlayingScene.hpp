@@ -78,7 +78,8 @@ private:
     void updateBoss(double delta, DrawBounds bounds);
     // ボスがDying/Deadになったときの関数
     void updateBossBattleResult();
-
+    // ボスのHPバー描画関数
+    void renderBossHpBar();
 };
 
 #endif  // PLAYINGSCENE_H
