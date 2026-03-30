@@ -1,7 +1,7 @@
 # CMakeバージョン指定
 cmake_minimum_required(VERSION 3.16)
 # プロジェクトで要求するC++の最低バージョン
-project(sdl_week19 LANGUAGES CXX)
+project(sdl_week20 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # build場所指定

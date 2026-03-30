@@ -9,5 +9,11 @@
 ## FREE PLATFORMER GAME TILESET
 
 - Name: FREE PLATFORMER GAME TILESET
-- Source: GameArt2D - REE PLATFORMER GAME TILESET
+- Source: GameArt2D - FREE PLATFORMER GAME TILESET
 - URL: [https://www.gameart2d.com/free-platformer-game-tileset.html](https://www.gameart2d.com/free-platformer-game-tileset.html)
+
+## Cute Dinosaur Free Character Sprite 
+
+- Name: Cute Dinosaur Free Character Sprite 
+- Source: GameArt2D - Cute Dinosaur Free Character Sprite 
+- URL: [https://www.gameart2d.com/free-dino-sprites.html](https://www.gameart2d.com/free-dino-sprites.html)

@@ -52,6 +52,30 @@ struct EntityContext{
     std::vector<std::unique_ptr<EnemyBullet>>& enemyBullets;
 };
 
+// /**
+//  * @brief ブロックのテクスチャを管理
+//  * 
+//  */
+// struct BlockTextureContext{
+//     Texture& standable;
+//     Texture& question;
+//     Texture& usedQuestion;
+//     Texture& breakable;
+//     Texture& dropThrough;
+//     Texture& damage;
+//     Texture& Clear;
+// };
+
+// /**
+//  * @brief アイテムのテクスチャを管理
+//  * 
+//  */
+// struct ItemTextureContext{
+//     Texture& coin;
+//     Texture& mushroom;
+//     Texture& fireFlower;
+// };
+
 /**
  * @brief テキストの画面描画関係のオブジェクトを管理
  * 
