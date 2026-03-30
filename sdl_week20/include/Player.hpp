@@ -1,0 +1,111 @@
+#ifndef PLAYER_H
+#define PLAYER_H
+
+// 定数
+#include "PlayerConfig.hpp"
+#include "Direction.hpp"
+#include "DrawBounds.hpp"
+
+#include <vector>
+#include <string>
+
+#include "Character.hpp"
+#include "AnimationController.hpp"
+#include "Sprite.hpp"
+#include "GameEvent.hpp"
+
+#include <SDL2/SDL.h>
+
+
+class Texture;
+class Renderer;
+struct Block;
+struct Camera;
+
+class Player : public Character{
+private:
+    // 接地状態管理
+    bool onGround = false;
+    // ダッシュ状態管理
+    bool isDashing = false;
+    // ジャンプ状態管理
+    bool isJumping = false;     // ジャンプ中か
+    double jumpElapsed = 0.0;   // ジャンプボタン押下からの経過時間
+    // コヨーテタイム
+    // ※落下判定の初期段階でジャンプを許可するやつ
+    double coyoteTimer = 0.0;
+    // 接地直前でもジャンプ可能とする時間の猶予
+    double jumpableBufferTimer = 0.0;
+    // 無敵時間
+    double invincibleTimer = 0.0;
+    // プレイヤーの状態
+    PlayerForm form = PlayerForm::Small;
+    // 天井のブロックを叩いたか
+    bool ceilingBlockHit = false;
+    // 叩いたブロックのインデックス
+    std::size_t hitBlockIndex = static_cast<std::size_t>(-1);
+public:
+    // 定数
+    // アニメーション枚数
+    static inline constexpr int NUM_FRAMES = PlayerConfig::NUM_FRAMES;
+    // ジャンプボタン押下時の押しっぱなしの時間の長さ
+    Player(Texture& tex);
+
+    void update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks) override;
+    SDL_Rect getCollisionRect() const override;
+    void draw(Renderer& renderer, Camera& camera) override;
+    // void reset();    // 単純なリセットすぎる
+    // 完全なリセット(new game用)
+    void resetForNewGame();
+    // 次のステージへ移動する用
+    void resetForStageTransition();
+    // プレイヤーの頭のサンプリング
+    void beginFrameCollisionSample();
+    bool tryTakeDamage();
+    // デバッグ用テキスト表示用
+    std::string debugMoveContext();
+private:
+    // update()関係
+    void inputProcessing(double delta, 
+                         const InputState& input, 
+                         double& moveDir, 
+                         bool& moving, 
+                         bool& dropThrough);
+    void moveElementsUpdate(double delta, const InputState& input, const double moveDir);
+    void detectJumpButtonState(double delta, const InputState& input);
+    void physicsProcessing(const std::vector<Block>& blocks, const bool dropThrough);
+    void clampHorizontalPosition(const DrawBounds& bounds);
+    void animationProcessing(double delta, const bool moving);
+    void clearCeilingBlockHit();
+    bool shouldRender() const;
+public: // getterなどのインターフェイス
+    void startInvincible(double duration){
+        invincibleTimer = duration;
+    }
+    // getter/setter
+    PlayerForm getForm() const{
+        return form;
+    }
+    void setForm(PlayerForm pf){
+        form = pf;
+    }
+    bool hasCeilingBlockHit() const{
+        return ceilingBlockHit;
+    }
+    std::size_t getHitBlockIndex() const{
+        return hitBlockIndex;
+    }
+    bool isInvincible() const{
+        return invincibleTimer > 0.0;
+    }
+    // ダメージを受けられるか
+    bool canTakeDamage() const{
+        return !isInvincible();
+    }
+    // ダッシュ中か
+    bool isDashingNow() const{
+        return isDashing;
+    }
+};
+
+#endif  // PLAYER_H
