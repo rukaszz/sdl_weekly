@@ -98,6 +98,18 @@ void Game::loadResources(){
     fireballTexture = std::make_unique<Texture>(renderer->get(), "assets/image/fireball.png");
     // 敵の弾(現状はファイアボールと同じ)
     enemyBulletTexture = std::make_unique<Texture>(renderer->get(), "assets/image/enemy_bullet.png");
+    // ブロックテクスチャ
+    blockStandableTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Tiles/Standable.png");
+    blockQuestionTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Tiles/Question.png");
+    blockUsedQuestionTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Tiles/UsedQuestion.png");
+    blockBreakableTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Tiles/Breakable.png");
+    blockDropThroughTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Tiles/DropThrough.png");
+    blockDamageTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Tiles/Damage.png");
+    blockClearTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Object/Clear.png");
+    // アイテムテクスチャ
+    coinTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Object/Coin.png");;
+    mushroomTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Object/Mushroom_2.png");;
+    fireFlowerTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Object/FireFlower.png");;
     // テキスト
     font = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
     // スコア
@@ -175,6 +187,22 @@ void Game::buildContexts(){
             distX,
             distY,
             distSpeed,
+        }, 
+        RenderAssetContext{
+            BlockTextureContext{
+                *blockStandableTexture,
+                *blockQuestionTexture,
+                *blockUsedQuestionTexture,
+                *blockBreakableTexture,
+                *blockDropThroughTexture,
+                *blockDamageTexture,
+                *blockClearTexture
+            }, 
+            ItemTextureContext{
+                *coinTexture,
+                *mushroomTexture,
+                *fireFlowerTexture
+            }
         }
     });
 }

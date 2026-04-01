@@ -52,29 +52,29 @@ struct EntityContext{
     std::vector<std::unique_ptr<EnemyBullet>>& enemyBullets;
 };
 
-// /**
-//  * @brief ブロックのテクスチャを管理
-//  * 
-//  */
-// struct BlockTextureContext{
-//     Texture& standable;
-//     Texture& question;
-//     Texture& usedQuestion;
-//     Texture& breakable;
-//     Texture& dropThrough;
-//     Texture& damage;
-//     Texture& Clear;
-// };
+/**
+ * @brief ブロックのテクスチャを管理
+ * 
+ */
+struct BlockTextureContext{
+    Texture& standable;
+    Texture& question;
+    Texture& usedQuestion;
+    Texture& breakable;
+    Texture& dropThrough;
+    Texture& damage;
+    Texture& clear;
+};
 
-// /**
-//  * @brief アイテムのテクスチャを管理
-//  * 
-//  */
-// struct ItemTextureContext{
-//     Texture& coin;
-//     Texture& mushroom;
-//     Texture& fireFlower;
-// };
+/**
+ * @brief アイテムのテクスチャを管理
+ * 
+ */
+struct ItemTextureContext{
+    Texture& coin;
+    Texture& mushroom;
+    Texture& fireFlower;
+};
 
 /**
  * @brief テキストの画面描画関係のオブジェクトを管理
@@ -97,6 +97,15 @@ struct RandomContext{
     std::uniform_real_distribution<double>& distSpeed;
 };
 
+/**
+ * @brief ブロック・アイテムのレンダリング用
+ * 
+ */
+struct RenderAssetContext{
+    BlockTextureContext blockTexture;
+    ItemTextureContext itemTexture;
+};
+
 // ゲームで必要なデータ群
 struct GameContext{
     Renderer& renderer;
@@ -109,6 +118,7 @@ struct GameContext{
     EntityContext entityCtx;
     TextRenderContext textRenderCtx;
     RandomContext randomCtx;
+    RenderAssetContext renderAssets;
 };
 
 #endif  // GAMECONTEXT_H

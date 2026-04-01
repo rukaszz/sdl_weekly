@@ -61,8 +61,20 @@ private:
     // ブロック
     std::vector<Block> blocks;
     std::vector<SDL_Rect> blockRectCaches;
+    // ブロックのテクスチャ
+    std::unique_ptr<Texture> blockStandableTexture;
+    std::unique_ptr<Texture> blockQuestionTexture;
+    std::unique_ptr<Texture> blockUsedQuestionTexture;
+    std::unique_ptr<Texture> blockBreakableTexture;
+    std::unique_ptr<Texture> blockDropThroughTexture;
+    std::unique_ptr<Texture> blockDamageTexture;
+    std::unique_ptr<Texture> blockClearTexture;
     // アイテム
     std::vector<Item> items;
+    // アイテムテクスチャ
+    std::unique_ptr<Texture> coinTexture;
+    std::unique_ptr<Texture> mushroomTexture;
+    std::unique_ptr<Texture> fireFlowerTexture;
     // テキスト表示用
     std::unique_ptr<Text> font;
     std::unique_ptr<TextTexture> scoreText;
