@@ -7,6 +7,9 @@
 
 #include <SDL2/SDL.h>
 
+// ブロックなどのテクスチャ管理
+#include "RenderAssetContext.hpp"
+
 // #include "Texture.hpp"
 // #include "Player.hpp"
 // #include "Enemy.hpp"
@@ -53,30 +56,6 @@ struct EntityContext{
 };
 
 /**
- * @brief ブロックのテクスチャを管理
- * 
- */
-struct BlockTextureContext{
-    Texture& standable;
-    Texture& question;
-    Texture& usedQuestion;
-    Texture& breakable;
-    Texture& dropThrough;
-    Texture& damage;
-    Texture& clear;
-};
-
-/**
- * @brief アイテムのテクスチャを管理
- * 
- */
-struct ItemTextureContext{
-    Texture& coin;
-    Texture& mushroom;
-    Texture& fireFlower;
-};
-
-/**
  * @brief テキストの画面描画関係のオブジェクトを管理
  * 
  */
@@ -95,15 +74,6 @@ struct RandomContext{
     std::uniform_real_distribution<double>& distX;
     std::uniform_real_distribution<double>& distY;
     std::uniform_real_distribution<double>& distSpeed;
-};
-
-/**
- * @brief ブロック・アイテムのレンダリング用
- * 
- */
-struct RenderAssetContext{
-    BlockTextureContext blockTexture;
-    ItemTextureContext itemTexture;
 };
 
 // ゲームで必要なデータ群

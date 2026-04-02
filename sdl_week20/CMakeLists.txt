@@ -40,6 +40,7 @@ add_executable(${PROJECT_NAME}
     src/Game.cpp
     src/GameOverScene.cpp 
     src/Input.cpp
+    src/ItemRenderer.cpp
     src/ItemSystem.cpp
     src/JumperEnemy.cpp
     src/Physics.cpp

@@ -1,9 +1,11 @@
 #include "Renderer.hpp"
+
+#include <stdexcept>
+#include <SDL2/SDL.h>
+
+#include "Texture.hpp"
 #include "Sprite.hpp"
 #include "Camera.hpp"
-
-#include <SDL2/SDL.h>
-#include <stdexcept>
 
 /**
  * Renderer: SDL_Renderer の RAII ラッパ。
@@ -207,10 +209,70 @@ void Renderer::drawRect(const SDL_Rect& rect, SDL_Color color){
  * @param color 
  * @param camera 
  */
-void Renderer::drawRect(const SDL_Rect& rect, SDL_Color color, Camera& camera){
+void Renderer::drawRect(const SDL_Rect& rect, SDL_Color color, const Camera& camera){
     // カメラ座標を計算
-    SDL_Rect r = {static_cast<int>(rect.x - camera.x), static_cast<int>(rect.y - camera.y),
-                      static_cast<int>(rect.w), static_cast<int>(rect.h)};
+    SDL_Rect r{
+        static_cast<int>(rect.x - camera.x), 
+        static_cast<int>(rect.y - camera.y), 
+        static_cast<int>(rect.w), 
+        static_cast<int>(rect.h)
+    };
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(renderer, &r);
+}
+
+/**
+ * @brief drawTextureを呼び出すラッパ
+ * 生ポインタを呼び出し元で意識しないようにするためのラッパ
+ * 
+ * @param tex 
+ * @param src 
+ * @param dst 
+ */
+void Renderer::drawSprite(const Texture& tex, const SDL_Rect& src, SDL_Rect dst){
+    drawTexture(tex.get(), &src, &dst);
+}
+
+/**
+ * @brief drawTextureを呼び出すラッパ(カメラ対応版)
+ * 生ポインタを呼び出し元で意識しないようにするためのラッパ
+ * 
+ * @param tex 
+ * @param src 
+ * @param dst 
+ * @param camera 
+ */
+void Renderer::drawSprite(const Texture& tex, const SDL_Rect& src, SDL_Rect dst, const Camera& camera){
+    dst.x -= static_cast<int>(camera.x);
+    dst.y -= static_cast<int>(camera.y);
+    drawTexture(tex.get(), &src, &dst);
+}
+
+/**
+ * @brief drawTextureを呼び出すラッパ
+ * 生ポインタを呼び出し元で意識しないようにするためのラッパ
+ * ※スプライトシートではなく静止画用
+ * 
+ * @param tex 
+ * @param src 
+ * @param dst 
+ */
+void Renderer::drawImage(const Texture& tex, SDL_Rect dst){
+    drawTexture(tex.get(), nullptr, &dst);
+}
+
+/**
+ * @brief drawTextureを呼び出すラッパ(カメラ対応版)
+ * 生ポインタを呼び出し元で意識しないようにするためのラッパ
+ * ※スプライトシートではなく静止画用
+ * 
+ * @param tex 
+ * @param src 
+ * @param dst 
+ * @param camera 
+ */
+void Renderer::drawImage(const Texture& tex, SDL_Rect dst, const Camera& camera){
+    dst.x -= static_cast<int>(camera.x);
+    dst.y -= static_cast<int>(camera.y);
+    drawTexture(tex.get(), nullptr, &dst);
 }

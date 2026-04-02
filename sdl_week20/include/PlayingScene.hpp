@@ -7,13 +7,16 @@
 #include <SDL2/SDL.h>
 
 #include "Scene.hpp"
+#include "ItemRenderer.hpp"
+
 #include "ProjectileSystem.hpp"
 #include "EnemyAISystem.hpp"
 #include "BossAISystem.hpp"
 #include "CollisionSystem.hpp"
-#include "GameEventBuffer.hpp"
 #include "BlockSystem.hpp"
 #include "ItemSystem.hpp"
+
+#include "GameEventBuffer.hpp"
 #include "PlayerStateSystem.hpp"
 #include "BossBattleState.hpp"
 
@@ -48,10 +51,13 @@ private:
     ItemSystem items;
     // Playerの状態管理用
     PlayerStateSystem playerState;
-    // デバッグ表示用のテキストテクスチャ
-    std::unique_ptr<TextTexture> debugText;
     // ボス演出系
     BossBattleState bossBattle;
+    // Itemレンダリング用
+    ItemRenderer itemRenderer;
+    // デバッグ表示用のテキストテクスチャ
+    std::unique_ptr<TextTexture> debugText;
+    
 
 public:
     PlayingScene(SceneControl& sc, GameContext& gc);

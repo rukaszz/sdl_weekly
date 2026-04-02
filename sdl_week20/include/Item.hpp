@@ -38,6 +38,16 @@ public:
         const auto [w, h] = getSizeByType(type);
         return SDL_Rect{static_cast<int>(x), static_cast<int>(y), w, h};
     }
+    // 描画用矩形を返す
+    SDL_Rect getDrawRect() const{
+        // サイズに応じてw, hを決定
+        const auto [w, h] = getSizeByType(type);
+        // 当たり判定用矩形の中心を鑑みてオフセットを設定
+        const SDL_Rect colRect = getCollisionRect();
+        const int cx = colRect.x + (colRect.w / 2);
+        const int cy = colRect.y + (colRect.h / 2); 
+        return SDL_Rect{cx - w/2, cy - h/2, w, h};
+    }
     // 仮のItemとしてSDL_RenderFillRect()を使用するので色を返す関数を定義
     SDL_Color getDebugColor() const{
         switch(type){

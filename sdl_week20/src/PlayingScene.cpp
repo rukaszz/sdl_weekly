@@ -61,8 +61,10 @@ PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
         ctx.entityCtx.items
     ), playerState(
         ctx.entityCtx.player
+    ), itemRenderer(
+        ctx.entityCtx.items, 
+        ctx.renderAssets.itemTextures
     )
-
 {
     debugText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 0, 255, 255});
 }
@@ -206,7 +208,8 @@ void PlayingScene::render(){
             ctx.renderer.drawRect(br, blockColor, ctx.camera);
         }
     }
-    items.render(ctx.renderer, ctx.camera);
+    // items.render(ctx.renderer, ctx.camera);
+    itemRenderer.render(ctx.renderer, ctx.camera);
     for(const auto& f : ctx.entityCtx.fireballs){
         f->draw(ctx.renderer, ctx.camera);
     }
