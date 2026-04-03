@@ -5,7 +5,6 @@
 #include "Renderer.hpp"
 #include "Texture.hpp"
 #include "Item.hpp"
-#include "GameContext.hpp"
 #include "GameEvent.hpp"
 
 /**

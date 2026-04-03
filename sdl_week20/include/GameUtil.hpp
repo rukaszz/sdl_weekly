@@ -29,11 +29,12 @@
  */
 namespace GameUtil{
     inline bool intersects(const SDL_Rect& a, const SDL_Rect& b){       
-        return !(a.x + a.w <= b.x || // 矩形aがbの左にある
-                 b.x + b.w <= a.x || // 矩形bがaの左にある
-                 a.y + a.h <= b.y || // 矩形aがbの上にある
-                 b.y + b.h <= a.y    // 矩形bがaの上にある
-                );
+        return !(
+            a.x + a.w <= b.x || // 矩形aがbの左にある
+            b.x + b.w <= a.x || // 矩形bがaの左にある
+            a.y + a.h <= b.y || // 矩形aがbの上にある
+            b.y + b.h <= a.y    // 矩形bがaの上にある
+        );
     }
 
     /**
@@ -105,10 +106,11 @@ namespace GameUtil{
      * @return true 
      * @return false 
      */
-    inline bool isOutOfWorldBounds(SDL_Rect r, 
-                                   double world_W, double world_H,
-                                   double margin_W, double margin_H
-                                  )
+    inline bool isOutOfWorldBounds(
+        SDL_Rect r, 
+        double world_W, double world_H,
+        double margin_W, double margin_H
+    )
     {
         // SDL_Rectの分解
         double top    = r.y;
@@ -116,10 +118,10 @@ namespace GameUtil{
         double right  = r.x + r.w;
         double left   = r.x;
 
-        if(bottom < 0.0 - margin_H) return true;
-        if (top    > world_H + margin_H)  return true;
-        if (right  < 0.0 - margin_W)      return true;
-        if (left   > world_W + margin_W)  return true;
+        if(bottom < 0.0 - margin_H)      return true;
+        if(top    > world_H + margin_H)  return true;
+        if(right  < 0.0 - margin_W)      return true;
+        if(left   > world_W + margin_W)  return true;
 
         return false;
     }

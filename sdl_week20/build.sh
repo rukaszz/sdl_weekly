@@ -7,6 +7,9 @@ set -o pipefail
 # make
 # ./build/sdl_week17
 
+# get parent dir name
+parent_dir=$(basename "$PWD")
+
 cmake -G Ninja -S . -B build
 ninja -C build -j8
-./build/sdl_week20
+./build/${parent_dir}

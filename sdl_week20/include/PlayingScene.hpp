@@ -8,6 +8,7 @@
 
 #include "Scene.hpp"
 #include "ItemRenderer.hpp"
+#include "BlockRenderer.hpp"
 
 #include "ProjectileSystem.hpp"
 #include "EnemyAISystem.hpp"
@@ -55,6 +56,8 @@ private:
     BossBattleState bossBattle;
     // Itemレンダリング用
     ItemRenderer itemRenderer;
+    // Blockレンダリング用
+    BlockRenderer blockRenderer;
     // デバッグ表示用のテキストテクスチャ
     std::unique_ptr<TextTexture> debugText;
     

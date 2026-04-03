@@ -64,6 +64,10 @@ PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
     ), itemRenderer(
         ctx.entityCtx.items, 
         ctx.renderAssets.itemTextures
+    ), blockRenderer(
+        ctx.entityCtx.blocks, 
+        ctx.entityCtx.blockRectCaches, 
+        ctx.renderAssets.blockTextures
     )
 {
     debugText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 0, 255, 255});
@@ -169,6 +173,7 @@ void PlayingScene::render(){
     ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
     ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);
     // ブロック描画  const auto& b : ctx.entityCtx.blocks
+    /*
     for(std::size_t i = 0; i < ctx.entityCtx.blocks.size(); ++i){
         // ブロック, 色の取得
         const auto& b = ctx.entityCtx.blocks[i];
@@ -208,6 +213,8 @@ void PlayingScene::render(){
             ctx.renderer.drawRect(br, blockColor, ctx.camera);
         }
     }
+    */
+    blockRenderer.render(ctx.renderer, ctx.camera);
     // items.render(ctx.renderer, ctx.camera);
     itemRenderer.render(ctx.renderer, ctx.camera);
     for(const auto& f : ctx.entityCtx.fireballs){
