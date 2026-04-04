@@ -24,7 +24,7 @@ public:
     void present();
     // スプライト描画関数
     void draw(const Sprite& s, bool flipX);
-    void draw(const Sprite& s, Camera& camera, bool flipX);
+    void draw(const Sprite& s, const Camera& camera, bool flipX);
     // 描画可能範囲の取得
     SDL_Point getOutputSize() const;
     // テキスト描画用

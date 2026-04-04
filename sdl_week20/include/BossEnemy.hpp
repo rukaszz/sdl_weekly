@@ -27,7 +27,7 @@ public:
     // 更新関数
     void update(double delta, const InputState& is, DrawBounds b, const std::vector<Block>& blocks) override;
     // 描画関数(無敵時間表現用)
-    void draw(Renderer& renderer, Camera& camera) override;
+    void draw(Renderer& renderer, const Camera& camera) override;
     // ステージロード時の初期化
     void reset(int initHp, double spawn_X, double spawn_Y);
     // ダメージを受ける関数

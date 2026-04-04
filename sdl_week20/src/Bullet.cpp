@@ -45,7 +45,7 @@ Bullet::~Bullet() = default;
  * @param renderer 
  * @param camera 
  */
-void Bullet::draw(Renderer& renderer, Camera& camera){
+void Bullet::draw(Renderer& renderer, const Camera& camera){
     sprite.setPosition(static_cast<int>(x), static_cast<int>(y));
     renderer.draw(sprite, camera, dir == Direction::Left);
 }

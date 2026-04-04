@@ -474,7 +474,7 @@ bool Player::shouldRender() const{
  * @param renderer 
  * @param camera 
  */
-void Player::draw(Renderer& renderer, Camera& camera){
+void Player::draw(Renderer& renderer, const Camera& camera){
     if(!shouldRender()){
         return;
     }

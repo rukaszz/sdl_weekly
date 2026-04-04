@@ -40,7 +40,7 @@ public:
     );
     virtual ~Bullet();
     virtual void update(double delta, const std::vector<Block>& blocks) = 0;
-    virtual void draw(Renderer& renderer, Camera& camera);
+    virtual void draw(Renderer& renderer, const Camera& camera);
 
     virtual SDL_Rect getCollisionRect() const = 0;
     virtual const Sprite& getSprite() const;

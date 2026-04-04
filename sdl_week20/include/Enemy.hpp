@@ -56,7 +56,7 @@ public:
     // 当たり判定を返す関数
     SDL_Rect getCollisionRect() const override;
     // 描画
-    void draw(Renderer& renderer, Camera& camera) override;
+    void draw(Renderer& renderer, const Camera& camera) override;
     // 乱数を用いてx, y, speedを設定する関数
     void reset(
         std::mt19937& rd,

@@ -53,7 +53,7 @@ public:
 
     void update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks) override;
     SDL_Rect getCollisionRect() const override;
-    void draw(Renderer& renderer, Camera& camera) override;
+    void draw(Renderer& renderer, const Camera& camera) override;
     // void reset();    // 単純なリセットすぎる
     // 完全なリセット(new game用)
     void resetForNewGame();

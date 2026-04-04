@@ -61,7 +61,7 @@ public:
     virtual void update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks) = 0;
     virtual SDL_Rect getCollisionRect() const = 0;
     // virtual void draw(Renderer& renderer);
-    virtual void draw(Renderer& renderer, Camera& camera);
+    virtual void draw(Renderer& renderer, const Camera& camera);
     virtual double getEntityCenter_X() const;
     virtual double getEntityCenter_Y() const;
     virtual const Sprite& getSprite() const;

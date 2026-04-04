@@ -162,7 +162,7 @@ bool BossEnemy::shouldRender() const{
  * @param renderer 
  * @param camera 
  */
-void BossEnemy::draw(Renderer& renderer, Camera& camera){
+void BossEnemy::draw(Renderer& renderer, const Camera& camera){
     if(!shouldRender()){
         return;
     }

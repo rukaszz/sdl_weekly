@@ -133,7 +133,7 @@ void Renderer::draw(const Sprite& sprite, bool flipX){
  * @param camera 
  * @param flipX 
  */
-void Renderer::draw(const Sprite& sprite, Camera& camera, bool flipX){
+void Renderer::draw(const Sprite& sprite, const Camera& camera, bool flipX){
     // スプライトの向き
     SDL_RendererFlip flip = flipX ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE;
     // 座標の処理(カメラ)

@@ -61,7 +61,7 @@ Character::~Character() = default;
  * @param renderer 
  * @param camera 
  */
-void Character::draw(Renderer& renderer, Camera& camera){
+void Character::draw(Renderer& renderer, const Camera& camera){
     sprite.setPosition(static_cast<int>(x), static_cast<int>(y));
     renderer.draw(sprite, camera, dir == Direction::Left);
 }

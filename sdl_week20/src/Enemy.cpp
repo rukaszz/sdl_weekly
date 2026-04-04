@@ -127,7 +127,7 @@ SDL_Rect Enemy::getCollisionRect() const{
  * @param renderer 
  * @param camera 
  */
-void Enemy::draw(Renderer& renderer, Camera& camera){
+void Enemy::draw(Renderer& renderer, const Camera& camera){
     // 死亡時は何もしない
     if(state == EnemyState::Dead){
         return;
