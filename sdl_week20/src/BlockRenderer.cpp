@@ -1,11 +1,12 @@
 #include "BlockRenderer.hpp"
 
+#include <cassert>
+
 #include <SDL2/SDL.h>
 
 #include "Renderer.hpp"
 #include "Texture.hpp"
 #include "Block.hpp"
-#include "GameEvent.hpp"
 
 /**
  * @brief Construct a new Block Renderer:: Block Renderer object
@@ -31,6 +32,8 @@ BlockRenderer::BlockRenderer(
  * @param camera 
  */
 void BlockRenderer::render(Renderer& renderer, const Camera& camera) const{
+    // blocks.size() == blockRects.size()が前提なのでチェック
+    assert(blocks.size() == blockRects.size());
     // blockを走査
     for(std::size_t i = 0; i < blocks.size(); ++i){
         // blockを取得

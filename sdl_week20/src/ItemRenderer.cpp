@@ -1,11 +1,12 @@
 #include "ItemRenderer.hpp"
 
+#include <cassert>
+
 #include <SDL2/SDL.h>
 
 #include "Renderer.hpp"
 #include "Texture.hpp"
 #include "Item.hpp"
-#include "GameEvent.hpp"
 
 /**
  * @brief Construct a new Item Renderer:: Item Renderer object
@@ -35,7 +36,7 @@ void ItemRenderer::render(Renderer& renderer, const Camera& camera) const{
         if(!item.isActive()){
             continue;
         }
-        // 描画矩形の取得(getCollisionRectは仮※専用のメソッドがあったほうが良い)
+        // 描画矩形の取得
         SDL_Rect drawRect = item.getDrawRect();
         // 対応するアイテムのテクスチャを取得
         const Texture& itemTex  = selectTexture(item.getItemType());
@@ -60,5 +61,6 @@ const Texture& ItemRenderer::selectTexture(ItemType type) const{
         return textures.fireFlower;
     }
     // 原則到達しない想定(フォールバックとしてコインを返す)
+    assert(false);
     return textures.coin;  // #include <utility> std::unreachable();
 }
