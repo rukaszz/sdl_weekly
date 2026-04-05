@@ -1,17 +1,45 @@
 #ifndef PLAYERCONFIG_H
 #define PLAYERCONFIG_H
 
+#include "GameEvent.hpp"
+
 // Player用定数
 namespace PlayerConfig{
     static inline constexpr int POS_X = 50;     // 初期位置x
     static inline constexpr int POS_Y = 600;    // 初期位置y
-    
-    static inline constexpr int FRAME_W = 114;  // スプライトの幅
-    static inline constexpr int FRAME_H = 110;  // スプライトの高さ
+    // スプライト関係の定義
     static inline constexpr int NUM_FRAMES = 8; // スプライトアニメーション枚数
+    // プレイヤーの状態に対応するスプライト・当たり判定の情報
+    struct FormMetrics{
+        int frame_W;
+        int frame_H;
+        int collisionMargin_X;
+        int collisionMargin_Y;
+    };
     
-    static inline constexpr int COLLISION_MARGIN_X = 40;    // スプライト(矩形)の水平方向の補正
-    static inline constexpr int COLLISION_MARGIN_Y = 40;    // スプライト(矩形)の垂直方向の補正
+    // PlayerForm::Small
+    static inline constexpr FormMetrics SMALL_METRICS{
+        114,    // frame_W     
+        110,    // frame_H
+        40,     // collisionMargin_X
+        40,     // collisionMargin_Y
+    };
+    
+    // PlayerForm::Super
+    static inline constexpr FormMetrics SUPER_METRICS{
+        114,    // frame_W     
+        150,    // frame_H
+        40,     // collisionMargin_X
+        24,     // collisionMargin_Y
+    };
+
+    // PlayerForm::Fire(Superとサイズは同じ，見た目のみ違う)
+    static inline constexpr FormMetrics FIRE_METRICS{
+        114,    // frame_W     
+        150,    // frame_H
+        40,     // collisionMargin_X
+        24,     // collisionMargin_Y
+    };
     
     static inline constexpr double PLAYER_GRAVITY  = 880.0;     // キャラクタの重力
     static inline constexpr double JUMP_VELOCITY  = 440.0;      // ジャンプ速度

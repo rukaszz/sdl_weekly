@@ -1,6 +1,13 @@
+#include "Player.hpp"
+
+#include <algorithm>
+#include <vector>
+#include <string>
+
+#include <SDL2/SDL.h>
+
 #include "Renderer.hpp"
 #include "Texture.hpp"
-#include "Player.hpp"
 #include "Input.hpp"
 #include "Block.hpp"
 #include "Physics.hpp"
@@ -10,11 +17,6 @@
 #include "GameConfig.hpp"
 #include "PlayerConfig.hpp"
 #include "GameEvent.hpp"
-
-#include <SDL2/SDL.h>
-#include <algorithm>
-#include <vector>
-#include <string>
 
 /**
  * Playerクラスは操作するオブジェクトを管理する
@@ -27,20 +29,21 @@
  * 
  * @param tex 
  */
-Player::Player(Texture& tex)
+Player::Player(const PlayerTextureSet& texSet)
     : Character(
-        PlayerConfig::POS_X, 
-        PlayerConfig::POS_Y,                // 初期座標
+        PlayerConfig::POS_X,                // 初期座標
+        PlayerConfig::POS_Y,                
         PlayerConfig::RUN_MAX_SPEED,        // speed
         0.0,                                // 水平速度
         0.0,                                // 垂直速度
         Direction::Right,                   // dir
-        tex,                                // texture
-        PlayerConfig::FRAME_W, 
-        PlayerConfig::FRAME_H,
+        texSet.small,                       // texture
+        PlayerConfig::SMALL_METRUCS.frame_W,// Small状態 
+        PlayerConfig::SMALL_METRUCS.frame_H,// Small状態
         PlayerConfig::NUM_FRAMES,           // maxFrames
         0.1                                 // animInterval
     )
+    , textures(texSet)
 {
     sprite.setFrame(0);
 }
@@ -73,11 +76,13 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
         invincibleTimer = std::max(0.0, invincibleTimer - delta);
     }
     // 2. 入力処理
-    inputProcessing(delta, 
-                    input, 
-                    moveDir, 
-                    moving, 
-                    dropThrough);
+    inputProcessing(
+        delta, 
+        input, 
+        moveDir, 
+        moving, 
+        dropThrough
+    );
     // 3. x/y/vvの更新
     moveElementsUpdate(delta, input, moveDir);
     // 4. 物理処理
@@ -95,6 +100,7 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
  * @return SDL_Rect 
  */
 SDL_Rect Player::getCollisionRect() const{
+    // 
     return {
         static_cast<int>(x) + PlayerConfig::COLLISION_MARGIN_X, 
         static_cast<int>(y) + PlayerConfig::COLLISION_MARGIN_Y,
@@ -104,34 +110,18 @@ SDL_Rect Player::getCollisionRect() const{
 }
 
 /**
- * @brief プレイヤーの状態を初期状態に戻す
+ * @brief Characterのdrawをオーバライドしている
+ * 点滅用にCharacter::draw()の呼び出しを切り替える
  * 
+ * @param renderer 
+ * @param camera 
  */
-/*
-void Player::reset(){
-    // Playerの座標
-    setPosition(PlayerConfig::POS_X, PlayerConfig::POS_Y);
-    // 水平速度
-    hv = 0.0;
-    // 垂直速度
-    vv = 0.0;
-    // 設置状態(trueにしてclampで正常にする)
-    onGround = false;
-    isJumping = false;
-    // タイマーなど
-    jumpElapsed = 0.0;
-    coyoteTimer = 0.0;
-    jumpableBufferTimer = 0.0;
-    invincibleTimer = 0.0;
-    isDashing = false;
-    // PlayerFormのリセット
-    setForm(PlayerForm::Small);
-    // 天井判定リセット
-    clearCeilingBlockHit();
-    // アニメーションリセット
-    anim.reset();
+void Player::draw(Renderer& renderer, const Camera& camera){
+    if(!shouldRender()){
+        return;
+    }
+    Character::draw(renderer, camera);
 }
-*/
 
 /**
  * @brief プレイヤーの状態を初期状態に戻す
@@ -234,11 +224,12 @@ void Player::detectJumpButtonState(double delta, const InputState& input){
  * @param moving 
  * @param dropThrough 
  */
-void Player::inputProcessing(double delta, 
-                             const InputState& input, 
-                             double& moveDir, 
-                             bool& moving, 
-                             bool& dropThrough)
+void Player::inputProcessing(
+    double delta, 
+    const InputState& input, 
+    double& moveDir, 
+    bool& moving, 
+    bool& dropThrough)
 {
     // ダッシュ中か
     isDashing = input.pressed[static_cast<int>(Action::Dash)];
@@ -468,17 +459,75 @@ bool Player::shouldRender() const{
 }
 
 /**
- * @brief Characterのdrawをオーバライドしている
- * 点滅用にCharacter::draw()の呼び出しを切り替える
+ * @brief PlayerFormの変更に対して対応するスプライトに切り替える
  * 
- * @param renderer 
- * @param camera 
+ * @param keepFeet 足元の座標を固定化させるかの引数(falseなら) 
  */
-void Player::draw(Renderer& renderer, const Camera& camera){
-    if(!shouldRender()){
+void Player::applyFormAppearance(bool keepFeet){
+    // フレーム更新前の足元の座標取得
+    const double prevFeet = y + static_cast<double>(sprite.getDrawHeight());
+    // 現在のPlayerFormに対応するスプライト情報取得
+    const auto& metrics = currentFormMetrics();
+    // スプライトシート切り替え
+    sprite.setTexture(currentFormTexture());                // テクスチャ差し替え
+    sprite.setFrameSize(metrics.frame_W, metrics.frame_H);  // フレームサイズ更新
+    sprite.setFrame(anim.getFrame());                       // アニメーションのフレームを維持する
+    // 足元は固定して，キャラクタを伸縮させる
+    if(keepFeet){
+        // 切り替わったスプライトシート描画の高さを足元の座標へ適用
+        y = prevFeet + static_cast<double>(sprite.getDrawHeight());
+    }
+}
+
+/**
+ * @brief 現在のPlayerFormに対応したテクスチャを返す
+ * 
+ * @return const Texture& 
+ */
+Texture& Player::currentFormTexture() const{
+    switch(form){
+    case PlayerForm::Small:
+        return textures.small;
+    case PlayerForm::Super:
+        return textures.super;
+    case PlayerForm::Fire:
+        return textures.fire;
+    }
+    // フォールバック
+    return textures.small;
+}
+
+/**
+ * @brief PlayerFormに対応した幅の情報を返す
+ * 
+ * @return const PlayerConfig::FormMetrics& 
+ */
+const PlayerConfig::FormMetrics& Player::currentFormMetrics() const{
+    switch(form){
+    case PlayerForm::Small:
+        return PlayerConfig::SMALL_METRICS;
+    case PlayerForm::Super:
+        return PlayerConfig::SUPER_METRICS;
+    case PlayerForm::Fire:
+        return PlayerConfig::FIRE_METRICS;
+    }
+    // フォールバック
+    return PlayerConfig::SMALL_METRICS;
+}
+
+/**
+ * @brief PlayerFormの変更処理
+ * 
+ * @param pf 
+ */
+void Player::setForm(PlayerForm pf){
+    // 要求されたフォームが現在と同じなら何もしない
+    if(form == pf){
         return;
     }
-    Character::draw(renderer, camera);
+    form = pf;
+    // 座標情報を加味して外見を変更
+    applyFormAppearance(true);
 }
 
 /**

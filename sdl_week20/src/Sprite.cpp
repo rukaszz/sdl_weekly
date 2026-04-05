@@ -11,8 +11,8 @@
  * @param texture 
  */
 Sprite::Sprite(Texture& tex, int fw, int fh)
-    : texture(tex)
-    , frameWidth(fw)
+        : texture(&tex) // ポインタなので参照
+        , frameWidth(fw)
     , frameHeight(fh)
 {
     // スプライトシート差し替え時の事故防止
@@ -24,7 +24,7 @@ Sprite::Sprite(Texture& tex, int fw, int fh)
 
 /**
  * @brief Set the Position object
- * テクスチャへのレンダラー上のコピー先の矩形の座標をセットする
+ * レンダラー上のテクスチャコピー先を示す矩形の座標をセットする
  * 
  * @param x 
  * @param y
@@ -67,9 +67,32 @@ void Sprite::setSrcRect(int x, int y, int w, int h){
  */
 void Sprite::setFrame(int frameIndex){
     src.x = frameIndex * frameWidth;
-    src.y = 0;
-    src.w = frameWidth;
-    src.h = frameHeight;
+    // src.y = 0;
+    // src.w = frameWidth;
+    // src.h = frameHeight;
+}
+
+/**
+ * @brief 参照するスプライトシートのテクスチャが変わった際に情報を更新する関数
+ * 
+ * @param frame_W 
+ * @param frame_H 
+ */
+void Sprite::setFrameSize(int frame_W, int frame_H){
+    src.w = frame_W;
+    src.h = frame_H;
+    dst.w = frame_W;
+    dst.h = frame_H;
+}
+
+/**
+ * @brief テクスチャの切り替え用setter
+ *  差し替えたいテクスチャの参照(tex)のアドレスをポインタへ渡して差し替える
+ * 
+ * @param tex 
+ */
+void Sprite::setTexture(Texture& tex){
+    texture = &tex;
 }
 
 /**
@@ -79,5 +102,5 @@ void Sprite::setFrame(int frameIndex){
  * @return SDL_Texture* 
  */
 SDL_Texture* Sprite::getTexture() const{
-    return texture.get();
+    return texture->get();
 }
