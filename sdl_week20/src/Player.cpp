@@ -38,14 +38,15 @@ Player::Player(const PlayerTextureSet& texSet)
         0.0,                                // 垂直速度
         Direction::Right,                   // dir
         texSet.small,                       // texture
-        PlayerConfig::SMALL_METRUCS.frame_W,// Small状態 
-        PlayerConfig::SMALL_METRUCS.frame_H,// Small状態
+        PlayerConfig::SMALL_METRICS.frame_W,// Small状態 
+        PlayerConfig::SMALL_METRICS.frame_H,// Small状態
         PlayerConfig::NUM_FRAMES,           // maxFrames
         0.1                                 // animInterval
     )
     , textures(texSet)
 {
     sprite.setFrame(0);
+    applyFormAppearance(false); // 足場を考慮する必要がないのでfalse
 }
 
 /**
@@ -100,12 +101,14 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
  * @return SDL_Rect 
  */
 SDL_Rect Player::getCollisionRect() const{
-    // 
-    return {
-        static_cast<int>(x) + PlayerConfig::COLLISION_MARGIN_X, 
-        static_cast<int>(y) + PlayerConfig::COLLISION_MARGIN_Y,
-        sprite.getDrawWidth() - PlayerConfig::COLLISION_MARGIN_X *2,
-        sprite.getDrawHeight() - PlayerConfig::COLLISION_MARGIN_Y * 2
+    // テクスチャに応じた幅を取得
+    const auto& metrics = currentFormMetrics();
+    // 当たり判定用の矩形を返す
+    return{
+        static_cast<int>(x) + metrics.collisionMargin_X, 
+        static_cast<int>(y) + metrics.collisionMargin_Y,
+        sprite.getDrawWidth() - metrics.collisionMargin_X *2,
+        sprite.getDrawHeight() - metrics.collisionMargin_Y * 2
     };
 }
 
@@ -144,16 +147,18 @@ void Player::resetForNewGame(){
     invincibleTimer = 0.0;
     isDashing = false;
     // PlayerFormのリセット
-    setForm(PlayerForm::Small);
+    form = PlayerForm::Small;
+    applyFormAppearance(false);
     // 天井判定リセット
     clearCeilingBlockHit();
     // アニメーションリセット
     anim.reset();
+    sprite.setFrame(0);
 }
 
 /**
  * @brief プレイヤーの状態を初期状態に戻す
- * 
+ * ただしPlayerFormは維持する
  */
 void Player::resetForStageTransition(){
     // 水平速度
@@ -169,10 +174,13 @@ void Player::resetForStageTransition(){
     jumpableBufferTimer = 0.0;
     invincibleTimer = 0.0;  // 無敵時間は状態維持の対象外
     isDashing = false;
+    // formは維持
+    applyFormAppearance(false);
     // 天井判定リセット
     clearCeilingBlockHit();
     // アニメーションリセット
     anim.reset();
+    sprite.setFrame(0);
 }
 
 /**
@@ -374,7 +382,8 @@ void Player::physicsProcessing(const std::vector<Block>& blocks, const bool drop
     };
     Physics::resolveHorizontalBlockCollision(hcs, blocks);
     // 帰ってきた結果をPlayer内部へ反映
-    x = hcs.x - PlayerConfig::COLLISION_MARGIN_X;   // getCollisionRectのオフセット(現状はハードコード)
+    const auto& metrics = currentFormMetrics();
+    x = hcs.x - metrics.collisionMargin_X;   // getCollisionRectのオフセット(現状はハードコード)
     hv = hcs.hv;
 
     // 状態の整理

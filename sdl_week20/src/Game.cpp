@@ -89,7 +89,10 @@ void Game::bootstrapWindowAndRenderer(){
  */
 void Game::loadResources(){
     // プレイヤー
-    playerTexture = std::make_unique<Texture>(renderer->get(), "assets/image/rhb.png");
+    // playerTexture = std::make_unique<Texture>(renderer->get(), "assets/image/rhb.png");
+    playerSmallTexture = std::make_unique<Texture>(renderer->get(), "assets/image/player_small.png");
+    playerSuperTexture = std::make_unique<Texture>(renderer->get(), "assets/image/player_super.png");
+    playerFireTexture  = std::make_unique<Texture>(renderer->get(), "assets/image/player_fire.png");
     // 敵
     enemyTexture = std::make_unique<Texture>(renderer->get(), "assets/image/dark_rhb.png");
     // ボス
@@ -130,7 +133,12 @@ void Game::loadResources(){
  * 注意：worldInfoはloadStage()内で上書きされる(ここではウィンドウサイズで定義)
  */
 void Game::buildWorld(){
-    player = std::make_unique<Player>(*playerTexture);
+    // player = std::make_unique<Player>(*playerTexture);
+    PlayerTextureSet playerTextures{
+        *playerSmallTexture,
+        *playerSuperTexture,
+        *playerFireTexture
+    };
     // player->setPosition(PlayerConfig::POS_X, PlayerConfig::POS_Y);
     boss = std::make_unique<BossEnemy>(*bossTexture);
     // 世界の広さ

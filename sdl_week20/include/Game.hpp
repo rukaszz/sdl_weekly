@@ -47,7 +47,10 @@ private:
     std::optional<GameScene> pendingSceneChange;
     Scene* currentScene = nullptr;
     // Characterオブジェクト
-    std::unique_ptr<Texture> playerTexture;
+    // std::unique_ptr<Texture> playerTexture;
+    std::unique_ptr<Texture> playerSmallTexture;
+    std::unique_ptr<Texture> playerSuperTexture;
+    std::unique_ptr<Texture> playerFireTexture;
     std::unique_ptr<Player> player;
     std::unique_ptr<Texture> enemyTexture;
     std::vector<std::unique_ptr<Enemy>> enemies;
