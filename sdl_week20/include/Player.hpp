@@ -119,9 +119,7 @@ public: // getterなどのインターフェイス
     PlayerForm getForm() const{
         return form;
     }
-    void setForm(PlayerForm pf){
-        form = pf;
-    }
+    void setForm(PlayerForm pf);
     bool hasCeilingBlockHit() const{
         return ceilingBlockHit;
     }
@@ -139,6 +137,11 @@ public: // getterなどのインターフェイス
     bool isDashingNow() const{
         return isDashing;
     }
+    // 落下死判定関数
+    bool isBelowWorld(double worldHeight) const{
+        return (y > worldHeight);
+    }
+
 };
 
 #endif  // PLAYER_H

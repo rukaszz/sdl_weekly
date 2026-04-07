@@ -139,6 +139,7 @@ void Game::buildWorld(){
         *playerSuperTexture,
         *playerFireTexture
     };
+    player = std::make_unique<Player>(playerTextures);
     // player->setPosition(PlayerConfig::POS_X, PlayerConfig::POS_Y);
     boss = std::make_unique<BossEnemy>(*bossTexture);
     // 世界の広さ

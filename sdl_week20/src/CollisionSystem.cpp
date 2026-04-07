@@ -148,14 +148,11 @@ void CollisionSystem::resolveEnemyCollision(IGameEvents& events){
 /**
  * @brief 落下死判定関数
  * 
+ * CollisionSystemはplayerのサイズを知らずにイベントを発行する
  */
 void CollisionSystem::checkFallDeath(IGameEvents& events){
-    //double death_Y = GameConfig::WINDOW_HEIGHT + PlayerConfig::FRAME_H; // 画面外へ落下死たら終了
-    double death_Y = world.WorldHeight + PlayerConfig::FRAME_H; // 規定したworldInfoを使う
-    double playerBottom = player.getCollisionRect().y + player.getCollisionRect().h;
-    if (playerBottom > death_Y){
+    if(player.isBelowWorld(world.WorldHeight)){
         events.requestScene(GameScene::GameOver);
-        return;
     }
 }
 

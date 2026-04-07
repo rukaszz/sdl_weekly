@@ -112,7 +112,7 @@ void ResultScene::updateBlink(double delta){
 void ResultScene::onEnter(){
     blinkTimer = 0.0;
     blinkVisible = true;
-    const auto cleared = ctrl.getCurrentStageIndex(); // == total
+    // const auto cleared = ctrl.getCurrentStageIndex(); // == total
     // const auto total   = StageConfig::STAGES.size();
     // const auto total   = ctrl.getStageCount();
     // stageText->setText("Stage: " + std::to_string(cleared) + " / " + std::to_string(total));

@@ -19,26 +19,26 @@ namespace PlayerConfig{
     
     // PlayerForm::Small
     static inline constexpr FormMetrics SMALL_METRICS{
-        114,    // frame_W     
-        110,    // frame_H
-        40,     // collisionMargin_X
-        40,     // collisionMargin_Y
+        72,     // frame_W     
+        80,     // frame_H
+        10,     // collisionMargin_X
+        10,     // collisionMargin_Y
     };
     
     // PlayerForm::Super
     static inline constexpr FormMetrics SUPER_METRICS{
-        114,    // frame_W     
-        150,    // frame_H
-        40,     // collisionMargin_X
-        24,     // collisionMargin_Y
+        72,    // frame_W     
+        120,    // frame_H
+        10,     // collisionMargin_X
+        10,     // collisionMargin_Y
     };
 
     // PlayerForm::Fire(Superとサイズは同じ，見た目のみ違う)
     static inline constexpr FormMetrics FIRE_METRICS{
-        114,    // frame_W     
-        150,    // frame_H
-        40,     // collisionMargin_X
-        24,     // collisionMargin_Y
+        72,     // frame_W     
+        120,    // frame_H
+        10,     // collisionMargin_X
+        10,     // collisionMargin_Y
     };
     
     static inline constexpr double PLAYER_GRAVITY  = 880.0;     // キャラクタの重力
