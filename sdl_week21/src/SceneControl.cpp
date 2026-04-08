@@ -45,6 +45,7 @@ namespace{
             case GameScene::Playing:  return 4;
             case GameScene::Count: /* Do nothing */ break;
         }
+        assert(false);
         return 999;  // #include <utility> std::unreachable();
     }
 
@@ -79,7 +80,8 @@ void SceneControl::initStages(std::vector<StageDefinition> defs){
  * ここでscore, 残機, その他ゲーム全体の状態をリセット
  */
 void SceneControl::startNewGame() {
-    currentStageIndex = 0;
+    currentStageIndex = 0;  // ステージインデックスを0
+    lives = INITIAL_LIVES;  // 残機を3
     resetGame();
 }
 
@@ -166,6 +168,17 @@ void SceneControl::consumeEvents(const GameEventBuffer& geb){
 }
 
 /**
+ * @brief 残機を消費してコンテニューできるかを調べる
+ * 
+ * @return true：コンテニュー可能 
+ * @return false：コンテニュー不可 
+ */
+bool SceneControl::tryConsumeLife(){
+    --lives;
+    return lives > 0;
+}
+
+/**
  * @brief Sceneオブジェクトでステージ定義を取得する用関数
  * 
  * @return const StageDefinition& 
@@ -177,10 +190,18 @@ const StageDefinition& SceneControl::getCurrentStageDefinition() const{
     return stageDefinitions[currentStageIndex];
 }
 
+/**
+ * @brief 現在のステージがボス戦を持つか判定
+ * 
+ * @return true 
+ * @return false 
+ */
 bool SceneControl::currentStageHasBoss() const{
     // ステージインデックスがステージ定義の数より大きいのはNG
-    assert(0 <= currentStageIndex
-        && currentStageIndex < static_cast<int>(stageDefinitions.size()));
+    assert(
+        0 <= currentStageIndex
+          && currentStageIndex < static_cast<int>(stageDefinitions.size())
+    );
     return stageDefinitions[currentStageIndex].bossBattleDef.enabled;
 }
 

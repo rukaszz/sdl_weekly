@@ -59,6 +59,8 @@ Player::Player(const PlayerTextureSet& texSet)
  * @param bounds: 描画可能範囲 
  */
 void Player::update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks){
+    // 0. 最初にPlayerFormの変更
+    applyPendingFormIfPossible(blocks);
     // 1. 1つ前のフレームのサンプリング 
     // 頭頂(プレイヤーの最上部)の位置
     beginFrameTopPhysicsSample();
@@ -431,6 +433,12 @@ void Player::clearCeilingBlockHit(){
     hitBlockIndex = static_cast<std::size_t>(-1);
 }
 
+/**
+ * @brief 被ダメージ処理
+ * 
+ * @return true：GameOver 
+ * @return false：ダメージを受ける 
+ */
 bool Player::tryTakeDamage(){
     // 無敵時間なら処理しない
     if(isInvincible()){
@@ -474,6 +482,7 @@ bool Player::shouldRender() const{
  */
 void Player::applyFormAppearance(bool keepFeet){
     // フレーム更新前の足元の座標取得
+    // 1フレーム前の足元座標 = 頭 + 新しいスプライトの高さ
     const double prevFeet = y + static_cast<double>(sprite.getDrawHeight());
     // 現在のPlayerFormに対応するスプライト情報取得
     const auto& metrics = currentFormMetrics();
@@ -483,9 +492,34 @@ void Player::applyFormAppearance(bool keepFeet){
     sprite.setFrame(anim.getFrame());                       // アニメーションのフレームを維持する
     // 足元は固定して，キャラクタを伸縮させる
     if(keepFeet){
-        // 切り替わったスプライトシート描画の高さを足元の座標へ適用
-        y = prevFeet + static_cast<double>(sprite.getDrawHeight());
+        // 新しいy = 1フレーム前の足元位置 - 新しいスプライトの高さ
+        // 切り替わったスプライトシート描画の高さをyへ適用→上へ伸びる=足元がそのまま
+        y = prevFeet - static_cast<double>(sprite.getDrawHeight());
     }
+}
+
+/**
+ * @brief スプライトの遷移を実施する
+ * ただし，頭上に十分な空間がない場合はめり込み防止のために遷移を保留する
+ * 
+ * @param blocks 
+ */
+void Player::applyPendingFormIfPossible(const std::vector<Block>& blocks){
+    // 遷移要求を保持していないなら何もしない
+    if(!pendingForm){
+        return;
+    }
+    // 遷移要求を受けているPlayerFormを取得
+    const PlayerForm nextForm = *pendingForm;
+    const bool growing = (currentFormMetrics().frame_H < getFormMetrics(nextForm).frame_H);
+    // 遷移するスプライトの高さが現在より大きい かつ 頭上に空間が無い場合
+    if(growing && !canApplyFormWithFeetAnchored(nextForm, blocks)){
+        return; // スプライトシートを大きくできないので保留する
+    }
+    // PlayerFormの遷移
+    form = next;
+    pendingForm.reset();
+    applyFormAppearance(true);
 }
 
 /**
@@ -525,6 +559,24 @@ const PlayerConfig::FormMetrics& Player::currentFormMetrics() const{
 }
 
 /**
+ * @brief PlayerFormに対応した幅の情報を返す
+ * 
+ * @return const PlayerConfig::FormMetrics& 
+ */
+const PlayerConfig::FormMetrics& Player::getFormMetrics(PlayerForm form) const{
+    switch(form){
+    case PlayerForm::Small:
+        return PlayerConfig::SMALL_METRICS;
+    case PlayerForm::Super:
+        return PlayerConfig::SUPER_METRICS;
+    case PlayerForm::Fire:
+        return PlayerConfig::FIRE_METRICS;
+    }
+    // フォールバック
+    return PlayerConfig::SMALL_METRICS;
+}
+
+/**
  * @brief PlayerFormの変更処理
  * 
  * @param pf 
@@ -537,6 +589,21 @@ void Player::setForm(PlayerForm pf){
     form = pf;
     // 座標情報を加味して外見を変更
     applyFormAppearance(true);
+}
+
+/**
+ * @brief PlayerForm変更処理
+ * 形態変化の要求をするだけ
+ * 
+ * @param pf 
+ */
+void Player::requestFormChange(PlayerForm pf){
+    // 要求されたフォームが現在と同じなら何もしない
+    if(form == pf){
+        return;
+    }
+    // 状態遷移を要求
+    pendingForm = pf;
 }
 
 /**

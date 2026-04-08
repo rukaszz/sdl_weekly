@@ -24,24 +24,36 @@ private:
     int currentStageIndex = 0;
     // 各ステージの定義(Jsonの解析結果が入る)
     std::vector<StageDefinition> stageDefinitions;
+    // 残機
+    int lives = 3;
+    // 残機数の定義：原則3
+    static inline constexpr int INITIAL_LIVES = 3;
 
 protected:
     // シーン変更処理のヘルパとしてしばらく残す
     virtual void changeScene(GameScene id) = 0;
 
 public:
+    // コンストラクタ
     SceneControl() = default;
     virtual void resetGame() = 0;
     virtual uint32_t getScore() = 0;
     virtual void setScore(uint32_t v) = 0;
     virtual ~SceneControl() = default;
 
+    // ステージ定義取得
     void initStages(std::vector<StageDefinition> defs);
+    // 新規ゲーム開始処理
     void startNewGame();
+    // ステージ遷移(インデックスのインクリメント)
     bool goToNextStage();
+    // ステージオブジェクトの読み込み
     void loadStage(int stageIndex, GameContext& ctx);
+    // 各種イベントの処理
     void consumeEvents(const GameEventBuffer& geb);
-    
+    // 残機消費
+    bool tryConsumeLife();
+
     virtual void requestScene(GameScene id) = 0;
 
     // getter
@@ -52,6 +64,10 @@ public:
     // stageDefinitionsのサイズ=ステージ数
     int getStageCount() const{
         return static_cast<int>(stageDefinitions.size());
+    }
+    // 残機取得
+    int getLives() const{
+        return lives;
     }
     bool currentStageHasBoss() const;
 

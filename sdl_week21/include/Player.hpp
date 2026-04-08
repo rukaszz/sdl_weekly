@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <optional>
 
 #include <SDL2/SDL.h>
 
@@ -52,6 +53,8 @@ private:
     double invincibleTimer = 0.0;
     // プレイヤーの状態
     PlayerForm form = PlayerForm::Small;
+    // プレイヤーの形態変化管理用変数
+    std::optional<PlayerForm> pendingForm;
     // 天井のブロックを叩いたか
     bool ceilingBlockHit = false;
     // 叩いたブロックのインデックス
@@ -79,6 +82,7 @@ public:
     void beginFrameCollisionSample();
     // ダメージを受けられるか
     bool tryTakeDamage();
+    
     // デバッグ用テキスト表示用
     std::string debugMoveContext();
 private:
@@ -108,10 +112,17 @@ private:
 
     // PlayerFormの遷移に関する関数群
     void applyFormAppearance(bool keepFeet);
+    // プレイヤーの形態変化が可能か調べてから遷移する関数
+    // 頭がブロックにめりこまないか
+    void applyPendingFormIfPossible(const std::vector<Block>& blocks);
+    // 足元の座標がめり込まないか
+    bool canApplyFormWithFeetAnchored(PlayerForm nextForm, const std::vector<Block>& blocks) const;
     Texture& currentFormTexture() const;
     const PlayerConfig::FormMetrics& currentFormMetrics() const;
+    const PlayerConfig::FormMetrics& getFormMetrics(PlayerForm form) const;
 
 public: // getterなどのインターフェイス
+    // 無敵時間開始
     void startInvincible(double duration){
         invincibleTimer = duration;
     }
@@ -119,7 +130,10 @@ public: // getterなどのインターフェイス
     PlayerForm getForm() const{
         return form;
     }
-    void setForm(PlayerForm pf);
+    // PlayerForm変更要求
+    void setForm(PlayerForm pf);    // こちらは外部から呼ばせたくない
+    void requestFormChange(PlayerForm pf);
+    // 天井ブロック当たり判定
     bool hasCeilingBlockHit() const{
         return ceilingBlockHit;
     }
