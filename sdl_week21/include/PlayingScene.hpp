@@ -36,6 +36,8 @@ struct DrawBounds;
  */
 class PlayingScene : public Scene{
 private:
+    // 生存時間加算用変数
+    double survivalScoreRemainder = 0.0;
     // 弾系オブジェクト管理用
     ProjectileSystem projectiles;
     // Enemyの行動判定用のSensor処理
@@ -61,7 +63,6 @@ private:
     // デバッグ表示用のテキストテクスチャ
     std::unique_ptr<TextTexture> debugText;
     
-
 public:
     PlayingScene(SceneControl& sc, GameContext& gc);
     virtual ~PlayingScene() = default;

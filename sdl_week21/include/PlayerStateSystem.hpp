@@ -26,12 +26,14 @@ public:
                 // きのこ取得イベント
                 if(cie.type == ItemType::Mushroom){
                     // 巨大化
-                    player.setForm(PlayerForm::Super);
+                    // player.setForm(PlayerForm::Super);
+                    player.requestFormChange(PlayerForm::Super);
                 }
                 // ファイアフラワー取得イベント
                 if(cie.type == ItemType::FireFlower){
                     // ファイア状態
-                    player.setForm(PlayerForm::Fire);
+                    // player.setForm(PlayerForm::Fire);
+                    player.requestFormChange(PlayerForm::Fire);
                 }
             }
         );

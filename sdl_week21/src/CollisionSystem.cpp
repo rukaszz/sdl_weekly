@@ -78,7 +78,9 @@ void CollisionSystem::resolveBlockCollision(IGameEvents& events){
             continue;
         }
         if(b.type == BlockType::Damage){
-            events.requestScene(GameScene::GameOver);
+            if(player.tryTakeDamage()){
+                events.requestScene(GameScene::GameOver);
+            }
         }else if(b.type == BlockType::Clear){
             // ステージ遷移
             events.requestScene(GameScene::Clear);

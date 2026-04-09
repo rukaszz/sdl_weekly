@@ -68,14 +68,6 @@ struct CollectItemEvent{
 };
 
 /**
- * @brief プレイヤーの状態を扱う型
- * 
- */
-struct SetPlayerFormEvent{
-    PlayerForm form;
-};
-
-/**
  * @brief ブロックの(下から上の)ヒットを管理する型
  * 
  */
@@ -84,12 +76,12 @@ struct BlockHitEvent{
 };
 
 // このGameEventはRequestSceneEvent, AddScoreEvent, ...を型安全に切り替えられる
-using GameEvent = std::variant<RequestSceneEvent, 
-                               AddScoreEvent, 
-                               SpawnItemEvent, 
-                               CollectItemEvent,
-                               SetPlayerFormEvent, 
-                               BlockHitEvent
-                               >;
+using GameEvent = std::variant<
+                        RequestSceneEvent, 
+                        AddScoreEvent, 
+                        SpawnItemEvent, 
+                        CollectItemEvent,
+                        BlockHitEvent
+                    >;
 
 #endif  // GAMEEVENT_H

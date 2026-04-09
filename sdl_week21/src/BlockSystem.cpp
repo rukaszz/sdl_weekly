@@ -6,6 +6,7 @@
 #include "Block.hpp"
 #include "GameEventBuffer.hpp"
 #include "Player.hpp"
+#include "ScoreConfig.hpp"
 
 /**
  * @brief Construct a new Block System:: Block System object
@@ -47,7 +48,7 @@ void BlockSystem::process(GameEventBuffer& events){
                 switch(b.reward){
                 case BlockRewardType::Coin:
                     events.spawnItem(ItemType::Coin, spawn_X, spawn_Y);
-                    events.addScore(100);
+                    // events.addScore(100);
                     break;
                 case BlockRewardType::Mushroom:{
                     const ItemType spawnType = (player.getForm() == PlayerForm::Small)
@@ -71,7 +72,7 @@ void BlockSystem::process(GameEventBuffer& events){
             if(b.type == BlockType::Breakable){
                 if(player.getForm() != PlayerForm::Small){
                     b.type = BlockType::Empty;   // 破壊されるので消す的な状態へ
-                    events.addScore(50);
+                    events.addScore(ScoreConfig::BREAKABLE_SCORE);
                 }
                 return;
             }

@@ -171,6 +171,10 @@ void PlayingScene::update(double delta){
 void PlayingScene::render(){
     // テキスト描画
     ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
+    // スコア更新
+    ctx.textRenderCtx.scoreText.setText(
+        "Score: " + std::to_string(static_cast<int>(ctrl.getScore()))
+    );
     ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);
     // ブロック描画  const auto& b : ctx.entityCtx.blocks
     /*
@@ -293,9 +297,12 @@ void PlayingScene::handlePlayingInput(const InputState& is){
  */
 void PlayingScene::updateScore(double delta){
     // スコア計算
-    uint32_t s = ctrl.getScore() + delta * GameConfig::SCORE_RATE; // 生存時間に重点
-    ctrl.setScore(s);  
-    ctx.textRenderCtx.scoreText.setText("Score: " + std::to_string(static_cast<int>(ctrl.getScore())));
+    survivalScoreRemainder += delta * GameConfig::SCORE_RATE;
+    const int wholeScore = static_cast<int>(survivalScoreRemainder); // 端数を切り捨ててスコアとする
+    if(wholeScore > 0){
+        ctx.events.addScore(wholeScore);
+        survivalScoreRemainder -= wholeScore;
+    }
 }
 
 /**

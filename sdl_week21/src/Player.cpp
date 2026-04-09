@@ -446,13 +446,15 @@ bool Player::tryTakeDamage(){
     }
     // Fire状態ならSuperに遷移※GameOverにしない
     if(form == PlayerForm::Fire){
-        setForm(PlayerForm::Super);
+        // setForm(PlayerForm::Super);
+        requestFormChange(PlayerForm::Super);
         startInvincible(PlayerConfig::DAMAGE_INVINCIBLE_TIME);
         return false;
     }
     // Super状態ならSmallに遷移※GameOverにしない
     if(form == PlayerForm::Super){
-        setForm(PlayerForm::Small);
+        // setForm(PlayerForm::Small);
+        requestFormChange(PlayerForm::Small);
         startInvincible(PlayerConfig::DAMAGE_INVINCIBLE_TIME);
         return false;
     }
@@ -517,10 +519,59 @@ void Player::applyPendingFormIfPossible(const std::vector<Block>& blocks){
         return; // スプライトシートを大きくできないので保留する
     }
     // PlayerFormの遷移
-    form = next;
+    form = nextForm;
     pendingForm.reset();
     applyFormAppearance(true);
 }
+
+/**
+ * @brief 足元を固定してPlayerの形態を大きくする際に，頭がブロックへめり込まないかを判定する関数
+ * 
+ * @param nextForm：遷移するフォーム 
+ * @param blocks 
+ * @return true：遷移可能(めり込まない) 
+ * @return false：遷移不可(めり込まない) 
+ */
+bool Player::canApplyFormWithFeetAnchored(PlayerForm nextForm, const std::vector<Block>& blocks) const{
+    // 次のPlayerFormのメトリックを取得
+    const auto& nextMet = getFormMetrics(nextForm);
+    // 足元の座標(固定の基準点)
+    const double fixedFeet = y + static_cast<double>(sprite.getDrawHeight());
+    // 変更後の頭の座標(足元から高さを引いて頭の座標を出す)
+    const double nextFormTop = fixedFeet - static_cast<double>(nextMet.frame_H);
+    // 変化後のプレイヤー衝突判定用矩形
+    const int nextFormLeft  = static_cast<int>(x) + nextMet.collisionMargin_X;
+    const int nextFormRight = static_cast<int>(x) + nextMet.frame_W - nextMet.collisionMargin_X;
+
+    // ブロックとの判定
+    for(const auto b : blocks){
+        // 物理的な接触判定がないブロックは無視
+        if(b.type == BlockType::Empty
+        || b.type == BlockType::DropThrough
+        || b.type == BlockType::Damage
+        || b.type == BlockType::Clear
+        )
+        {
+            continue;
+        }
+        // ブロックの範囲取得
+        const int blockLeft   = static_cast<int>(b.x);
+        const int blockRight  = static_cast<int>(b.x + b.w);
+        const int blockTop    = static_cast<int>(b.y);
+        const int blockBottom = static_cast<int>(b.y + b.h);
+        // 水平方向に重なっていない->上にブロックはないのでスキップ
+        if(nextFormRight <= blockLeft || nextFormLeft >= blockRight){
+            continue;
+        }
+        // 現在のPlayerForm，遷移後のPlayerFormの範囲でブロックが存在しているか
+        // 本質的にチェックするのは遷移後PlayerFormが大きくなる場合のみ
+        if(static_cast<int>(nextFormTop) < blockBottom && static_cast<int>(y) > blockTop){
+            return false;   // めり込んでいるのでfalse
+        }
+    }
+    return true;    // ここにたどり着いたらPlayerFormの遷移が可能
+}
+
 
 /**
  * @brief 現在のPlayerFormに対応したテクスチャを返す
