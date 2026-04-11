@@ -6,6 +6,7 @@
 
 #include "GameScene.hpp"
 #include "StageDefinition.hpp"
+#include "SceneConfig.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -26,8 +27,6 @@ private:
     std::vector<StageDefinition> stageDefinitions;
     // 残機
     int lives = 3;
-    // 残機数の定義：原則3
-    static inline constexpr int INITIAL_LIVES = 3;
 
 protected:
     // シーン変更処理のヘルパとしてしばらく残す
@@ -65,7 +64,7 @@ public:
     int getStageCount() const{
         return static_cast<int>(stageDefinitions.size());
     }
-    // 残機取得
+    // 現在の残機
     int getLives() const{
         return lives;
     }

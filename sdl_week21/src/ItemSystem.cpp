@@ -10,7 +10,7 @@
 #include "GameEventBuffer.hpp"
 #include "GameUtil.hpp"
 #include "Player.hpp"
-#include "ScoreConfig.hpp"
+#include "SceneConfig.hpp"
 
 /**
  * @brief Construct a new Item System:: Item System object
@@ -80,7 +80,7 @@ void ItemSystem::resolvePlayerCollision(Player& player, GameEventBuffer& events)
         // コインなどプレイヤーの状態に直接寄与しないものはここで処理する
         if(item.getItemType() == ItemType::Coin){
             // コイン取得でスコア加算
-            events.addScore(ScoreConfig::COIN_SCORE);   // TODO：後でマジックナンバーを取り除く
+            events.addScore(SceneConfig::COIN_SCORE);
         }
     }
 }

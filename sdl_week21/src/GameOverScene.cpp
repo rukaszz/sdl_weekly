@@ -15,12 +15,17 @@ GameOverScene::GameOverScene(SceneControl& sc, GameContext& gc)
         gc
     )
 {
-    gameOverText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
-    gameOverText->setText("GameOver");
+    // 定型文
+    gameOverText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 40, 40, 255});
+    gameOverText->setText("GameOver!!");
+    youAreDeadText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 128, 128, 255});
+    youAreDeadText->setText("You are Dead!");
     returnTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
     returnTitleText->setText("Press ESC to Title");
     returnStageText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
     returnStageText->setText("Press ENTER to Return Stage");
+    // 動的文字列
+    remainingLivesText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
 }
 
 /**
@@ -47,7 +52,11 @@ void GameOverScene::update(double delta){
     // Enterでリトライ
     if(is.justPressed[(int)Action::Enter]){
         // ctrl.requestScene(GameScene::Playing);
-        ctx.events.requestScene(GameScene::Playing);
+        if(ctrl.tryConsumeLife()){
+            ctx.events.requestScene(GameScene::Playing);    
+        } else {
+            ctx.events.requestScene(GameScene::Title);
+        }
     }
     // Pauseでタイトル画面へ
     // 諦めてタイトルへ戻るので，リザルト画面(ResultScene)へ遷移する予定
@@ -65,23 +74,43 @@ void GameOverScene::update(double delta){
 void GameOverScene::render(){
     ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
     ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);
-    // GameOverは点滅
-    if(blinkVisible){
-        gameOverText->draw(
-            ctx.renderer,
-            GameConfig::WINDOW_WIDTH/2 - gameOverText->getWidth()/2,
-            GameConfig::WINDOW_HEIGHT/3 - gameOverText->getHeight()/2
-        );
+    // 残機がなければGameOver
+    if(remainingLives <= 0){
+        // 点滅
+        if(blinkVisible){
+            gameOverText->draw(
+                ctx.renderer,
+                GameConfig::WINDOW_WIDTH/2 - gameOverText->getWidth()/2,
+                GameConfig::WINDOW_HEIGHT/3 - gameOverText->getHeight()/2
+            );
+        }
+    } else {
+        // 点滅
+        if(blinkVisible){
+            youAreDeadText->draw(
+                ctx.renderer,
+                GameConfig::WINDOW_WIDTH/2 - youAreDeadText->getWidth()/2,
+                GameConfig::WINDOW_HEIGHT/3 - youAreDeadText->getHeight()/2
+            );
+        }
     }
     returnTitleText->draw(
         ctx.renderer,
         GameConfig::WINDOW_WIDTH/2 - returnTitleText->getWidth()/2,
         GameConfig::WINDOW_HEIGHT/2 - returnTitleText->getHeight()/2
     );
-    returnStageText->draw(
+    // コンティニュー可能な残機数ならreturnStageTextを表示
+    if(remainingLives > 0){
+        returnStageText->draw(
+            ctx.renderer,
+            GameConfig::WINDOW_WIDTH/2 - returnStageText->getWidth()/2,
+            GameConfig::WINDOW_HEIGHT/1.5 - returnStageText->getHeight()/2
+        );
+    }
+    remainingLivesText->draw(
         ctx.renderer,
-        GameConfig::WINDOW_WIDTH/2 - returnStageText->getWidth()/2,
-        GameConfig::WINDOW_HEIGHT/1.5 - returnStageText->getHeight()/2
+        GameConfig::WINDOW_WIDTH/2 - remainingLivesText->getWidth()/2,
+        GameConfig::WINDOW_HEIGHT/1.25 - remainingLivesText->getHeight()/2
     );
 }
 
@@ -107,6 +136,9 @@ void GameOverScene::updateGameOver(double delta){
 void GameOverScene::onEnter(){
     blinkTimer = 0.0;
     blinkVisible = true;
+    // このシーンに入った時点の残機で文字列を作る
+    remainingLives = ctrl.getLives();
+    remainingLivesText->setText("Lives(Retry Left): " + std::to_string(remainingLives));
 }
 
 /**

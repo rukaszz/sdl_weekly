@@ -81,7 +81,7 @@ void SceneControl::initStages(std::vector<StageDefinition> defs){
  */
 void SceneControl::startNewGame() {
     currentStageIndex = 0;  // ステージインデックスを0
-    lives = INITIAL_LIVES;  // 残機を3
+    lives = SceneConfig::INITIAL_LIVES;  // 残機を3
     resetGame();
 }
 
@@ -174,8 +174,11 @@ void SceneControl::consumeEvents(const GameEventBuffer& geb){
  * @return false：コンテニュー不可 
  */
 bool SceneControl::tryConsumeLife(){
+    if(lives <= 0){
+        return false;
+    }
     --lives;
-    return lives > 0;
+    return true;
 }
 
 /**

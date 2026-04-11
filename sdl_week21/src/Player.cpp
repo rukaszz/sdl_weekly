@@ -104,7 +104,8 @@ void Player::update(double delta, const InputState& input, DrawBounds bounds, co
  */
 SDL_Rect Player::getCollisionRect() const{
     // テクスチャに応じた幅を取得
-    const auto& metrics = currentFormMetrics();
+    // const auto& metrics = currentFormMetrics();
+    const auto& metrics = getFormMetrics(form);
     // 当たり判定用の矩形を返す
     return{
         static_cast<int>(x) + metrics.collisionMargin_X, 
@@ -149,6 +150,7 @@ void Player::resetForNewGame(){
     invincibleTimer = 0.0;
     isDashing = false;
     // PlayerFormのリセット
+    pendingForm.reset();
     form = PlayerForm::Small;
     applyFormAppearance(false);
     // 天井判定リセット
@@ -177,6 +179,7 @@ void Player::resetForStageTransition(){
     invincibleTimer = 0.0;  // 無敵時間は状態維持の対象外
     isDashing = false;
     // formは維持
+    pendingForm.reset();    // 要求は取り消しておく
     applyFormAppearance(false);
     // 天井判定リセット
     clearCeilingBlockHit();
@@ -384,7 +387,8 @@ void Player::physicsProcessing(const std::vector<Block>& blocks, const bool drop
     };
     Physics::resolveHorizontalBlockCollision(hcs, blocks);
     // 帰ってきた結果をPlayer内部へ反映
-    const auto& metrics = currentFormMetrics();
+    // const auto& metrics = currentFormMetrics();
+    const auto& metrics = getFormMetrics(form);
     x = hcs.x - metrics.collisionMargin_X;   // getCollisionRectのオフセット(現状はハードコード)
     hv = hcs.hv;
 
@@ -478,6 +482,29 @@ bool Player::shouldRender() const{
 }
 
 /**
+ * @brief nextFormの衝突判定用矩形を取得するヘルパ関数
+ * 原則canApplyFormWithFeetAnchored()から呼ばれることを想定
+ * 
+ * @param nextForm 
+ * @return SDL_Rect 
+ */
+SDL_Rect Player::getCollisionRectOfForm(PlayerForm nextForm) const{
+    // 移行する形態のPlayerFormの幅高さなどを取得
+    const auto& metrics = getFormMetrics(nextForm);
+    // 足元の座標を固定するために，現在の座標を取得する
+    const double feet = y + static_cast<double>(sprite.getDrawHeight());
+    // 形態遷移後の頭の座標(y)を計算(足元 - PlayerFormの高さ)
+    const double new_Y = feet - static_cast<double>(metrics.frame_H);
+    // 新formの衝突判定用矩形を返却
+    return SDL_Rect{
+        static_cast<int>(x) + metrics.collisionMargin_X, 
+        static_cast<int>(new_Y) + metrics.collisionMargin_Y, 
+        metrics.frame_W - metrics.collisionMargin_X*2, 
+        metrics.frame_H - metrics.collisionMargin_Y*2
+    };
+}
+
+/**
  * @brief PlayerFormの変更に対して対応するスプライトに切り替える
  * 
  * @param keepFeet 足元の座標を固定化させるかの引数(falseなら) 
@@ -487,7 +514,8 @@ void Player::applyFormAppearance(bool keepFeet){
     // 1フレーム前の足元座標 = 頭 + 新しいスプライトの高さ
     const double prevFeet = y + static_cast<double>(sprite.getDrawHeight());
     // 現在のPlayerFormに対応するスプライト情報取得
-    const auto& metrics = currentFormMetrics();
+    // const auto& metrics = currentFormMetrics();
+    const auto& metrics = getFormMetrics(form);
     // スプライトシート切り替え
     sprite.setTexture(currentFormTexture());                // テクスチャ差し替え
     sprite.setFrameSize(metrics.frame_W, metrics.frame_H);  // フレームサイズ更新
@@ -513,7 +541,8 @@ void Player::applyPendingFormIfPossible(const std::vector<Block>& blocks){
     }
     // 遷移要求を受けているPlayerFormを取得
     const PlayerForm nextForm = *pendingForm;
-    const bool growing = (currentFormMetrics().frame_H < getFormMetrics(nextForm).frame_H);
+    // const bool growing = (currentFormMetrics().frame_H < getFormMetrics(nextForm).frame_H);
+    const bool growing = (getFormMetrics(form).frame_H < getFormMetrics(nextForm).frame_H);
     // 遷移するスプライトの高さが現在より大きい かつ 頭上に空間が無い場合
     if(growing && !canApplyFormWithFeetAnchored(nextForm, blocks)){
         return; // スプライトシートを大きくできないので保留する
@@ -533,18 +562,12 @@ void Player::applyPendingFormIfPossible(const std::vector<Block>& blocks){
  * @return false：遷移不可(めり込まない) 
  */
 bool Player::canApplyFormWithFeetAnchored(PlayerForm nextForm, const std::vector<Block>& blocks) const{
-    // 次のPlayerFormのメトリックを取得
-    const auto& nextMet = getFormMetrics(nextForm);
-    // 足元の座標(固定の基準点)
-    const double fixedFeet = y + static_cast<double>(sprite.getDrawHeight());
-    // 変更後の頭の座標(足元から高さを引いて頭の座標を出す)
-    const double nextFormTop = fixedFeet - static_cast<double>(nextMet.frame_H);
-    // 変化後のプレイヤー衝突判定用矩形
-    const int nextFormLeft  = static_cast<int>(x) + nextMet.collisionMargin_X;
-    const int nextFormRight = static_cast<int>(x) + nextMet.frame_W - nextMet.collisionMargin_X;
-
+    // 現在のformの衝突判定用矩形
+    const SDL_Rect currentFormRect = getCollisionRect();
+    // 遷移予定のformの衝突判定用矩形
+    const SDL_Rect nextFormRect = getCollisionRectOfForm(nextForm);
     // ブロックとの判定
-    for(const auto b : blocks){
+    for(const auto& b : blocks){
         // 物理的な接触判定がないブロックは無視
         if(b.type == BlockType::Empty
         || b.type == BlockType::DropThrough
@@ -560,18 +583,16 @@ bool Player::canApplyFormWithFeetAnchored(PlayerForm nextForm, const std::vector
         const int blockTop    = static_cast<int>(b.y);
         const int blockBottom = static_cast<int>(b.y + b.h);
         // 水平方向に重なっていない->上にブロックはないのでスキップ
-        if(nextFormRight <= blockLeft || nextFormLeft >= blockRight){
+        if((nextFormRect.x + nextFormRect.w) <= blockLeft || nextFormRect.x >= blockRight){
             continue;
         }
-        // 現在のPlayerForm，遷移後のPlayerFormの範囲でブロックが存在しているか
-        // 本質的にチェックするのは遷移後PlayerFormが大きくなる場合のみ
-        if(static_cast<int>(nextFormTop) < blockBottom && static_cast<int>(y) > blockTop){
+        // 遷移後の衝突判定用矩形が，頭上のブロックと重なるかをチェック
+        if(blockTop < currentFormRect.y && nextFormRect.y < blockBottom){
             return false;   // めり込んでいるのでfalse
         }
     }
     return true;    // ここにたどり着いたらPlayerFormの遷移が可能
 }
-
 
 /**
  * @brief 現在のPlayerFormに対応したテクスチャを返す
@@ -596,24 +617,6 @@ Texture& Player::currentFormTexture() const{
  * 
  * @return const PlayerConfig::FormMetrics& 
  */
-const PlayerConfig::FormMetrics& Player::currentFormMetrics() const{
-    switch(form){
-    case PlayerForm::Small:
-        return PlayerConfig::SMALL_METRICS;
-    case PlayerForm::Super:
-        return PlayerConfig::SUPER_METRICS;
-    case PlayerForm::Fire:
-        return PlayerConfig::FIRE_METRICS;
-    }
-    // フォールバック
-    return PlayerConfig::SMALL_METRICS;
-}
-
-/**
- * @brief PlayerFormに対応した幅の情報を返す
- * 
- * @return const PlayerConfig::FormMetrics& 
- */
 const PlayerConfig::FormMetrics& Player::getFormMetrics(PlayerForm form) const{
     switch(form){
     case PlayerForm::Small:
@@ -625,21 +628,6 @@ const PlayerConfig::FormMetrics& Player::getFormMetrics(PlayerForm form) const{
     }
     // フォールバック
     return PlayerConfig::SMALL_METRICS;
-}
-
-/**
- * @brief PlayerFormの変更処理
- * 
- * @param pf 
- */
-void Player::setForm(PlayerForm pf){
-    // 要求されたフォームが現在と同じなら何もしない
-    if(form == pf){
-        return;
-    }
-    form = pf;
-    // 座標情報を加味して外見を変更
-    applyFormAppearance(true);
 }
 
 /**

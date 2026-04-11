@@ -118,8 +118,8 @@ private:
     // 足元の座標がめり込まないか
     bool canApplyFormWithFeetAnchored(PlayerForm nextForm, const std::vector<Block>& blocks) const;
     Texture& currentFormTexture() const;
-    const PlayerConfig::FormMetrics& currentFormMetrics() const;
     const PlayerConfig::FormMetrics& getFormMetrics(PlayerForm form) const;
+    SDL_Rect getCollisionRectOfForm(PlayerForm nextForm) const;
 
 public: // getterなどのインターフェイス
     // 無敵時間開始
@@ -131,7 +131,6 @@ public: // getterなどのインターフェイス
         return form;
     }
     // PlayerForm変更要求
-    void setForm(PlayerForm pf);    // こちらは外部から呼ばせたくない
     void requestFormChange(PlayerForm pf);
     // 天井ブロック当たり判定
     bool hasCeilingBlockHit() const{

@@ -90,6 +90,7 @@ void Physics::resolveBlockCollisionFromBottom(VerticalCollisionState& vcs, const
         const auto& b = blocks[i];
         // 一部ブロックは天井扱いしない(=すり抜ける)
         if(b.type != BlockType::Standable
+        //&& b.type != BlockType::DropThrough   
         && b.type != BlockType::Question
         && b.type != BlockType::UsedQuestion
         && b.type != BlockType::Breakable)

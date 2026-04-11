@@ -6,7 +6,7 @@
 #include "Block.hpp"
 #include "GameEventBuffer.hpp"
 #include "Player.hpp"
-#include "ScoreConfig.hpp"
+#include "SceneConfig.hpp"
 
 /**
  * @brief Construct a new Block System:: Block System object
@@ -72,7 +72,7 @@ void BlockSystem::process(GameEventBuffer& events){
             if(b.type == BlockType::Breakable){
                 if(player.getForm() != PlayerForm::Small){
                     b.type = BlockType::Empty;   // 破壊されるので消す的な状態へ
-                    events.addScore(ScoreConfig::BREAKABLE_SCORE);
+                    events.addScore(SceneConfig::BREAKABLE_SCORE);
                 }
                 return;
             }

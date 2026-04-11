@@ -123,7 +123,8 @@ void PlayingScene::update(double delta){
     bossAI.update(delta);
     // 6. 物理の更新(弾系はここで更新していない)
     updateEntities(delta, worldBounds);
-    // ボス戦状態なら処理する
+    // 7. 弾(projectile)の処理
+    // ボス戦状態ならここで処理する
     if(bossBattle.isActive()){
         updateBoss(delta, worldBounds);
         projectiles.spawnBossBullets(ctx.entityCtx.boss);
@@ -132,9 +133,15 @@ void PlayingScene::update(double delta){
     projectiles.spawnEnemyBulletsFromEnemies(ctx.entityCtx.enemies);
     // 弾更新(プレイヤー弾/敵弾で統一)
     projectiles.update(delta);
-    // 7. Playerとの当たり判定
+    // 8. Playerとの当たり判定
+    // ブロック
     // イベント発行用のIGameEventsを使う
     collision.resolve(ctx.events);
+    blockSystem.process(ctx.eventBuffer);
+    // アイテムとの判定を先に処理(取ったのに死んだ，とならないように)
+    items.processSpawn(ctx.eventBuffer);
+    items.resolvePlayerCollision(ctx.entityCtx.player, ctx.eventBuffer);
+    playerState.process(ctx.eventBuffer);
     // 弾の当たり判定は System に移す(detectCollisionから除外している)
     projectiles.resolveCollisions(
         ctx.entityCtx.player, 
@@ -143,21 +150,14 @@ void PlayingScene::update(double delta){
         bossBattle.isActive(), 
         ctx.events
     );
-    // 落下死判定
+    // 9. 落下死判定
     collision.checkFallDeath(ctx.events);    
-    
-    // 8. ブロック叩き〜その後の処理まで
-    // イベント消費用のGameEventBufferを使う
-    blockSystem.process(ctx.eventBuffer);
-    items.processSpawn(ctx.eventBuffer);
-    items.resolvePlayerCollision(ctx.entityCtx.player, ctx.eventBuffer);
-    playerState.process(ctx.eventBuffer);
-    // トリガーの監視
+    // 10. ボス戦トリガーの監視
     updateBossBattleResult();
 
-    // 9. カメラ座標の更新
+    // 11. カメラ座標の更新
     updateCamera();
-    // 10. 消費系オブジェクトの片付け
+    // 12. 消費系オブジェクトの片付け
     projectiles.cleanup();
     items.cleanup();
     // デバッグ情報取得
@@ -176,48 +176,7 @@ void PlayingScene::render(){
         "Score: " + std::to_string(static_cast<int>(ctrl.getScore()))
     );
     ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);
-    // ブロック描画  const auto& b : ctx.entityCtx.blocks
-    /*
-    for(std::size_t i = 0; i < ctx.entityCtx.blocks.size(); ++i){
-        // ブロック, 色の取得
-        const auto& b = ctx.entityCtx.blocks[i];
-        if(b.type == BlockType::Empty){
-            continue;
-        }
-        SDL_Color blockColor{};
-        // 床のタイプで描画を変更
-        switch(b.type){
-        case BlockType::Standable:
-            blockColor = {255, 255, 255, 255};  // 白
-            break;
-        case BlockType::DropThrough:
-            blockColor = {128, 128, 255, 255};  // 青
-            break;
-        case BlockType::Damage:
-            blockColor = {255, 0, 0, 255};      // 赤
-            break;
-        case BlockType::Clear:
-            blockColor = {255, 216, 0, 255};    // 黃
-            break;
-        case BlockType::Question:
-            blockColor = {255, 165, 0, 255};    // 橙
-            break;
-        case BlockType::UsedQuestion:
-            blockColor = {255, 200, 214, 255};  // 薄橙
-            break;
-        case BlockType::Breakable:
-            blockColor = {101, 67, 33, 255};    // 黃
-            break;
-        case BlockType::Empty:
-            continue;
-        }
-        // blocksの矩形取得
-        const SDL_Rect& br = ctx.entityCtx.blockRectCaches[i];
-        if(b.type != BlockType::Empty){
-            ctx.renderer.drawRect(br, blockColor, ctx.camera);
-        }
-    }
-    */
+    // ブロック描画
     blockRenderer.render(ctx.renderer, ctx.camera);
     // items.render(ctx.renderer, ctx.camera);
     itemRenderer.render(ctx.renderer, ctx.camera);

@@ -14,10 +14,13 @@ class TextTexture;
 class GameOverScene : public Scene{
 private:
     std::unique_ptr<TextTexture> gameOverText;
+    std::unique_ptr<TextTexture> youAreDeadText;
     std::unique_ptr<TextTexture> returnTitleText;
     std::unique_ptr<TextTexture> returnStageText;
+    std::unique_ptr<TextTexture> remainingLivesText;
     double blinkTimer = 0.0;
     bool blinkVisible= true;
+    int remainingLives = 0;
 public:
     GameOverScene(SceneControl& sc, GameContext& gc);
     virtual ~GameOverScene() = default;
