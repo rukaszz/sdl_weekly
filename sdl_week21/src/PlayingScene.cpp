@@ -70,6 +70,14 @@ PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
         ctx.renderAssets.blockTextures
     )
 {
+    // ポーズ時の文字列
+    pauseTitleText  = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 100, 255});
+    pauseTitleText->setText("PAUSE");
+    gameResumeText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
+    gameResumeText->setText("Press ENTER to Resume");
+    backToTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
+    backToTitleText->setText("Press ESC to Title");
+    // デバッグ用文字列
     debugText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 0, 255, 255});
 }
 
@@ -97,6 +105,9 @@ void PlayingScene::update(double delta){
     // エスケープキーでTitleへの遷移
     const InputState& is = ctx.input.getState();
     handlePlayingInput(is);
+    if(runState == RunState::Paused){
+        return; // ポーズ中はすべての更新を止める
+    }
     // 2. 衝突処理用の前フレームのプレイヤー座標をサンプリング
     // 必ず各種Collision判定前に呼ぶ必要がある
     // 呼び出し順序に注意すること
@@ -185,14 +196,16 @@ void PlayingScene::render(){
     ctx.textRenderCtx.scoreText.setText(
         "Score: " + std::to_string(static_cast<int>(ctrl.getScore()))
     );
-    ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);
+    ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);    
     // ブロック描画
     blockRenderer.render(ctx.renderer, ctx.camera);
-    // items.render(ctx.renderer, ctx.camera);
+    // アイテム描画
     itemRenderer.render(ctx.renderer, ctx.camera);
+    // プレイヤーのファイアボール描画
     for(const auto& f : ctx.entityCtx.fireballs){
         f->draw(ctx.renderer, ctx.camera);
     }
+    // 敵弾描画
     for(const auto& eb : ctx.entityCtx.enemyBullets){
         eb->draw(ctx.renderer, ctx.camera);
     }
@@ -206,6 +219,11 @@ void PlayingScene::render(){
     }
     // デバッグ情報表示
     debugText->draw(ctx.renderer, 20, 80);
+    // ポーズ時の描画
+    if(runState == RunState::Paused){
+        renderPauseOverlay();
+        return;
+    }
 }
 
 /**
@@ -242,9 +260,22 @@ void PlayingScene::onExit(){
 void PlayingScene::handlePlayingInput(const InputState& is){
     // Escキー
     if(is.justPressed[(int)Action::Pause]){
-        // ctrl.requestScene(GameScene::Title);
-        ctx.events.requestScene(GameScene::Title);
-        return;
+        if(runState == RunState::Running){
+            runState = RunState::Paused;
+        } else {
+            // ESC再押下でタイトルへ
+            ctx.events.requestScene(GameScene::Title);
+            return;
+        }
+    }
+    // Enterキー
+    if(is.justPressed[(int)Action::Enter]){
+        if(runState == RunState::Running){
+            return; // 非ポーズ時は何もしない
+        } else {
+            // ESC再押下でタイトルへ
+            runState = RunState::Running;
+        }
     }
     // bキーでファイアボール発射
     if(is.justPressed[static_cast<int>(Action::Fire)]){
@@ -327,6 +358,38 @@ void PlayingScene::updateCamera(){
     
 }
 
+/**
+ * @brief ポーズ時の画面表示
+ * 薄暗くするレイヤと文字を表示する 
+ * 
+ */
+void PlayingScene::renderPauseOverlay(){
+    // 半透明の黒のオーバーレイのサイズ設定
+    SDL_Rect overlay{0, 0, GameConfig::WINDOW_WIDTH, GameConfig::WINDOW_HEIGHT};
+    SDL_Color overlayColor{0, 0, 0, 160};
+    ctx.renderer.drawTranslucentOverlay(overlay, overlayColor);
+    // テキスト描画
+    // "PAUSE" テキスト（中央上部）
+    pauseTitleText->draw(
+        ctx.renderer,
+        GameConfig::WINDOW_WIDTH/2 - pauseTitleText->getWidth()/2,
+        GameConfig::WINDOW_HEIGHT/3 - pauseTitleText->getHeight()/2
+    );
+    // "Press ENTER to Resume"（中央）
+    gameResumeText->draw(
+        ctx.renderer,
+        GameConfig::WINDOW_WIDTH/2 - gameResumeText->getWidth()/2,
+        GameConfig::WINDOW_HEIGHT/2 - gameResumeText->getHeight()/2
+    );
+    // "Press ESC to Title"（中央下）
+    backToTitleText->draw(
+        ctx.renderer,
+        GameConfig::WINDOW_WIDTH/2 - backToTitleText->getWidth()/2,
+        GameConfig::WINDOW_HEIGHT/1.5 - backToTitleText->getHeight()/2
+    );
+}
+
+// ボス系処理
 /**
  * @brief BossEnemyとBossBattleStateの初期化処理
  * 

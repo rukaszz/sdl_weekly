@@ -30,6 +30,15 @@ struct Block;
 struct DrawBounds;
 
 /**
+ * @brief プレイ中/ポーズ中
+ * 
+ */
+enum class RunState{
+    Running, 
+    Paused, 
+};
+
+/**
  * @brief ゲームのプレイシーン
  * プレイ中の更新・描画処理を担当し，付随する物理処理なども併せて処理する
  * 
@@ -38,6 +47,8 @@ class PlayingScene : public Scene{
 private:
     // 生存時間加算用変数
     double survivalScoreRemainder = 0.0;
+    // ポーズ判定用変数
+    RunState runState = RunState::Running;
     // 弾系オブジェクト管理用
     ProjectileSystem projectiles;
     // Enemyの行動判定用のSensor処理
@@ -60,6 +71,10 @@ private:
     ItemRenderer itemRenderer;
     // Blockレンダリング用
     BlockRenderer blockRenderer;
+    // ポーズ時の文字列
+    std::unique_ptr<TextTexture> pauseTitleText;
+    std::unique_ptr<TextTexture> gameResumeText;
+    std::unique_ptr<TextTexture> backToTitleText;
     // デバッグ表示用のテキストテクスチャ
     std::unique_ptr<TextTexture> debugText;
     
@@ -79,6 +94,8 @@ private:
     void updateScore(double delta);
     void updateEntities(double delta, DrawBounds b);
     void updateCamera();
+    // ポーズ関係の処理
+    void renderPauseOverlay();
     // ボス関係※現状1体なのでSystemに分割しない
     // ステージ入場時に1回呼ぶ初期化関数
     void initBossBattle();

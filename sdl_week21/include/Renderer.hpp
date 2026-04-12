@@ -38,7 +38,8 @@ public:
     // drawTextureのpublicメソッド：静止画像用
     void drawImage(const Texture& tex, SDL_Rect dst);
     void drawImage(const Texture& tex, SDL_Rect dst, const Camera& camera); // カメラ考慮版
-
+    // 半透明なオーバーレイ描画
+    void drawTranslucentOverlay(const SDL_Rect& overlay, const SDL_Color overlayColor);
     // getter/setter
     // rendererオブジェクト返却用
     SDL_Renderer* get() const{

@@ -60,6 +60,7 @@ Player::Player(const PlayerTextureSet& texSet)
  */
 void Player::update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks){
     // 0. 最初にPlayerFormの変更
+    // プレイヤーの形態変化適用(PlayingScene::updateのflushとは別口)
     applyPendingFormIfPossible(blocks);
     // 1. 1つ前のフレームのサンプリング 
     // 頭頂(プレイヤーの最上部)の位置
