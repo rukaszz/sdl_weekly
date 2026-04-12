@@ -632,7 +632,9 @@ const PlayerConfig::FormMetrics& Player::getFormMetrics(PlayerForm form) const{
 
 /**
  * @brief PlayerForm変更処理
- * 形態変化の要求をするだけ
+ * 形態変化の要求し，applyPendingFormIfPossible()で形態変化を適用する
+ * 同一フレームでの複数形態の要求が発生した場合は，最終的な要求が勝つ
+ * 優先順位は設定していない
  * 
  * @param pf 
  */

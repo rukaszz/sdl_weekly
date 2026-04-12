@@ -43,24 +43,11 @@ CollisionSystem::CollisionSystem(
 }
 
 /**
- * @brief 描画するオブジェクトの衝突処理をまとめる関数
- * 
- * 必ず呼び出す前にprevFeetCollisionをサンプリングしている必要がある
- */
-void CollisionSystem::resolve(IGameEvents& events){
-    // 敵との衝突判定
-    resolveEnemyCollision(events);
-    // ダメージブロックとの衝突判定
-    resolveBlockCollision(events);
-    // ブロックとの衝突判定(下から)
-    resolveBlockHits(events);
-}
-
-/**
- * @brief ブロックとの衝突処理用
+ * @brief 特殊な判定をするブロックとの衝突処理用
+ * Clear/Damageブロックの処理をしている
  * 
  */
-void CollisionSystem::resolveBlockCollision(IGameEvents& events){
+void CollisionSystem::resolveSpecialBlockCollision(IGameEvents& events){
     // ダメージブロックとの衝突判定
     SDL_Rect playerRect = player.getCollisionRect();
     // block→BlockType用，blockRect→当たり判定用

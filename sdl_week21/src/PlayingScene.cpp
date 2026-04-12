@@ -123,7 +123,20 @@ void PlayingScene::update(double delta){
     bossAI.update(delta);
     // 6. 物理の更新(弾系はここで更新していない)
     updateEntities(delta, worldBounds);
-    // 7. 弾(projectile)の処理
+    // 7. ブロックの殴打処理
+    // 下からの殴打
+    collision.resolveBlockHits(ctx.events);
+    // ブロックに関するイベント
+    blockSystem.process(ctx.eventBuffer);
+    // 8. ブロック殴打後のアイテム処理
+    // 取ったのに死んだ，とならないように先に処理する
+    items.processSpawn(ctx.eventBuffer);
+    items.resolvePlayerCollision(ctx.entityCtx.player, ctx.eventBuffer);
+    playerState.process(ctx.eventBuffer);
+    // アイテム取得によるプレイヤーの状態遷移を即時反映させる
+    // ここで遷移できない場合は，次フレームのplayer.update()の冒頭で遷移をチェックする
+    ctx.entityCtx.player.flushPendingFormChange(ctx.entityCtx.blocks);
+    // 9. 弾(projectile)の処理
     // ボス戦状態ならここで処理する
     if(bossBattle.isActive()){
         updateBoss(delta, worldBounds);
@@ -133,15 +146,12 @@ void PlayingScene::update(double delta){
     projectiles.spawnEnemyBulletsFromEnemies(ctx.entityCtx.enemies);
     // 弾更新(プレイヤー弾/敵弾で統一)
     projectiles.update(delta);
-    // 8. Playerとの当たり判定
+    // 10. Playerとの当たり判定
     // ブロック
     // イベント発行用のIGameEventsを使う
-    collision.resolve(ctx.events);
-    blockSystem.process(ctx.eventBuffer);
-    // アイテムとの判定を先に処理(取ったのに死んだ，とならないように)
-    items.processSpawn(ctx.eventBuffer);
-    items.resolvePlayerCollision(ctx.entityCtx.player, ctx.eventBuffer);
-    playerState.process(ctx.eventBuffer);
+    // Clear/Damageブロックの処理
+    collision.resolveSpecialBlockCollision(ctx.events);
+    collision.resolveEnemyCollision(ctx.events);
     // 弾の当たり判定は System に移す(detectCollisionから除外している)
     projectiles.resolveCollisions(
         ctx.entityCtx.player, 
@@ -150,14 +160,14 @@ void PlayingScene::update(double delta){
         bossBattle.isActive(), 
         ctx.events
     );
-    // 9. 落下死判定
+    // 11. 落下死判定
     collision.checkFallDeath(ctx.events);    
-    // 10. ボス戦トリガーの監視
+    // 12. ボス戦トリガーの監視
     updateBossBattleResult();
 
-    // 11. カメラ座標の更新
+    // 13. カメラ座標の更新
     updateCamera();
-    // 12. 消費系オブジェクトの片付け
+    // 14. 消費系オブジェクトの片付け
     projectiles.cleanup();
     items.cleanup();
     // デバッグ情報取得

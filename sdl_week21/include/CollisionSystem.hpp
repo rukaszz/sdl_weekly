@@ -32,14 +32,14 @@ public:
     ~CollisionSystem() = default;
     // ステージロード時のキャッシュ更新用
     void onStageLoaded();
-    void resolve(IGameEvents& events);
-    // void checkFallDeath(SceneControl& ctrl);
-    void checkFallDeath(IGameEvents& events);
-private:
     // updadeで呼ばれるcollision処理の関数群
-    void resolveBlockCollision(IGameEvents& events);
+    // provateでまとめてresolve()関数で読んでいたが，判定の順序整理の過程で廃止している
+    void resolveSpecialBlockCollision(IGameEvents& events);
     void resolveEnemyCollision(IGameEvents& events);
     void resolveBlockHits(IGameEvents& events);
+    // void checkFallDeath(SceneControl& ctrl);
+    void checkFallDeath(IGameEvents& events);
+
 };
 
 #endif  // COLLISIONSYSTEM_H

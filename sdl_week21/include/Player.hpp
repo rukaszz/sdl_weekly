@@ -154,6 +154,10 @@ public: // getterなどのインターフェイス
     bool isBelowWorld(double worldHeight) const{
         return (y > worldHeight);
     }
+    // プレイヤーの形態変化の即時遷移用のラッパ
+    void flushPendingFormChange(const std::vector<Block>& blocks){
+        applyPendingFormIfPossible(blocks);
+    }
 
 };
 
