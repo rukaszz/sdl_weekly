@@ -74,9 +74,9 @@ PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
     pauseTitleText  = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 100, 255});
     pauseTitleText->setText("PAUSE");
     gameResumeText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
-    gameResumeText->setText("Press ENTER to Resume");
+    gameResumeText->setText("Press ESC to Resume");
     backToTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
-    backToTitleText->setText("Press ESC to Title");
+    backToTitleText->setText("Press BackSpace to Title");
     // デバッグ用文字列
     debugText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 0, 255, 255});
 }
@@ -219,7 +219,7 @@ void PlayingScene::render(){
     }
     // デバッグ情報表示
     debugText->draw(ctx.renderer, 20, 80);
-    // ポーズ時の描画
+    // ポーズ中も描画はするので，最後に薄暗いオーバーレイをする
     if(runState == RunState::Paused){
         renderPauseOverlay();
         return;
@@ -233,6 +233,8 @@ void PlayingScene::render(){
 void PlayingScene::onEnter(){
     // 現在のステージインデックスを取得してステージをロード
     int stageIndex = ctrl.getCurrentStageIndex();
+    // runStateの初期化
+    runState = RunState::Running;
     ctrl.loadStage(stageIndex, ctx);
     // ブロックのキャッシュ再構築
     GameUtil::rebuildBlockRects(ctx.entityCtx.blocks, ctx.entityCtx.blockRectCaches);
@@ -250,7 +252,8 @@ void PlayingScene::onEnter(){
  * 
  */
 void PlayingScene::onExit(){
-
+    // PlayingSceneを出るときもrunStateは初期化
+    runState = RunState::Running;
 }
 
 /**
@@ -258,24 +261,26 @@ void PlayingScene::onExit(){
  * 
  */
 void PlayingScene::handlePlayingInput(const InputState& is){
-    // Escキー
-    if(is.justPressed[(int)Action::Pause]){
-        if(runState == RunState::Running){
-            runState = RunState::Paused;
-        } else {
-            // ESC再押下でタイトルへ
+    // ポーズ中の処理
+    if(runState == RunState::Paused){
+        // Escキー
+        if(is.justPressed[(int)Action::Pause]){
+            // ゲーム再開
+            runState = RunState::Running;
+        }
+        // BackSpaceキー
+        if(is.justPressed[(int)Action::BackSpace]){
+            // BackSpaceキーでタイトルへ
             ctx.events.requestScene(GameScene::Title);
             return;
         }
+        // ポーズ中は他の入力を無視する
+        return;
     }
-    // Enterキー
-    if(is.justPressed[(int)Action::Enter]){
-        if(runState == RunState::Running){
-            return; // 非ポーズ時は何もしない
-        } else {
-            // ESC再押下でタイトルへ
-            runState = RunState::Running;
-        }
+    // Escキー
+    if(is.justPressed[(int)Action::Pause]){
+        runState = RunState::Paused;
+        return;
     }
     // bキーでファイアボール発射
     if(is.justPressed[static_cast<int>(Action::Fire)]){
@@ -285,7 +290,6 @@ void PlayingScene::handlePlayingInput(const InputState& is){
             const double spawn_Y = ctx.entityCtx.player.getEntityCenter_Y();
             const Direction dir = ctx.entityCtx.player.getDirection();
             // projectileでファイアボールを管理
-            // projectiles.spawnPlayerFireball(spawn_X, spawn_Y, dir);
             projectiles.trySpawnPlayerFireball(spawn_X, spawn_Y, dir);
         }
     }
@@ -365,27 +369,28 @@ void PlayingScene::updateCamera(){
  */
 void PlayingScene::renderPauseOverlay(){
     // 半透明の黒のオーバーレイのサイズ設定
-    SDL_Rect overlay{0, 0, GameConfig::WINDOW_WIDTH, GameConfig::WINDOW_HEIGHT};
+    SDL_Point outputSize = ctx.renderer.getOutputSize();
+    SDL_Rect overlay{0, 0, outputSize.x, outputSize.y};
     SDL_Color overlayColor{0, 0, 0, 160};
     ctx.renderer.drawTranslucentOverlay(overlay, overlayColor);
     // テキスト描画
     // "PAUSE" テキスト（中央上部）
     pauseTitleText->draw(
         ctx.renderer,
-        GameConfig::WINDOW_WIDTH/2 - pauseTitleText->getWidth()/2,
-        GameConfig::WINDOW_HEIGHT/3 - pauseTitleText->getHeight()/2
+        outputSize.x/2 - pauseTitleText->getWidth()/2,
+        outputSize.y/3 - pauseTitleText->getHeight()/2
     );
-    // "Press ENTER to Resume"（中央）
+    // "Press ESC to Resume"（中央）
     gameResumeText->draw(
         ctx.renderer,
-        GameConfig::WINDOW_WIDTH/2 - gameResumeText->getWidth()/2,
-        GameConfig::WINDOW_HEIGHT/2 - gameResumeText->getHeight()/2
+        outputSize.x/2 - gameResumeText->getWidth()/2,
+        outputSize.y/2 - gameResumeText->getHeight()/2
     );
-    // "Press ESC to Title"（中央下）
+    // "Press BackSpase to Title"（中央下）
     backToTitleText->draw(
         ctx.renderer,
-        GameConfig::WINDOW_WIDTH/2 - backToTitleText->getWidth()/2,
-        GameConfig::WINDOW_HEIGHT/1.5 - backToTitleText->getHeight()/2
+        outputSize.x/2 - backToTitleText->getWidth()/2,
+        outputSize.y/1.5 - backToTitleText->getHeight()/2
     );
 }
 

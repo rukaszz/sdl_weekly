@@ -35,6 +35,8 @@ Action Input::actionKeyMap(SDL_Keycode k){
         return Action::Pause;
     case SDLK_RETURN:
         return Action::Enter;
+    case SDLK_BACKSPACE:
+        return Action::BackSpace;
     default:
         return Action::None;
     }
@@ -86,7 +88,7 @@ void Input::update(){
  * 
  */
 void Input::debugPrintInput(){
-    int ActionCount = static_cast<int>(Action::Enter) + 1;
+    int ActionCount = static_cast<int>(Action::Count) + 1;
     for(int i = 0; i < ActionCount; ++i){
         Action a = static_cast<Action>(i);
         auto it = ActionNames.find(a);

@@ -285,12 +285,15 @@ void Renderer::drawImage(const Texture& tex, SDL_Rect dst, const Camera& camera)
  */
 void Renderer::drawTranslucentOverlay(const SDL_Rect& overlay, SDL_Color overlayColor){
     // レイヤーの塗りつぶしブレンド)描画設定
+    // 呼び出し前の描画ブレンドモードの設定保存
+    SDL_BlendMode prevBlendMode;
+    SDL_GetRenderDrawBlendMode(renderer, &prevBlendMode);
     // SDL_BLENDMODE_BLEND：アルファチャンネルを利用する設定
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     // 描画操作の色を設定
     SDL_SetRenderDrawColor(renderer, overlayColor.r, overlayColor.g, overlayColor.b, overlayColor.a);
     // 対象のレンダラーへ矩形の塗りつぶし
     SDL_RenderFillRect(renderer, &overlay);
-    // 描画モードを通常に戻す(ブレンドしない)
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_NONE);
+    // 描画モードを元に戻す(ブレンドしない)
+    SDL_SetRenderDrawBlendMode(renderer, prevBlendMode);
 }

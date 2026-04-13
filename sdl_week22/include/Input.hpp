@@ -23,6 +23,7 @@ enum class Action{
     Fire, 
     Pause,
     Enter,
+    BackSpace,
     Count,  // 配列サイズ用    
     None,   // 使用禁止
 };
@@ -52,6 +53,7 @@ static const std::unordered_map<Action, std::string> ActionNames{
     {Action::Fire,      "Fire"},
     {Action::Pause,     "Pause"},
     {Action::Enter,     "Enter"},
+    {Action::BackSpace, "BackSpace"},
     {Action::None,      "None"},
 };
 
