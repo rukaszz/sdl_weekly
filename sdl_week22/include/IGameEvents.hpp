@@ -18,6 +18,7 @@ public:
     virtual void collectItem(ItemType it) = 0;
     //virtual void setPlayerForm(PlayerForm pf) = 0;
     virtual void hitBlock(std::size_t blockIndex) = 0;
+    virtual void playSound(SoundId id) = 0;
 };
 
 #endif  // IGAMEEVENTS_H

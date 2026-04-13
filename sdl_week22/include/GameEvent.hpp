@@ -33,6 +33,30 @@ enum class PlayerForm : std::uint8_t{
 };
 
 /**
+ * @brief SEごとのID
+ * ※SEは状態が確定したタイミングで鳴らされることに留意すること
+ */
+enum class SoundId : std::uint8_t{
+    Jump, 
+    Stomp, 
+    BlockHit, 
+    ItemGet, 
+    Fireball, 
+    Damage, 
+    Coin, 
+    PauseOpen, 
+    PauseClose, 
+};
+
+/**
+ * @brief SEを鳴らす要求イベント
+ * 
+ */
+struct PlaySoundEvent{
+    SoundId id;
+};
+
+/**
  * @brief GameSceneをリクエストする型
  * 
  */
@@ -81,7 +105,8 @@ using GameEvent = std::variant<
                         AddScoreEvent, 
                         SpawnItemEvent, 
                         CollectItemEvent,
-                        BlockHitEvent
+                        BlockHitEvent, 
+                        PlaySoundEvent,
                     >;
 
 #endif  // GAMEEVENT_H

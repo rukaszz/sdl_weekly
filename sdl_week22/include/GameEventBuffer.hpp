@@ -64,6 +64,10 @@ public:
     void hitBlock(std::size_t bh) override{
         q.emplace_back(BlockHitEvent{bh});
     }
+    // サウンド関係イベント
+    void playSound(SoundId id){
+        q.emplace_back(PlaySoundEvent{id});
+    }
     // イベントバッファのクリア
     void clear(){
         q.clear();
