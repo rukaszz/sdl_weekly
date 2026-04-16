@@ -20,12 +20,23 @@ class GameEventBuffer;
  */
 class SoundSystem{
 private:
+    // Mix_OpenAudioの状態管理用変数
+    bool audioOpend = false;
+    // SEのIDと音声チャンクのハッシュテーブル
     std::unordered_map<SoundId, Mix_Chunk*> sounds;
 
 public:
+    SoundSystem();
+    ~SoundSystem();
+    // Mix_Chunkの二重解放防止のためのコンストラクタ宣言
+    SoundSystem(const SoundSystem&) = delete;
+    SoundSystem& operator=(const SoundSystem&) = delete;
+    
     void load(SoundId id, const std::string& path);
     void play(SoundId id);
     void process(GameEventBuffer& events);
+
+private:
     void cleanup();
 };
 

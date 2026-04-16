@@ -45,6 +45,8 @@ void BlockSystem::process(GameEventBuffer& events){
                 // アイテムを出す(中央より若干上)
                 const double spawn_X = b.x + b.w * 0.5 - 16;
                 const double spawn_Y = b.y - 32;
+                // Questionブロック叩いたので音を鳴らす
+                events.playSound(SoundId::BlockHit);
                 switch(b.reward){
                 case BlockRewardType::Coin:
                     events.spawnItem(ItemType::Coin, spawn_X, spawn_Y);
@@ -72,6 +74,7 @@ void BlockSystem::process(GameEventBuffer& events){
             if(b.type == BlockType::Breakable){
                 if(player.getForm() != PlayerForm::Small){
                     b.type = BlockType::Empty;   // 破壊されるので消す的な状態へ
+                    events.playSound(SoundId::BlockHit);
                     events.addScore(SceneConfig::BREAKABLE_SCORE);
                 }
                 return;

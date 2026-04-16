@@ -65,9 +65,11 @@ void CollisionSystem::resolveSpecialBlockCollision(IGameEvents& events){
             continue;
         }
         if(b.type == BlockType::Damage){
-            if(player.tryTakeDamage()){
+            if(player.tryTakeDamage() == DamageResult::Dead){
+                events.playSound(SoundId::Damage);
                 events.requestScene(GameScene::GameOver);
             }
+            events.playSound(SoundId::Damage);
         }else if(b.type == BlockType::Clear){
             // ステージ遷移
             events.requestScene(GameScene::Clear);
@@ -117,18 +119,21 @@ void CollisionSystem::resolveEnemyCollision(IGameEvents& events){
             e->startDying();    // Dying状態へ遷移
             // プレイヤーはバウンドする
             player.setVerticalVelocity(-std::abs(PlayerConfig::JUMP_VELOCITY));
+            // ジャンプが確定しているので踏みつけ音を鳴らす
+            events.playSound(SoundId::Stomp);
             // スコア加算
-            // ctrl.setScore(ctrl.getScore() + EnemyConfig::SCORE_AT_STOMP);
             events.addScore(EnemyConfig::SCORE_AT_STOMP);
             continue;   // 同フレーム中に同一の敵を二度ふまないようにcountinue
         }
         // 敵との接触
         if(result == PlayerEnemyCollisionResult::PlayerHit){
             // プレイヤーがSuper状態ならfalse
-            if(player.tryTakeDamage()){
+            if(player.tryTakeDamage() == DamageResult::Dead){
+                events.playSound(SoundId::Damage);
                 events.requestScene(GameScene::GameOver);
                 return;
             }
+            events.playSound(SoundId::Damage);
             continue;
         }
     }

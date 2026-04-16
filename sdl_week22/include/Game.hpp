@@ -12,6 +12,7 @@
 #include <SDL2/SDL.h>
 
 #include "SdlSystem.hpp"
+#include "SoundSystem.hpp"
 #include "Window.hpp"
 #include "Renderer.hpp"
 #include "Scene.hpp"
@@ -39,6 +40,7 @@ private:
     // スマートポインタ
     // RAIIに従い必ず最初にSdlSystemを定義する→最後に呼ばれてSDLが全リソースを解放後に終了される
     std::unique_ptr<SdlSystem> sdl;
+    std::unique_ptr<SoundSystem> soundSystem;   // Mixerの初期化(破棄順序の関係でsdlの直後でないとだめ)
     std::unique_ptr<Window> window;
     std::unique_ptr<Renderer> renderer;
     // シーン管理

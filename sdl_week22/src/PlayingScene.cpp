@@ -134,6 +134,10 @@ void PlayingScene::update(double delta){
     bossAI.update(delta);
     // 6. 物理の更新(弾系はここで更新していない)
     updateEntities(delta, worldBounds);
+    // Playerがこのフレームでジャンプしたかチェック
+    if(ctx.entityCtx.player.consumeJumpStartedThisFrame()){
+        ctx.events.playSound(SoundId::Jump);
+    }
     // 7. ブロックの殴打処理
     // 下からの殴打
     collision.resolveBlockHits(ctx.events);
@@ -266,6 +270,7 @@ void PlayingScene::handlePlayingInput(const InputState& is){
         // Escキー
         if(is.justPressed[(int)Action::Pause]){
             // ゲーム再開
+            ctx.events.playSound(SoundId::PauseClose);
             runState = RunState::Running;
         }
         // BackSpaceキー
@@ -279,6 +284,7 @@ void PlayingScene::handlePlayingInput(const InputState& is){
     }
     // Escキー
     if(is.justPressed[(int)Action::Pause]){
+        ctx.events.playSound(SoundId::PauseOpen);
         runState = RunState::Paused;
         return;
     }
@@ -289,8 +295,11 @@ void PlayingScene::handlePlayingInput(const InputState& is){
             const double spawn_X = ctx.entityCtx.player.getEntityCenter_X();
             const double spawn_Y = ctx.entityCtx.player.getEntityCenter_Y();
             const Direction dir = ctx.entityCtx.player.getDirection();
-            // projectileでファイアボールを管理
-            projectiles.trySpawnPlayerFireball(spawn_X, spawn_Y, dir);
+            // projectileでファイアボールを管理(戻り値がboolなので使う)
+            if(projectiles.trySpawnPlayerFireball(spawn_X, spawn_Y, dir)){
+                // ファイアボール発射音
+                ctx.events.playSound(SoundId::Fireball);
+            }
         }
     }
 }

@@ -28,7 +28,7 @@ public:
         IMG_Quit();
         SDL_Quit();
     }
-
+    // 二重解放防止用のコンストラクタ宣言
     SdlSystem(const SdlSystem&) = delete;
     SdlSystem& operator=(const SdlSystem&) = delete;
 };

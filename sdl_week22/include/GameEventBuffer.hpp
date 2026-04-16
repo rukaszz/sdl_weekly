@@ -65,7 +65,7 @@ public:
         q.emplace_back(BlockHitEvent{bh});
     }
     // サウンド関係イベント
-    void playSound(SoundId id){
+    void playSound(SoundId id) override{
         q.emplace_back(PlaySoundEvent{id});
     }
     // イベントバッファのクリア

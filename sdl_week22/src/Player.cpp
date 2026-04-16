@@ -59,7 +59,9 @@ Player::Player(const PlayerTextureSet& texSet)
  * @param bounds: 描画可能範囲 
  */
 void Player::update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks){
-    // 0. 最初にPlayerFormの変更
+    // 0. 最初にJump押下の管理変数初期化/PlayerFormの変更を実施
+    // ジャンプした瞬間管理変数をfalseに戻す
+    jumpStartedThisFrame = false;
     // プレイヤーの形態変化適用(PlayingScene::updateのflushとは別口)
     applyPendingFormIfPossible(blocks);
     // 1. 1つ前のフレームのサンプリング 
@@ -282,6 +284,8 @@ void Player::inputProcessing(
         coyoteTimer = 0.0;  // ジャンプの猶予は0にする
         // jumpableBufferTimerはjustPressedがfalseになったら減衰して0になるが，ここで明示的に0にしておく
         jumpableBufferTimer = 0.0;
+        // このタイミングではジャンプできているので音を鳴らす(ために変数をtrueに)
+        jumpStartedThisFrame = true;
     }
     // DropThrough：接地中 かつ 下を押下
     if(onGround && input.pressed[static_cast<int>(Action::MoveDown)]){
@@ -444,26 +448,26 @@ void Player::clearCeilingBlockHit(){
  * @return true：GameOver 
  * @return false：ダメージを受ける 
  */
-bool Player::tryTakeDamage(){
+DamageResult Player::tryTakeDamage(){
     // 無敵時間なら処理しない
     if(isInvincible()){
-        return false;
+        return DamageResult::None;
     }
     // Fire状態ならSuperに遷移※GameOverにしない
     if(form == PlayerForm::Fire){
         // setForm(PlayerForm::Super);
         requestFormChange(PlayerForm::Super);
         startInvincible(PlayerConfig::DAMAGE_INVINCIBLE_TIME);
-        return false;
+        return DamageResult::DownGraded;
     }
     // Super状態ならSmallに遷移※GameOverにしない
     if(form == PlayerForm::Super){
         // setForm(PlayerForm::Small);
         requestFormChange(PlayerForm::Small);
         startInvincible(PlayerConfig::DAMAGE_INVINCIBLE_TIME);
-        return false;
+        return DamageResult::DownGraded;
     }
-    return true;
+    return DamageResult::Dead;
 }
 
 /**

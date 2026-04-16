@@ -124,6 +124,17 @@ void Game::loadResources(){
     // ステージ
     auto defs = StageDefinitionLoader::loadStagesFromJson("./assets/stage/stage.json");
     initStages(std::move(defs));
+    // SE
+    soundSystem = std::make_unique<SoundSystem>();
+    soundSystem->load(SoundId::Jump,      "assets/sound/jump.wav");
+    soundSystem->load(SoundId::Stomp,     "assets/sound/stomp.wav");
+    soundSystem->load(SoundId::Coin,      "assets/sound/coin.wav");
+    soundSystem->load(SoundId::ItemGet,   "assets/sound/item_get.wav");
+    soundSystem->load(SoundId::Damage,    "assets/sound/damage.wav");
+    soundSystem->load(SoundId::Fireball,  "assets/sound/fireball.wav");
+    soundSystem->load(SoundId::BlockHit,  "assets/sound/block_hit.wav");
+    soundSystem->load(SoundId::PauseOpen, "assets/sound/pause_open.wav");
+    soundSystem->load(SoundId::PauseClose,"assets/sound/pause_close.wav");
 }
 
 /**
@@ -154,7 +165,7 @@ void Game::buildWorld(){
     camera = {0.0, 0.0, 
               static_cast<double>(GameConfig::WINDOW_WIDTH), 
               static_cast<double>(GameConfig::WINDOW_HEIGHT)
-            };
+             };
 }
 
 /**
@@ -412,6 +423,7 @@ void Game::update(double delta){
     currentScene->update(delta);
     input->update();
     // イベントの確定
+    soundSystem->process(events);   // 最初にサウンド関係
     consumeEvents(events);
     events.clear();
     // シーンの更新

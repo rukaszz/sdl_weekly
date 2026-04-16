@@ -35,7 +35,7 @@ namespace{
      */
     template<typename T> 
     void cleanupProjectiles(
-        std::vector<std::unique_ptr<T>>& vec, 
+        std::vector<std::unique_ptr<T>>& vec, // 弾管理用vector
         const WorldInfo& world, 
         int frame_W, 
         int frame_H
@@ -292,9 +292,12 @@ void ProjectileSystem::resolvePlayerEnemyBulletCollision(Player& player, IGameEv
         // 衝突した
         // 弾は非活性に※無的中でも非活性
         eb->deactivate();
-        if(player.tryTakeDamage()){
+        if(player.tryTakeDamage() == DamageResult::Dead){
+            events.playSound(SoundId::Damage);
             // playerに当たったのでGameOverに
             events.requestScene(GameScene::GameOver);
+        } else if(player.tryTakeDamage() == DamageResult::DownGraded){
+            events.playSound(SoundId::Damage);
         }
         // 処理は抜ける
         break;

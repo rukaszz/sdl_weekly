@@ -19,6 +19,7 @@ add_subdirectory(tests)
 pkg_check_modules(SDL2 REQUIRED sdl2)
 pkg_check_modules(SDL2IMAGE REQUIRED SDL2_image)
 pkg_check_modules(SDL2TTF REQUIRED SDL2_ttf)
+pkg_check_modules(SDL2MIXER REQUIRED SDL2_mixer)
 
 add_executable(${PROJECT_NAME}
     src/AnimationController.cpp
@@ -54,6 +55,7 @@ add_executable(${PROJECT_NAME}
     src/Scene.cpp
     src/SceneControl.cpp
     src/SdlSystem.cpp
+    src/SoundSystem.cpp
     src/Sprite.cpp
     src/StageDefinitionLoader.cpp
     src/Text.cpp
@@ -71,12 +73,14 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${SDL2_INCLUDE_DIRS}
     ${SDL2IMAGE_INCLUDE_DIRS}
     ${SDL2TTF_INCLUDE_DIRS}
+    ${SDL2MIXER_INCLUDE_DIRS}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     ${SDL2_LIBRARIES}
     ${SDL2IMAGE_LIBRARIES}
     ${SDL2TTF_LIBRARIES}
+    ${SDL2MIXER_LIBRARIES}
     nlohmann_json::nlohmann_json
 )
 

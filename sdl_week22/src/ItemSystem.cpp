@@ -79,8 +79,20 @@ void ItemSystem::resolvePlayerCollision(Player& player, GameEventBuffer& events)
         // PlayerStateSystemではきのこなどプレイヤーの状態に関わるもののみ処理する
         // コインなどプレイヤーの状態に直接寄与しないものはここで処理する
         if(item.getItemType() == ItemType::Coin){
+            // コイン取得音
+            events.playSound(SoundId::Coin);
             // コイン取得でスコア加算
             events.addScore(SceneConfig::COIN_SCORE);
+        }
+        // キノコ取得
+        if(item.getItemType() == ItemType::Mushroom){
+            // アイテム取得音
+            events.playSound(SoundId::ItemGet);
+        }
+        // ファイアフラワー取得
+        if(item.getItemType() == ItemType::FireFlower){
+            // アイテム取得音
+            events.playSound(SoundId::ItemGet);
         }
     }
 }
@@ -101,6 +113,13 @@ void ItemSystem::cleanup(){
     items.erase(it, items.end());
 }
 
+/**
+ * @brief アイテム描画関数
+ * active状態のアイテムを描画する
+ * 
+ * @param renderer 
+ * @param camera 
+ */
 void ItemSystem::render(Renderer& renderer, Camera& camera){
     for(const auto& item : items){
         if(!item.isActive()){

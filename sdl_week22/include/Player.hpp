@@ -33,6 +33,17 @@ struct PlayerTextureSet{
     Texture& fire;
 };
 
+/**
+ * @brief ダメージの状態を管理する関数
+ * tryTakeDamage()で使用するイメージ
+ * 
+ */
+enum class DamageResult{
+    None, 
+    DownGraded, 
+    Dead, 
+};
+
 class Player : public Character{
 private:
     // テクスチャ管理
@@ -42,8 +53,9 @@ private:
     // ダッシュ状態管理
     bool isDashing = false;
     // ジャンプ状態管理
-    bool isJumping = false;     // ジャンプ中か
-    double jumpElapsed = 0.0;   // ジャンプボタン押下からの経過時間
+    bool isJumping = false;             // ジャンプ中か
+    double jumpElapsed = 0.0;           // ジャンプボタン押下からの経過時間
+    bool jumpStartedThisFrame = false;  // ジャンプした瞬間を表現する変数
     // コヨーテタイム
     // ※落下判定の初期段階でジャンプを許可するやつ
     double coyoteTimer = 0.0;
@@ -81,7 +93,7 @@ public:
     // プレイヤーの頭座標サンプリング関数
     void beginFrameCollisionSample();
     // ダメージを受けられるか
-    bool tryTakeDamage();
+    DamageResult tryTakeDamage();
     
     // デバッグ用テキスト表示用
     std::string debugMoveContext();
@@ -158,7 +170,12 @@ public: // getterなどのインターフェイス
     void flushPendingFormChange(const std::vector<Block>& blocks){
         applyPendingFormIfPossible(blocks);
     }
-
+    // ジャンプした瞬間を返す関数
+    bool consumeJumpStartedThisFrame(){
+        const bool v = jumpStartedThisFrame;    // 呼ばれた瞬間の状態保存
+        jumpStartedThisFrame = false;           // 状態に関わらずfalse
+        return v;
+    }
 };
 
 #endif  // PLAYER_H

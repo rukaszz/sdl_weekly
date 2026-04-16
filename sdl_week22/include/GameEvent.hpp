@@ -106,7 +106,7 @@ using GameEvent = std::variant<
                         SpawnItemEvent, 
                         CollectItemEvent,
                         BlockHitEvent, 
-                        PlaySoundEvent,
+                        PlaySoundEvent
                     >;
 
 #endif  // GAMEEVENT_H
