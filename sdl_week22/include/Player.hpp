@@ -40,7 +40,7 @@ struct PlayerTextureSet{
  */
 enum class DamageResult{
     None, 
-    DownGraded, 
+    Downgraded, 
     Dead, 
 };
 

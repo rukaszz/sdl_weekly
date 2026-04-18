@@ -458,14 +458,14 @@ DamageResult Player::tryTakeDamage(){
         // setForm(PlayerForm::Super);
         requestFormChange(PlayerForm::Super);
         startInvincible(PlayerConfig::DAMAGE_INVINCIBLE_TIME);
-        return DamageResult::DownGraded;
+        return DamageResult::Downgraded;
     }
     // Super状態ならSmallに遷移※GameOverにしない
     if(form == PlayerForm::Super){
         // setForm(PlayerForm::Small);
         requestFormChange(PlayerForm::Small);
         startInvincible(PlayerConfig::DAMAGE_INVINCIBLE_TIME);
-        return DamageResult::DownGraded;
+        return DamageResult::Downgraded;
     }
     return DamageResult::Dead;
 }

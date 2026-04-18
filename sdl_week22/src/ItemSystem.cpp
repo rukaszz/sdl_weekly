@@ -78,21 +78,24 @@ void ItemSystem::resolvePlayerCollision(Player& player, GameEventBuffer& events)
         events.collectItem(item.getItemType());
         // PlayerStateSystemではきのこなどプレイヤーの状態に関わるもののみ処理する
         // コインなどプレイヤーの状態に直接寄与しないものはここで処理する
-        if(item.getItemType() == ItemType::Coin){
+        ItemType type = item.getItemType();
+        switch(type){
+        case ItemType::Coin:
             // コイン取得音
             events.playSound(SoundId::Coin);
             // コイン取得でスコア加算
             events.addScore(SceneConfig::COIN_SCORE);
-        }
-        // キノコ取得
-        if(item.getItemType() == ItemType::Mushroom){
+            break;
+        case ItemType::Mushroom:
             // アイテム取得音
             events.playSound(SoundId::ItemGet);
-        }
-        // ファイアフラワー取得
-        if(item.getItemType() == ItemType::FireFlower){
+            break;
+        case ItemType::FireFlower:
             // アイテム取得音
             events.playSound(SoundId::ItemGet);
+            break;
+        default:
+            break;
         }
     }
 }

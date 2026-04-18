@@ -29,6 +29,7 @@ SoundSystem::SoundSystem(){
         // Mix_OpenAudioが失敗しても，ゲームは続ける
         audioOpend = false;
         // throw std::runtime_error(Mix_GetError());
+        return;
     }
     // Mix_OpenAudioの初期化成功
     audioOpend = true;
