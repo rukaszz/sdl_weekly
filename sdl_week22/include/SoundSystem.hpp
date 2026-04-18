@@ -2,7 +2,6 @@
 #define SOUNDSYSTEM_H
 
 #include <string>
-#include <vector>
 #include <unordered_map>
 #include <cstdint>
 
@@ -20,8 +19,6 @@ class GameEventBuffer;
  */
 class SoundSystem{
 private:
-    // Mix_OpenAudioの状態管理用変数
-    bool audioOpend = false;
     // SEのIDと音声チャンクのハッシュテーブル
     std::unordered_map<SoundId, Mix_Chunk*> sounds;
 
