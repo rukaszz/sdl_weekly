@@ -10,13 +10,6 @@
 // ブロックなどのテクスチャ管理
 #include "RenderAssetContext.hpp"
 
-// #include "Texture.hpp"
-// #include "Player.hpp"
-// #include "Enemy.hpp"
-// #include "FireBall.hpp"
-// #include "EnemyBullet.hpp"
-// #include "WorldInfo.hpp"
-
 // 前方宣言
 class Renderer;
 class Texture;
@@ -31,6 +24,7 @@ class EnemyBullet;
 class GameEventBuffer;
 class IGameEvents;
 class Item;
+class MusicSystem;
 
 struct Block;
 struct Camera;
@@ -84,6 +78,7 @@ struct GameContext{
     WorldInfo& worldInfo;
     GameEventBuffer& eventBuffer;   // イベント消費用
     IGameEvents& events;            // イベント発行用
+    MusicSystem& musicSystem;
 
     EntityContext entityCtx;
     TextRenderContext textRenderCtx;

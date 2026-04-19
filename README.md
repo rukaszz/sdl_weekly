@@ -2277,7 +2277,7 @@ week21終了時点で
 
 を実装している
 
-### 今後の課題
+### week21の課題
 
 week21での課題点は次の通り：
 
@@ -2286,6 +2286,128 @@ week21での課題点は次の通り：
 - テストの実装
 
 また，week22では簡単なSEを実装してさらにユーザの体験を向上させる．
+
+## week22
+
+### week22の概要
+
+- Pause/Resume処理の修正
+- SEを実装
+- BGMを実装
+
+### Pause/Resumeの修正
+
+- Pause機能の調整を実施し，PlayingScene内でゲーム更新停止とオーバーレイ表示を，APIをRenderer/Sceneで分離して安定化
+- ポーズ中入力と通常時入力を整理し，ゲームプレイ入力がポーズ中に混入しないよう修正(week21ではファイアボール発射を受け付けていた)
+- Rendererに半透明オーバーレイ描画処理を追加し，Pause表示の視認性を改善
+
+### SEの導入
+
+- GameEvent/GameEventBufferにPlaySoundEventを追加し，SEをイベント駆動で再生する仕組みを実装
+- SoundSystemを実装し，Jump/Stomp/Coin/ItemGet/Damage/Fireball/BlockHit/PauseOpen/PauseCloseのSEをロード・再生する基盤を作成
+- プレイヤーのジャンプ成立タイミングをjumpStartedThisFrameで管理し，入力時ではなく行動成立時にSEを鳴らすよう修正
+- tryTakeDamage()の戻り値をDamageResultに変更し，被ダメ時の状態分岐を明確化
+  - これによって，将来的なダメージに応じた処理の変更も可能である
+- 当初はSoundSystemでSDL_mixerを初期化していた
+  - BGMの導入に当たり，SEとBGMの双方がSDL_mixerを触るため変更
+  - SdlSystem側へSDL_mixerの初期化処理を移し，音声デバイス初期化責務を一元化
+
+### BGMの導入
+
+- MusicSystemを新規実装し，BGMのロード/再生/切替/停止/フェードアウト/一時停止/再開の基盤を作成
+- GameContextにMusicSystemを追加し，Sceneと結びつけた
+- Sceneに対応したBGMを流す，という方針であり，各SceneのonEnter()で制御できる形へ変更
+  - PlayingScene::onEnter() で通常BGM，ボストリガ到達時にはボスBGMへ切り替える処理を追加
+
+### SdlSystemの処理の変更
+
+- week21まではif文で順番にSDLの各サブシステムを初期化し，RAIIに従って逆順で解放していた
+- SDL_mixerを導入するに当たり，初期化処理が失敗した場合に初期化済みのサブシステムが開放されずに残ってしまう問題へ対処した
+  - これまでの方法ではstd::runtime_error()でプログラムが強制終了するため，すでに初期化されていたサブシステムが残っていた
+  - 実際にはプログラムが終了した時点でOSがメモリ上の残骸などを片付けるため，実害は現状ないがより「行儀の良い」初期化処理を実装した
+- 具体的は，クラス内で構造体とその構造体に対応するコンストラクタ/デストラクタを実装
+  - コンストラクタ→デストラクタの処理で初期化→破棄を必ず実装されるようにした
+- RAIIに従いリソースを確保している
+  - 初期化：Core→Img→Ttf→Mixerの順番
+  - 破棄：Mixer→Ttf→Img→Coreの順番
+
+```cpp
+class SdlSystem{
+public:
+    // 内部に個別のRAIIラッパを初期化の順番で宣言する
+    // 初期化順：上から下，破棄順：下から上(逆順でcleanupしていく)
+    // SDL初期化
+    struct Core{
+        Core(){
+            if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0){
+                throw std::runtime_error(SDL_GetError());
+            }
+        }
+        ~Core(){
+            SDL_Quit();
+        }
+    };
+    // SDL_IMG初期化
+    struct Img{    
+        Img(){
+            if(!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)){
+                throw std::runtime_error(IMG_GetError());
+            }
+        }
+        ~Img(){
+            IMG_Quit();
+        }
+    };
+    // SDL_TTF初期化
+    struct Ttf{
+        Ttf(){
+            if((TTF_Init() != 0)){
+                throw std::runtime_error(TTF_GetError());
+            }
+        }
+        ~Ttf(){
+            TTF_Quit();
+        }
+    };
+    // SDL_Mixer初期化
+    struct Mixer{    
+        Mixer(){
+            // 44100Hz, ステレオ, バッファ2048サンプル(mp3を使う場合はMIX_INIT_MP3が必要)
+            int mixFlags = MIX_INIT_OGG;
+            if((Mix_Init(mixFlags) & mixFlags) != mixFlags) {
+                throw std::runtime_error(Mix_GetError());
+            }
+            if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0){
+                throw std::runtime_error(Mix_GetError());
+           }
+        }
+        ~Mixer(){
+            Mix_CloseAudio();   // Mixerデバイスの終了
+            Mix_Quit();
+        }
+    };
+
+    // RAII
+    Core  core;     // 1番目に初期化，4番目に破棄
+    Img   img;      // 2番目に初期化，3番目に破棄
+    Ttf   ttf;      // 3番目に初期化，2番目に破棄
+    Mixer mixer;    // 4番目に初期化，1番目に破棄
+    
+    // 二重解放防止用のコンストラクタ宣言
+    SdlSystem() = default;
+    ~SdlSystem() = default;
+    SdlSystem(const SdlSystem&) = delete;
+    SdlSystem& operator=(const SdlSystem&) = delete;
+};
+```
+
+### week22の課題
+
+- SdlSystem::Mixer内部の Mix_Init()→Mix_OpenAudio()の2段階初期化がまだ完全な例外安全になっていない
+- Title/GameOver/Clear/Result各シーンのonEnter()でBGM再生を統一し，遷移が正しく行われているかを検証する
+- Pause中にBGMを一時停止の実装の確認
+- BGM切替は現状Mix_HaltMusic()ベースの即時切替なので，必要に応じてフェード制御へ演出的に改善できるかを検討する
+- 形態変化/被ダメ/Pause/音再生などの回帰テストを実装したい
 
 ## アセット
 

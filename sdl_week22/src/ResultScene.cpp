@@ -3,6 +3,7 @@
 #include "ResultScene.hpp"
 #include "Game.hpp"
 #include "Renderer.hpp"
+#include "MusicId.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -112,12 +113,10 @@ void ResultScene::updateBlink(double delta){
 void ResultScene::onEnter(){
     blinkTimer = 0.0;
     blinkVisible = true;
-    // const auto cleared = ctrl.getCurrentStageIndex(); // == total
-    // const auto total   = StageConfig::STAGES.size();
-    // const auto total   = ctrl.getStageCount();
-    // stageText->setText("Stage: " + std::to_string(cleared) + " / " + std::to_string(total));
     const int total = ctrl.getStageCount();
     stageText->setText("Stage: " + std::to_string(total) + " / " + std::to_string(total));
+    // BGMを再生する
+    ctx.musicSystem.playIfChanged(MusicId::Result);
 }
 
 /**

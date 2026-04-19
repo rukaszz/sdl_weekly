@@ -76,6 +76,44 @@
 - Source: maou_se_system24.wav
 - URL: [https://maou.audio/se_system24/](https://maou.audio/se_system24/)
 
+## Background Music
+
+### Piano 27
+
+- Asset Name: title.ogg
+- Source: maou_bgm_piano27.ogg
+- -URL: [https://maou.audio/bgm_piano27/](https://maou.audio/bgm_piano27/)
+
+### Vehicle 03
+
+- Asset Name: playing.ogg
+- Source: maou_game_vehicle03.ogg
+- -URL: [https://maou.audio/game_vehicle03/](https://maou.audio/game_vehicle03/)
+
+### Cyber 19
+
+- Asset Name: gameover.ogg
+- Source: maou_bgm_cyber19.ogg
+- -URL: [https://maou.audio/bgm_cyber19/](https://maou.audio/bgm_cyber19/)
+
+### Event 05
+
+- Asset Name: clear.ogg
+- Source: maou_game_event05.ogg
+- -URL: [https://maou.audio/game_event05/](https://maou.audio/game_event05/)
+
+### Boss 02
+
+- Asset Name: boss.ogg
+- Source: maou_game_boss02.ogg
+- -URL: [https://maou.audio/game_boss02/](https://maou.audio/game_boss02/)
+
+### Field 06
+
+- Asset Name: result.ogg
+- Source: maou_game_field06.ogg
+- -URL: [https://maou.audio/game_field06/](https://maou.audio/game_field06/)
+
 ## Font
 
 ### Noto Sans JP

@@ -2,6 +2,7 @@
 #include "ClearScene.hpp"
 #include "Game.hpp"
 #include "Renderer.hpp"
+#include "MusicId.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -122,6 +123,8 @@ void ClearScene::updateClear(double delta){
 void ClearScene::onEnter(){
     blinkTimer = 0.0;
     blinkVisible = true;
+    // BGM再生
+    ctx.musicSystem.playIfChanged(MusicId::Clear);
 }
 
 /**

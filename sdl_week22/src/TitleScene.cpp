@@ -5,6 +5,7 @@
 #include "Game.hpp"
 #include "Renderer.hpp"
 #include "Input.hpp"
+#include "MusicId.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -88,7 +89,7 @@ void TitleScene::onEnter(){
     blinkTimer = 0.0;
     titleFade = 0;
     blinkVisible = true;
-    // ctrl.resetGame(); // リセットはstartNewGame()呼び出し時のみ
+    ctx.musicSystem.playIfChanged(MusicId::Title);
 }
 
 /**

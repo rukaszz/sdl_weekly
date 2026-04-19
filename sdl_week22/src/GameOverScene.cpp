@@ -2,6 +2,7 @@
 #include "GameOverScene.hpp"
 #include "Game.hpp"
 #include "Renderer.hpp"
+#include "MusicId.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -69,7 +70,6 @@ void GameOverScene::update(double delta){
 /**
  * @brief ゲームオーバー時の画面描画処理
  * 
- * @param remderer 
  */
 void GameOverScene::render(){
     ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
@@ -139,6 +139,8 @@ void GameOverScene::onEnter(){
     // このシーンに入った時点の残機で文字列を作る
     remainingLives = ctrl.getLives();
     remainingLivesText->setText("Lives(Retry Left): " + std::to_string(remainingLives));
+    // BGM再生
+    ctx.musicSystem.playIfChanged(MusicId::GameOver);
 }
 
 /**

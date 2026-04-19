@@ -17,6 +17,7 @@
 #include "GameConfig.hpp"
 #include "PlayerConfig.hpp"
 #include "EnemyConfig.hpp"
+#include "MusicId.hpp"
 
 // SDL System
 #include "SdlSystem.hpp"
@@ -40,6 +41,7 @@
 #include "BlockLevelLoader.hpp"
 #include "GameEventBuffer.hpp"
 #include "StageDefinitionLoader.hpp"
+#include "MusicSystem.hpp"
 
 // Entity
 #include "Character.hpp"
@@ -135,6 +137,14 @@ void Game::loadResources(){
     soundSystem->load(SoundId::BlockHit,  "assets/sound/block_hit.wav");
     soundSystem->load(SoundId::PauseOpen, "assets/sound/pause_open.wav");
     soundSystem->load(SoundId::PauseClose,"assets/sound/pause_close.wav");
+    // BGM
+    musicSystem = std::make_unique<MusicSystem>();
+    musicSystem->load(MusicId::Title,    "assets/music/title.ogg");
+    musicSystem->load(MusicId::Playing,  "assets/music/playing.ogg");
+    musicSystem->load(MusicId::GameOver, "assets/music/gameover.ogg");
+    musicSystem->load(MusicId::Clear,    "assets/music/clear.ogg");
+    musicSystem->load(MusicId::Boss,     "assets/music/boss.ogg");
+    musicSystem->load(MusicId::Result,   "assets/music/result.ogg");
 }
 
 /**
@@ -184,6 +194,7 @@ void Game::buildContexts(){
         worldInfo, 
         events,     // GameEventBuffer& eventBuffer: イベント消費用
         events,     // IGameEvents& events: イベント発行用
+        *musicSystem, 
         EntityContext{
             *player,
             *enemyTexture,

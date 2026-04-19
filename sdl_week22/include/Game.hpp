@@ -13,6 +13,7 @@
 
 #include "SdlSystem.hpp"
 #include "SoundSystem.hpp"
+#include "MusicSystem.hpp"
 #include "Window.hpp"
 #include "Renderer.hpp"
 #include "Scene.hpp"
@@ -40,16 +41,15 @@ private:
     // スマートポインタ
     // RAIIに従い必ず最初にSdlSystemを定義する→最後に呼ばれてSDLが全リソースを解放後に終了される
     std::unique_ptr<SdlSystem> sdl;
-    std::unique_ptr<SoundSystem> soundSystem;   // Mixerの初期化(破棄順序の関係でsdlの直後でないとだめ)
+    std::unique_ptr<SoundSystem> soundSystem;
+    std::unique_ptr<MusicSystem> musicSystem;
     std::unique_ptr<Window> window;
     std::unique_ptr<Renderer> renderer;
     // シーン管理
-    // std::unique_ptr<Scene> scenes[static_cast<int>(GameScene::Count)];
     std::array<std::unique_ptr<Scene>, static_cast<size_t>(GameScene::Count)> scenes{};
     std::optional<GameScene> pendingSceneChange;
     Scene* currentScene = nullptr;
     // Characterオブジェクト
-    // std::unique_ptr<Texture> playerTexture;
     std::unique_ptr<Texture> playerSmallTexture;
     std::unique_ptr<Texture> playerSuperTexture;
     std::unique_ptr<Texture> playerFireTexture;

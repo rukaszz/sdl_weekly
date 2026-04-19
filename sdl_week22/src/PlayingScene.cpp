@@ -10,10 +10,12 @@
 #include "Renderer.hpp"
 #include "Game.hpp"
 #include "GameUtil.hpp"
+#include "MusicId.hpp"
 
 #include "BossEnemy.hpp"
 #include "TurretEnemy.hpp"
 
+// 設定読み込み
 #include "GameConfig.hpp"
 #include "EnemyConfig.hpp"
 #include "BossConfig.hpp"
@@ -249,6 +251,8 @@ void PlayingScene::onEnter(){
     collision.onStageLoaded();
     // ボス関係の変数初期化
     initBossBattle();
+    // BGM再生
+    ctx.musicSystem.playIfChanged(MusicId::Playing);
 }
 
 /**
@@ -272,6 +276,7 @@ void PlayingScene::handlePlayingInput(const InputState& is){
             // ゲーム再開
             ctx.events.playSound(SoundId::PauseClose);
             runState = RunState::Running;
+            ctx.musicSystem.resume();
         }
         // BackSpaceキー
         if(is.justPressed[(int)Action::BackSpace]){
@@ -286,6 +291,7 @@ void PlayingScene::handlePlayingInput(const InputState& is){
     if(is.justPressed[(int)Action::Pause]){
         ctx.events.playSound(SoundId::PauseOpen);
         runState = RunState::Paused;
+        ctx.musicSystem.pause();
         return;
     }
     // bキーでファイアボール発射
@@ -434,6 +440,8 @@ void PlayingScene::updateBossBattleTrigger(){
     const double player_X = ctx.entityCtx.player.getEntityCenter_X();
     if(player_X >= bossBattle.trigger_X){
         bossBattle.phase = BossBattlePhase::Active;
+        // BGM再生
+        ctx.musicSystem.playIfChanged(MusicId::Boss);
     }
 }
 
