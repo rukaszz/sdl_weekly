@@ -11,6 +11,7 @@
 #include "Game.hpp"
 #include "GameUtil.hpp"
 #include "MusicId.hpp"
+#include "BackgroundRenderer.hpp"
 
 #include "BossEnemy.hpp"
 #include "TurretEnemy.hpp"
@@ -30,7 +31,9 @@
  */
 PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
     : Scene(sc, gc)
-    , projectiles(
+    , bgRenderer(GameConfig::WINDOW_WIDTH, 
+        GameConfig::WINDOW_HEIGHT
+    ), projectiles(
         ctx.entityCtx.fireballs, 
         ctx.entityCtx.enemyBullets, 
         ctx.entityCtx.blocks, 
@@ -72,10 +75,12 @@ PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
         ctx.renderAssets.blockTextures
     )
 {
+    // 背景読み込み(暫定)
+    bgRenderer.addLayer(ctx.renderAssets.bgTextures.forest, 0.0);
     // ポーズ時の文字列
     pauseTitleText  = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 100, 255});
     pauseTitleText->setText("PAUSE");
-    gameResumeText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
+    gameResumeText  = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
     gameResumeText->setText("Press ESC to Resume");
     backToTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
     backToTitleText->setText("Press BackSpace to Title");
@@ -196,6 +201,8 @@ void PlayingScene::update(double delta){
  * 
  */
 void PlayingScene::render(){
+    // 背景
+    bgRenderer.render(ctx.renderer, ctx.camera);    // 最初に描画する
     // テキスト描画
     ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
     // スコア更新

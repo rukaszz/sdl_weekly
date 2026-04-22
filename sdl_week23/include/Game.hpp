@@ -58,7 +58,7 @@ private:
     std::vector<std::unique_ptr<Enemy>> enemies;
     std::unique_ptr<Texture> bossTexture;
     std::unique_ptr<BossEnemy> boss;
-
+    // 弾
     std::unique_ptr<Texture> fireballTexture;
     std::vector<std::unique_ptr<FireBall>> fireballs;
     std::unique_ptr<Texture> enemyBulletTexture;
@@ -80,6 +80,8 @@ private:
     std::unique_ptr<Texture> coinTexture;
     std::unique_ptr<Texture> mushroomTexture;
     std::unique_ptr<Texture> fireFlowerTexture;
+    // 背景
+    std::unique_ptr<Texture> forestTexture;
     // テキスト表示用
     std::unique_ptr<Text> font;
     std::unique_ptr<TextTexture> scoreText;

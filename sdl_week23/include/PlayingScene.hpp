@@ -9,6 +9,7 @@
 #include "Scene.hpp"
 #include "ItemRenderer.hpp"
 #include "BlockRenderer.hpp"
+#include "BackgroundRenderer.hpp"
 
 #include "ProjectileSystem.hpp"
 #include "EnemyAISystem.hpp"
@@ -49,6 +50,8 @@ private:
     double survivalScoreRemainder = 0.0;
     // ポーズ判定用変数
     RunState runState = RunState::Running;
+    // 背景レンダラ
+    BackgroundRenderer bgRenderer;
     // 弾系オブジェクト管理用
     ProjectileSystem projectiles;
     // Enemyの行動判定用のSensor処理

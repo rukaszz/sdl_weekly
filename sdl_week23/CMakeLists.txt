@@ -23,6 +23,7 @@ pkg_check_modules(SDL2MIXER REQUIRED SDL2_mixer)
 
 add_executable(${PROJECT_NAME}
     src/AnimationController.cpp
+    src/BackgroundRenderer.cpp
     src/Block.cpp
     src/BlockLevelLoader.cpp
     src/BlockRenderer.cpp

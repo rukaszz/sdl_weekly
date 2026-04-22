@@ -115,6 +115,8 @@ void Game::loadResources(){
     coinTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Object/Coin.png");;
     mushroomTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Object/Mushroom_2.png");;
     fireFlowerTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Object/FireFlower.png");;
+    // 背景
+    forestTexture = std::make_unique<Texture>(renderer->get(), "assets/image/BG/forest.png");
     // テキスト
     font = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
     // スコア
@@ -233,6 +235,9 @@ void Game::buildContexts(){
                 *coinTexture,
                 *mushroomTexture,
                 *fireFlowerTexture
+            }, 
+            BackgroundTextureContext{
+                *forestTexture
             }
         }
     });

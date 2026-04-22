@@ -28,12 +28,21 @@ struct ItemTextureContext{
 };
 
 /**
+ * @brief 背景のテクスチャを管理
+ * 
+ */
+struct BackgroundTextureContext{
+    Texture& forest;
+};
+
+/**
  * @brief ブロック・アイテムのレンダリング用
  * 
  */
 struct RenderAssetContext{
     BlockTextureContext blockTextures;
     ItemTextureContext itemTextures;
+    BackgroundTextureContext bgTextures;
 };
 
 #endif  // RENDERASSETCONTEXT_H

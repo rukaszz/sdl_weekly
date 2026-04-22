@@ -53,28 +53,39 @@ public:
         }
     };
     // SDL_Mixer初期化
-    struct Mixer{    
-        Mixer(){
-            // 44100Hz, ステレオ, バッファ2048サンプル(mp3を使う場合はMIX_INIT_MP3が必要)
+    // Init
+    struct MixerCore{    
+        MixerCore(){
+            // mp3を使う場合はMIX_INIT_MP3が必要
             int mixFlags = MIX_INIT_OGG;
             if((Mix_Init(mixFlags) & mixFlags) != mixFlags) {
                 throw std::runtime_error(Mix_GetError());
             }
-            if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0){
-                throw std::runtime_error(Mix_GetError());
-           }
         }
-        ~Mixer(){
-            Mix_CloseAudio();   // Mixerデバイスの終了
+        ~MixerCore(){
             Mix_Quit();
         }
     };
+    // Device
+    struct MixerDevice{    
+        MixerDevice(){
+            // 44100Hz, ステレオ, バッファ2048サンプル(mp3を使う場合はMIX_INIT_MP3が必要)
+            if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0){
+                throw std::runtime_error(Mix_GetError());
+            }
+        }
+        ~MixerDevice(){
+            Mix_CloseAudio();   // Mixerデバイスの終了
+        }
+    };
+
 
     // RAII
-    Core  core;     // 1番目に初期化，4番目に破棄
-    Img   img;      // 2番目に初期化，3番目に破棄
-    Ttf   ttf;      // 3番目に初期化，2番目に破棄
-    Mixer mixer;    // 4番目に初期化，1番目に破棄
+    Core        core;       // 1番目に初期化，5番目に破棄
+    Img         img;        // 2番目に初期化，4番目に破棄
+    Ttf         ttf;        // 3番目に初期化，3番目に破棄
+    MixerCore   mixerCore;  // 4番目に初期化，2番目に破棄
+    MixerDevice mixerDevice;// 5番目に初期化，1番目に破棄
     
     // 二重解放防止用のコンストラクタ宣言
     SdlSystem() = default;
