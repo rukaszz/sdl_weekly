@@ -21,6 +21,7 @@
 #include "GameEventBuffer.hpp"
 #include "PlayerStateSystem.hpp"
 #include "BossBattleState.hpp"
+#include "BackgroundId.hpp"
 
 class Game;
 class Renderer;
@@ -99,6 +100,10 @@ private:
     void updateCamera();
     // ポーズ関係の処理
     void renderPauseOverlay();
+    // loadBackgroundヘルパ関数
+    const Texture& selectDecorationTexture(BgDecorationType type) const;
+    // 背景読み込み処理
+    void loadBackground();
     // ボス関係※現状1体なのでSystemに分割しない
     // ステージ入場時に1回呼ぶ初期化関数
     void initBossBattle();

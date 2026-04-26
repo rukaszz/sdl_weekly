@@ -104,19 +104,24 @@ void Game::loadResources(){
     // 敵の弾(現状はファイアボールと同じ)
     enemyBulletTexture = std::make_unique<Texture>(renderer->get(), "assets/image/enemy_bullet.png");
     // ブロックテクスチャ
-    blockStandableTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Tiles/Standable.png");
-    blockQuestionTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Tiles/Question.png");
+    blockStandableTexture    = std::make_unique<Texture>(renderer->get(), "assets/image/Tiles/Standable.png");
+    blockQuestionTexture     = std::make_unique<Texture>(renderer->get(), "assets/image/Tiles/Question.png");
     blockUsedQuestionTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Tiles/UsedQuestion.png");
-    blockBreakableTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Tiles/Breakable.png");
-    blockDropThroughTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Tiles/DropThrough.png");
-    blockDamageTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Tiles/Damage.png");
-    blockClearTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Object/Clear.png");
+    blockBreakableTexture    = std::make_unique<Texture>(renderer->get(), "assets/image/Tiles/Breakable.png");
+    blockDropThroughTexture  = std::make_unique<Texture>(renderer->get(), "assets/image/Tiles/DropThrough.png");
+    blockDamageTexture       = std::make_unique<Texture>(renderer->get(), "assets/image/Tiles/Damage.png");
+    blockClearTexture        = std::make_unique<Texture>(renderer->get(), "assets/image/Object/Clear.png");
     // アイテムテクスチャ
-    coinTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Object/Coin.png");;
-    mushroomTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Object/Mushroom_2.png");;
+    coinTexture       = std::make_unique<Texture>(renderer->get(), "assets/image/Object/Coin.png");;
+    mushroomTexture   = std::make_unique<Texture>(renderer->get(), "assets/image/Object/Mushroom_2.png");;
     fireFlowerTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Object/FireFlower.png");;
     // 背景
-    forestTexture = std::make_unique<Texture>(renderer->get(), "assets/image/BG/forest.png");
+    forestTexture     = std::make_unique<Texture>(renderer->get(), "assets/image/BG/forest.png");
+    mountainTexture   = std::make_unique<Texture>(renderer->get(), "assets/image/BG/mountain.png");
+    skyTexture        = std::make_unique<Texture>(renderer->get(), "assets/image/BG/sky.png");
+    darkForestTexture = std::make_unique<Texture>(renderer->get(), "assets/image/BG/dark_forest.png");
+    hellForestTexture = std::make_unique<Texture>(renderer->get(), "assets/image/BG/hell_forest.png");
+    cloudTexture      = std::make_unique<Texture>(renderer->get(), "assets/image/BG/cloud.png");
     // テキスト
     font = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
     // スコア
@@ -237,7 +242,12 @@ void Game::buildContexts(){
                 *fireFlowerTexture
             }, 
             BackgroundTextureContext{
-                *forestTexture
+                *forestTexture, 
+                *mountainTexture, 
+                *skyTexture, 
+                *darkForestTexture, 
+                *hellForestTexture,
+                *cloudTexture, 
             }
         }
     });

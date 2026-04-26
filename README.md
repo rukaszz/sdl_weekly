@@ -2409,6 +2409,40 @@ public:
 - BGM切替は現状Mix_HaltMusic()ベースの即時切替なので，必要に応じてフェード制御へ演出的に改善できるかを検討する
 - 形態変化/被ダメ/Pause/音再生などの回帰テストを実装したい
 
+## week23
+
+### week23の概要
+
+### iCCPエラー
+
+背景を読み込む際に次のようなエラーが生じた．
+
+```Bash
+libpng warning: iCCP: known incorrect sRGB profile
+```
+
+iCCPチャンクと呼ばれる，異なるデバイス間で色を再現するためのプロファイルが不正あるいは非標準であることの警告である．
+libpngが検出していることがわかる．この警告が表示されても背景の描画に問題は生じなかった．色再現が不正確になる可能性があるが，肉眼で確認した限り色合いに問題はなかった．
+
+対処方法としては，画像操作用のコマンドImageMagickを使用するのが手っ取り早いとネットでも掲載されている[LINK](https://qiita.com/takahashim/items/39534bd820f7fd71a5bb)．
+
+次のコマンドによって，iCCPチャンクを取り除くことで警告が出なくなった．
+
+```Bash
+convert "forest.png" -strip "forest.png"
+```
+
+その他，png画像なのでファイル最適化用のコマンドラインロスレスツールのpngcrushも有効であることを確認しています：
+
+```Bash
+sudo apt update
+sudo apt install pngcrush
+pngcrush -n -q *.png  # どのファイルが警告を出すかチェック
+pngcrush -ow -rem allb -reduce forest.png # 上書きで不正iCCPチャンクを除去
+```
+
+なお，元ファイルのバックアップは必ず取っておいたほうが良いです．
+
 ## アセット
 
 詳細はATTRIBUTIONを参照．

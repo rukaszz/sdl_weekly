@@ -82,6 +82,11 @@ private:
     std::unique_ptr<Texture> fireFlowerTexture;
     // 背景
     std::unique_ptr<Texture> forestTexture;
+    std::unique_ptr<Texture> mountainTexture;
+    std::unique_ptr<Texture> skyTexture;
+    std::unique_ptr<Texture> darkForestTexture;
+    std::unique_ptr<Texture> hellForestTexture;
+    std::unique_ptr<Texture> cloudTexture;
     // テキスト表示用
     std::unique_ptr<Text> font;
     std::unique_ptr<TextTexture> scoreText;

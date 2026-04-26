@@ -33,6 +33,11 @@ struct ItemTextureContext{
  */
 struct BackgroundTextureContext{
     Texture& forest;
+    Texture& mountain;
+    Texture& sky;
+    Texture& darkForest;
+    Texture& hellForest;
+    Texture& cloudTexture;
 };
 
 /**

@@ -9,6 +9,7 @@
 using nlohmann::json;
 
 #include "StageDefinition.hpp"
+#include "BackgroundId.hpp"
 
 namespace{
     /**
@@ -26,7 +27,7 @@ namespace{
     }
 
     /**
-     * @brief 文字列とEnemyTypeの対応付を行うヘルパ関数
+     * @brief 文字列とItemTypeの対応付を行うヘルパ関数
      * 
      * @param s 
      * @return ItemType 
@@ -36,6 +37,31 @@ namespace{
         if(s == "Mushroom")   return ItemType::Mushroom;
         if(s == "FireFlower") return ItemType::FireFlower;
         throw std::runtime_error("Unknown ItemType: " + s);
+    }
+
+    /**
+     * @brief 文字列とBackgroundIdとの対応付を行うヘルパ関数
+     * 
+     * @param s 
+     * @return BackgroundId 
+     */
+    BackgroundId parseBackgroundId(const std::string& s){
+        if(s == "Forest")     return BackgroundId::Forest;
+        if(s == "DarkForest") return BackgroundId::DarkForest;
+        if(s == "HellForest") return BackgroundId::HellForest;
+        throw std::runtime_error("Unknown BackgroundId: " + s);
+    }
+
+    /**
+     * @brief 文字列とBgDecorationTypeとの対応付を行うヘルパ関数
+     * 
+     * @param s 
+     * @return BgDecorationType 
+     */
+    BgDecorationType parseBgDecorationType(const std::string& s){
+        if(s == "Cloud") return BgDecorationType::Cloud;
+        if(s == "Star")  return BgDecorationType::Star;
+        throw std::runtime_error("Unknown BgDecorationType: " + s);
     }
 }   // namespace
 
@@ -66,6 +92,21 @@ std::vector<StageDefinition> StageDefinitionLoader::loadStagesFromJson(const std
         // プレイヤーの初期位置
         sd.playerStart_X = stageJson.at("playerStart").at("x").get<double>();
         sd.playerStart_Y = stageJson.at("playerStart").at("y").get<double>();
+        // 背景情報の取得(デフォルト値はforest)
+        if(stageJson.contains("background")){
+            sd.backgroundId = parseBackgroundId(stageJson.at("background").get<std::string>());
+        }
+        // 背景の装飾の取得
+        if(stageJson.contains("bgDecorations")){
+            for(const auto& bgDecoJson : stageJson.at("bgDecorations")){
+                BgDecorationSpawn bds{};
+                bds.world_X        = bgDecoJson.at("world_X").get<int>();
+                bds.screen_Y       = bgDecoJson.at("screen_Y").get<int>();
+                bds.parallaxFactor = bgDecoJson.at("parallaxFactor").get<double>();
+                bds.type           = parseBgDecorationType(bgDecoJson.at("type").get<std::string>());
+                sd.bgDecorations.push_back(bds);
+            }
+        }
         // ボスの情報取得
         if(stageJson.contains("boss")){
             const auto& bossJson = stageJson.at("boss");

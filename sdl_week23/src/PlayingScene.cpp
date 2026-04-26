@@ -31,7 +31,8 @@
  */
 PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
     : Scene(sc, gc)
-    , bgRenderer(GameConfig::WINDOW_WIDTH, 
+    , bgRenderer(
+        GameConfig::WINDOW_WIDTH, 
         GameConfig::WINDOW_HEIGHT
     ), projectiles(
         ctx.entityCtx.fireballs, 
@@ -75,8 +76,6 @@ PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
         ctx.renderAssets.blockTextures
     )
 {
-    // 背景読み込み(暫定)
-    bgRenderer.addLayer(ctx.renderAssets.bgTextures.forest, 0.0);
     // ポーズ時の文字列
     pauseTitleText  = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 100, 255});
     pauseTitleText->setText("PAUSE");
@@ -202,14 +201,8 @@ void PlayingScene::update(double delta){
  */
 void PlayingScene::render(){
     // 背景
-    bgRenderer.render(ctx.renderer, ctx.camera);    // 最初に描画する
-    // テキスト描画
-    ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
-    // スコア更新
-    ctx.textRenderCtx.scoreText.setText(
-        "Score: " + std::to_string(static_cast<int>(ctrl.getScore()))
-    );
-    ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);    
+    bgRenderer.renderBackground(ctx.renderer, ctx.camera);      // 最初はフルスクリーン画像 
+    bgRenderer.renderBgDecoration(ctx.renderer, ctx.camera);    // 次に背景用装飾
     // ブロック描画
     blockRenderer.render(ctx.renderer, ctx.camera);
     // アイテム描画
@@ -232,6 +225,13 @@ void PlayingScene::render(){
     }
     // デバッグ情報表示
     debugText->draw(ctx.renderer, 20, 80);
+    // テキスト描画
+    ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
+    // スコア更新
+    ctx.textRenderCtx.scoreText.setText(
+        "Score: " + std::to_string(static_cast<int>(ctrl.getScore()))
+    );
+    ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);   
     // ポーズ中も描画はするので，最後に薄暗いオーバーレイをする
     if(runState == RunState::Paused){
         renderPauseOverlay();
@@ -248,9 +248,12 @@ void PlayingScene::onEnter(){
     int stageIndex = ctrl.getCurrentStageIndex();
     // runStateの初期化
     runState = RunState::Running;
+    // stageIndexに応じた定義の読み込み
     ctrl.loadStage(stageIndex, ctx);
     // ブロックのキャッシュ再構築
     GameUtil::rebuildBlockRects(ctx.entityCtx.blocks, ctx.entityCtx.blockRectCaches);
+    // 背景の読み込み
+    loadBackground();
     // ステージが変わった通知を各システムへ送信する
     items.onStageLoaded();
     projectiles.onStageLoaded();
@@ -414,6 +417,57 @@ void PlayingScene::renderPauseOverlay(){
         outputSize.x/2 - backToTitleText->getWidth()/2,
         outputSize.y/1.5 - backToTitleText->getHeight()/2
     );
+}
+
+/**
+ * @brief loadBackgroundのヘルパ関数
+ * jsonに記載されたtypeに応じたテクスチャを選択する
+ * 
+ * @param type 
+ * @return const Texture& 
+ */
+const Texture& PlayingScene::selectDecorationTexture(BgDecorationType type) const{
+    switch (type){
+    case BgDecorationType::Cloud:
+        return ctx.renderAssets.bgTextures.cloudTexture;
+    case BgDecorationType::Star:
+        // return ctx.renderAssets.bgTextures.starTexture;  // TODO: 追加予定
+        break;
+    default:
+        break;
+    }
+}
+
+/**
+ * @brief ステージ開始時(onEnter時)に背景を読み込む処理
+ * 
+ */
+void PlayingScene::loadBackground(){
+    // 背景読み込み
+    bgRenderer.clearLayers();
+    bgRenderer.clearDecoration();
+    // ステージ定義を確認
+    const auto& stageDef = ctrl.getCurrentStageDefinition();
+    switch(stageDef.backgroundId){
+    case BackgroundId::Forest:
+        bgRenderer.addLayer(ctx.renderAssets.bgTextures.sky, 0.0);    // 雲：ゆっくりスクロール
+        bgRenderer.addLayer(ctx.renderAssets.bgTextures.mountain, 0.1);    // 雲：ゆっくりスクロール
+        bgRenderer.addLayer(ctx.renderAssets.bgTextures.forest, 0.3);   // 森：中速スクロール
+        // 雲をworld座標に個別配置　TODO：マジックナンバーは取り除くこと
+        for(const auto& bd : stageDef.bgDecorations){
+            const Texture& bgDecoTex = selectDecorationTexture(bd.type);
+            bgRenderer.addDecoration(bgDecoTex, bd.world_X, bd.screen_Y, bd.parallaxFactor);
+            // bgRenderer.addDecoration(bgDecoTex, 550, 70, 0.2);
+            // bgRenderer.addDecoration(bgDecoTex, 900, 30, 0.15);
+        }
+        break;
+    case BackgroundId::DarkForest:
+        bgRenderer.addLayer(ctx.renderAssets.bgTextures.darkForest, 0.3);   // 黒い森：中速スクロール
+        break;
+    case BackgroundId::HellForest:
+        bgRenderer.addLayer(ctx.renderAssets.bgTextures.hellForest, 0.3);   // 赤黒い森：中速スクロール
+        break;
+    }
 }
 
 // ボス系処理
