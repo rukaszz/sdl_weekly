@@ -1,0 +1,162 @@
+#ifndef GAME_H
+#define GAME_H
+
+#include "GameScene.hpp"
+
+#include <memory>
+#include <vector>
+#include <random>
+#include <optional>
+#include <array>
+
+#include <SDL2/SDL.h>
+
+#include "SdlSystem.hpp"
+#include "SoundSystem.hpp"
+#include "MusicSystem.hpp"
+#include "Window.hpp"
+#include "Renderer.hpp"
+#include "Scene.hpp"
+#include "Texture.hpp"
+#include "Player.hpp"
+#include "Enemy.hpp"
+#include "BossEnemy.hpp"
+#include "FireBall.hpp"
+#include "EnemyBullet.hpp"
+#include "Text.hpp"
+#include "TextTexture.hpp"
+#include "Input.hpp"
+#include "Block.hpp"
+#include "Item.hpp"
+#include "Camera.hpp"
+#include "WorldInfo.hpp"
+#include "GameEventBuffer.hpp"
+#include "IGameEvents.hpp"
+#include "SceneControl.hpp"
+
+#include "GameContext.hpp"
+
+class Game : public SceneControl{
+private:
+    // スマートポインタ
+    // RAIIに従い必ず最初にSdlSystemを定義する→最後に呼ばれてSDLが全リソースを解放後に終了される
+    std::unique_ptr<SdlSystem> sdl;
+    std::unique_ptr<SoundSystem> soundSystem;
+    std::unique_ptr<MusicSystem> musicSystem;
+    std::unique_ptr<Window> window;
+    std::unique_ptr<Renderer> renderer;
+    // シーン管理
+    std::array<std::unique_ptr<Scene>, static_cast<size_t>(GameScene::Count)> scenes{};
+    std::optional<GameScene> pendingSceneChange;
+    Scene* currentScene = nullptr;
+    // Characterオブジェクト
+    std::unique_ptr<Texture> playerSmallTexture;
+    std::unique_ptr<Texture> playerSuperTexture;
+    std::unique_ptr<Texture> playerFireTexture;
+    std::unique_ptr<Player> player;
+    std::unique_ptr<Texture> enemyTexture;
+    std::vector<std::unique_ptr<Enemy>> enemies;
+    std::unique_ptr<Texture> bossTexture;
+    std::unique_ptr<BossEnemy> boss;
+    // 弾
+    std::unique_ptr<Texture> fireballTexture;
+    std::vector<std::unique_ptr<FireBall>> fireballs;
+    std::unique_ptr<Texture> enemyBulletTexture;
+    std::vector<std::unique_ptr<EnemyBullet>> enemyBullets;
+    // ブロック
+    std::vector<Block> blocks;
+    std::vector<SDL_Rect> blockRectCaches;
+    // ブロックのテクスチャ
+    std::unique_ptr<Texture> blockStandableTexture;
+    std::unique_ptr<Texture> blockQuestionTexture;
+    std::unique_ptr<Texture> blockUsedQuestionTexture;
+    std::unique_ptr<Texture> blockBreakableTexture;
+    std::unique_ptr<Texture> blockDropThroughTexture;
+    std::unique_ptr<Texture> blockDamageTexture;
+    std::unique_ptr<Texture> blockClearTexture;
+    // アイテム
+    std::vector<Item> items;
+    // アイテムテクスチャ
+    std::unique_ptr<Texture> coinTexture;
+    std::unique_ptr<Texture> mushroomTexture;
+    std::unique_ptr<Texture> fireFlowerTexture;
+    // 背景
+    std::unique_ptr<Texture> forestTexture;
+    std::unique_ptr<Texture> mountainTexture;
+    std::unique_ptr<Texture> skyTexture;
+    std::unique_ptr<Texture> darkForestTexture;
+    std::unique_ptr<Texture> hellForestTexture;
+    std::unique_ptr<Texture> cloudTexture;
+    // テキスト表示用
+    std::unique_ptr<Text> font;
+    std::unique_ptr<TextTexture> scoreText;
+    std::unique_ptr<TextTexture> fpsText;
+    // input抽象化
+    std::unique_ptr<Input> input;
+    // カメラ
+    Camera camera;
+    // ステージ(世界)の情報
+    WorldInfo worldInfo;
+    // ゲーム全体のイベント管理用
+    GameEventBuffer events;
+
+    // 変数系
+    bool running = true;
+    // GameScene scene = GameScene::Title;
+    // 仮のスコア(生存時間=スコアになる簡易的なもの)
+    uint32_t score = 0;
+    // メルセンヌツイスタ
+    std::mt19937 rd{std::random_device{}()};
+    // 乱数(x, y座標)
+    std::uniform_real_distribution<double> distX;
+    std::uniform_real_distribution<double> distY;
+    // speed
+    std::uniform_real_distribution<double> distSpeed;
+    // ゲーム全体の情報管理用
+    std::unique_ptr<GameContext> ctx;
+
+public:
+    // 定数
+    static inline constexpr int TARGET_FPS = 60;
+    static inline constexpr double TARGET_FRAME_TIME = 1.0 / TARGET_FPS;
+    static inline constexpr int FRAME_DELAY = 1000 / TARGET_FPS;
+
+    Game();
+    ~Game();
+    void run();
+    void changeScene(GameScene id) override;
+    void resetGame() override;
+
+    void requestScene(GameScene id) override;
+
+private:
+    // ↓コンストラクタ内のリソース確保関数↓
+    void bootstrapWindowAndRenderer();
+    void loadResources();
+    void buildWorld();
+    void buildContexts();
+    void buildScenes();
+    void startFromTitle();
+    // ↑コンストラクタ内のリソース確保関数↑
+    void processEvents();
+    void capFrameRate(Uint32 frameStartMs);
+    void update(double delta);
+    void render();
+    void displayText(const std::string& dispStr, const std::string& color);
+    void applySceneChangeIfAny();
+public:
+    // シーンのindex取得関数
+    static constexpr size_t nextSceneIndex(GameScene s) noexcept{
+        return static_cast<size_t>(s);
+    }
+    // getters
+    uint32_t getScore() override{
+        return score;
+    }
+    // setters
+    void setScore(uint32_t v) override{
+        score = v;
+    }
+};
+
+#endif  // GAME_H
