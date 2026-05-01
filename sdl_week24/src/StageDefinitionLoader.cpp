@@ -61,6 +61,7 @@ namespace{
     BgDecorationType parseBgDecorationType(const std::string& s){
         if(s == "Cloud") return BgDecorationType::Cloud;
         if(s == "Star")  return BgDecorationType::Star;
+        if(s == "DarkSun")  return BgDecorationType::DarkSun;
         throw std::runtime_error("Unknown BgDecorationType: " + s);
     }
 }   // namespace

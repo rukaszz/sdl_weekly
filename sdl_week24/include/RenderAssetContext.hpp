@@ -36,8 +36,14 @@ struct BackgroundTextureContext{
     Texture& mountain;
     Texture& sky;
     Texture& darkForest;
+    Texture& darkMountain;
+    Texture& darkSky;
     Texture& hellForest;
+    Texture& hellMountain;
+    Texture& hellSky;
     Texture& cloudTexture;
+    Texture& starTexture;
+    Texture& darkSunTexture;
 };
 
 /**

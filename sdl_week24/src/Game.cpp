@@ -116,12 +116,20 @@ void Game::loadResources(){
     mushroomTexture   = std::make_unique<Texture>(renderer->get(), "assets/image/Object/Mushroom_2.png");;
     fireFlowerTexture = std::make_unique<Texture>(renderer->get(), "assets/image/Object/FireFlower.png");;
     // 背景
-    forestTexture     = std::make_unique<Texture>(renderer->get(), "assets/image/BG/forest.png");
-    mountainTexture   = std::make_unique<Texture>(renderer->get(), "assets/image/BG/mountain.png");
-    skyTexture        = std::make_unique<Texture>(renderer->get(), "assets/image/BG/sky.png");
-    darkForestTexture = std::make_unique<Texture>(renderer->get(), "assets/image/BG/dark_forest.png");
-    hellForestTexture = std::make_unique<Texture>(renderer->get(), "assets/image/BG/hell_forest.png");
-    cloudTexture      = std::make_unique<Texture>(renderer->get(), "assets/image/BG/cloud.png");
+    forestTexture       = std::make_unique<Texture>(renderer->get(), "assets/image/BG/forest.png");
+    mountainTexture     = std::make_unique<Texture>(renderer->get(), "assets/image/BG/mountain.png");
+    skyTexture          = std::make_unique<Texture>(renderer->get(), "assets/image/BG/sky.png");
+    darkForestTexture   = std::make_unique<Texture>(renderer->get(), "assets/image/BG/dark_forest.png");
+    darkMountainTexture = std::make_unique<Texture>(renderer->get(), "assets/image/BG/dark_mountain.png");
+    darkSkyTexture      = std::make_unique<Texture>(renderer->get(), "assets/image/BG/dark_sky.png");
+    hellForestTexture   = std::make_unique<Texture>(renderer->get(), "assets/image/BG/hell_forest.png");
+    hellMountainTexture = std::make_unique<Texture>(renderer->get(), "assets/image/BG/hell_mountain.png");
+    hellSkyTexture      = std::make_unique<Texture>(renderer->get(), "assets/image/BG/hell_sky.png");
+    // darkForestTexture   = std::make_unique<Texture>(renderer->get(), "assets/image/BG/dark_forest.png");
+    // hellForestTexture   = std::make_unique<Texture>(renderer->get(), "assets/image/BG/hell_forest.png");
+    cloudTexture        = std::make_unique<Texture>(renderer->get(), "assets/image/BG/cloud.png");
+    starTexture         = std::make_unique<Texture>(renderer->get(), "assets/image/BG/star.png");
+    darkSunTexture      = std::make_unique<Texture>(renderer->get(), "assets/image/BG/dark_sun2.png");
     // テキスト
     font = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
     // スコア
@@ -246,8 +254,14 @@ void Game::buildContexts(){
                 *mountainTexture, 
                 *skyTexture, 
                 *darkForestTexture, 
+                *darkMountainTexture, 
+                *darkSkyTexture, 
                 *hellForestTexture,
+                *hellMountainTexture, 
+                *hellSkyTexture,
                 *cloudTexture, 
+                *starTexture, 
+                *darkSunTexture, 
             }
         }
     });

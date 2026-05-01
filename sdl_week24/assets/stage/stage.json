@@ -29,7 +29,12 @@
       "name": "Stage 2", 
       "levelFile": "assets/level/level2.txt",
       "playerStart": {"x": 100.0, "y": 550.0}, 
-      "background": "Forest", 
+      "background": "DarkForest", 
+      "bgDecorations": [
+        {"world_X": 200, "screen_Y": 40, "parallaxFactor": 0.2, "type": "Star"},
+        {"world_X": 550, "screen_Y": 70, "parallaxFactor": 0.2, "type": "Star"},
+        {"world_X": 900, "screen_Y": 30, "parallaxFactor": 0.2, "type": "Star"}
+      ], 
       "boss": {"enabled": false, "trigger_X": 0.0, 
                "cameraMin_X": 0.0, "cameraMax_X": 0.0, 
                "spawn_X": 0.0, "spawn_Y": 0.0, "hp": 0}, 
@@ -52,6 +57,9 @@
       "levelFile": "assets/level/level3.txt",
       "playerStart": {"x": 100.0, "y": 600.0}, 
       "background": "HellForest", 
+      "bgDecorations": [
+        {"world_X": 400, "screen_Y": 40, "parallaxFactor": 0.1, "type": "DarkSun"}
+      ], 
       "boss": {"enabled": true, "trigger_X": 300.0,
                "cameraMin_X": 300.0, "cameraMax_X": 1000.0, 
                "spawn_X": 800.0, "spawn_Y": 100.0, "hp": 10}, 

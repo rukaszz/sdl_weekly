@@ -12,6 +12,7 @@
 #include "GameUtil.hpp"
 #include "MusicId.hpp"
 #include "BackgroundRenderer.hpp"
+#include "BackgroundPresetBuilder.hpp"
 
 #include "BossEnemy.hpp"
 #include "TurretEnemy.hpp"
@@ -419,55 +420,82 @@ void PlayingScene::renderPauseOverlay(){
     );
 }
 
-/**
- * @brief loadBackgroundのヘルパ関数
- * jsonに記載されたtypeに応じたテクスチャを選択する
- * 
- * @param type 
- * @return const Texture& 
- */
-const Texture& PlayingScene::selectDecorationTexture(BgDecorationType type) const{
-    switch (type){
-    case BgDecorationType::Cloud:
-        return ctx.renderAssets.bgTextures.cloudTexture;
-    case BgDecorationType::Star:
-        // return ctx.renderAssets.bgTextures.starTexture;  // TODO: 追加予定
-        break;
-    default:
-        break;
-    }
-}
+// /**
+//  * @brief loadBackgroundのヘルパ関数
+//  * jsonに記載されたtypeに応じたテクスチャを選択する
+//  * 
+//  * @param type 
+//  * @return const Texture& 
+//  */
+// const Texture& PlayingScene::selectDecorationTexture(BgDecorationType type) const{
+//     switch (type){
+//     case BgDecorationType::Cloud:
+//         return ctx.renderAssets.bgTextures.cloudTexture;
+//     case BgDecorationType::Star:
+//         return ctx.renderAssets.bgTextures.starTexture;
+//     case BgDecorationType::DarkSun:
+//         return ctx.renderAssets.bgTextures.darkSunTexture;
+//     default:
+//         break;
+//     }
+// }
+
+// /**
+//  * @brief ステージ開始時(onEnter時)に背景を読み込む処理
+//  * 
+//  */
+// void PlayingScene::loadBackground(){
+//     // 背景読み込み
+//     bgRenderer.clearLayers();
+//     bgRenderer.clearDecoration();
+//     // ステージ定義を確認
+//     const auto& stageDef = ctrl.getCurrentStageDefinition();
+//     switch(stageDef.backgroundId){
+//     case BackgroundId::Forest:
+//         bgRenderer.addLayer(ctx.renderAssets.bgTextures.sky, 0.0);      // 空：スクロールしない
+//         bgRenderer.addLayer(ctx.renderAssets.bgTextures.mountain, 0.1); // 山：ゆっくりスクロール
+//         bgRenderer.addLayer(ctx.renderAssets.bgTextures.forest, 0.3);   // 森：中速スクロール
+//         // 雲をworld座標に個別配置　TODO：マジックナンバーは取り除くこと
+//         for(const auto& bd : stageDef.bgDecorations){
+//             const Texture& bgDecoTex = selectDecorationTexture(bd.type);
+//             bgRenderer.addDecoration(bgDecoTex, bd.world_X, bd.screen_Y, bd.parallaxFactor);
+//         }
+//         break;
+//     case BackgroundId::DarkForest:
+//         // bgRenderer.addLayer(ctx.renderAssets.bgTextures.darkForest, 0.3);   // 黒い森：中速スクロール
+//         bgRenderer.addLayer(ctx.renderAssets.bgTextures.darkSky, 0.0);      // 空：スクロールしない
+//         bgRenderer.addLayer(ctx.renderAssets.bgTextures.darkMountain, 0.1); // 山：ゆっくりスクロール
+//         bgRenderer.addLayer(ctx.renderAssets.bgTextures.darkForest, 0.3);   // 森：中速スクロール
+//         // 装飾をworld座標に個別配置　TODO：マジックナンバーは取り除くこと
+//         for(const auto& bd : stageDef.bgDecorations){
+//             const Texture& bgDecoTex = selectDecorationTexture(bd.type);
+//             bgRenderer.addDecoration(bgDecoTex, bd.world_X, bd.screen_Y, bd.parallaxFactor);
+//         }
+//         break;
+//     case BackgroundId::HellForest:
+//         // bgRenderer.addLayer(ctx.renderAssets.bgTextures.hellForest, 0.3);   // 赤黒い森：中速スクロール
+//         bgRenderer.addLayer(ctx.renderAssets.bgTextures.hellSky, 0.0);      // 空：スクロールしない
+//         bgRenderer.addLayer(ctx.renderAssets.bgTextures.hellMountain, 0.1); // 山：ゆっくりスクロール
+//         bgRenderer.addLayer(ctx.renderAssets.bgTextures.hellForest, 0.3);   // 森：中速スクロール
+//         // 装飾をworld座標に個別配置　TODO：マジックナンバーは取り除くこと
+//         for(const auto& bd : stageDef.bgDecorations){
+//             const Texture& bgDecoTex = selectDecorationTexture(bd.type);
+//             bgRenderer.addDecoration(bgDecoTex, bd.world_X, bd.screen_Y, bd.parallaxFactor);
+//         }
+//         break;
+//     }
+// }
 
 /**
  * @brief ステージ開始時(onEnter時)に背景を読み込む処理
  * 
  */
 void PlayingScene::loadBackground(){
-    // 背景読み込み
-    bgRenderer.clearLayers();
-    bgRenderer.clearDecoration();
-    // ステージ定義を確認
-    const auto& stageDef = ctrl.getCurrentStageDefinition();
-    switch(stageDef.backgroundId){
-    case BackgroundId::Forest:
-        bgRenderer.addLayer(ctx.renderAssets.bgTextures.sky, 0.0);    // 雲：ゆっくりスクロール
-        bgRenderer.addLayer(ctx.renderAssets.bgTextures.mountain, 0.1);    // 雲：ゆっくりスクロール
-        bgRenderer.addLayer(ctx.renderAssets.bgTextures.forest, 0.3);   // 森：中速スクロール
-        // 雲をworld座標に個別配置　TODO：マジックナンバーは取り除くこと
-        for(const auto& bd : stageDef.bgDecorations){
-            const Texture& bgDecoTex = selectDecorationTexture(bd.type);
-            bgRenderer.addDecoration(bgDecoTex, bd.world_X, bd.screen_Y, bd.parallaxFactor);
-            // bgRenderer.addDecoration(bgDecoTex, 550, 70, 0.2);
-            // bgRenderer.addDecoration(bgDecoTex, 900, 30, 0.15);
-        }
-        break;
-    case BackgroundId::DarkForest:
-        bgRenderer.addLayer(ctx.renderAssets.bgTextures.darkForest, 0.3);   // 黒い森：中速スクロール
-        break;
-    case BackgroundId::HellForest:
-        bgRenderer.addLayer(ctx.renderAssets.bgTextures.hellForest, 0.3);   // 赤黒い森：中速スクロール
-        break;
-    }
+    BackgroundPresetBuilder::build(
+        bgRenderer, 
+        ctx.renderAssets.bgTextures, 
+        ctrl.getCurrentStageDefinition()
+    );
 }
 
 // ボス系処理
