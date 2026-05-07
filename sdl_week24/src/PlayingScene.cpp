@@ -189,6 +189,8 @@ void PlayingScene::update(double delta){
 
     // 13. カメラ座標の更新
     updateCamera();
+    // TODO: 後で切り離す
+    updateCameraShake(delta);
     // 14. 消費系オブジェクトの片付け
     projectiles.cleanup();
     items.cleanup();
@@ -201,27 +203,43 @@ void PlayingScene::update(double delta){
  * 
  */
 void PlayingScene::render(){
+    /* 画面シェイク用カメラ */
+    Camera shaken = ctx.camera;
+    shaken.x += shakeOffset_X;
+    shaken.y += shakeOffset_Y;
+    /* TODO：後で切り離す */
     // 背景
-    bgRenderer.renderBackground(ctx.renderer, ctx.camera);      // 最初はフルスクリーン画像 
-    bgRenderer.renderBgDecoration(ctx.renderer, ctx.camera);    // 次に背景用装飾
+    //bgRenderer.renderBackground(ctx.renderer, ctx.camera);      // 最初はフルスクリーン画像 
+    //bgRenderer.renderBgDecoration(ctx.renderer, ctx.camera);    // 次に背景用装飾
+    bgRenderer.renderBackground(ctx.renderer, shaken);      // 最初はフルスクリーン画像 
+    bgRenderer.renderBgDecoration(ctx.renderer, shaken);    // 次に背景用装飾
     // ブロック描画
-    blockRenderer.render(ctx.renderer, ctx.camera);
+    //blockRenderer.render(ctx.renderer, ctx.camera);
+    blockRenderer.render(ctx.renderer, shaken);
     // アイテム描画
-    itemRenderer.render(ctx.renderer, ctx.camera);
+    //itemRenderer.render(ctx.renderer, ctx.camera);
+    itemRenderer.render(ctx.renderer, shaken);
     // プレイヤーのファイアボール描画
     for(const auto& f : ctx.entityCtx.fireballs){
-        f->draw(ctx.renderer, ctx.camera);
+        //f->draw(ctx.renderer, ctx.camera);
+        f->draw(ctx.renderer, shaken);
     }
     // 敵弾描画
     for(const auto& eb : ctx.entityCtx.enemyBullets){
-        eb->draw(ctx.renderer, ctx.camera);
+        //eb->draw(ctx.renderer, ctx.camera);
+        eb->draw(ctx.renderer, shaken);
     }
     // キャラクタ描画
     // カメラを考慮した書き方にする
-    ctx.entityCtx.player.draw(ctx.renderer, ctx.camera);
-    for(auto& e : ctx.entityCtx.enemies) e->draw(ctx.renderer, ctx.camera);
+    //ctx.entityCtx.player.draw(ctx.renderer, ctx.camera);
+    ctx.entityCtx.player.draw(ctx.renderer, shaken);
+    for(auto& e : ctx.entityCtx.enemies){
+       //e->draw(ctx.renderer, ctx.camera);
+       e->draw(ctx.renderer, shaken);
+    }
     if(bossBattle.isActive()){
-        ctx.entityCtx.boss.draw(ctx.renderer, ctx.camera);
+        //ctx.entityCtx.boss.draw(ctx.renderer, ctx.camera);
+        ctx.entityCtx.boss.draw(ctx.renderer, shaken);
         renderBossHpBar();  // 注：Dyingでも表示させる
     }
     // デバッグ情報表示
@@ -249,6 +267,13 @@ void PlayingScene::onEnter(){
     int stageIndex = ctrl.getCurrentStageIndex();
     // runStateの初期化
     runState = RunState::Running;
+    // TODO: 後で切り離す
+    // カメラ関係の変数リセット
+    shakeTimer = 0.0;
+    shakeDuration = 0.0;
+    shakeMagnitude = 0.0;
+    shakeOffset_X = 0.0;
+    shakeOffset_Y = 0.0;
     // stageIndexに応じた定義の読み込み
     ctrl.loadStage(stageIndex, ctx);
     // ブロックのキャッシュ再構築
@@ -273,6 +298,13 @@ void PlayingScene::onEnter(){
 void PlayingScene::onExit(){
     // PlayingSceneを出るときもrunStateは初期化
     runState = RunState::Running;
+    // TODO: 後で切り離す
+    // カメラ関係の変数リセット
+    shakeTimer = 0.0;
+    shakeDuration = 0.0;
+    shakeMagnitude = 0.0;
+    shakeOffset_X = 0.0;
+    shakeOffset_Y = 0.0;
 }
 
 /**
@@ -420,72 +452,6 @@ void PlayingScene::renderPauseOverlay(){
     );
 }
 
-// /**
-//  * @brief loadBackgroundのヘルパ関数
-//  * jsonに記載されたtypeに応じたテクスチャを選択する
-//  * 
-//  * @param type 
-//  * @return const Texture& 
-//  */
-// const Texture& PlayingScene::selectDecorationTexture(BgDecorationType type) const{
-//     switch (type){
-//     case BgDecorationType::Cloud:
-//         return ctx.renderAssets.bgTextures.cloudTexture;
-//     case BgDecorationType::Star:
-//         return ctx.renderAssets.bgTextures.starTexture;
-//     case BgDecorationType::DarkSun:
-//         return ctx.renderAssets.bgTextures.darkSunTexture;
-//     default:
-//         break;
-//     }
-// }
-
-// /**
-//  * @brief ステージ開始時(onEnter時)に背景を読み込む処理
-//  * 
-//  */
-// void PlayingScene::loadBackground(){
-//     // 背景読み込み
-//     bgRenderer.clearLayers();
-//     bgRenderer.clearDecoration();
-//     // ステージ定義を確認
-//     const auto& stageDef = ctrl.getCurrentStageDefinition();
-//     switch(stageDef.backgroundId){
-//     case BackgroundId::Forest:
-//         bgRenderer.addLayer(ctx.renderAssets.bgTextures.sky, 0.0);      // 空：スクロールしない
-//         bgRenderer.addLayer(ctx.renderAssets.bgTextures.mountain, 0.1); // 山：ゆっくりスクロール
-//         bgRenderer.addLayer(ctx.renderAssets.bgTextures.forest, 0.3);   // 森：中速スクロール
-//         // 雲をworld座標に個別配置　TODO：マジックナンバーは取り除くこと
-//         for(const auto& bd : stageDef.bgDecorations){
-//             const Texture& bgDecoTex = selectDecorationTexture(bd.type);
-//             bgRenderer.addDecoration(bgDecoTex, bd.world_X, bd.screen_Y, bd.parallaxFactor);
-//         }
-//         break;
-//     case BackgroundId::DarkForest:
-//         // bgRenderer.addLayer(ctx.renderAssets.bgTextures.darkForest, 0.3);   // 黒い森：中速スクロール
-//         bgRenderer.addLayer(ctx.renderAssets.bgTextures.darkSky, 0.0);      // 空：スクロールしない
-//         bgRenderer.addLayer(ctx.renderAssets.bgTextures.darkMountain, 0.1); // 山：ゆっくりスクロール
-//         bgRenderer.addLayer(ctx.renderAssets.bgTextures.darkForest, 0.3);   // 森：中速スクロール
-//         // 装飾をworld座標に個別配置　TODO：マジックナンバーは取り除くこと
-//         for(const auto& bd : stageDef.bgDecorations){
-//             const Texture& bgDecoTex = selectDecorationTexture(bd.type);
-//             bgRenderer.addDecoration(bgDecoTex, bd.world_X, bd.screen_Y, bd.parallaxFactor);
-//         }
-//         break;
-//     case BackgroundId::HellForest:
-//         // bgRenderer.addLayer(ctx.renderAssets.bgTextures.hellForest, 0.3);   // 赤黒い森：中速スクロール
-//         bgRenderer.addLayer(ctx.renderAssets.bgTextures.hellSky, 0.0);      // 空：スクロールしない
-//         bgRenderer.addLayer(ctx.renderAssets.bgTextures.hellMountain, 0.1); // 山：ゆっくりスクロール
-//         bgRenderer.addLayer(ctx.renderAssets.bgTextures.hellForest, 0.3);   // 森：中速スクロール
-//         // 装飾をworld座標に個別配置　TODO：マジックナンバーは取り除くこと
-//         for(const auto& bd : stageDef.bgDecorations){
-//             const Texture& bgDecoTex = selectDecorationTexture(bd.type);
-//             bgRenderer.addDecoration(bgDecoTex, bd.world_X, bd.screen_Y, bd.parallaxFactor);
-//         }
-//         break;
-//     }
-// }
-
 /**
  * @brief ステージ開始時(onEnter時)に背景を読み込む処理
  * 
@@ -497,6 +463,43 @@ void PlayingScene::loadBackground(){
         ctrl.getCurrentStageDefinition()
     );
 }
+
+/* シェイク用のAPI群 */
+// TODO: 後で切り離す
+// カメラの揺れ処理の呼び出し
+/**
+ * @brief 画面シェイク用の変数を設定する
+ * 
+ * @param duration 
+ * @param mignitude 
+ */
+void PlayingScene::startCameraShake(double duration, double magnitude){
+    // 大きい値を採用※念の為のバリデーション
+    shakeTimer = std::max(shakeTimer, duration);
+    shakeDuration = std::max(shakeDuration, duration);
+    shakeMagnitude = std::max(shakeMagnitude, magnitude);
+}
+// カメラのシェイク用Offset設定
+void PlayingScene::updateCameraShake(double delta){
+    // シェイク時間が0秒以下なら何もしない
+    if(shakeTimer <= 0.0){
+        shakeTimer = 0.0;
+        shakeOffset_X = 0.0;
+        shakeOffset_Y = 0.0;
+        return;
+    }
+    // シェイク時間の減衰
+    shakeTimer = std::max(0.0, shakeTimer - delta);
+    // シェイクの減衰割合
+    const double ratio = (shakeDuration > 0.0) ? (shakeTimer/shakeDuration) : 0.0;
+    // 現在のシェイクの強さ
+    const double currentMag = shakeMagnitude * ratio;
+
+    // X, Y軸の揺れをセット
+    shakeOffset_X = shakeDist(ctx.randomCtx.random) * currentMag;
+    shakeOffset_Y = shakeDist(ctx.randomCtx.random) * currentMag * 0.5; // 縦揺れは若干控えめ
+}
+/* シェイク用のAPI群 */    
 
 // ボス系処理
 /**
@@ -531,6 +534,8 @@ void PlayingScene::updateBossBattleTrigger(){
         bossBattle.phase = BossBattlePhase::Active;
         // BGM再生
         ctx.musicSystem.playIfChanged(MusicId::Boss);
+        // 画面シェイク
+        startCameraShake(0.30, 12.0);
     }
 }
 
