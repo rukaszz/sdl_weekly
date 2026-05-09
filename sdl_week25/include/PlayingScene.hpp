@@ -111,6 +111,8 @@ private:
     void startCameraShake(double duration, double magnitude);
     // カメラのシェイク用Offset設定
     void updateCameraShake(double delta);
+    // 画面シェイクイベント消費用
+    void consumeShakeEffectEvents();
 
     // update内部で呼ばれる処理の分割
     void handlePlayingInput(const InputState& is);

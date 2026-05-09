@@ -19,6 +19,7 @@ public:
     //virtual void setPlayerForm(PlayerForm pf) = 0;
     virtual void hitBlock(std::size_t blockIndex) = 0;
     virtual void playSound(SoundId id) = 0;
+    virtual void startCameraShake(double duration, double magnitude) = 0;
 };
 
 #endif  // IGAMEEVENTS_H

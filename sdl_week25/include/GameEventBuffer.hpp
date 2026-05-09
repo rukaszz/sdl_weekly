@@ -76,6 +76,10 @@ public:
     const std::vector<GameEvent>& items() const{
         return q;
     }
+    // 画面シェイクイベント
+    void startCameraShake(double duration, double magnitude) override{
+        q.emplace_back(StartCameraShakeEvent{duration, magnitude});
+    }
     /**
      * @brief 特定のイベントだけ消費して削除する処理
      * vectorのeraseはO(n^2)かかるが，この方法はO(n)で終わる

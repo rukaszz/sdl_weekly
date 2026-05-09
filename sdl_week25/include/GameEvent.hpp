@@ -99,6 +99,15 @@ struct BlockHitEvent{
     std::size_t blockIndex; // このindexはblock/rectCachesのindexに対応する
 };
 
+/**
+ * @brief 画面シェイクイベント用の型
+ * 
+ */
+struct StartCameraShakeEvent{
+    double duration;
+    double magnitude;
+};
+
 // このGameEventはRequestSceneEvent, AddScoreEvent, ...を型安全に切り替えられる
 using GameEvent = std::variant<
                         RequestSceneEvent, 
@@ -106,7 +115,8 @@ using GameEvent = std::variant<
                         SpawnItemEvent, 
                         CollectItemEvent,
                         BlockHitEvent, 
-                        PlaySoundEvent
+                        PlaySoundEvent, 
+                        StartCameraShakeEvent
                     >;
 
 #endif  // GAMEEVENT_H

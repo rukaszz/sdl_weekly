@@ -186,10 +186,11 @@ void PlayingScene::update(double delta){
     collision.checkFallDeath(ctx.events);    
     // 12. ボス戦トリガーの監視
     updateBossBattleResult();
-
-    // 13. カメラ座標の更新
+    // 13. Scene内のイベント消費
+    consumeShakeEffectEvents();
+    // 14. カメラ座標の更新
     updateCamera();
-    // TODO: 後で切り離す
+    // 画面シェイク
     updateCameraShake(delta);
     // 14. 消費系オブジェクトの片付け
     projectiles.cleanup();
@@ -474,10 +475,23 @@ void PlayingScene::loadBackground(){
  * @param mignitude 
  */
 void PlayingScene::startCameraShake(double duration, double magnitude){
-    // 大きい値を採用※念の為のバリデーション
+    // 現在の画面シェイク強度
+    /* 現在設定されているシェイク間隔とシェイク時間が0より大きい
+     * →単位あたりの揺れの強さを計算してセット
+     * そうでなければ0をセット
+     */
+    const double currentStrength = (shakeDuration > 0.0 && shakeTimer > 0.0) 
+        ? (shakeMagnitude * (shakeTimer/shakeDuration)) : 0.0;
+    // 現在のシェイク強度より，呼び出しで要求されたマグニチュードが大きい場合
+    if(magnitude >= currentStrength){
+        // 各変数を更新する
+        shakeDuration   = duration;
+        shakeTimer      = duration;
+        shakeMagnitude  = magnitude;
+        return;
+    }
+    // 現在のシェイク強度より弱い場合は少しシェイク時間を延ばすだけ
     shakeTimer = std::max(shakeTimer, duration);
-    shakeDuration = std::max(shakeDuration, duration);
-    shakeMagnitude = std::max(shakeMagnitude, magnitude);
 }
 // カメラのシェイク用Offset設定
 void PlayingScene::updateCameraShake(double delta){
@@ -498,6 +512,26 @@ void PlayingScene::updateCameraShake(double delta){
     // X, Y軸の揺れをセット
     shakeOffset_X = shakeDist(ctx.randomCtx.random) * currentMag;
     shakeOffset_Y = shakeDist(ctx.randomCtx.random) * currentMag * 0.5; // 縦揺れは若干控えめ
+}
+
+/**
+ * @brief 画面シェイクイベントの消費
+ * イベントバッファに存在する画面シェイクイベントを消費し，画面シェイクを実施する
+ * 
+ */
+void PlayingScene::consumeShakeEffectEvents(){
+    // バッファを走査
+    ctx.eventBuffer.consumeIf(
+        // StartCameraShakeEvents型があるかを判定(holds_alternative)
+        [](const GameEvent& ev){
+            return std::holds_alternative<StartCameraShakeEvent>(ev);
+        }, 
+        // StartCameraShakeEventsを取り出して画面シェイクAPIを呼び出す
+        [&](const GameEvent& ev){
+            const auto& cse = std::get<StartCameraShakeEvent>(ev);
+            startCameraShake(cse.duration, cse.magnitude);
+        }
+    );
 }
 /* シェイク用のAPI群 */    
 
@@ -535,7 +569,8 @@ void PlayingScene::updateBossBattleTrigger(){
         // BGM再生
         ctx.musicSystem.playIfChanged(MusicId::Boss);
         // 画面シェイク
-        startCameraShake(0.30, 12.0);
+        // startCameraShake(0.30, 12.0);
+        ctx.events.startCameraShake(0.30, 12.0);
     }
 }
 

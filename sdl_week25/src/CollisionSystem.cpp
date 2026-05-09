@@ -127,14 +127,27 @@ void CollisionSystem::resolveEnemyCollision(IGameEvents& events){
         }
         // 敵との接触
         if(result == PlayerEnemyCollisionResult::PlayerHit){
-            // プレイヤーがSuper状態ならfalse
-            if(player.tryTakeDamage() == DamageResult::Dead){
+            // ダメージ結果取得
+            DamageResult dr = player.tryTakeDamage();
+            // プレイヤーがSuper状態でのダメージ
+            if(dr == DamageResult::Downgraded){
                 events.playSound(SoundId::Damage);
+                events.startCameraShake(0.18, 10.0);
+            }
+            // プレイヤーがSmall状態ならゲームオーバー
+            if(dr == DamageResult::Dead){
+                events.playSound(SoundId::Damage);
+                events.startCameraShake(0.25, 14.0);
                 events.requestScene(GameScene::GameOver);
                 return;
             }
-            events.playSound(SoundId::Damage);
-            continue;
+            // if(player.tryTakeDamage() == DamageResult::Dead){
+            //     events.playSound(SoundId::Damage);
+            //     events.requestScene(GameScene::GameOver);
+            //     return;
+            // }
+            // events.playSound(SoundId::Damage);
+            // continue;
         }
     }
 }

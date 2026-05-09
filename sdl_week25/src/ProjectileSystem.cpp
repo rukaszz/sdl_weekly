@@ -25,9 +25,9 @@
 namespace{
     /**
      * @brief 弾の種類を問わずに非活性/画面外へ出た弾を片付ける関数
-     * cleanup()で呼ばれるヘルパ関数なので，static宣言する→実装もこのファイル内で完結させる
+     * cleanup()で呼ばれるヘルパ関数なので無名名前空間で宣言する→実装をこのファイル内で完結させる
      * 
-     * @tparam T 
+     * @tparam T ：プレイヤー/敵弾の違いをテンプレート化
      * @param vec 
      * @param world 
      * @param frame_W 
@@ -290,15 +290,29 @@ void ProjectileSystem::resolvePlayerEnemyBulletCollision(Player& player, IGameEv
             continue;
         }
         // 衝突した
-        // 弾は非活性に※無的中でも非活性
+        // 弾は非活性に※的中していなくても非活性にしておく
         eb->deactivate();
-        if(player.tryTakeDamage() == DamageResult::Dead){
+        // 被弾結果取得
+        DamageResult dr = player.tryTakeDamage();
+        // プレイヤーがSuper状態でのダメージ
+        if(dr == DamageResult::Downgraded){
             events.playSound(SoundId::Damage);
-            // playerに当たったのでGameOverに
-            events.requestScene(GameScene::GameOver);
-        } else if(player.tryTakeDamage() == DamageResult::Downgraded){
-            events.playSound(SoundId::Damage);
+            events.startCameraShake(0.18, 10.0);
         }
+        // プレイヤーがSmall状態ならゲームオーバー
+        if(dr == DamageResult::Dead){
+            events.playSound(SoundId::Damage);
+            events.startCameraShake(0.25, 14.0);
+            events.requestScene(GameScene::GameOver);
+            return;
+        }
+        // if(player.tryTakeDamage() == DamageResult::Dead){
+        //     events.playSound(SoundId::Damage);
+        //     // playerに当たったのでGameOverに
+        //     events.requestScene(GameScene::GameOver);
+        // } else if(player.tryTakeDamage() == DamageResult::Downgraded){
+        //     events.playSound(SoundId::Damage);
+        // }
         // 処理は抜ける
         break;
     }
