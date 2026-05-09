@@ -306,13 +306,6 @@ void ProjectileSystem::resolvePlayerEnemyBulletCollision(Player& player, IGameEv
             events.requestScene(GameScene::GameOver);
             return;
         }
-        // if(player.tryTakeDamage() == DamageResult::Dead){
-        //     events.playSound(SoundId::Damage);
-        //     // playerに当たったのでGameOverに
-        //     events.requestScene(GameScene::GameOver);
-        // } else if(player.tryTakeDamage() == DamageResult::Downgraded){
-        //     events.playSound(SoundId::Damage);
-        // }
         // 処理は抜ける
         break;
     }

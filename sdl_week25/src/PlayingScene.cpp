@@ -6,6 +6,8 @@
 
 #include <SDL2/SDL.h>
 
+#include "Camera.hpp"
+#include "CameraShakeController.hpp"
 #include "PlayerEnemyCollisionUtil.hpp"
 #include "Renderer.hpp"
 #include "Game.hpp"
@@ -191,7 +193,7 @@ void PlayingScene::update(double delta){
     // 14. カメラ座標の更新
     updateCamera();
     // 画面シェイク
-    updateCameraShake(delta);
+    cameraShake.update(delta, ctx.randomCtx.random);
     // 14. 消費系オブジェクトの片付け
     projectiles.cleanup();
     items.cleanup();
@@ -205,41 +207,30 @@ void PlayingScene::update(double delta){
  */
 void PlayingScene::render(){
     /* 画面シェイク用カメラ */
-    Camera shaken = ctx.camera;
-    shaken.x += shakeOffset_X;
-    shaken.y += shakeOffset_Y;
-    /* TODO：後で切り離す */
+    // 画面シェイクを適用する場合はshaken, 適用しないならctx.camera
+    Camera shaken = cameraShake.applyToCamera(ctx.camera);
     // 背景
-    //bgRenderer.renderBackground(ctx.renderer, ctx.camera);      // 最初はフルスクリーン画像 
-    //bgRenderer.renderBgDecoration(ctx.renderer, ctx.camera);    // 次に背景用装飾
     bgRenderer.renderBackground(ctx.renderer, shaken);      // 最初はフルスクリーン画像 
     bgRenderer.renderBgDecoration(ctx.renderer, shaken);    // 次に背景用装飾
     // ブロック描画
-    //blockRenderer.render(ctx.renderer, ctx.camera);
     blockRenderer.render(ctx.renderer, shaken);
     // アイテム描画
-    //itemRenderer.render(ctx.renderer, ctx.camera);
     itemRenderer.render(ctx.renderer, shaken);
     // プレイヤーのファイアボール描画
     for(const auto& f : ctx.entityCtx.fireballs){
-        //f->draw(ctx.renderer, ctx.camera);
         f->draw(ctx.renderer, shaken);
     }
     // 敵弾描画
     for(const auto& eb : ctx.entityCtx.enemyBullets){
-        //eb->draw(ctx.renderer, ctx.camera);
         eb->draw(ctx.renderer, shaken);
     }
     // キャラクタ描画
     // カメラを考慮した書き方にする
-    //ctx.entityCtx.player.draw(ctx.renderer, ctx.camera);
     ctx.entityCtx.player.draw(ctx.renderer, shaken);
     for(auto& e : ctx.entityCtx.enemies){
-       //e->draw(ctx.renderer, ctx.camera);
        e->draw(ctx.renderer, shaken);
     }
     if(bossBattle.isActive()){
-        //ctx.entityCtx.boss.draw(ctx.renderer, ctx.camera);
         ctx.entityCtx.boss.draw(ctx.renderer, shaken);
         renderBossHpBar();  // 注：Dyingでも表示させる
     }
@@ -268,13 +259,8 @@ void PlayingScene::onEnter(){
     int stageIndex = ctrl.getCurrentStageIndex();
     // runStateの初期化
     runState = RunState::Running;
-    // TODO: 後で切り離す
     // カメラ関係の変数リセット
-    shakeTimer = 0.0;
-    shakeDuration = 0.0;
-    shakeMagnitude = 0.0;
-    shakeOffset_X = 0.0;
-    shakeOffset_Y = 0.0;
+    cameraShake.reset();
     // stageIndexに応じた定義の読み込み
     ctrl.loadStage(stageIndex, ctx);
     // ブロックのキャッシュ再構築
@@ -299,13 +285,8 @@ void PlayingScene::onEnter(){
 void PlayingScene::onExit(){
     // PlayingSceneを出るときもrunStateは初期化
     runState = RunState::Running;
-    // TODO: 後で切り離す
     // カメラ関係の変数リセット
-    shakeTimer = 0.0;
-    shakeDuration = 0.0;
-    shakeMagnitude = 0.0;
-    shakeOffset_X = 0.0;
-    shakeOffset_Y = 0.0;
+    cameraShake.reset();
 }
 
 /**
@@ -465,55 +446,6 @@ void PlayingScene::loadBackground(){
     );
 }
 
-/* シェイク用のAPI群 */
-// TODO: 後で切り離す
-// カメラの揺れ処理の呼び出し
-/**
- * @brief 画面シェイク用の変数を設定する
- * 
- * @param duration 
- * @param mignitude 
- */
-void PlayingScene::startCameraShake(double duration, double magnitude){
-    // 現在の画面シェイク強度
-    /* 現在設定されているシェイク間隔とシェイク時間が0より大きい
-     * →単位あたりの揺れの強さを計算してセット
-     * そうでなければ0をセット
-     */
-    const double currentStrength = (shakeDuration > 0.0 && shakeTimer > 0.0) 
-        ? (shakeMagnitude * (shakeTimer/shakeDuration)) : 0.0;
-    // 現在のシェイク強度より，呼び出しで要求されたマグニチュードが大きい場合
-    if(magnitude >= currentStrength){
-        // 各変数を更新する
-        shakeDuration   = duration;
-        shakeTimer      = duration;
-        shakeMagnitude  = magnitude;
-        return;
-    }
-    // 現在のシェイク強度より弱い場合は少しシェイク時間を延ばすだけ
-    shakeTimer = std::max(shakeTimer, duration);
-}
-// カメラのシェイク用Offset設定
-void PlayingScene::updateCameraShake(double delta){
-    // シェイク時間が0秒以下なら何もしない
-    if(shakeTimer <= 0.0){
-        shakeTimer = 0.0;
-        shakeOffset_X = 0.0;
-        shakeOffset_Y = 0.0;
-        return;
-    }
-    // シェイク時間の減衰
-    shakeTimer = std::max(0.0, shakeTimer - delta);
-    // シェイクの減衰割合
-    const double ratio = (shakeDuration > 0.0) ? (shakeTimer/shakeDuration) : 0.0;
-    // 現在のシェイクの強さ
-    const double currentMag = shakeMagnitude * ratio;
-
-    // X, Y軸の揺れをセット
-    shakeOffset_X = shakeDist(ctx.randomCtx.random) * currentMag;
-    shakeOffset_Y = shakeDist(ctx.randomCtx.random) * currentMag * 0.5; // 縦揺れは若干控えめ
-}
-
 /**
  * @brief 画面シェイクイベントの消費
  * イベントバッファに存在する画面シェイクイベントを消費し，画面シェイクを実施する
@@ -529,11 +461,10 @@ void PlayingScene::consumeShakeEffectEvents(){
         // StartCameraShakeEventsを取り出して画面シェイクAPIを呼び出す
         [&](const GameEvent& ev){
             const auto& cse = std::get<StartCameraShakeEvent>(ev);
-            startCameraShake(cse.duration, cse.magnitude);
+            cameraShake.start(cse.duration, cse.magnitude);
         }
     );
 }
-/* シェイク用のAPI群 */    
 
 // ボス系処理
 /**
@@ -608,7 +539,6 @@ void PlayingScene::updateBossBattleResult(){
  * 
  */
 void PlayingScene::renderBossHpBar(){
-    // TODO：
     // 座標
     const int bar_W = UIConfig::BossHpBarConfig::BAR_W;
     const int bar_H = UIConfig::BossHpBarConfig::BAR_H;
@@ -627,13 +557,13 @@ void PlayingScene::renderBossHpBar(){
     // HPバーの矩形定義(Frameは少し大き目)
     const int offset = UIConfig::BossHpBarConfig::FRAME_OFFSET;
     const SDL_Rect frameRect = {bar_X-offset, bar_Y-offset, bar_W+(offset*2), bar_H+(offset*2)};
-    const SDL_Rect bgRect   = {bar_X, bar_Y, bar_W, bar_H};
-    const SDL_Rect fillRect   = {bar_X, bar_Y, filled_W, bar_H};
+    const SDL_Rect bgRect    = {bar_X, bar_Y, bar_W, bar_H};
+    const SDL_Rect fillRect  = {bar_X, bar_Y, filled_W, bar_H};
     // HPバーの矩形色定義
     // 枠
-    const SDL_Color frameColor   = UIConfig::BossHpBarConfig::FRAME_COLOR;
+    const SDL_Color frameColor = UIConfig::BossHpBarConfig::FRAME_COLOR;
     // 背景
-    const SDL_Color bgColor      = UIConfig::BossHpBarConfig::BG_COLOR;
+    const SDL_Color bgColor    = UIConfig::BossHpBarConfig::BG_COLOR;
     // HPバーの色
     SDL_Color fillColor{};
     if(hpRatio > 0.6){

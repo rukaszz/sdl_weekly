@@ -64,17 +64,31 @@ void CollisionSystem::resolveSpecialBlockCollision(IGameEvents& events){
         if(!GameUtil::intersects(playerRect, br)){
             continue;
         }
+        // ダメージブロックとの接触
         if(b.type == BlockType::Damage){
-            if(player.tryTakeDamage() == DamageResult::Dead){
+            // ダメージを受ける
+            DamageResult dr = player.tryTakeDamage();
+            // Super状態以上の形態でのダメージ
+            if(dr == DamageResult::Downgraded){
                 events.playSound(SoundId::Damage);
-                events.requestScene(GameScene::GameOver);
+                events.startCameraShake(0.18, 10.0);
+                return;
             }
-            events.playSound(SoundId::Damage);
-        }else if(b.type == BlockType::Clear){
+            // Small状態でのダメージ
+            if(dr == DamageResult::Dead){
+                events.playSound(SoundId::Damage);
+                events.startCameraShake(0.25, 14.0);    // 注：死亡時のシェイクはほぼ確認できないが許容する
+                events.requestScene(GameScene::GameOver);
+                return;
+            }
+            // DamageResult::Noneは無敵時間中なので何もしない
+            return;
+        }
+        if(b.type == BlockType::Clear){
             // ステージ遷移
             events.requestScene(GameScene::Clear);
+            return;
         }
-        return;
     }
 }
 
@@ -137,17 +151,10 @@ void CollisionSystem::resolveEnemyCollision(IGameEvents& events){
             // プレイヤーがSmall状態ならゲームオーバー
             if(dr == DamageResult::Dead){
                 events.playSound(SoundId::Damage);
-                events.startCameraShake(0.25, 14.0);
+                events.startCameraShake(0.25, 14.0);    // 注：死亡時のシェイクはほぼ確認できないが許容する
                 events.requestScene(GameScene::GameOver);
                 return;
             }
-            // if(player.tryTakeDamage() == DamageResult::Dead){
-            //     events.playSound(SoundId::Damage);
-            //     events.requestScene(GameScene::GameOver);
-            //     return;
-            // }
-            // events.playSound(SoundId::Damage);
-            // continue;
         }
     }
 }

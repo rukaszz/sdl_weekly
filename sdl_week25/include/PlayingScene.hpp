@@ -4,10 +4,6 @@
 #include <memory>
 #include <vector>
 
-// 画面シェイク用ランダム
-// TODO: 後で画面シェイクの切り分け時点で消す
-#include <random>
-
 #include <SDL2/SDL.h>
 
 #include "Scene.hpp"
@@ -21,6 +17,7 @@
 #include "CollisionSystem.hpp"
 #include "BlockSystem.hpp"
 #include "ItemSystem.hpp"
+#include "CameraShakeController.hpp"
 
 #include "GameEventBuffer.hpp"
 #include "PlayerStateSystem.hpp"
@@ -51,15 +48,6 @@ enum class RunState{
  */
 class PlayingScene : public Scene{
 private:
-    // 画面シェイク仮実装用のメンバ変数
-    // TODO: 実装が安定したら別システムなどへ切り出す
-    double shakeTimer = 0.0;        // シェイク時間
-    double shakeDuration = 0.0;     // シェイクの間隔
-    double shakeMagnitude = 0.0;    // シェイクの強さ
-    double shakeOffset_X = 0.0;     // シェイクのX軸のズレ
-    double shakeOffset_Y = 0.0;     // シェイクのY軸のズレ
-    // シェイク用ランダム分布
-    std::uniform_real_distribution<double> shakeDist{-1.0, 1.0};
     // 生存時間加算用変数
     double survivalScoreRemainder = 0.0;
     // ポーズ判定用変数
@@ -92,6 +80,8 @@ private:
     std::unique_ptr<TextTexture> pauseTitleText;
     std::unique_ptr<TextTexture> gameResumeText;
     std::unique_ptr<TextTexture> backToTitleText;
+    // 画面シェイク
+    CameraShakeController cameraShake;
     // デバッグ表示用のテキストテクスチャ
     std::unique_ptr<TextTexture> debugText;
     
@@ -106,14 +96,8 @@ public:
     virtual void onExit() override;
 
 private:
-    // 画面シェイクAPI
-    // カメラの揺れ処理の呼び出し
-    void startCameraShake(double duration, double magnitude);
-    // カメラのシェイク用Offset設定
-    void updateCameraShake(double delta);
     // 画面シェイクイベント消費用
     void consumeShakeEffectEvents();
-
     // update内部で呼ばれる処理の分割
     void handlePlayingInput(const InputState& is);
     void updateScore(double delta);

@@ -33,6 +33,7 @@ add_executable(${PROJECT_NAME}
     src/BossEnemy.cpp
     src/Bullet.cpp
     src/Camera.cpp
+    src/CameraShakeController.cpp
     src/Character.cpp
     src/ChaserEnemy.cpp
     src/ClearScene.cpp
