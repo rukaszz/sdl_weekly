@@ -30,6 +30,7 @@ add_executable(${PROJECT_NAME}
     src/BlockRenderer.cpp
     src/BlockSystem.cpp
     src/BossAISystem.cpp
+    src/BossBattleSystem.cpp
     src/BossEnemy.cpp
     src/Bullet.cpp
     src/Camera.cpp

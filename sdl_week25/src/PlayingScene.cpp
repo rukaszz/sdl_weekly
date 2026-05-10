@@ -15,6 +15,7 @@
 #include "MusicId.hpp"
 #include "BackgroundRenderer.hpp"
 #include "BackgroundPresetBuilder.hpp"
+#include "BossBattleSystem.hpp"
 
 #include "BossEnemy.hpp"
 #include "TurretEnemy.hpp"
@@ -50,13 +51,12 @@ PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
         ctx.entityCtx.blockRectCaches, 
         ctx.worldInfo, 
         ctx.entityCtx.player
-    ), bossAI(
+    ), bossBattleSystem(
         ctx.entityCtx.boss,
         ctx.entityCtx.player,
-        ctx.entityCtx.blocks, 
-        ctx.entityCtx.blockRectCaches, 
-        ctx.worldInfo, 
-        bossBattle
+        ctx.entityCtx.blocks,
+        ctx.entityCtx.blockRectCaches,
+        ctx.worldInfo
     ), collision(
         ctx.entityCtx.player, 
         ctx.entityCtx.enemies, 
@@ -123,7 +123,8 @@ void PlayingScene::update(double delta){
     //ctx.entityCtx.player.beginFrameFeetCollisionSample();
     ctx.entityCtx.player.beginFrameCollisionSample();
     // ボス戦開始点を超えたか判定
-    updateBossBattleTrigger();
+    // updateBossBattleTrigger();
+    bossBattleSystem.updateTrigger(ctx.musicSystem, ctx.events);
     // 3. worldInfoを用いた幅のクランプ処理
     DrawBounds worldBounds = {
         .min_X = 0.0, 
@@ -132,15 +133,15 @@ void PlayingScene::update(double delta){
         .max_Y = ctx.worldInfo.WorldHeight
     };
     // ボス戦では制限した範囲内にPlayerを閉じ込める
-    if(bossBattle.isActive()){
-        worldBounds.min_X = bossBattle.cameraMin_X;
-        worldBounds.max_X = bossBattle.cameraMax_X;
+    if(bossBattleSystem.isActive()){
+        worldBounds.min_X = bossBattleSystem.getCameraMin_X();
+        worldBounds.max_X = bossBattleSystem.getCameraMax_X();
     }
     // 4. スコア更新
     updateScore(delta);
     // 5. 敵センサの収集とAIの更新
     enemyAI.update(delta);
-    bossAI.update(delta);
+    bossBattleSystem.updateAI(delta);
     // 6. 物理の更新(弾系はここで更新していない)
     updateEntities(delta, worldBounds);
     // Playerがこのフレームでジャンプしたかチェック
@@ -162,8 +163,9 @@ void PlayingScene::update(double delta){
     ctx.entityCtx.player.flushPendingFormChange(ctx.entityCtx.blocks);
     // 9. 弾(projectile)の処理
     // ボス戦状態ならここで処理する
-    if(bossBattle.isActive()){
-        updateBoss(delta, worldBounds);
+    if(bossBattleSystem.isActive()){
+        // updateBoss(delta, worldBounds);
+        bossBattleSystem.updateBoss(delta, worldBounds, is);
         projectiles.spawnBossBullets(ctx.entityCtx.boss);
     }
     // 敵弾生成(Turretへの射出要求を消費)
@@ -178,16 +180,17 @@ void PlayingScene::update(double delta){
     collision.resolveEnemyCollision(ctx.events);
     // 弾の当たり判定は System に移す(detectCollisionから除外している)
     projectiles.resolveCollisions(
-        ctx.entityCtx.player, 
-        ctx.entityCtx.enemies, 
+        ctx.entityCtx.player,
+        ctx.entityCtx.enemies,
         ctx.entityCtx.boss,
-        bossBattle.isActive(), 
+        bossBattleSystem.isActive(),
         ctx.events
     );
     // 11. 落下死判定
     collision.checkFallDeath(ctx.events);    
     // 12. ボス戦トリガーの監視
-    updateBossBattleResult();
+    // updateBossBattleResult();
+    bossBattleSystem.checkBattleResult(ctx.events);
     // 13. Scene内のイベント消費
     consumeShakeEffectEvents();
     // 14. カメラ座標の更新
@@ -230,9 +233,10 @@ void PlayingScene::render(){
     for(auto& e : ctx.entityCtx.enemies){
        e->draw(ctx.renderer, shaken);
     }
-    if(bossBattle.isActive()){
+    if(bossBattleSystem.isActive()){
         ctx.entityCtx.boss.draw(ctx.renderer, shaken);
-        renderBossHpBar();  // 注：Dyingでも表示させる
+        // renderBossHpBar();  // 注：Dyingでも表示させる
+        bossBattleSystem.renderHpBar(ctx.renderer, ctx.camera);
     }
     // デバッグ情報表示
     debugText->draw(ctx.renderer, 20, 80);
@@ -273,7 +277,9 @@ void PlayingScene::onEnter(){
     enemyAI.onStageLoaded();
     collision.onStageLoaded();
     // ボス関係の変数初期化
-    initBossBattle();
+    // initBossBattle();
+    const auto& def = ctrl.getCurrentStageDefinition();
+    bossBattleSystem.init(def);
     // BGM再生
     ctx.musicSystem.playIfChanged(MusicId::Playing);
 }
@@ -390,10 +396,10 @@ void PlayingScene::updateCamera(){
     ctx.camera.x = playerCenter_X - (ctx.camera.width / 2.0);
 
     // カメラ追従の補正
-    if(bossBattle.isActive()){
+    if(bossBattleSystem.isActive()){
         // ボス戦の場合はボス戦に向けた補正をする
-        const double bossCameraMaxLeft = bossBattle.cameraMax_X - ctx.camera.width;
-        ctx.camera.x = std::clamp(ctx.camera.x, bossBattle.cameraMin_X, bossCameraMaxLeft);
+        const double bossCameraMaxLeft = bossBattleSystem.getCameraMax_X() - ctx.camera.width;
+        ctx.camera.x = std::clamp(ctx.camera.x, bossBattleSystem.getCameraMin_X(), bossCameraMaxLeft);
     } else {
         // WorldInfo.WorldWidthでクランプする
         const double maxCamera_X = std::max(0.0, (ctx.worldInfo.WorldWidth - ctx.camera.width));
@@ -467,120 +473,120 @@ void PlayingScene::consumeShakeEffectEvents(){
 }
 
 // ボス系処理
-/**
- * @brief BossEnemyとBossBattleStateの初期化処理
- * 
- */
-void PlayingScene::initBossBattle(){
-    // StageDefinitionを取得
-    const auto& def = ctrl.getCurrentStageDefinition();
-    // BossBattleState
-    bossBattle.phase          = def.bossBattleDef.enabled
-        ? BossBattlePhase::WaitingTrigger : BossBattlePhase::None;
-    bossBattle.trigger_X      = def.bossBattleDef.trigger_X;
-    bossBattle.cameraMin_X    = def.bossBattleDef.cameraMin_X;
-    bossBattle.cameraMax_X    = def.bossBattleDef.cameraMax_X;
-    // ボスのスポーン位置などはloadStage()でやる
-}
+// /**
+//  * @brief BossEnemyとBossBattleStateの初期化処理
+//  * 
+//  */
+// void PlayingScene::initBossBattle(){
+//     // StageDefinitionを取得
+//     const auto& def = ctrl.getCurrentStageDefinition();
+//     // BossBattleState
+//     bossBattle.phase          = def.bossBattleDef.enabled
+//         ? BossBattlePhase::WaitingTrigger : BossBattlePhase::None;
+//     bossBattle.trigger_X      = def.bossBattleDef.trigger_X;
+//     bossBattle.cameraMin_X    = def.bossBattleDef.cameraMin_X;
+//     bossBattle.cameraMax_X    = def.bossBattleDef.cameraMax_X;
+//     // ボスのスポーン位置などはloadStage()でやる
+// }
 
-/**
- * @brief BossBattleStateの監視・更新関数
- * ボスが負けたかなどの状態をチェックする
- * 
- */
-void PlayingScene::updateBossBattleTrigger(){
-    // ボス戦が無いステージでは処理しない
-    if(!bossBattle.isWaiting()){
-        return;
-    }
-    // プレイヤーの中心座標
-    const double player_X = ctx.entityCtx.player.getEntityCenter_X();
-    if(player_X >= bossBattle.trigger_X){
-        bossBattle.phase = BossBattlePhase::Active;
-        // BGM再生
-        ctx.musicSystem.playIfChanged(MusicId::Boss);
-        // 画面シェイク
-        // startCameraShake(0.30, 12.0);
-        ctx.events.startCameraShake(0.30, 12.0);
-    }
-}
+// /**
+//  * @brief BossBattleStateの監視・更新関数
+//  * ボスが負けたかなどの状態をチェックする
+//  * 
+//  */
+// void PlayingScene::updateBossBattleTrigger(){
+//     // ボス戦が無いステージでは処理しない
+//     if(!bossBattle.isWaiting()){
+//         return;
+//     }
+//     // プレイヤーの中心座標
+//     const double player_X = ctx.entityCtx.player.getEntityCenter_X();
+//     if(player_X >= bossBattle.trigger_X){
+//         bossBattle.phase = BossBattlePhase::Active;
+//         // BGM再生
+//         ctx.musicSystem.playIfChanged(MusicId::Boss);
+//         // 画面シェイク
+//         // startCameraShake(0.30, 12.0);
+//         ctx.events.startCameraShake(0.30, 12.0);
+//     }
+// }
 
-/**
- * @brief ボス関係のデータの更新
- * 
- */
-void PlayingScene::updateBoss(double delta, DrawBounds bounds){
-    // boss, inputstate取得
-    auto& boss = ctx.entityCtx.boss;
-    const InputState& is = ctx.input.getState();
+// /**
+//  * @brief ボス関係のデータの更新
+//  * 
+//  */
+// void PlayingScene::updateBoss(double delta, DrawBounds bounds){
+//     // boss, inputstate取得
+//     auto& boss = ctx.entityCtx.boss;
+//     const InputState& is = ctx.input.getState();
 
-    boss.update(delta, is, bounds, ctx.entityCtx.blocks);
-}
+//     boss.update(delta, is, bounds, ctx.entityCtx.blocks);
+// }
 
-/**
- * @brief ボスに勝ったかどうかの判定を行う関数
- * 
- */
-void PlayingScene::updateBossBattleResult(){
-    if(!bossBattle.isActive()){
-        return;
-    }
-    // ボスが死んだ際の処理
-    if(!ctx.entityCtx.boss.isDead()){
-        return;
-    }
-    bossBattle.phase = BossBattlePhase::Defeated;
-    ctx.events.requestScene(GameScene::Clear);
-}
+// /**
+//  * @brief ボスに勝ったかどうかの判定を行う関数
+//  * 
+//  */
+// void PlayingScene::updateBossBattleResult(){
+//     if(!bossBattle.isActive()){
+//         return;
+//     }
+//     // ボスが死んだ際の処理
+//     if(!ctx.entityCtx.boss.isDead()){
+//         return;
+//     }
+//     bossBattle.phase = BossBattlePhase::Defeated;
+//     ctx.events.requestScene(GameScene::Clear);
+// }
 
-/**
- * @brief ボスのHPバーの描画関数
- * render()で呼び出す
- * 
- */
-void PlayingScene::renderBossHpBar(){
-    // 座標
-    const int bar_W = UIConfig::BossHpBarConfig::BAR_W;
-    const int bar_H = UIConfig::BossHpBarConfig::BAR_H;
-    const int bar_X = static_cast<int>((ctx.camera.width - bar_W)/2.0); // 画面中央
-    const int bar_Y = UIConfig::BossHpBarConfig::BAR_Y;
-    // ボスのHP取得
-    const int hp = ctx.entityCtx.boss.getHp();
-    const int maxHp = ctx.entityCtx.boss.getMaxHp();
-    if(maxHp <= 0){
-        return;
-    }
-    // バーの比率
-    double hpRatio = std::clamp(static_cast<double>(hp) / static_cast<double>(maxHp), 0.0, 1.0);
-    // HPバーの幅を比率に合わせる
-    const int filled_W = static_cast<int>(bar_W * hpRatio);
-    // HPバーの矩形定義(Frameは少し大き目)
-    const int offset = UIConfig::BossHpBarConfig::FRAME_OFFSET;
-    const SDL_Rect frameRect = {bar_X-offset, bar_Y-offset, bar_W+(offset*2), bar_H+(offset*2)};
-    const SDL_Rect bgRect    = {bar_X, bar_Y, bar_W, bar_H};
-    const SDL_Rect fillRect  = {bar_X, bar_Y, filled_W, bar_H};
-    // HPバーの矩形色定義
-    // 枠
-    const SDL_Color frameColor = UIConfig::BossHpBarConfig::FRAME_COLOR;
-    // 背景
-    const SDL_Color bgColor    = UIConfig::BossHpBarConfig::BG_COLOR;
-    // HPバーの色
-    SDL_Color fillColor{};
-    if(hpRatio > 0.6){
-        // 緑
-        fillColor = UIConfig::BossHpBarConfig::HIGH_HP_COLOR;
-    } else if(hpRatio > 0.3){
-        // 黄
-        fillColor = UIConfig::BossHpBarConfig::MIDDLE_HP_COLOR;
-    } else {
-        // 赤
-        fillColor = UIConfig::BossHpBarConfig::LOW_HP_COLOR;
-    }
-    // 描画：枠→背景→HPバーの順
-    // 枠
-    ctx.renderer.drawRect(frameRect, frameColor);
-    // 背景
-    ctx.renderer.drawRect(bgRect, bgColor);
-    // HPバー
-    ctx.renderer.drawRect(fillRect, fillColor);
-}
+// /**
+//  * @brief ボスのHPバーの描画関数
+//  * render()で呼び出す
+//  * 
+//  */
+// void PlayingScene::renderBossHpBar(){
+//     // 座標
+//     const int bar_W = UIConfig::BossHpBarConfig::BAR_W;
+//     const int bar_H = UIConfig::BossHpBarConfig::BAR_H;
+//     const int bar_X = static_cast<int>((ctx.camera.width - bar_W)/2.0); // 画面中央
+//     const int bar_Y = UIConfig::BossHpBarConfig::BAR_Y;
+//     // ボスのHP取得
+//     const int hp = ctx.entityCtx.boss.getHp();
+//     const int maxHp = ctx.entityCtx.boss.getMaxHp();
+//     if(maxHp <= 0){
+//         return;
+//     }
+//     // バーの比率
+//     double hpRatio = std::clamp(static_cast<double>(hp) / static_cast<double>(maxHp), 0.0, 1.0);
+//     // HPバーの幅を比率に合わせる
+//     const int filled_W = static_cast<int>(bar_W * hpRatio);
+//     // HPバーの矩形定義(Frameは少し大き目)
+//     const int offset = UIConfig::BossHpBarConfig::FRAME_OFFSET;
+//     const SDL_Rect frameRect = {bar_X-offset, bar_Y-offset, bar_W+(offset*2), bar_H+(offset*2)};
+//     const SDL_Rect bgRect    = {bar_X, bar_Y, bar_W, bar_H};
+//     const SDL_Rect fillRect  = {bar_X, bar_Y, filled_W, bar_H};
+//     // HPバーの矩形色定義
+//     // 枠
+//     const SDL_Color frameColor = UIConfig::BossHpBarConfig::FRAME_COLOR;
+//     // 背景
+//     const SDL_Color bgColor    = UIConfig::BossHpBarConfig::BG_COLOR;
+//     // HPバーの色
+//     SDL_Color fillColor{};
+//     if(hpRatio > 0.6){
+//         // 緑
+//         fillColor = UIConfig::BossHpBarConfig::HIGH_HP_COLOR;
+//     } else if(hpRatio > 0.3){
+//         // 黄
+//         fillColor = UIConfig::BossHpBarConfig::MIDDLE_HP_COLOR;
+//     } else {
+//         // 赤
+//         fillColor = UIConfig::BossHpBarConfig::LOW_HP_COLOR;
+//     }
+//     // 描画：枠→背景→HPバーの順
+//     // 枠
+//     ctx.renderer.drawRect(frameRect, frameColor);
+//     // 背景
+//     ctx.renderer.drawRect(bgRect, bgColor);
+//     // HPバー
+//     ctx.renderer.drawRect(fillRect, fillColor);
+// }

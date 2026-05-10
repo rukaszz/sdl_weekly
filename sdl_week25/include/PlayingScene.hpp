@@ -13,7 +13,7 @@
 
 #include "ProjectileSystem.hpp"
 #include "EnemyAISystem.hpp"
-#include "BossAISystem.hpp"
+#include "BossBattleSystem.hpp"
 #include "CollisionSystem.hpp"
 #include "BlockSystem.hpp"
 #include "ItemSystem.hpp"
@@ -21,7 +21,6 @@
 
 #include "GameEventBuffer.hpp"
 #include "PlayerStateSystem.hpp"
-#include "BossBattleState.hpp"
 #include "BackgroundId.hpp"
 
 class Game;
@@ -58,8 +57,8 @@ private:
     ProjectileSystem projectiles;
     // Enemyの行動判定用のSensor処理
     EnemyAISystem enemyAI;
-    // Bossの行動判定用Sensor処理
-    BossAISystem bossAI;
+    // ボス戦管理
+    BossBattleSystem bossBattleSystem;
     // 衝突処理管理用
     CollisionSystem collision;
     // イベント管理用
@@ -70,8 +69,6 @@ private:
     ItemSystem items;
     // Playerの状態管理用
     PlayerStateSystem playerState;
-    // ボス演出系
-    BossBattleState bossBattle;
     // Itemレンダリング用
     ItemRenderer itemRenderer;
     // Blockレンダリング用
@@ -107,6 +104,7 @@ private:
     void renderPauseOverlay();
     // 背景読み込み処理
     void loadBackground();
+    /*
     // ボス関係※現状1体なのでSystemに分割しない
     // ステージ入場時に1回呼ぶ初期化関数
     void initBossBattle();
@@ -118,6 +116,7 @@ private:
     void updateBossBattleResult();
     // ボスのHPバー描画関数
     void renderBossHpBar();
+    */
 };
 
 #endif  // PLAYINGSCENE_H

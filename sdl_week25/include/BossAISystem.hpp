@@ -38,8 +38,7 @@ public:
     void onStageLoaded();
     // 更新関数
     void update(double delta);
-
-private:
+    // ボスの行動判断用のセンサーデータ収集
     EnemySensor buildBossSensor() const;
 };
 
