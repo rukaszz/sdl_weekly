@@ -2698,6 +2698,187 @@ void PlayingScene::updateCameraShake(double delta){
 
 week25ではゲームの完成度を上げていく予定である．
 
+## week25
+
+### week25の概要
+
+week24で課題となっていた画面シェイクの設計を見直し，イベント駆動方式への移行とCameraShakeControllerクラスへの切り出しを実施した．
+あわせて，PlayingSceneに直接記述していたボス処理一式をBossBattleSystemクラスへ切り出し，PlayingSceneの責務を減らしサブシステムへ分離した．
+
+### 画面シェイクのリファクタリング
+
+#### CameraShakeControllerクラスへの切り出し
+
+week24時点では，画面シェイクAPIはPlayingSceneのメンバ変数と関数として直接実装していた．PlayingSceneはゲームプレイの中核を成すため，肥大化しやすい傾向にある．week25ではCameraShakeControllerクラスに切り出し，PlayingSceneをコンパクトにした．
+
+CameraShakeControllerは次の4つのAPIを持つ：
+
+- start(newDuration, newMagnitude)：シェイクの持続時間と強さを設定する
+- update\<RandomEngine\>(delta, rng)：update()内で毎フレーム呼び，時間経過で振幅を減衰させる
+- applyToCamera(camera)：シェイクのオフセットを加算したCamera座標のコピーを返す
+- reset()：全メンバ変数を0に戻す
+
+render()での利用はweek24と同様，スコアなどのUIにはctx.cameraを用いて，シェイクの影響を受けないようにしている．
+
+```cpp
+void PlayingScene::render(){
+    Camera shaken = cameraShake.applyToCamera(ctx.camera);
+    bgRenderer.renderBackground(ctx.renderer, shaken);
+    // ...以降の描画もshakenを使う
+}
+```
+
+#### update()のテンプレート定義
+
+update()はRandomEngineをテンプレートパラメータとして取る関数テンプレートである．
+テンプレートの実体化はコンパイル時にインクルード先で行われるため，実装を.cppに置くとリンカがシンボルを解決できずにリンクエラーとなる(ODR問題)．
+そのためupdate()の実装はヘッダに直接記述している：
+
+```cpp
+// CameraShakeController.hpp
+template<typename RandomEngine>
+void update(double delta, RandomEngine& rng){
+    if(timer <= 0.0){ reset(); return; }
+    timer = std::max(0.0, timer - delta);
+    const double ratio      = (duration > 0.0) ? (timer / duration) : 0.0;
+    const double currentMag = magnitude * ratio;
+    shakeOffset_X = dist(rng) * currentMag;
+    shakeOffset_Y = dist(rng) * currentMag * 0.5;
+}
+```
+
+#### start()のシェイク強度管理
+
+複数のシェイクが重なる場合を考慮し，start()では現在の「実効強度」と新しいmagnitudeを比較する．これによって，シェイクイベントが複数回発生した場合に，強いシェイクイベントが優先されるようになった．
+
+```cpp
+void CameraShakeController::start(double newDuration, double newMagnitude){
+    const double currentStrength = (duration > 0.0 && timer > 0.0)
+        ? (magnitude * (timer / duration)) : 0.0;
+    if(newMagnitude >= currentStrength){
+        duration  = newDuration;
+        timer     = newDuration;
+        magnitude = newMagnitude;
+        return;
+    }
+    // 弱いシェイクの場合はタイマーだけ少し延ばす
+    timer = std::max(timer, newDuration);
+}
+```
+
+新しいシェイクが現在の実効強度より大きい場合は全変数を上書きし，弱い場合はタイマーだけ延長する．
+これにより，強い揺れの途中で弱い揺れが呼ばれても既存の揺れが中断されないようにしている．
+
+#### イベント駆動方式への移行
+
+week24の課題であった「PlayingScene外のサブシステムから画面シェイクを起動できない」問題に対応した．
+
+GameEventのvariantにStartCameraShakeEventを追加し，IGameEventsにstartCameraShake()を追加した：
+
+```cpp
+struct StartCameraShakeEvent{
+    double duration;
+    double magnitude;
+};
+
+// IGameEvents
+// 画面シェイクイベントを発行する
+virtual void startCameraShake(double duration, double magnitude) = 0;
+```
+
+これにより，CollisionSystemやBossBattleSystemはIGameEventsを通じてシェイクイベントを発行できる．
+PlayingSceneはconsumeShakeEffectEvents()でイベントバッファを走査し，cameraShake.start()を呼び出す：
+
+```cpp
+void PlayingScene::consumeShakeEffectEvents(){
+    ctx.eventBuffer.consumeIf(
+        [](const GameEvent& ev){
+            return std::holds_alternative<StartCameraShakeEvent>(ev);
+        },
+        [&](const GameEvent& ev){
+            const auto& cse = std::get<StartCameraShakeEvent>(ev);
+            cameraShake.start(cse.duration, cse.magnitude);
+        }
+    );
+}
+```
+
+#### シェイクを適用したイベント
+
+| イベント | duration | magnitude |
+| --- | --- | --- |
+| ボス登場時 | 0.30秒 | 12.0 |
+| 被弾（Downgrade） | 0.18秒 | 10.0 |
+| 被弾（即死） | 0.25秒 | 14.0 |
+
+ブロックの殴打時はシェイクを実装しない方針とした(演出として過剰と判断)．
+
+### BossBattleSystemへのボス処理の切り出し
+
+#### ボス戦切り出しの概要
+
+ボスが1種類である都合上PlayingSceneに直接記述していたボス関係の5つの関数(initBossBattle / updateBossBattleTrigger / updateBoss / updateBossBattleResult / renderBossHpBar)をPlayingSceneから切り離し，BossBattleSystemクラスに移管した．
+
+#### BossBattleSystemのメンバ設計
+
+BossBattleSystemはBossBattleStateとBossAISystemを内部で所有する．
+そのため，BossBattleSystemは初期化順序を考慮しなければならない．
+BossAISystemのコンストラクタはconst BossBattleStateを要求するため，stateが確実に先に初期化されている必要がある．
+C++ではメンバ変数の初期化順序は宣言順で保証されているため，stateをbossAIより先に宣言することで，初期化子リスとでstateの参照を安全にbossAIへ渡せる：
+
+```cpp
+class BossBattleSystem{
+private:
+    BossBattleState state;  // 先に宣言されるため先に初期化される
+    BossAISystem bossAI;    // stateへの参照を保持するため後に宣言
+
+public:
+    BossBattleSystem(
+        BossEnemy& boss_, const Player& player_,
+        const std::vector<Block>& blocks_,
+        const std::vector<SDL_Rect>& blockRects_,
+        const WorldInfo& world_
+    );
+};
+
+BossBattleSystem::BossBattleSystem(...)
+  : boss(boss_)
+  , bossAI(boss_, player_, blocks_, blockRects_, world_, state)  // stateは宣言順で既に初期化済み
+  , player(player_)
+  , blocks(blocks_)
+{}
+```
+
+外部からstateやbossAIの参照を受け取ってコピーする設計にしてしまっていたが，それでは「PlayingSceneのbossBattle」と「BossBattleSystem::state」が別オブジェクトになってしまい状態が乖離する．BossBattleSystemが内部でstateを所有し，stateへの参照をbossAIに渡す一元管理になるようにしている
+
+#### 提供するAPI
+
+- init(def)：ステージ定義からBossBattleStateを初期化する
+- onStageLoaded()：ステージロード時の通知
+- updateTrigger(music, events)：ボス戦開始トリガーの監視と発火
+- updateAI(delta)：ボスのAI（センサ収集とthink）の更新
+- updateBoss(delta, bounds, is)：ボスの物理更新ラッパ
+- checkBattleResult(events)：ボス撃破判定と次シーンへの遷移要求
+- renderHpBar(renderer, camera)：ボスHPバーの描画
+- isActive() / isWaiting() / hasBoss() / getCameraMin_X() / getCameraMax_X()：PlayingSceneが状態を参照するためのgetter
+
+#### PlayingSceneの改修
+
+- メンバ変数からBossBattleState bossBattleとBossAISystem bossAIを削除し，BossBattleSystem bossBattleSystem一本に集約
+- bossBattle.isActive()などの直接アクセスがbossBattleSystem.isActive()などのgetterへ統一された
+- onEnter()でのボス初期化がbossBattleSystem.init(def)に修正う
+
+### week25の課題
+
+- パーティクルシステムの実装
+  - 敵の撃破時や着地時などにパーティクルを散らす演出を追加する
+  - PlayingSceneを汚染しないよう，専用のParticleSystemとして切り出す設計が望ましい
+- 一部処理のリファクタリング
+  - すり抜け床の通過
+  - プレイヤーの形態遷移の一部不具合
+
+week26では主にパーティクルシステムの実装を進める予定である．
+
 ## アセット
 
 詳細はATTRIBUTIONを参照．
