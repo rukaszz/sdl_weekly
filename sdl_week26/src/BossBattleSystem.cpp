@@ -117,8 +117,9 @@ void BossBattleSystem::updateBoss(double delta, const DrawBounds& bounds, const 
     if(!state.isActive()){
         return;
     }
-    // ボスが生きていない
-    if(!boss.isAlive()){
+    // Dead(Dying完了済み)なら更新不要
+    // Dying中はupdate()を呼んでアニメーションを進める必要があるため，ここではisDeadで判定する
+    if(boss.isDead()){
         return;
     }
     boss.update(delta, is, bounds, blocks);

@@ -148,5 +148,6 @@ void GameOverScene::onEnter(){
  * 
  */
 void GameOverScene::onExit(){
-
+    // Player死亡→リトライ時にPlayerFormなどをリセットする
+    ctx.entityCtx.player.resetForNewGame();
 }
