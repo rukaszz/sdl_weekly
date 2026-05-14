@@ -28,6 +28,7 @@
 #include "EnemyBulletConfig.hpp"
 #include "UIConfig.hpp"
 #include "BossBattleState.hpp"
+#include "ParticleConfig.hpp"
 
 /**
  * @brief Construct a new Playing Scene:: Playing Scene object
@@ -193,11 +194,14 @@ void PlayingScene::update(double delta){
     bossBattleSystem.checkBattleResult(ctx.events);
     // 13. Scene内のイベント消費
     consumeShakeEffectEvents();
+    consumeParticleEvents();
     // 14. カメラ座標の更新
     updateCamera();
     // 画面シェイク
     cameraShake.update(delta, ctx.randomCtx.random);
-    // 14. 消費系オブジェクトの片付け
+    // 15. パーティクルの更新
+    particles.update(delta);
+    // 16. 消費系オブジェクトの片付け
     projectiles.cleanup();
     items.cleanup();
     // デバッグ情報取得
@@ -238,6 +242,8 @@ void PlayingScene::render(){
         // renderBossHpBar();  // 注：Dyingでも表示させる
         bossBattleSystem.renderHpBar(ctx.renderer, ctx.camera);
     }
+    // パーティクルの描画
+    particles.render(ctx.renderer, shaken);
     // デバッグ情報表示
     debugText->draw(ctx.renderer, 20, 80);
     // テキスト描画
@@ -468,6 +474,33 @@ void PlayingScene::consumeShakeEffectEvents(){
         [&](const GameEvent& ev){
             const auto& cse = std::get<StartCameraShakeEvent>(ev);
             cameraShake.start(cse.duration, cse.magnitude);
+        }
+    );
+}
+
+/**
+ * @brief パーティクルイベントの消費
+ * イベントバッファに存在するパーティクル発生イベントを消費してパーティクルを発生させる
+ * 
+ */
+void PlayingScene::consumeParticleEvents(){
+    // バッファを走査
+    ctx.eventBuffer.consumeIf(
+        // StartCameraShakeEvents型があるかを判定(holds_alternative)
+        [](const GameEvent& ev){
+            return std::holds_alternative<SpawnParticleEvent>(ev);
+        }, 
+        // StartCameraShakeEventsを取り出して画面シェイクAPIを呼び出す
+        [&](const GameEvent& ev){
+            const auto& spe = std::get<SpawnParticleEvent>(ev);
+            switch(spe.id){
+            case ParticleEffectId::CoinSpark:
+                particles.spawnCoinSpark(spe.x, spe.y);
+                break;
+            case ParticleEffectId::EnemyBurst:
+                particles.spawnEnemyBurst(spe.x, spe.y);
+                break;
+            }
         }
     );
 }

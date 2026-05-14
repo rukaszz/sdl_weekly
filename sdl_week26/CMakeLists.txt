@@ -50,6 +50,7 @@ add_executable(${PROJECT_NAME}
     src/ItemSystem.cpp
     src/JumperEnemy.cpp
     src/MusicSystem.cpp
+    src/ParticleSystem.cpp
     src/Physics.cpp
     src/Player.cpp
     src/PlayerEnemyCollisionUtil.cpp

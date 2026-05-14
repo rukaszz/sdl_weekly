@@ -18,6 +18,7 @@
 #include "BlockSystem.hpp"
 #include "ItemSystem.hpp"
 #include "CameraShakeController.hpp"
+#include "ParticleSystem.hpp"
 
 #include "GameEventBuffer.hpp"
 #include "PlayerStateSystem.hpp"
@@ -79,6 +80,8 @@ private:
     std::unique_ptr<TextTexture> backToTitleText;
     // 画面シェイク
     CameraShakeController cameraShake;
+    // パーティクル
+    ParticleSystem particles;
     // デバッグ表示用のテキストテクスチャ
     std::unique_ptr<TextTexture> debugText;
     
@@ -95,6 +98,8 @@ public:
 private:
     // 画面シェイクイベント消費用
     void consumeShakeEffectEvents();
+    // パーティクル表示イベント消費用
+    void consumeParticleEvents();
     // update内部で呼ばれる処理の分割
     void handlePlayingInput(const InputState& is);
     void updateScore(double delta);

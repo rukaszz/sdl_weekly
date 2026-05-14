@@ -2,6 +2,8 @@
 #define PARTICLECONFIG_H
 
 #include <array>
+#include <numbers>
+
 #include <SDL2/SDL.h>
 
 // Particle用定数
@@ -10,16 +12,29 @@ namespace ParticleConfig{
     static inline constexpr SDL_Color YELLOW = {255, 220, 50, 255};
     static inline constexpr SDL_Color ORANGE = {255, 120, 0, 255};
 
+    // 定数として1/sqrt(2)を定義
+    static inline constexpr double INV_SQRT2 = std::numbers::sqrt2 / 2.0;
+    // 画面に存在できるパーティクルの最大数
+    static inline constexpr std::size_t MAX_PARTICLES = 256;
+
     // 拡散方向の設定(int(型)の初期化が必要なので，波括弧は3つ使う)
-    // それぞれ正規化済み
+    // それぞれ正規化
+    // 斜め方向はx, yがそれぞれ1だとsqrt(2)倍速になるので，1/sqrt(2)で正規化する
     // 斜め4方向
-    std::array<std::array<int, 2>, 4> DIRECTION_4 = {{
-        {1, 1}, {-1, 1}, {1, -1}, {-1, -1}
+    static inline constexpr std::array<std::array<double, 2>, 4> DIRECTION_4 = {{
+        {INV_SQRT2, INV_SQRT2},     // 右上
+        {-INV_SQRT2, INV_SQRT2},    // 左上
+        {INV_SQRT2, -INV_SQRT2},    // 右下
+        {-INV_SQRT2, -INV_SQRT2}    // 左下
     }};
     // 8方向
-    std::array<std::array<int, 2>, 8> DIRECTION_8 = {{
-        {1, 0}, {-1, 0}, {0, 1}, {0, -1}, 
-        {1, 1}, {-1, 1}, {1, -1}, {-1, -1}
+    static inline constexpr std::array<std::array<double, 2>, 8> DIRECTION_8 = {{
+        {1.0, 0.0}, {-1.0, 0.0},    // 右，左
+        {0.0, 1.0}, {0.0, -1.0},    // 上，下
+        {INV_SQRT2, INV_SQRT2},     // 右上
+        {-INV_SQRT2, INV_SQRT2},    // 左上
+        {INV_SQRT2, -INV_SQRT2},    // 右下
+        {-INV_SQRT2, -INV_SQRT2}    // 左下
     }};
 
     // パーティクルの設定値
@@ -29,14 +44,14 @@ namespace ParticleConfig{
         int size;
     };
     // coin取得時
-    static inline constexpr ParticleMetrics COINSPARK{
+    static inline constexpr ParticleMetrics COIN_SPARK{
         100.0,  // speed 
         0.35,   // life
         5,      // size
     };
     // 敵撃破時
-    static inline constexpr ParticleMetrics ENEMYBURST{
-        80.0,  // speed 
+    static inline constexpr ParticleMetrics ENEMY_BURST{
+        80.0,   // speed 
         0.45,   // life
         6,      // size
     };

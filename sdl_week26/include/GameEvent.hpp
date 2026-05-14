@@ -10,8 +10,6 @@
 
 #include "GameScene.hpp"
 
-// enum class GameScene;
-
 /**
  * @brief アイテムの種類を定義
  * 
@@ -46,6 +44,15 @@ enum class SoundId : std::uint8_t{
     Coin, 
     PauseOpen, 
     PauseClose, 
+};
+
+/**
+ * @brief パーティクルのID
+ * 
+ */
+enum class ParticleEffectId : std::uint8_t{
+    CoinSpark, 
+    EnemyBurst, 
 };
 
 /**
@@ -108,6 +115,16 @@ struct StartCameraShakeEvent{
     double magnitude;
 };
 
+/**
+ * @brief パーティクルを出現させるイベント用の型
+ * 
+ */
+struct SpawnParticleEvent{
+    ParticleEffectId id;
+    double x;
+    double y;
+};
+
 // このGameEventはRequestSceneEvent, AddScoreEvent, ...を型安全に切り替えられる
 using GameEvent = std::variant<
                         RequestSceneEvent, 
@@ -116,7 +133,8 @@ using GameEvent = std::variant<
                         CollectItemEvent,
                         BlockHitEvent, 
                         PlaySoundEvent, 
-                        StartCameraShakeEvent
+                        StartCameraShakeEvent, 
+                        SpawnParticleEvent
                     >;
 
 #endif  // GAMEEVENT_H

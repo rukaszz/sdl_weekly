@@ -25,7 +25,7 @@ public:
     // 更新関数
     void update(double delta);
     // 描画
-    void render(Renderer& remderer, const Camera& camera) const;
+    void render(Renderer& renderer, const Camera& camera) const;
     // クリア
     void clear();
 };

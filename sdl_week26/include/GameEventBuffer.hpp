@@ -80,6 +80,10 @@ public:
     void startCameraShake(double duration, double magnitude) override{
         q.emplace_back(StartCameraShakeEvent{duration, magnitude});
     }
+    // パーティクル発生イベント
+    void spawnParticle(ParticleEffectId id, double x, double y){
+        q.emplace_back(SpawnParticleEvent{id, x, y});
+    }
     /**
      * @brief 特定のイベントだけ消費して削除する処理
      * vectorのeraseはO(n^2)かかるが，この方法はO(n)で終わる

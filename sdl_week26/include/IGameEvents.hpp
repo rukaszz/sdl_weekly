@@ -20,6 +20,7 @@ public:
     virtual void hitBlock(std::size_t blockIndex) = 0;
     virtual void playSound(SoundId id) = 0;
     virtual void startCameraShake(double duration, double magnitude) = 0;
+    virtual void spawnParticle(ParticleEffectId id, double x, double y) = 0;
 };
 
 #endif  // IGAMEEVENTS_H

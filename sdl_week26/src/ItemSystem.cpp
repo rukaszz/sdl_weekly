@@ -85,6 +85,12 @@ void ItemSystem::resolvePlayerCollision(Player& player, GameEventBuffer& events)
             events.playSound(SoundId::Coin);
             // コイン取得でスコア加算
             events.addScore(SceneConfig::COIN_SCORE);
+            // パーティクル発生
+            events.spawnParticle(
+                ParticleEffectId::CoinSpark, 
+                item.getItem_X(), 
+                item.getItem_Y()
+            );
             break;
         case ItemType::Mushroom:
             // アイテム取得音

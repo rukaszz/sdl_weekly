@@ -1,7 +1,9 @@
 #include "ParticleSystem.hpp"
 
-#include <vector>
+#include <algorithm>
+#include <cmath>
 #include <cstdint>
+#include <vector>
 
 #include <SDL2/SDL.h>
 
@@ -10,75 +12,103 @@
 #include "Renderer.hpp"
 #include "Camera.hpp"
 
-// コイン取得時のパーティクル
+/**
+ * @brief コイン取得時のパーティクル
+ * 
+ * パーティクル出現位置
+ * @param x 
+ * @param y 
+ */
 void ParticleSystem::spawnCoinSpark(double x, double y){
     // コイン取得時のパーティクルの設定を取得
-    constexpr double ParticleMetrics& coinSpark = ParticleConfig::COINSPARK;
+    constexpr ParticleConfig::ParticleMetrics coinSpark = ParticleConfig::COIN_SPARK;
     // コイン取得時のパーティクルの色を取得
-    constexpr SDL_Color& particleColor = ParticleConfig::YELLOW;
+    constexpr SDL_Color particleColor = ParticleConfig::YELLOW;
     // パーティクルの広がる方向を取得→正規化済みの斜め4方向
-    constexpr auto& dirs = ParticleConfig::DIRECTION_4;
     // 広がるパーティクル(4方向)のそれぞれのデータを設定
-    for(const auto& d : dirs){
-        particles.emplace_back(
+    for(const auto& dirs : ParticleConfig::DIRECTION_4){
+        particles.push_back(Particle{
             x, 
             y, 
-            d[0]*coinSpark.speed, 
-            d[1]*coinSpark.speed,
-            coinSpark.life,
+            dirs[0]*coinSpark.speed, 
+            dirs[1]*coinSpark.speed,
+            coinSpark.life, 
+            coinSpark.life, 
             coinSpark.size, 
             particleColor
-        );
+        });
     }
 }
-// 敵撃破時のパーティクル
+
+/**
+ * @brief 敵撃破時のパーティクル
+ * 
+ * パーティクル出現位置
+ * @param x 
+ * @param y 
+ */
 void ParticleSystem::spawnEnemyBurst(double x, double y){
     // 敵撃破時のパーティクルの設定を取得
-    constexpr double ParticleMetrics& enemyBurst = ParticleConfig::ENEMYBURST;
+    constexpr ParticleConfig::ParticleMetrics enemyBurst = ParticleConfig::ENEMY_BURST;
     // 敵撃破時のパーティクルの色を取得
-    constexpr SDL_Color& particleColor = ParticleConfig::ORANGE;
+    constexpr SDL_Color particleColor = ParticleConfig::ORANGE;
     // パーティクルの広がる方向を取得→正規化済みの斜め8方向
-    constexpr auto& dirs = ParticleConfig::DIRECTION_8;
     // 広がるパーティクル(8方向)のそれぞれのデータを設定
-    for(const auto& d : dirs){
-        particles.emplace_back(
+    for(const auto& dirs : ParticleConfig::DIRECTION_8){
+        particles.push_back(Particle{
             x, 
             y, 
-            d[0]*coinSpark.speed, 
-            d[1]*coinSpark.speed,
-            coinSpark.life,
-            coinSpark.size, 
+            dirs[0]*enemyBurst.speed, 
+            dirs[1]*enemyBurst.speed,
+            enemyBurst.life,
+            enemyBurst.life, 
+            enemyBurst.size, 
             particleColor
-        );
+        });
     }
 }
-// 更新関数
+
+/**
+ * @brief 更新関数
+ * 
+ * @param delta 
+ */
 void ParticleSystem::update(double delta){
     // パーティクルを分解してそれぞれ更新
     for(auto& p : particles){
         p.x    += p.vx * delta;
         p.y    += p.vy * delta;
-        p.life -= delta;
+        p.life -= delta;        // 寿命の減衰
     }
     // remove_if-eraseのメソッドで寿命が尽きたパーティクルを削除
-    auto it = std::remove_if(particles.begin(), particle.end(), 
-        [](const Particle& p){ return p.life <= 0.0; }
+    auto it = std::remove_if(
+        particles.begin(), 
+        particles.end(), 
+        [](const Particle& p){
+            return p.life <= 0.0;
+        }
     );
     particles.erase(it, particles.end());
 }
-// 描画
-void ParticleSystem::render(Renderer& remderer, const Camera& camera) const{
+
+/**
+ * @brief 描画関数
+ * 
+ * @param renderer 
+ * @param camera 
+ */
+void ParticleSystem::render(Renderer& renderer, const Camera& camera) const{
     // パーティクルを分解してそれぞれ描画
     for(const auto& p : particles){
         // 寿命残量が少ないパーティクルは薄くしてフェードアウトさせる
-        const double ratio = (p.maxlife > 0.0) ? (p.life / p.maxlife) : 0.0;
+        const double ratio = (p.maxLife > 0.0) ? (p.life / p.maxLife) : 0.0;
         SDL_Color drawColor = p.color;
         // アルファチャンネルの減衰
-        drawColer.a = static_cast<Uint8>(255.0 * ratio);
+        drawColor.a = static_cast<Uint8>(255.0 * ratio);
         // パーティクル(矩形)の設定
         const SDL_Rect rect{
             static_cast<int>(p.x) - p.size/2, 
-            static_cast<int>(p.x) - p.size/2, 
+            static_cast<int>(p.y) - p.size/2, 
             p.size, 
             p.size
         };
@@ -86,7 +116,11 @@ void ParticleSystem::render(Renderer& remderer, const Camera& camera) const{
         renderer.drawRect(rect, drawColor, camera);
     }
 }
-// クリア
+
+/**
+ * @brief パーティクル管理用コンテナクリア関数
+ * 
+ */
 void ParticleSystem::clear(){
     particles.clear();
 }

@@ -196,8 +196,18 @@ void Renderer::drawText(SDL_Texture* tex, int x, int y, int w, int h){
  * @param color: RGB+alphaをListで受け取る 
  */
 void Renderer::drawRect(const SDL_Rect& rect, SDL_Color color){
+    // アルファブレンドを有効化
+    // 呼び出し前の描画ブレンドモードの設定保存
+    SDL_BlendMode prevBlendMode;
+    SDL_GetRenderDrawBlendMode(renderer, &prevBlendMode);
+    // SDL_BLENDMODE_BLEND：アルファチャンネルを利用する設定
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(renderer, &rect);
+
+    // 描画モードを元に戻す(ブレンドしない)
+    SDL_SetRenderDrawBlendMode(renderer, prevBlendMode);
 }
 
 /**
@@ -210,6 +220,13 @@ void Renderer::drawRect(const SDL_Rect& rect, SDL_Color color){
  * @param camera 
  */
 void Renderer::drawRect(const SDL_Rect& rect, SDL_Color color, const Camera& camera){
+    // アルファブレンドを有効化
+    // 呼び出し前の描画ブレンドモードの設定保存
+    SDL_BlendMode prevBlendMode;
+    SDL_GetRenderDrawBlendMode(renderer, &prevBlendMode);
+    // SDL_BLENDMODE_BLEND：アルファチャンネルを利用する設定
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    
     // カメラ座標を計算
     SDL_Rect r{
         static_cast<int>(rect.x - camera.x), 
@@ -219,6 +236,9 @@ void Renderer::drawRect(const SDL_Rect& rect, SDL_Color color, const Camera& cam
     };
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderFillRect(renderer, &r);
+
+    // 描画モードを元に戻す(ブレンドしない)
+    SDL_SetRenderDrawBlendMode(renderer, prevBlendMode);
 }
 
 /**

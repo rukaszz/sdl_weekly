@@ -137,6 +137,11 @@ void CollisionSystem::resolveEnemyCollision(IGameEvents& events){
             events.playSound(SoundId::Stomp);
             // スコア加算
             events.addScore(EnemyConfig::SCORE_AT_STOMP);
+            events.spawnParticle(
+                ParticleEffectId::EnemyBurst, 
+                e->getEntityCenter_X(), 
+                e->getEntityCenter_Y()
+            );
             continue;   // 同フレーム中に同一の敵を二度ふまないようにcountinue
         }
         // 敵との接触
