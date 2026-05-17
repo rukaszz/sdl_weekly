@@ -2879,9 +2879,256 @@ BossBattleSystem::BossBattleSystem(...)
 
 week26では主にパーティクルシステムの実装を進める予定である．
 
+## week26
+
+### week26の概要
+
+week25で課題となっていたパーティクルシステムの実装を中心に，ゲームの演出面を強化した．
+具体的には，コイン取得・敵撃破・プレイヤー死亡それぞれに対応したパーティクルエフェクトを追加した．
+あわせて，GameOverSceneからリトライする際のプレイヤー形態リセットが，落下死の際にうまく動作しなかった不具合の修正と，プレイヤー死亡時の段階的な演出（パーティクル＋点滅→GameOver遷移）を実装した．
+
+### プレイヤー形態のリセット修正
+
+#### 問題の概要
+
+プレイヤーが落下死などでGameOverSceneへ遷移し，残機があってリトライ（PlayingSceneへ再遷移）した際，プレイヤーの形態（Fire/Super/Small）が死亡時のままで引き継がれていた．
+これは2つのリセットの実装に対して，シーン遷移の考慮が抜けていたことが原因である．
+
+```cpp
+// 完全なリセット(new game用)
+    void resetForNewGame();
+    // 次のステージへ移動する用リセット
+    void resetForStageTransition();
+```
+
+ダメージを受けた場合は Fire→Super→Smallと形態が遷移するため正しく処理されるが，落下死はダメージを受けずに即死するためリトライ時の形態リセットが行われていなかった．
+
+#### 修正内容
+
+resetForNewGame()とresetForStageTransition()の使い分けがポイントとなる．
+後者はステージ遷移時に形態を維持するためのリセットであり，前者はゲームオーバーからの再スタートでSmall形態に戻すリセットである．
+
+GameOverScene::onExit()でresetForNewGame()を呼び出すことで，PlayingSceneへ戻る前にプレイヤー形態を確実にリセットするようにした：
+
+```cpp
+void GameOverScene::onExit(){
+    ctx.entityCtx.player.resetForNewGame();
+}
+```
+
+### パーティクルシステム
+
+#### 設計方針
+
+これまで同様に演出ロジックはPlayingSceneの肥大化を避けるために直接記述せず，ParticleSystemクラスに切り出した．
+パーティクルの生成はイベント駆動方式(SpawnParticleEvent)を採用し，CollisionSystemやItemSystemがIGameEventsを通じてイベントを発行する：
+
+```text
+CollisionSystem/ItemSystem
+  → events.spawnParticle(ParticleEffectId::EnemyBurst, x, y)  // パーティクル発生イベントをバッファへ入れる
+     ↓
+PlayingScene::consumeParticleEvents() // 各所で発生したイベントを取り出して消費する
+  → particles.spawnEnemyBurst(x, y)
+```
+
+#### Particle構造体
+
+パーティクル1粒のデータを保持するシンプルな構造体：
+
+```cpp
+struct Particle{
+    double x, y;        // 位置
+    double vx, vy;      // 速度
+    double life;        // 残り寿命
+    double maxLife;     // 最大寿命 (アルファ計算用)
+    int size;           // 矩形サイズ
+    SDL_Color color;    // 色
+};
+```
+
+#### ParticleSystemの主要な処理
+
+**update()**：位置更新と寿命切れの削除をremove\_if-eraseイディオムを用いて$O(n)$で処理する．
+
+```cpp
+void ParticleSystem::update(double delta){
+    for(auto& p : particles){
+        p.x    += p.vx * delta;
+        p.y    += p.vy * delta;
+        p.life -= delta;
+    }
+    auto it = std::remove_if(particles.begin(), particles.end(),
+        [](const Particle& p){ return p.life <= 0.0; });
+    particles.erase(it, particles.end());
+}
+```
+
+**render()**：life/maxLife の比率でアルファ値を線形に減衰させ，フェードアウト効果を実現する
+
+```cpp
+void ParticleSystem::render(Renderer& renderer, const Camera& camera) const{
+    for(const auto& p : particles){
+        const double ratio = (p.maxLife > 0.0) ? (p.life / p.maxLife) : 0.0;
+        SDL_Color drawColor = p.color;
+        drawColor.a = static_cast<Uint8>(255.0 * ratio);    // フェードアウト
+        const SDL_Rect rect{ static_cast<int>(p.x) - p.size/2,
+                             static_cast<int>(p.y) - p.size/2, p.size, p.size };
+        renderer.drawRect(rect, drawColor, camera);
+    }
+}
+```
+
+#### ParticleConfigによる設定の外部化
+
+パーティクルのパラメータはParticleConfig名前空間にconstexprで集約し，ParticleSystem本体にマジックナンバーを持たせないようにしている：
+
+```cpp
+namespace ParticleConfig{
+    // 色
+    static inline constexpr SDL_Color YELLOW = {255, 220, 50, 255};
+    static inline constexpr SDL_Color ORANGE = {255, 120,  0, 255};
+    static inline constexpr SDL_Color RED    = {230,  50, 50, 255};
+
+    struct ParticleMetrics{ double speed; double life; int size; };
+
+    static inline constexpr ParticleMetrics COIN_SPARK  { 100.0, 0.35, 5 };
+    static inline constexpr ParticleMetrics ENEMY_BURST {  80.0, 0.45, 6 };
+    static inline constexpr ParticleMetrics PLAYER_DEATH{ 120.0, 0.70, 7 };
+}
+```
+
+#### 実装したエフェクト
+
+| エフェクト | 方向数 | 色 | 速度 | 寿命 |
+| --- | --- | --- | --- | --- |
+| コイン取得（CoinSpark） | 斜め4方向 | 黄色 | 100.0 | 0.35秒 |
+| 敵撃破（EnemyBurst） | 8方向 | オレンジ | 80.0 | 0.45秒 |
+| プレイヤー死亡（PlayerDeath） | 8方向 | 赤 | 120.0 | 0.70秒 |
+
+斜め方向の速度は$1/\sqrt(2)$で正規化し，軸方向と速度が一致するようにしている．
+パーティクルの速度などの数値は現状マジックナンバーとなっているが，パーティクル出現イベントが少ない現状は許容する．
+
+#### MAX_PARTICLESによる上限管理
+
+同フレームに大量のパーティクルが生成されるケースに備え，canSpawn(count)でベクタへの追加可否を事前チェックする：
+
+```cpp
+bool ParticleSystem::canSpawn(std::size_t count) const{
+    return particles.size() + count <= ParticleConfig::MAX_PARTICLES;
+}
+```
+
+### プレイヤー死亡演出
+
+#### 演出追加の背景
+
+week25以前，プレイヤーが死亡するとCollisionSystemやProjectileSystemが直接requestScene(GameOver)を発行していた．
+そのため死亡した瞬間にGameOverSceneへ切り替わるため，演出が何もない雑な遷移になっており，プレイヤーに唐突な印象を与えてしまう．
+
+#### 死亡演出の設計方針
+
+requestScene(GameOver)をそのまま呼ぶ代わりに，requestPlayerDeath(x, y)イベントを発行する形に変更した．
+PlayingSceneがこのイベントを受け取り，死亡演出フェーズ(RunState::PlayerDying)へ移行する：
+
+```text
+CollisionSystem / ProjectileSystem
+  → events.requestPlayerDeath(x, y) // プレイヤーが死亡する場合にプレイヤー死亡演出を発行する
+     ↓
+PlayingScene::consumePlayerDeathEvents()  // イベント内部で，プレイヤー死亡演出状態を開始する
+  → runState = RunState::PlayerDying
+  → deathEvent.start()
+  → particles.spawnPlayerDeath(x, y)
+     ↓
+PlayingScene::updatePlayerDying(delta)  // ゲームの更新を一部要素のみに制限し，ゲームオーバーを表現する
+  → パーティクル・シェイクのみ更新
+  → deathEvent.update(delta) が true を返したら requestScene(GameOver)
+```
+
+#### RunStateの拡張
+
+PlayerDyingを追加し，死亡演出中は通常のゲーム処理（敵AI・物理演算など）をすべて停止させる：
+
+```cpp
+enum class RunState{
+    Running,        // ゲーム進行中
+    Paused,         // ポーズ中
+    PlayerDying,    // 死亡演出中（追加）
+};
+```
+
+#### PlayerDeathEventクラス
+
+死亡演出の状態（点滅タイマー・演出タイマー）をPlayerDeathEventクラスに集約した．
+CameraShakeControllerと同様のパターンで，PlayingSceneへの追加メンバ変数を1つ（deathEvent）に抑えている：
+
+```cpp
+class PlayerDeathEvent{
+private:
+    static constexpr double DURATION       = 1.0;   // 演出全体の秒数
+    static constexpr double BLINK_INTERVAL = 0.1;   // 点滅間隔
+
+    double deathTimer   = 0.0;
+    double blinkTimer   = 0.0;
+    bool   blinkVisible = true;
+    bool   active       = false;
+
+public:
+    void start();
+    bool update(double delta);  // trueでGameOver遷移
+    bool isVisible() const noexcept { return blinkVisible; }
+    void reset();
+};
+```
+
+update()はこれまでのようなvoid型ではなく，bool型の戻り地を持つ．
+これは点滅タイマーと演出タイマーを両方を管理する都合上，deathTimerが尽きたときにtrueを返すことで，死亡演出を終了させる責務を内包させている．
+PlayingSceneはこの戻り値を受けてrequestScene(GameOver)を呼び出す→GameOverSceneへの遷移がまとまった：
+
+```cpp
+void PlayingScene::updatePlayerDying(double delta){
+    particles.update(delta);
+    cameraShake.update(delta, ctx.randomCtx.random);
+    if(deathEvent.update(delta)){
+        ctx.events.requestScene(GameScene::GameOver);
+    }
+}
+```
+
+render()ではisVisible()の結果でプレイヤーの描画を制御し，点滅効果を実現する：
+
+```cpp
+if(runState != RunState::PlayerDying || deathEvent.isVisible()){
+    ctx.entityCtx.player.draw(ctx.renderer, shaken);
+}
+```
+
+#### 死亡イベントの二重発火防止
+
+同一フレームで複数の死亡判定が重なる可能性に備え，consumePlayerDeathEvents()内でガードを設けた：
+
+```cpp
+[&](const GameEvent& ev){
+    if(runState == RunState::PlayerDying) return; // 二重発火防止
+    // ...
+}
+```
+
+### week26のまとめ
+
+week24からの継続テーマであった演出面の強化がひとまず完結した．
+パーティクル・カメラシェイク・プレイヤー死亡演出はいずれもイベント駆動方式に統一され，CollisionSystemなどのサブシステムはPlayingSceneに直接依存せずに演出を起動できる構造となった．
+本ゲームの実装はweek26をもって一区切りとし，week27(もしかしたらweek28)で最終調整を実施して終了予定である．
+次は2Dシューティングゲームの作成へ移行予定である．
+
 ## アセット
 
 詳細はATTRIBUTIONを参照．
 
-- Red Hat Boy
-- FREE PLATFORMER GAME TILESET
+- Character
+  - Red Hat Boy
+  - FREE PLATFORMER GAME TILESET
+  - Cute Dinosaur
+- Fonts
+  - Google Fonts - Noto Sans JP
+- Musics
+  - Maoh Tamashi

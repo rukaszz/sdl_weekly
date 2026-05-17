@@ -303,7 +303,8 @@ void ProjectileSystem::resolvePlayerEnemyBulletCollision(Player& player, IGameEv
         if(dr == DamageResult::Dead){
             events.playSound(SoundId::Damage);
             events.startCameraShake(0.25, 14.0);
-            events.requestScene(GameScene::GameOver);
+            // events.requestScene(GameScene::GameOver);
+            events.requestPlayerDeath(player.getEntityCenter_X(), player.getEntityCenter_Y());
             return;
         }
         // 処理は抜ける

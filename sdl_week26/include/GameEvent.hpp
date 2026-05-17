@@ -7,7 +7,7 @@
 // ビット幅が厳格に保証された整数型を使う
 // 環境によってintのbitが変わる問題に対処するためにビット幅が固定された整数型を提供する
 #include <cstdint>
-// size_t用 厳格なメモリ，アライメントを加味した型を使用する
+// size_t用 メモリ，アライメントを加味した厳格な型を使用する
 #include <cstddef>
 
 #include "GameScene.hpp"
@@ -83,7 +83,7 @@ struct AddScoreEvent{
 
 /**
  * @brief アイテムの出現に関する型
- * 
+ * ※x, yは出現位置
  */
 struct SpawnItemEvent{
     ItemType type;
@@ -119,7 +119,7 @@ struct StartCameraShakeEvent{
 
 /**
  * @brief パーティクルを出現させるイベント用の型
- * 
+ * ※x, yは出現位置
  */
 struct SpawnParticleEvent{
     ParticleEffectId id;
@@ -127,16 +127,26 @@ struct SpawnParticleEvent{
     double y;
 };
 
+/**
+ * @brief プレイヤー死亡イベント
+ * ※x, yはパーティクル出現位置
+ */
+struct RequestPlayerDeathEvent{
+    double x;
+    double y;
+};
+
 // このGameEventはRequestSceneEvent, AddScoreEvent, ...を型安全に切り替えられる
 using GameEvent = std::variant<
-                        RequestSceneEvent, 
-                        AddScoreEvent, 
-                        SpawnItemEvent, 
-                        CollectItemEvent,
-                        BlockHitEvent, 
-                        PlaySoundEvent, 
-                        StartCameraShakeEvent, 
-                        SpawnParticleEvent
-                    >;
+    RequestSceneEvent, 
+    AddScoreEvent, 
+    SpawnItemEvent, 
+    CollectItemEvent,
+    BlockHitEvent, 
+    PlaySoundEvent, 
+    StartCameraShakeEvent, 
+    SpawnParticleEvent,
+    RequestPlayerDeathEvent
+>;
 
 #endif  // GAMEEVENT_H

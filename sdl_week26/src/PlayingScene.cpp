@@ -117,13 +117,16 @@ void PlayingScene::update(double delta){
     if(runState == RunState::Paused){
         return; // ポーズ中はすべての更新を止める
     }
+    // プレイヤー死亡時は死亡演出系のみ更新する
+    if(runState == RunState::PlayerDying){
+        updatePlayerDying(delta);
+        return;
+    }
     // 2. 衝突処理用の前フレームのプレイヤー座標をサンプリング
     // 必ず各種Collision判定前に呼ぶ必要がある
     // 呼び出し順序に注意すること
-    //ctx.entityCtx.player.beginFrameFeetCollisionSample();
     ctx.entityCtx.player.beginFrameCollisionSample();
     // ボス戦開始点を超えたか判定
-    // updateBossBattleTrigger();
     bossBattleSystem.updateTrigger(ctx.musicSystem, ctx.events);
     // 3. worldInfoを用いた幅のクランプ処理
     DrawBounds worldBounds = {
@@ -164,7 +167,6 @@ void PlayingScene::update(double delta){
     // 9. 弾(projectile)の処理
     // ボス戦状態ならここで処理する
     if(bossBattleSystem.isActive()){
-        // updateBoss(delta, worldBounds);
         bossBattleSystem.updateBoss(delta, worldBounds, is);
         projectiles.spawnBossBullets(ctx.entityCtx.boss);
     }
@@ -189,11 +191,11 @@ void PlayingScene::update(double delta){
     // 11. 落下死判定
     collision.checkFallDeath(ctx.events);    
     // 12. ボス戦トリガーの監視
-    // updateBossBattleResult();
     bossBattleSystem.checkBattleResult(ctx.events);
     // 13. Scene内のイベント消費
     consumeShakeEffectEvents();
     consumeParticleEvents();
+    consumePlayerDeathEvents();
     // 14. カメラ座標の更新
     updateCamera();
     // 画面シェイク
@@ -216,8 +218,8 @@ void PlayingScene::render(){
     // 画面シェイクを適用する場合はshaken, 適用しないならctx.camera
     Camera shaken = cameraShake.applyToCamera(ctx.camera);
     // 背景
-    bgRenderer.renderBackground(ctx.renderer, shaken);      // 最初はフルスクリーン画像 
-    bgRenderer.renderBgDecoration(ctx.renderer, shaken);    // 次に背景用装飾
+    bgRenderer.renderBackground(ctx.renderer, shaken);      // 最初は背景用画像の描画
+    bgRenderer.renderBgDecoration(ctx.renderer, shaken);    // 次に背景用装飾の描画
     // ブロック描画
     blockRenderer.render(ctx.renderer, shaken);
     // アイテム描画
@@ -232,7 +234,11 @@ void PlayingScene::render(){
     }
     // キャラクタ描画
     // カメラを考慮した書き方にする
-    ctx.entityCtx.player.draw(ctx.renderer, shaken);
+    // プレイヤー死亡演出時ではないとき or (プレイヤー死亡演出時は)プレイヤーの描画可能時
+    if(runState != RunState::PlayerDying || deathEvent.isVisible()){
+        // プレイヤーの描画
+        ctx.entityCtx.player.draw(ctx.renderer, shaken);
+    }
     for(auto& e : ctx.entityCtx.enemies){
        e->draw(ctx.renderer, shaken);
     }
@@ -282,6 +288,7 @@ void PlayingScene::onEnter(){
     enemyAI.onStageLoaded();
     collision.onStageLoaded();
     particles.clear();
+    deathEvent.reset();
     // ボス関係の変数初期化
     // initBossBattle();
     const auto& def = ctrl.getCurrentStageDefinition();
@@ -301,6 +308,8 @@ void PlayingScene::onExit(){
     cameraShake.reset();
     // パーティクルが残らないようリセット
     particles.clear();
+    // プレイヤー死亡演出リセット
+    deathEvent.reset();
 }
 
 /**
@@ -308,6 +317,10 @@ void PlayingScene::onExit(){
  * 
  */
 void PlayingScene::handlePlayingInput(const InputState& is){
+    // 死亡演出時は各種の入力を受け付けない
+    if(runState == RunState::PlayerDying){
+        return;
+    }
     // ポーズ中の処理
     if(runState == RunState::Paused){
         // Escキー
@@ -492,9 +505,10 @@ void PlayingScene::consumeParticleEvents(){
         [](const GameEvent& ev){
             return std::holds_alternative<SpawnParticleEvent>(ev);
         }, 
-        // SpawnParticleEventを取り出して画面シェイクAPIを呼び出す
+        // SpawnParticleEventを取り出す
         [&](const GameEvent& ev){
             const auto& spe = std::get<SpawnParticleEvent>(ev);
+            // idを確認して対応するパーティクルを出現させる
             switch(spe.id){
             case ParticleEffectId::CoinSpark:
                 particles.spawnCoinSpark(spe.x, spe.y);
@@ -505,4 +519,50 @@ void PlayingScene::consumeParticleEvents(){
             }
         }
     );
+}
+
+/**
+ * @brief プレイヤー死亡イベントの消費
+ * イベントバッファに存在するrequestPlayerDeathEventを消費する
+ * 
+ */
+void PlayingScene::consumePlayerDeathEvents(){
+    // バッファを走査
+    ctx.eventBuffer.consumeIf(
+        // RequestPlayerDeathEvent型があるかを判定(holds_alternative)
+        [](const GameEvent& ev){
+            return std::holds_alternative<RequestPlayerDeathEvent>(ev);
+        }, 
+        // SpawnParticleEventを取り出して画面シェイクAPIを呼び出す
+        [&](const GameEvent& ev){
+            if(runState == RunState::PlayerDying){
+                return; // 二重発火の防止
+            }
+            // イベント取り出し
+            const auto& pde = std::get<RequestPlayerDeathEvent>(ev);
+            // runStateの変更
+            runState = RunState::PlayerDying;
+            // プレイヤー死亡演出開始
+            deathEvent.start();
+            // パーティクルも呼び出す(この時点でプレイヤーの死亡は確定しているので)
+            particles.spawnPlayerDeath(pde.x, pde.y);
+        }
+    );
+}
+
+/**
+ * @brief プレイヤー死亡演出時の更新
+ * プレイヤー死亡時はパーティクル・カメラシェイク処理のみ更新する
+ * 
+ * @param delta 
+ */
+void PlayingScene::updatePlayerDying(double delta){
+    // パーティクル
+    particles.update(delta);
+    // カメラシェイク
+    cameraShake.update(delta, ctx.randomCtx.random);
+    // 死亡演出のタイマーを更新し，終了後GameOverへ遷移(タイマーが0になるとtrueが返る)
+    if(deathEvent.update(delta)){
+        ctx.events.requestScene(GameScene::GameOver);
+    }
 }

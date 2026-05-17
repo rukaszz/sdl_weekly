@@ -6,7 +6,7 @@
 
 /**
  * @brief GameEventsBufferの一部機能のみを提供するためのインターフェイス
- * 目的はpushを晒さずにイベントの要求のみを上げること
+ * 目的はpushを晒さずにイベントの要求のみを提供するため
  * 
  */
 class IGameEvents{
@@ -21,6 +21,7 @@ public:
     virtual void playSound(SoundId id) = 0;
     virtual void startCameraShake(double duration, double magnitude) = 0;
     virtual void spawnParticle(ParticleEffectId id, double x, double y) = 0;
+    virtual void requestPlayerDeath(double x, double y) = 0;
 };
 
 #endif  // IGAMEEVENTS_H

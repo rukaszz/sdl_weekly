@@ -54,6 +54,7 @@ add_executable(${PROJECT_NAME}
     src/Physics.cpp
     src/Player.cpp
     src/PlayerEnemyCollisionUtil.cpp
+    src/PlayerDeathEvent.cpp
     src/PlayingScene.cpp
     src/ProjectileSystem.cpp
     src/Renderer.cpp

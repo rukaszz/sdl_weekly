@@ -2,6 +2,7 @@
 #define PARTICLECONFIG_H
 
 #include <array>
+#include <cstddef>
 #include <numbers>
 
 #include <SDL2/SDL.h>
@@ -11,6 +12,7 @@ namespace ParticleConfig{
     // 色の設定
     static inline constexpr SDL_Color YELLOW = {255, 220, 50, 255};
     static inline constexpr SDL_Color ORANGE = {255, 120, 0, 255};
+    static inline constexpr SDL_Color RED    = {230, 50, 50, 255};
 
     // 定数として1/sqrt(2)を定義
     // C++20以降
@@ -57,6 +59,12 @@ namespace ParticleConfig{
         80.0,   // speed 
         0.45,   // life
         6,      // size
+    };
+    // プレイヤー死亡時(少し大きく早い)
+    static inline constexpr ParticleMetrics PLAYER_DEATH{
+        120.0,  // speed 
+        0.7,    // life
+        7,      // size
     };
 }   // namespace ParticleConfig
 

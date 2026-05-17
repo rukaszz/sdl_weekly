@@ -78,7 +78,8 @@ void CollisionSystem::resolveSpecialBlockCollision(IGameEvents& events){
             if(dr == DamageResult::Dead){
                 events.playSound(SoundId::Damage);
                 events.startCameraShake(0.25, 14.0);    // 注：死亡時のシェイクはほぼ確認できないが許容する
-                events.requestScene(GameScene::GameOver);
+                // events.requestScene(GameScene::GameOver);
+                events.requestPlayerDeath(player.getEntityCenter_X(), player.getEntityCenter_Y());
                 return;
             }
             // DamageResult::Noneは無敵時間中なので何もしない
@@ -157,7 +158,8 @@ void CollisionSystem::resolveEnemyCollision(IGameEvents& events){
             if(dr == DamageResult::Dead){
                 events.playSound(SoundId::Damage);
                 events.startCameraShake(0.25, 14.0);    // 注：死亡時のシェイクはほぼ確認できないが許容する
-                events.requestScene(GameScene::GameOver);
+                // events.requestScene(GameScene::GameOver);
+                events.requestPlayerDeath(player.getEntityCenter_X(), player.getEntityCenter_Y());
                 return;
             }
         }
@@ -171,7 +173,8 @@ void CollisionSystem::resolveEnemyCollision(IGameEvents& events){
  */
 void CollisionSystem::checkFallDeath(IGameEvents& events){
     if(player.isBelowWorld(world.WorldHeight)){
-        events.requestScene(GameScene::GameOver);
+        // events.requestScene(GameScene::GameOver);
+        events.requestPlayerDeath(player.getEntityCenter_X(), player.getEntityCenter_Y());
     }
 }
 

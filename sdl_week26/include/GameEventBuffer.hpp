@@ -84,6 +84,10 @@ public:
     void spawnParticle(ParticleEffectId id, double x, double y) override{
         q.emplace_back(SpawnParticleEvent{id, x, y});
     }
+    // プレイヤー死亡イベント
+    void requestPlayerDeath(double x, double y) override{
+        q.emplace_back(RequestPlayerDeathEvent{x, y});
+    }
     /**
      * @brief 特定のイベントだけ消費して削除する処理
      * vectorのeraseはO(n^2)かかるが，この方法はO(n)で終わる

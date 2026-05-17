@@ -19,6 +19,7 @@
 #include "ItemSystem.hpp"
 #include "CameraShakeController.hpp"
 #include "ParticleSystem.hpp"
+#include "PlayerDeathEvent.hpp"
 
 #include "GameEventBuffer.hpp"
 #include "PlayerStateSystem.hpp"
@@ -37,8 +38,9 @@ struct DrawBounds;
  * 
  */
 enum class RunState{
-    Running, 
-    Paused, 
+    Running,        // ゲーム進行中
+    Paused,         // ゲームポーズ中
+    PlayerDying,    // プレイヤー死亡演出中
 };
 
 /**
@@ -82,6 +84,8 @@ private:
     CameraShakeController cameraShake;
     // パーティクル
     ParticleSystem particles;
+    // プレイヤー死亡時演出
+    PlayerDeathEvent deathEvent;
     // デバッグ表示用のテキストテクスチャ
     std::unique_ptr<TextTexture> debugText;
     
@@ -100,6 +104,10 @@ private:
     void consumeShakeEffectEvents();
     // パーティクル表示イベント消費用
     void consumeParticleEvents();
+    // プレイヤー死亡イベント消費用
+    void consumePlayerDeathEvents();
+    // プレイヤー死亡時の演出更新関数
+    void updatePlayerDying(double delta);
     // update内部で呼ばれる処理の分割
     void handlePlayingInput(const InputState& is);
     void updateScore(double delta);
