@@ -20,6 +20,10 @@
  * @param y 
  */
 void ParticleSystem::spawnCoinSpark(double x, double y){
+    // パーティクルの数チェック
+    if(!canSpawn(ParticleConfig::DIRECTION_4.size())){
+        return;
+    }
     // コイン取得時のパーティクルの設定を取得
     constexpr ParticleConfig::ParticleMetrics coinSpark = ParticleConfig::COIN_SPARK;
     // コイン取得時のパーティクルの色を取得
@@ -48,6 +52,10 @@ void ParticleSystem::spawnCoinSpark(double x, double y){
  * @param y 
  */
 void ParticleSystem::spawnEnemyBurst(double x, double y){
+    // パーティクルの数チェック
+    if(!canSpawn(ParticleConfig::DIRECTION_8.size())){
+        return;
+    }
     // 敵撃破時のパーティクルの設定を取得
     constexpr ParticleConfig::ParticleMetrics enemyBurst = ParticleConfig::ENEMY_BURST;
     // 敵撃破時のパーティクルの色を取得
@@ -124,3 +132,14 @@ void ParticleSystem::render(Renderer& renderer, const Camera& camera) const{
 void ParticleSystem::clear(){
     particles.clear();
 }
+
+/**
+ * @brief パーティクルの出現条件チェック
+ * 
+ * @param count 
+ * @return true 
+ * @return false 
+ */
+bool ParticleSystem::canSpawn(std::size_t count) const{
+    return particles.size() + count <= ParticleConfig::MAX_PARTICLES;
+};

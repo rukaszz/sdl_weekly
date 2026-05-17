@@ -28,7 +28,6 @@
 #include "EnemyBulletConfig.hpp"
 #include "UIConfig.hpp"
 #include "BossBattleState.hpp"
-#include "ParticleConfig.hpp"
 
 /**
  * @brief Construct a new Playing Scene:: Playing Scene object
@@ -282,6 +281,7 @@ void PlayingScene::onEnter(){
     projectiles.onStageLoaded();
     enemyAI.onStageLoaded();
     collision.onStageLoaded();
+    particles.clear();
     // ボス関係の変数初期化
     // initBossBattle();
     const auto& def = ctrl.getCurrentStageDefinition();
@@ -299,6 +299,8 @@ void PlayingScene::onExit(){
     runState = RunState::Running;
     // カメラ関係の変数リセット
     cameraShake.reset();
+    // パーティクルが残らないようリセット
+    particles.clear();
 }
 
 /**
@@ -486,11 +488,11 @@ void PlayingScene::consumeShakeEffectEvents(){
 void PlayingScene::consumeParticleEvents(){
     // バッファを走査
     ctx.eventBuffer.consumeIf(
-        // StartCameraShakeEvents型があるかを判定(holds_alternative)
+        // SpawnParticleEvent型があるかを判定(holds_alternative)
         [](const GameEvent& ev){
             return std::holds_alternative<SpawnParticleEvent>(ev);
         }, 
-        // StartCameraShakeEventsを取り出して画面シェイクAPIを呼び出す
+        // SpawnParticleEventを取り出して画面シェイクAPIを呼び出す
         [&](const GameEvent& ev){
             const auto& spe = std::get<SpawnParticleEvent>(ev);
             switch(spe.id){

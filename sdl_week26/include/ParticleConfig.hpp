@@ -13,28 +13,31 @@ namespace ParticleConfig{
     static inline constexpr SDL_Color ORANGE = {255, 120, 0, 255};
 
     // 定数として1/sqrt(2)を定義
-    static inline constexpr double INV_SQRT2 = std::numbers::sqrt2 / 2.0;
+    // C++20以降
+    // static inline constexpr double INV_SQRT2 = std::numbers::sqrt2 / 2.0;
+    // C++20より前はリテラルで定義
+    static inline constexpr double INV_SQRT2 = 0.7071067811865476;
     // 画面に存在できるパーティクルの最大数
     static inline constexpr std::size_t MAX_PARTICLES = 256;
 
     // 拡散方向の設定(int(型)の初期化が必要なので，波括弧は3つ使う)
     // それぞれ正規化
     // 斜め方向はx, yがそれぞれ1だとsqrt(2)倍速になるので，1/sqrt(2)で正規化する
-    // 斜め4方向
+    // 斜め4方向(SDLは下方向がy軸の正になることに注意)
     static inline constexpr std::array<std::array<double, 2>, 4> DIRECTION_4 = {{
-        {INV_SQRT2, INV_SQRT2},     // 右上
-        {-INV_SQRT2, INV_SQRT2},    // 左上
-        {INV_SQRT2, -INV_SQRT2},    // 右下
-        {-INV_SQRT2, -INV_SQRT2}    // 左下
+        {INV_SQRT2, INV_SQRT2},     // 右下
+        {-INV_SQRT2, INV_SQRT2},    // 左下
+        {INV_SQRT2, -INV_SQRT2},    // 右上
+        {-INV_SQRT2, -INV_SQRT2}    // 左上
     }};
     // 8方向
     static inline constexpr std::array<std::array<double, 2>, 8> DIRECTION_8 = {{
         {1.0, 0.0}, {-1.0, 0.0},    // 右，左
         {0.0, 1.0}, {0.0, -1.0},    // 上，下
-        {INV_SQRT2, INV_SQRT2},     // 右上
-        {-INV_SQRT2, INV_SQRT2},    // 左上
-        {INV_SQRT2, -INV_SQRT2},    // 右下
-        {-INV_SQRT2, -INV_SQRT2}    // 左下
+        {INV_SQRT2, INV_SQRT2},     // 右下
+        {-INV_SQRT2, INV_SQRT2},    // 左下
+        {INV_SQRT2, -INV_SQRT2},    // 右上
+        {-INV_SQRT2, -INV_SQRT2}    // 左上
     }};
 
     // パーティクルの設定値

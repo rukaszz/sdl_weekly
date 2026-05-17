@@ -28,6 +28,10 @@ public:
     void render(Renderer& renderer, const Camera& camera) const;
     // クリア
     void clear();
+
+private:
+    // パーティクル出現上限のチェック
+    bool canSpawn(std::size_t count) const;
 };
 
 #endif  // PARTICLESYSTEM_H

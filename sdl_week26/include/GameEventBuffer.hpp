@@ -81,7 +81,7 @@ public:
         q.emplace_back(StartCameraShakeEvent{duration, magnitude});
     }
     // パーティクル発生イベント
-    void spawnParticle(ParticleEffectId id, double x, double y){
+    void spawnParticle(ParticleEffectId id, double x, double y) override{
         q.emplace_back(SpawnParticleEvent{id, x, y});
     }
     /**

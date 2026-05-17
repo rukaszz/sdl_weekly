@@ -7,6 +7,8 @@
 // ビット幅が厳格に保証された整数型を使う
 // 環境によってintのbitが変わる問題に対処するためにビット幅が固定された整数型を提供する
 #include <cstdint>
+// size_t用 厳格なメモリ，アライメントを加味した型を使用する
+#include <cstddef>
 
 #include "GameScene.hpp"
 
@@ -83,7 +85,7 @@ struct AddScoreEvent{
  * @brief アイテムの出現に関する型
  * 
  */
-struct SpawnItemEvent {
+struct SpawnItemEvent{
     ItemType type;
     double x;
     double y;
