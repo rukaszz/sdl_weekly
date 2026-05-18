@@ -1,0 +1,181 @@
+#ifndef PLAYER_H
+#define PLAYER_H
+
+#include <vector>
+#include <string>
+#include <optional>
+
+#include <SDL2/SDL.h>
+
+#include "Character.hpp"
+#include "AnimationController.hpp"
+#include "Sprite.hpp"
+#include "GameEvent.hpp"
+
+// 定数
+#include "PlayerConfig.hpp"
+#include "Direction.hpp"
+#include "DrawBounds.hpp"
+
+class Texture;
+class Renderer;
+struct Block;
+struct Camera;
+
+/**
+ * @brief プレイヤー専用の見た目テクスチャ管理用
+ * Playerの処理内部でしか使用しないためGameContextには保持しない
+ * 
+ */
+struct PlayerTextureSet{
+    Texture& small;
+    Texture& super;
+    Texture& fire;
+};
+
+/**
+ * @brief ダメージの状態を管理する関数
+ * tryTakeDamage()で使用するイメージ
+ * 
+ */
+enum class DamageResult{
+    None, 
+    Downgraded, 
+    Dead, 
+};
+
+class Player : public Character{
+private:
+    // テクスチャ管理
+    PlayerTextureSet textures;
+    // 接地状態管理
+    bool onGround = false;
+    // ダッシュ状態管理
+    bool isDashing = false;
+    // ジャンプ状態管理
+    bool isJumping = false;             // ジャンプ中か
+    double jumpElapsed = 0.0;           // ジャンプボタン押下からの経過時間
+    bool jumpStartedThisFrame = false;  // ジャンプした瞬間を表現する変数
+    // コヨーテタイム
+    // ※落下判定の初期段階でジャンプを許可するやつ
+    double coyoteTimer = 0.0;
+    // 接地直前でもジャンプ可能とする時間の猶予
+    double jumpableBufferTimer = 0.0;
+    // 無敵時間
+    double invincibleTimer = 0.0;
+    // プレイヤーの状態
+    PlayerForm form = PlayerForm::Small;
+    // プレイヤーの形態変化管理用変数
+    std::optional<PlayerForm> pendingForm;
+    // 天井のブロックを叩いたか
+    bool ceilingBlockHit = false;
+    // 叩いたブロックのインデックス
+    std::size_t hitBlockIndex = static_cast<std::size_t>(-1);
+
+public:
+    // 定数
+    // アニメーション枚数
+    static inline constexpr int NUM_FRAMES = PlayerConfig::NUM_FRAMES;
+    // コンストラクタ
+    Player(const PlayerTextureSet& texSet);
+    // 更新関数
+    void update(double delta, const InputState& input, DrawBounds bounds, const std::vector<Block>& blocks) override;
+    // Characterの衝突判定用矩形取得関数のオーバーライド
+    SDL_Rect getCollisionRect() const override;
+    // Renderer::drawを呼び出す関数
+    void draw(Renderer& renderer, const Camera& camera) override;
+    // リセットは2つの方針で区別する
+    // 完全なリセット(new game用)
+    void resetForNewGame();
+    // 次のステージへ移動する用リセット
+    void resetForStageTransition();
+
+    // プレイヤーの頭座標サンプリング関数
+    void beginFrameCollisionSample();
+    // ダメージを受けられるか
+    DamageResult tryTakeDamage();
+    
+    // デバッグ用テキスト表示用
+    std::string debugMoveContext();
+private:
+    // update()関係
+    void inputProcessing(
+        double delta, 
+        const InputState& input, 
+        double& moveDir, 
+        bool& moving, 
+        bool& dropThrough
+    );
+    // update関数の責務分利用関数群
+    // x/vv/yを更新する関数
+    void moveElementsUpdate(double delta, const InputState& input, const double moveDir);
+    // ジャンプボタン押下時間の確認用
+    void detectJumpButtonState(double delta, const InputState& input);
+    // 物理処理
+    void physicsProcessing(const std::vector<Block>& blocks, const bool dropThrough);
+    // x軸方向の位置修正関数
+    void clampHorizontalPosition(const DrawBounds& bounds);
+    // アニメーション更新関数
+    void animationProcessing(double delta, const bool moving);
+    // 下からブロックを突き上げる際の判定関係初期化用関数
+    void clearCeilingBlockHit();
+    // 描画するべきか(無敵時間表現用)
+    bool shouldRender() const;
+
+    // PlayerFormの遷移に関する関数群
+    void applyFormAppearance(bool keepFeet);
+    // プレイヤーの形態変化が可能か調べてから遷移する関数
+    // 頭がブロックにめりこまないか
+    void applyPendingFormIfPossible(const std::vector<Block>& blocks);
+    // 足元の座標がめり込まないか
+    bool canApplyFormWithFeetAnchored(PlayerForm nextForm, const std::vector<Block>& blocks) const;
+    Texture& currentFormTexture() const;
+    const PlayerConfig::FormMetrics& getFormMetrics(PlayerForm form) const;
+    SDL_Rect getCollisionRectOfForm(PlayerForm nextForm) const;
+
+public: // getterなどのインターフェイス
+    // 無敵時間開始
+    void startInvincible(double duration){
+        invincibleTimer = duration;
+    }
+    // getter/setter
+    PlayerForm getForm() const{
+        return form;
+    }
+    // PlayerForm変更要求
+    void requestFormChange(PlayerForm pf);
+    // 天井ブロック当たり判定
+    bool hasCeilingBlockHit() const{
+        return ceilingBlockHit;
+    }
+    std::size_t getHitBlockIndex() const{
+        return hitBlockIndex;
+    }
+    bool isInvincible() const{
+        return invincibleTimer > 0.0;
+    }
+    // ダメージを受けられるか
+    bool canTakeDamage() const{
+        return !isInvincible();
+    }
+    // ダッシュ中か
+    bool isDashingNow() const{
+        return isDashing;
+    }
+    // 落下死判定関数
+    bool isBelowWorld(double worldHeight) const{
+        return (y > worldHeight);
+    }
+    // プレイヤーの形態変化の即時遷移用のラッパ
+    void flushPendingFormChange(const std::vector<Block>& blocks){
+        applyPendingFormIfPossible(blocks);
+    }
+    // ジャンプした瞬間を返す関数
+    bool consumeJumpStartedThisFrame(){
+        const bool v = jumpStartedThisFrame;    // 呼ばれた瞬間の状態保存
+        jumpStartedThisFrame = false;           // 状態に関わらずfalse
+        return v;
+    }
+};
+
+#endif  // PLAYER_H
