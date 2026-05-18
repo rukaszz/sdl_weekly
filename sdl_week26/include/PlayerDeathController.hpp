@@ -1,7 +1,7 @@
-#ifndef PLAYERDEATHEVENT_H
-#define PLAYERDEATHEVENT_H
+#ifndef PLAYERDEATHCONTROLLER_H
+#define PLAYERDEATHCONTROLLER_H
 
-class PlayerDeathEvent{
+class PlayerDeathController{
 private:
     // 定数
     static constexpr double DURATION       = 1.0;   // 演出全体の秒数
@@ -28,4 +28,4 @@ public:
     }
 };
 
-#endif  // PLAYERDEATHEVENT_H
+#endif  // PLAYERDEATHCONTROLLER_H

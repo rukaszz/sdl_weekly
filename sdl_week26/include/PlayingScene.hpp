@@ -19,7 +19,7 @@
 #include "ItemSystem.hpp"
 #include "CameraShakeController.hpp"
 #include "ParticleSystem.hpp"
-#include "PlayerDeathEvent.hpp"
+#include "PlayerDeathController.hpp"
 
 #include "GameEventBuffer.hpp"
 #include "PlayerStateSystem.hpp"
@@ -85,7 +85,7 @@ private:
     // パーティクル
     ParticleSystem particles;
     // プレイヤー死亡時演出
-    PlayerDeathEvent deathEvent;
+    PlayerDeathController deathEvent;
     // デバッグ表示用のテキストテクスチャ
     std::unique_ptr<TextTexture> debugText;
     

@@ -55,6 +55,7 @@ enum class SoundId : std::uint8_t{
 enum class ParticleEffectId : std::uint8_t{
     CoinSpark, 
     EnemyBurst, 
+    PlayerDeath, 
 };
 
 /**

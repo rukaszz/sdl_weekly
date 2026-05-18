@@ -141,7 +141,8 @@ void ParticleSystem::render(Renderer& renderer, const Camera& camera) const{
     // パーティクルを分解してそれぞれ描画
     for(const auto& p : particles){
         // 寿命残量が少ないパーティクルは薄くしてフェードアウトさせる
-        const double ratio = (p.maxLife > 0.0) ? (p.life / p.maxLife) : 0.0;
+        const double ratio = (p.maxLife > 0.0)
+            ? std::clamp((p.life / p.maxLife), 0.0, 1.0) : 0.0;
         SDL_Color drawColor = p.color;
         // アルファチャンネルの減衰
         drawColor.a = static_cast<Uint8>(255.0 * ratio);
@@ -174,4 +175,4 @@ void ParticleSystem::clear(){
  */
 bool ParticleSystem::canSpawn(std::size_t count) const{
     return particles.size() + count <= ParticleConfig::MAX_PARTICLES;
-};
+}

@@ -194,8 +194,8 @@ void PlayingScene::update(double delta){
     bossBattleSystem.checkBattleResult(ctx.events);
     // 13. Scene内のイベント消費
     consumeShakeEffectEvents();
+    consumePlayerDeathEvents(); // プレイヤー死亡時のパーティクルを出したいのでParticleイベント消費より先に処理する
     consumeParticleEvents();
-    consumePlayerDeathEvents();
     // 14. カメラ座標の更新
     updateCamera();
     // 画面シェイク
@@ -516,6 +516,9 @@ void PlayingScene::consumeParticleEvents(){
             case ParticleEffectId::EnemyBurst:
                 particles.spawnEnemyBurst(spe.x, spe.y);
                 break;
+            case ParticleEffectId::PlayerDeath:
+                particles.spawnPlayerDeath(spe.x, spe.y);
+                break;
             }
         }
     );
@@ -544,8 +547,14 @@ void PlayingScene::consumePlayerDeathEvents(){
             runState = RunState::PlayerDying;
             // プレイヤー死亡演出開始
             deathEvent.start();
+            // BGMのフェードアウト(1000ms)
+            ctx.musicSystem.fadeOut(1000);
             // パーティクルも呼び出す(この時点でプレイヤーの死亡は確定しているので)
-            particles.spawnPlayerDeath(pde.x, pde.y);
+            ctx.events.spawnParticle(
+                ParticleEffectId::PlayerDeath, 
+                pde.x, 
+                pde.y
+            );
         }
     );
 }

@@ -1,10 +1,10 @@
-#include "PlayerDeathEvent.hpp"
+#include "PlayerDeathController.hpp"
 
 /**
  * @brief プレイヤー死亡演出イベントの開始
  * 
  */
-void PlayerDeathEvent::start(){
+void PlayerDeathController::start(){
     // 各種変数の設定
     deathTimer   = DURATION;
     blinkTimer   = 0.0;
@@ -19,7 +19,7 @@ void PlayerDeathEvent::start(){
  * @return true：GameOverSceneへ遷移
  * @return false：無効化中 or 演出中
  */
-bool PlayerDeathEvent::update(double delta){
+bool PlayerDeathController::update(double delta){
     // 当該イベントが無効化中は何もしない
     if(!active){
         return false;
@@ -46,7 +46,7 @@ bool PlayerDeathEvent::update(double delta){
  * @brief 各種変数を初期化
  * 
  */
-void PlayerDeathEvent::reset(){
+void PlayerDeathController::reset(){
     deathTimer   = 0.0;
     blinkTimer   = 0.0;
     blinkVisible = true;
