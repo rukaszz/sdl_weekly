@@ -2,6 +2,7 @@
 #define TITLESCENE_H
 
 #include "Scene.hpp"
+#include "SimpleSceneBackground.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -13,12 +14,16 @@ class TextTexture;
 
 class TitleScene : public Scene{
 private:
-    std::unique_ptr<TextTexture> gameTitleText;
-    std::unique_ptr<TextTexture> gameEnterText;
-    // タイトル処理
+    // タイトル処理用変数
     double titleFade = 0.0; // 0.0 .. 1.0
     double blinkTimer = 0.0;
     bool blinkVisible= true;
+
+    // 背景描画処理
+    SimpleSceneBackground background;
+    // 各種テキスト
+    std::unique_ptr<TextTexture> gameTitleText;
+    std::unique_ptr<TextTexture> gameEnterText;
 
 public:
     TitleScene(SceneControl& sc, GameContext& gc);

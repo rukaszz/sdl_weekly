@@ -62,6 +62,7 @@ add_executable(${PROJECT_NAME}
     src/Scene.cpp
     src/SceneControl.cpp
     src/SdlSystem.cpp
+    src/SimpleSceneBackground.cpp
     src/SoundSystem.cpp
     src/Sprite.cpp
     src/StageDefinitionLoader.cpp

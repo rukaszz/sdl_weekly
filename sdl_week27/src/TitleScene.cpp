@@ -6,6 +6,7 @@
 #include "Renderer.hpp"
 #include "Input.hpp"
 #include "MusicId.hpp"
+#include "SimpleSceneBackground.hpp"
 
 #include <SDL2/SDL.h>
 
@@ -18,6 +19,8 @@ TitleScene::TitleScene(SceneControl& sc, GameContext& gc)
     : Scene(
         sc, 
         gc
+    ), background(
+        gc.worldInfo.WorldWidth, gc.worldInfo.WorldHeight
     )
 {
     // タイトル
@@ -63,6 +66,9 @@ void TitleScene::update(double delta){
  * @param renderer 
  */
 void TitleScene::render(){
+    // 背景描画
+    background.render(ctx.renderer);
+    // 背景のあとにテキスト
     ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
     // 中央にタイトル
     gameTitleText->draw(
@@ -89,6 +95,12 @@ void TitleScene::onEnter(){
     blinkTimer = 0.0;
     titleFade = 0;
     blinkVisible = true;
+    // 背景読み込み
+    background.setPreset(
+        ctx.renderAssets.bgTextures, 
+        BackgroundId::Forest
+    );
+    // BGM再生
     ctx.musicSystem.playIfChanged(MusicId::Title);
 }
 

@@ -89,3 +89,30 @@ void BackgroundPresetBuilder::build(
         );
     }
 }
+
+/**
+ * @brief SimpleSceneBackground用のclear〜addLayer/addDecorationまでを一括で行う 
+ * buildのオーバーロード
+ * 
+ * @param renderer 
+ * @param textures 
+ * @param id 
+ */
+void BackgroundPresetBuilder::build(
+    BackgroundRenderer& bgRenderer,
+    const BackgroundTextureContext& textures,
+    BackgroundId id
+)
+{   
+    // 背景・装飾のクリア
+    bgRenderer.clearLayers();
+    bgRenderer.clearDecoration();
+    // 背景の構成
+    for(const auto& bgLayerDef : BackgroundDefinition::getLayerDefs(id)){
+        bgRenderer.addLayer(
+            selectLayerTexture(textures, bgLayerDef.texId), 
+            bgLayerDef.parallaxFactor
+        );
+    }
+    // 装飾は使わない
+}
