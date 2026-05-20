@@ -24,6 +24,7 @@ private:
     // 各種テキスト
     std::unique_ptr<TextTexture> gameTitleText;
     std::unique_ptr<TextTexture> gameEnterText;
+    std::unique_ptr<TextTexture> howToPlayText;
 
 public:
     TitleScene(SceneControl& sc, GameContext& gc);

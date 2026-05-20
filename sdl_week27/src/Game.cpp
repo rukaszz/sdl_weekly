@@ -131,7 +131,8 @@ void Game::loadResources(){
     starTexture         = std::make_unique<Texture>(renderer->get(), "assets/image/BG/star.png");
     darkSunTexture      = std::make_unique<Texture>(renderer->get(), "assets/image/BG/dark_sun2.png");
     // テキスト
-    font = std::make_unique<Text>("assets/font/NotoSansJP-Regular.ttf", 24);
+    font      = std::make_unique<Text>("assets/font/NotoSansJp/NotoSansJP-Regular.ttf", 24);
+    titleFont = std::make_unique<Text>("assets/font/ChangaOne/ChangaOne-Regular.ttf", 48);
     // スコア
     scoreText = std::make_unique<TextTexture>(*renderer, *font, SDL_Color{255, 255, 255, 255});
     scoreText->setText("Score: 0");
@@ -225,6 +226,7 @@ void Game::buildContexts(){
         }, 
         TextRenderContext{
             *font,
+            *titleFont, 
             *scoreText,
             *fpsText,
         }, 

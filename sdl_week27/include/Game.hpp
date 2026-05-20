@@ -96,6 +96,7 @@ private:
     std::unique_ptr<Texture> darkSunTexture;
     // テキスト表示用
     std::unique_ptr<Text> font;
+    std::unique_ptr<Text> titleFont;
     std::unique_ptr<TextTexture> scoreText;
     std::unique_ptr<TextTexture> fpsText;
     // input抽象化

@@ -20,15 +20,20 @@ TitleScene::TitleScene(SceneControl& sc, GameContext& gc)
         sc, 
         gc
     ), background(
-        gc.worldInfo.WorldWidth, gc.worldInfo.WorldHeight
+        GameConfig::WINDOW_WIDTH, 
+        GameConfig::WINDOW_HEIGHT
     )
 {
     // タイトル
-    gameTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
-    gameTitleText->setText("My Game");
+    gameTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.titleFont, SDL_Color{20, 20, 20, 255});
+    gameTitleText->setText("The Mysterious Forest");
     // プロンプト
-    gameEnterText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
+    // Enterでスタート
+    gameEnterText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{20, 20, 20, 255});
     gameEnterText->setText("Press ENTER to Start");
+    // 操作方法
+    howToPlayText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{20, 20, 20, 255});
+    howToPlayText->setText("Move: Arrow Keys / Jump: Space / Fire: B / Pause: Esc");
 }
 
 /**
@@ -82,9 +87,14 @@ void TitleScene::render(){
         gameEnterText->draw(
             ctx.renderer,
             GameConfig::WINDOW_WIDTH/2 - gameEnterText->getWidth()/2,
-            GameConfig::WINDOW_HEIGHT/2 - gameEnterText->getHeight()/2
+            GameConfig::WINDOW_HEIGHT/1.5 - gameEnterText->getHeight()/2
         );
     }
+    howToPlayText->draw(
+        ctx.renderer,
+        static_cast<int>(GameConfig::WINDOW_WIDTH/4 - gameEnterText->getWidth()/3),
+        static_cast<int>(GameConfig::WINDOW_HEIGHT/1.2 - gameEnterText->getHeight()/1.5)
+    );
 }
 
 /**

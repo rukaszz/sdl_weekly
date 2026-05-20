@@ -82,37 +82,37 @@
 
 - Asset Name: title.ogg
 - Source: maou_bgm_piano27.ogg
-- -URL: [https://maou.audio/bgm_piano27/](https://maou.audio/bgm_piano27/)
+- URL: [https://maou.audio/bgm_piano27/](https://maou.audio/bgm_piano27/)
 
 ### Vehicle 03
 
 - Asset Name: playing.ogg
 - Source: maou_game_vehicle03.ogg
-- -URL: [https://maou.audio/game_vehicle03/](https://maou.audio/game_vehicle03/)
+- URL: [https://maou.audio/game_vehicle03/](https://maou.audio/game_vehicle03/)
 
 ### Cyber 19
 
 - Asset Name: gameover.ogg
 - Source: maou_bgm_cyber19.ogg
-- -URL: [https://maou.audio/bgm_cyber19/](https://maou.audio/bgm_cyber19/)
+- URL: [https://maou.audio/bgm_cyber19/](https://maou.audio/bgm_cyber19/)
 
 ### Event 05
 
 - Asset Name: clear.ogg
 - Source: maou_game_event05.ogg
-- -URL: [https://maou.audio/game_event05/](https://maou.audio/game_event05/)
+- URL: [https://maou.audio/game_event05/](https://maou.audio/game_event05/)
 
 ### Boss 02
 
 - Asset Name: boss.ogg
 - Source: maou_game_boss02.ogg
-- -URL: [https://maou.audio/game_boss02/](https://maou.audio/game_boss02/)
+- URL: [https://maou.audio/game_boss02/](https://maou.audio/game_boss02/)
 
 ### Field 06
 
 - Asset Name: result.ogg
 - Source: maou_game_field06.ogg
-- -URL: [https://maou.audio/game_field06/](https://maou.audio/game_field06/)
+- URL: [https://maou.audio/game_field06/](https://maou.audio/game_field06/)
 
 ## Font
 
@@ -121,4 +121,10 @@
 - Asset Name: NotoSansJP-Regular.ttf
 - Source: Google Fonts - Noto Sans JP
 - URL: [https://fonts.google.com/noto/specimen/Noto+Sans+JP](https://fonts.google.com/noto/specimen/Noto+Sans+JP)
+
+### Changa One
+
+- Asset Name: ChangaOne-Regular.ttf
+- Source: Google Fonts - Changa One
+- URL: [https://fonts.google.com/specimen/Changa+One](https://fonts.google.com/specimen/Changa+One)
 
