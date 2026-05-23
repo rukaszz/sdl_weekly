@@ -93,7 +93,6 @@ void SceneControl::startNewGame() {
  */
 bool SceneControl::goToNextStage() {
     ++currentStageIndex;
-    // if (currentStageIndex >= static_cast<int>(StageConfig::STAGES.size())) {
     if (currentStageIndex >= static_cast<int>(stageDefinitions.size())) {
         // 全ステージクリア
         return false;

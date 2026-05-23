@@ -137,6 +137,8 @@ struct RequestPlayerDeathEvent{
     double y;
 };
 
+struct RequestGameQuitEvent{};
+
 // このGameEventはRequestSceneEvent, AddScoreEvent, ...を型安全に切り替えられる
 using GameEvent = std::variant<
     RequestSceneEvent, 
@@ -147,7 +149,8 @@ using GameEvent = std::variant<
     PlaySoundEvent, 
     StartCameraShakeEvent, 
     SpawnParticleEvent,
-    RequestPlayerDeathEvent
+    RequestPlayerDeathEvent, 
+    RequestGameQuitEvent
 >;
 
 #endif  // GAMEEVENT_H

@@ -55,7 +55,7 @@ struct EntityContext{
  */
 struct TextRenderContext{
     Text& font;         // 通常のフォント
-    Text& titleFont;    // タイトル用の大きめのフォント
+    Text& largeFont;    // タイトル用の大きめのフォント
     TextTexture& scoreText;
     TextTexture& fpsText;
 };

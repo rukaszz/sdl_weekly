@@ -35,7 +35,7 @@ namespace{
         case BgLayerTextureId::HellMountain:    return btc.hellMountain;
         case BgLayerTextureId::HellForest:      return btc.hellForest;
         }
-        throw std::runtime_error("Unkown BgLayerTextureId");
+        throw std::runtime_error("Unknown BgLayerTextureId");
     }
     /**
      * @brief テクスチャデータコンテキストと装飾タイプを紐付けるヘルパ関数
@@ -54,7 +54,7 @@ namespace{
         case BgDecorationType::Star:    return btc.starTexture;
         case BgDecorationType::DarkSun: return btc.darkSunTexture;
         }
-        throw std::runtime_error("Unkown BgDecorationType");
+        throw std::runtime_error("Unknown BgDecorationType");
     }
 }
 

@@ -1,17 +1,21 @@
 #ifndef TITLESCENE_H
 #define TITLESCENE_H
 
-#include "Scene.hpp"
-#include "SimpleSceneBackground.hpp"
+#include <memory>
 
 #include <SDL2/SDL.h>
 
-#include <memory>
+#include "Scene.hpp"
+#include "SimpleSceneBackground.hpp"
 
 class Game;
 class Renderer;
 class TextTexture;
 
+/**
+ * @brief タイトルシーンを管理するクラス
+ * 
+ */
 class TitleScene : public Scene{
 private:
     // タイトル処理用変数
@@ -19,15 +23,18 @@ private:
     double blinkTimer = 0.0;
     bool blinkVisible= true;
 
-    // 背景描画処理
+    // 背景描画処理用
     SimpleSceneBackground background;
     // 各種テキスト
     std::unique_ptr<TextTexture> gameTitleText;
     std::unique_ptr<TextTexture> gameEnterText;
+    std::unique_ptr<TextTexture> gameLeaveText;
     std::unique_ptr<TextTexture> howToPlayText;
 
 public:
+    // コンストラクタ
     TitleScene(SceneControl& sc, GameContext& gc);
+    // デストラクタ(継承しているので仮想関数)
     virtual ~TitleScene() = default;
 
     void handleEvent(const SDL_Event& e) override;
@@ -36,6 +43,7 @@ public:
     void onEnter() override;
     void onExit() override;
 
+private:
     void updateTitle(double delta);
 };
 

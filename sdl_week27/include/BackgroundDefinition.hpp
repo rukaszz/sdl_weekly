@@ -19,44 +19,7 @@ struct BackgroundLayerDef{
     double parallaxFactor;
 };
 
-namespace BackgroundDefinition{
-    /**
-     * @brief Get the Layerdef object
-     * 与えられた背景IDに応じた背景の構成を返却するヘルパ関数
-     * 
-     * @param id 
-     * @return std::vector<BackgroundLayerDef> 
-     */
-    /*
-    inline std::vector<BackgroundLayerDef> getLayerDefs(BackgroundId id){
-        switch (id){
-        case BackgroundId::Forest:
-            // 森背景の構成
-            return{
-                {BgLayerTextureId::Sky,         0.0}, 
-                {BgLayerTextureId::Mountain,    0.2}, 
-                {BgLayerTextureId::Forest,      0.4}, 
-            };
-        case BackgroundId::DarkForest:
-            // 暗い森背景の構成
-            return{
-                {BgLayerTextureId::DarkSky,         0.0}, 
-                {BgLayerTextureId::DarkMountain,    0.2}, 
-                {BgLayerTextureId::DarkForest,      0.4}, 
-            };
-        case BackgroundId::HellForest:
-            // 地獄森の背景の構成
-            return{
-                {BgLayerTextureId::HellSky,         0.0}, 
-                {BgLayerTextureId::HellMountain,    0.2}, 
-                {BgLayerTextureId::HellForest,      0.4}, 
-            };
-        default:
-            return{};
-        }
-    }
-    */
-    
+namespace BackgroundDefinition{    
     /**
      * @brief Get the Layer Defs object
      * 与えられた背景IDに応じた背景の構成を返却するヘルパ関数
@@ -86,10 +49,19 @@ namespace BackgroundDefinition{
             {BgLayerTextureId::HellMountain,    0.2}, 
             {BgLayerTextureId::HellForest,      0.4}, 
         };
+        // 単色背景
+        static constexpr BackgroundLayerDef lightBg[] = {
+            {BgLayerTextureId::Sky,         0.0}, 
+        };
+        static constexpr BackgroundLayerDef darkBg[] = {
+            {BgLayerTextureId::DarkSky,         0.0}, 
+        };
         switch(id){
         case BackgroundId::Forest:      return forest;
         case BackgroundId::DarkForest:  return darkForest;
         case BackgroundId::HellForest:  return hellForest;
+        case BackgroundId::lightBg:     return lightBg;
+        case BackgroundId::darkBg:      return darkBg;
         }
         
         return{};

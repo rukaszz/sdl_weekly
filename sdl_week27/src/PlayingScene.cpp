@@ -1,8 +1,9 @@
 #include "PlayingScene.hpp"
 
 #include <algorithm>
-#include <vector>
 #include <cmath>
+#include <variant>
+#include <vector>
 
 #include <SDL2/SDL.h>
 
@@ -324,14 +325,14 @@ void PlayingScene::handlePlayingInput(const InputState& is){
     // ポーズ中の処理
     if(runState == RunState::Paused){
         // Escキー
-        if(is.justPressed[(int)Action::Pause]){
+        if(is.justPressed[static_cast<int>(Action::Pause)]){
             // ゲーム再開
             ctx.events.playSound(SoundId::PauseClose);
             runState = RunState::Running;
             ctx.musicSystem.resume();
         }
         // BackSpaceキー
-        if(is.justPressed[(int)Action::BackSpace]){
+        if(is.justPressed[static_cast<int>(Action::BackSpace)]){
             // BackSpaceキーでタイトルへ
             ctx.events.requestScene(GameScene::Title);
             return;
@@ -340,7 +341,7 @@ void PlayingScene::handlePlayingInput(const InputState& is){
         return;
     }
     // Escキー
-    if(is.justPressed[(int)Action::Pause]){
+    if(is.justPressed[static_cast<int>(Action::Pause)]){
         ctx.events.playSound(SoundId::PauseOpen);
         runState = RunState::Paused;
         ctx.musicSystem.pause();

@@ -88,6 +88,10 @@ public:
     void requestPlayerDeath(double x, double y) override{
         q.emplace_back(RequestPlayerDeathEvent{x, y});
     }
+    // ゲーム終了イベント
+    void requestGameQuit() override{
+        q.emplace_back(RequestGameQuitEvent{});
+    }
     /**
      * @brief 特定のイベントだけ消費して削除する処理
      * vectorのeraseはO(n^2)かかるが，この方法はO(n)で終わる

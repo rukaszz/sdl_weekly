@@ -10,7 +10,9 @@
 enum class BackgroundId : std::uint8_t{
     Forest, 
     DarkForest, 
-    HellForest, 
+    HellForest,
+    lightBg, 
+    darkBg,
 };
 
 /**

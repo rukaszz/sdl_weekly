@@ -35,8 +35,8 @@ enum class Action{
  * 
  */
 struct InputState{
-    bool pressed[(int)Action::Count + 1] = {false};
-    bool justPressed[(int)Action::Count + 1] = {false};
+    bool pressed[static_cast<int>(Action::Count) + 1] = {false};
+    bool justPressed[static_cast<int>(Action::Count) + 1] = {false};
 };
 
 /**

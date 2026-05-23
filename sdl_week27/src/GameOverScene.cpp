@@ -1,10 +1,14 @@
-#include "GameConfig.hpp"
 #include "GameOverScene.hpp"
+
+#include <SDL2/SDL.h>
+
 #include "Game.hpp"
 #include "Renderer.hpp"
 #include "MusicId.hpp"
+#include "SimpleSceneBackground.hpp"
 
-#include <SDL2/SDL.h>
+// 定数
+#include "GameConfig.hpp"
 
 /**
  * @brief Construct a new Game Over Scene:: Game Over Scene object
@@ -14,12 +18,15 @@ GameOverScene::GameOverScene(SceneControl& sc, GameContext& gc)
     : Scene(
         sc, 
         gc
+    ), background(
+        GameConfig::WINDOW_WIDTH, 
+        GameConfig::WINDOW_HEIGHT
     )
 {
     // 定型文
-    gameOverText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 40, 40, 255});
+    gameOverText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.largeFont, SDL_Color{255, 40, 40, 255});
     gameOverText->setText("GameOver!!");
-    youAreDeadText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 128, 128, 255});
+    youAreDeadText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.largeFont, SDL_Color{255, 128, 128, 255});
     youAreDeadText->setText("You are Dead!");
     returnTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
     returnTitleText->setText("Press ESC to Title");
@@ -51,7 +58,7 @@ void GameOverScene::update(double delta){
     // Playingへの遷移
     const InputState& is = ctx.input.getState();
     // Enterでリトライ
-    if(is.justPressed[(int)Action::Enter]){
+    if(is.justPressed[static_cast<int>(Action::Enter)]){
         // ctrl.requestScene(GameScene::Playing);
         if(ctrl.tryConsumeLife()){
             ctx.events.requestScene(GameScene::Playing);    
@@ -61,7 +68,7 @@ void GameOverScene::update(double delta){
     }
     // Pauseでタイトル画面へ
     // 諦めてタイトルへ戻るので，リザルト画面(ResultScene)へ遷移する予定
-    if(is.justPressed[(int)Action::Pause]){
+    if(is.justPressed[static_cast<int>(Action::Pause)]){
         // ctrl.requestScene(GameScene::Title);
         ctx.events.requestScene(GameScene::Title);
     }
@@ -72,7 +79,12 @@ void GameOverScene::update(double delta){
  * 
  */
 void GameOverScene::render(){
-    ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
+    // 背景
+    background.render(ctx.renderer);
+    // 背景描画後にテキスト
+    if(GameConfig::SHOW_DEBUG_TEXT){
+        ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
+    }
     ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);
     // 残機がなければGameOver
     if(remainingLives <= 0){
@@ -134,11 +146,19 @@ void GameOverScene::updateGameOver(double delta){
  * 
  */
 void GameOverScene::onEnter(){
+    // 変数初期化
     blinkTimer = 0.0;
     blinkVisible = true;
+    // 背景読み込み
+    background.setPreset(
+        ctx.renderAssets.bgTextures, 
+        BackgroundId::darkBg
+    );
     // このシーンに入った時点の残機で文字列を作る
     remainingLives = ctrl.getLives();
     remainingLivesText->setText("Lives(Retry Left): " + std::to_string(remainingLives));
+    // GameOver時のスコアペナルティ
+    ctx.events.addScore(GameConfig::SCORE_PENALTY);
     // BGM再生
     ctx.musicSystem.playIfChanged(MusicId::GameOver);
 }
@@ -148,6 +168,7 @@ void GameOverScene::onEnter(){
  * 
  */
 void GameOverScene::onExit(){
+    background.clear();
     // Player死亡→リトライ時にPlayerFormなどをリセットする
     ctx.entityCtx.player.resetForNewGame();
 }

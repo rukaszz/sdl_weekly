@@ -1,19 +1,21 @@
-// 定数
-#include "GameConfig.hpp"
-
 #include "TitleScene.hpp"
+
+#include <SDL2/SDL.h>
+
 #include "Game.hpp"
 #include "Renderer.hpp"
 #include "Input.hpp"
 #include "MusicId.hpp"
 #include "SimpleSceneBackground.hpp"
 
-#include <SDL2/SDL.h>
+// 定数
+#include "GameConfig.hpp"
 
 /**
  * @brief Construct a new Title Scene:: Title Scene object
  * 
- * @param g 
+ * @param sc 
+ * @param gc 
  */
 TitleScene::TitleScene(SceneControl& sc, GameContext& gc)
     : Scene(
@@ -25,12 +27,15 @@ TitleScene::TitleScene(SceneControl& sc, GameContext& gc)
     )
 {
     // タイトル
-    gameTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.titleFont, SDL_Color{20, 20, 20, 255});
+    gameTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.largeFont, SDL_Color{20, 20, 20, 255});
     gameTitleText->setText("The Mysterious Forest");
     // プロンプト
     // Enterでスタート
     gameEnterText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{20, 20, 20, 255});
     gameEnterText->setText("Press ENTER to Start");
+    // Escで終了
+    gameLeaveText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{20, 20, 20, 255});
+    gameLeaveText->setText("Press ESC to Quit");
     // 操作方法
     howToPlayText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{20, 20, 20, 255});
     howToPlayText->setText("Move: Arrow Keys / Jump: Space / Fire: B / Pause: Esc");
@@ -38,7 +43,6 @@ TitleScene::TitleScene(SceneControl& sc, GameContext& gc)
 
 /**
  * @brief タイトル画面でのイベント管理
- * 管理するイベントはエンターキーの押下のみ
  * 
  * @param e 
  */
@@ -55,12 +59,16 @@ void TitleScene::handleEvent(const SDL_Event& e){
 void TitleScene::update(double delta){
     // タイトルのフェードインなど
     updateTitle(delta);
-    // Playingへ遷移
+    // Enterキー押下でPlayingへ遷移
     const InputState& is = ctx.input.getState();
-    if(is.justPressed[(int)Action::Enter]){
+    if(is.justPressed[static_cast<int>(Action::Enter)]){
         ctrl.startNewGame();
-        // ctrl.requestScene(GameScene::Playing);
         ctx.events.requestScene(GameScene::Playing);
+        return;
+    }
+    // Escキー押下でゲームを終了
+    if(is.justPressed[static_cast<int>(Action::Pause)]){
+        ctx.events.requestGameQuit();
         return;
     }
 }
@@ -74,26 +82,35 @@ void TitleScene::render(){
     // 背景描画
     background.render(ctx.renderer);
     // 背景のあとにテキスト
-    ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
+    if(GameConfig::SHOW_DEBUG_TEXT){
+        ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
+    }
     // 中央にタイトル
     gameTitleText->draw(
         ctx.renderer,
-        GameConfig::WINDOW_WIDTH/2 - gameTitleText->getWidth()/2,
-        GameConfig::WINDOW_HEIGHT/3 - gameTitleText->getHeight()/2
+        static_cast<int>(GameConfig::WINDOW_WIDTH*0.5 - gameTitleText->getWidth()/2),
+        static_cast<int>(GameConfig::WINDOW_HEIGHT*0.3 - gameTitleText->getHeight()/2)
     );
 
     // 下に「Press ENTER to Start」
     if(blinkVisible){
         gameEnterText->draw(
             ctx.renderer,
-            GameConfig::WINDOW_WIDTH/2 - gameEnterText->getWidth()/2,
-            GameConfig::WINDOW_HEIGHT/1.5 - gameEnterText->getHeight()/2
+            static_cast<int>(GameConfig::WINDOW_WIDTH*0.5 - gameEnterText->getWidth()/2),
+            static_cast<int>(GameConfig::WINDOW_HEIGHT * 0.66)
         );
     }
+    // Press Esc To Quit
+    gameLeaveText->draw(
+        ctx.renderer,
+        static_cast<int>(GameConfig::WINDOW_WIDTH*0.5 - gameLeaveText->getWidth()/2),
+        static_cast<int>(GameConfig::WINDOW_HEIGHT * 0.74)
+    );
+    // 画面下部に操作方法テキスト
     howToPlayText->draw(
         ctx.renderer,
-        static_cast<int>(GameConfig::WINDOW_WIDTH/4 - gameEnterText->getWidth()/3),
-        static_cast<int>(GameConfig::WINDOW_HEIGHT/1.2 - gameEnterText->getHeight()/1.5)
+        static_cast<int>(GameConfig::WINDOW_WIDTH*0.5 - howToPlayText->getWidth()/2),
+        static_cast<int>(GameConfig::WINDOW_HEIGHT * 0.86)
     );
 }
 
@@ -103,7 +120,7 @@ void TitleScene::render(){
  */
 void TitleScene::onEnter(){
     blinkTimer = 0.0;
-    titleFade = 0;
+    titleFade = 0.0;
     blinkVisible = true;
     // 背景読み込み
     background.setPreset(
@@ -119,7 +136,7 @@ void TitleScene::onEnter(){
  * 
  */
 void TitleScene::onExit(){
-
+    background.clear();
 }
 
 /**

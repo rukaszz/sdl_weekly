@@ -1,10 +1,14 @@
-#include "GameConfig.hpp"
 #include "ClearScene.hpp"
+
+#include <SDL2/SDL.h>
+
 #include "Game.hpp"
 #include "Renderer.hpp"
 #include "MusicId.hpp"
+#include "SimpleSceneBackground.hpp"
 
-#include <SDL2/SDL.h>
+// 定数
+#include "GameConfig.hpp"
 
 /**
  * @brief Construct a new Clear Scene:: Clear Scene object
@@ -16,16 +20,19 @@ ClearScene::ClearScene(SceneControl& sc, GameContext& gc)
     : Scene(
         sc, 
         gc
+    ), background(
+        GameConfig::WINDOW_WIDTH, 
+        GameConfig::WINDOW_HEIGHT
     )
 {
     // クリア表示
-    clearText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 216, 0, 255});
+    clearText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.largeFont, SDL_Color{255, 200, 20, 255});
     clearText->setText("CLEAR!!");
     // 次のステージへ
-    NextStageText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
+    NextStageText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{20, 20, 20, 255});
     NextStageText->setText("Press ENTER to Next Stage");
     // タイトルへ戻る
-    returnTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
+    returnTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{20, 20, 20, 255});
     returnTitleText->setText("Press ESC to Title");
 }
 
@@ -51,23 +58,20 @@ void ClearScene::update(double delta){
     // Playingへの遷移
     const InputState& is = ctx.input.getState();
     // Enterでステージ遷移
-    if(is.justPressed[(int)Action::Enter]){
+    if(is.justPressed[static_cast<int>(Action::Enter)]){
         if(ctrl.goToNextStage()){
             // ステージインデックスを勧めてシーンを切り替える
-            // ctrl.requestScene(GameScene::Playing);
             ctx.events.requestScene(GameScene::Playing);
         } else {
             // 全ステージクリア
             // タイトルへ戻すだけ
             // 後でリザルト画面(ResultScene)を作る
-            // ctrl.requestScene(GameScene::Result);
             ctx.events.requestScene(GameScene::Result);
         }
     }
     // ESCでタイトル画面へ
-    if(is.justPressed[(int)Action::Pause]){
+    if(is.justPressed[static_cast<int>(Action::Pause)]){
         // 諦めてタイトルへ戻るなのでTitleScene
-        // ctrl.requestScene(GameScene::Title);
         ctx.events.requestScene(GameScene::Title);
     }
 }
@@ -78,7 +82,12 @@ void ClearScene::update(double delta){
  * @param remderer 
  */
 void ClearScene::render(){
-    ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
+    // 背景描画
+    background.render(ctx.renderer);
+    // 背景描画後にテキスト
+    if(GameConfig::SHOW_DEBUG_TEXT){
+        ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
+    }
     ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);
     // CLEARは点滅
     if(blinkVisible){
@@ -123,6 +132,11 @@ void ClearScene::updateClear(double delta){
 void ClearScene::onEnter(){
     blinkTimer = 0.0;
     blinkVisible = true;
+    // 背景読み込み
+    background.setPreset(
+        ctx.renderAssets.bgTextures, 
+        BackgroundId::lightBg
+    );
     // BGM再生
     ctx.musicSystem.playIfChanged(MusicId::Clear);
 }
@@ -132,5 +146,5 @@ void ClearScene::onEnter(){
  * 
  */
 void ClearScene::onExit(){
-
+    background.clear();
 }

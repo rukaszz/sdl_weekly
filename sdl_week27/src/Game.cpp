@@ -1,13 +1,14 @@
 #include "Game.hpp"
 
-#include <stdexcept>
 #include <iostream>
-#include <string>
-#include <memory>
-#include <vector>
-#include <unordered_map>
-#include <random>
 #include <chrono>
+#include <memory>
+#include <random>
+#include <stdexcept>
+#include <string>
+#include <unordered_map>
+#include <variant>
+#include <vector>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -51,6 +52,10 @@
 #include "FireBall.hpp"
 #include "Item.hpp"
 
+// Events
+#include "GameEvent.hpp"
+#include "GameEventBuffer.hpp"
+
 /**
  * @brief Construct a new Game:: Game object
  * 
@@ -80,7 +85,7 @@ Game::~Game(){
  */
 void Game::bootstrapWindowAndRenderer(){
     // ウィンドウ
-    window = std::make_unique<Window>("Test", GameConfig::WINDOW_WIDTH, GameConfig::WINDOW_HEIGHT);
+    window = std::make_unique<Window>("The Mysterious Forest", GameConfig::WINDOW_WIDTH, GameConfig::WINDOW_HEIGHT);
     // レンダラー
     renderer = std::make_unique<Renderer>(window->get());
 }
@@ -132,12 +137,12 @@ void Game::loadResources(){
     darkSunTexture      = std::make_unique<Texture>(renderer->get(), "assets/image/BG/dark_sun2.png");
     // テキスト
     font      = std::make_unique<Text>("assets/font/NotoSansJp/NotoSansJP-Regular.ttf", 24);
-    titleFont = std::make_unique<Text>("assets/font/ChangaOne/ChangaOne-Regular.ttf", 48);
+    largeFont = std::make_unique<Text>("assets/font/ChangaOne/ChangaOne-Regular.ttf", 48);
     // スコア
-    scoreText = std::make_unique<TextTexture>(*renderer, *font, SDL_Color{255, 255, 255, 255});
+    scoreText = std::make_unique<TextTexture>(*renderer, *font, SDL_Color{20, 20, 20, 255});
     scoreText->setText("Score: 0");
     // FPS
-    fpsText = std::make_unique<TextTexture>(*renderer, *font, SDL_Color{255, 255, 255, 255});
+    fpsText = std::make_unique<TextTexture>(*renderer, *font, SDL_Color{20, 20, 20, 255});
     fpsText->setText("");
     // ステージ
     auto defs = StageDefinitionLoader::loadStagesFromJson("./assets/stage/stage.json");
@@ -226,7 +231,7 @@ void Game::buildContexts(){
         }, 
         TextRenderContext{
             *font,
-            *titleFont, 
+            *largeFont, 
             *scoreText,
             *fpsText,
         }, 
@@ -301,7 +306,7 @@ void Game::startFromTitle(){
  */
 void Game::changeScene(GameScene id){
     currentScene->onExit();
-    currentScene = scenes[(int)id].get();
+    currentScene = scenes[static_cast<int>(id)].get();
     currentScene->onEnter();
 }
 
@@ -378,7 +383,6 @@ void Game::run(){
         // 入力値の受け取りはなるべく最初に実施する
         // 入力受付
         processEvents();
-        // input->beginFrame();
         // 時間計測と更新
         auto now = clock::now();
         acc += std::chrono::duration_cast<std::chrono::nanoseconds>(now - prev);
@@ -392,14 +396,9 @@ void Game::run(){
             update(fixedDelta);
             acc -= fixedNs;
         }
-        // 補間係数(描画用)
-        // const double alpha = std::clamp(acc.count() / static_cast<double>(fixedNs.count()), 0.0, 1.0);
         // 描画
         render();
         
-        // input->endFrame();
-        // update(delta);
-        // render();
         // フレームレートの計算とfps計測
         ++fpsCounter;
         Uint32 nowMs = SDL_GetTicks();
@@ -467,9 +466,22 @@ void Game::update(double delta){
     // イベントの確定
     soundSystem->process(events);   // 最初にサウンド関係
     consumeEvents(events);
+    // ゲーム終了イベントの監視(events.clear()の前に消費する)
+    events.consumeIf(
+        [](const GameEvent& ev){
+            return std::holds_alternative<RequestGameQuitEvent>(ev);
+        },
+        [&](const GameEvent&){
+            running = false;
+        }
+    );
     events.clear();
-    // シーンの更新
-    applySceneChangeIfAny();
+    // ゲーム終了イベント後にシーンの遷移が生じないように
+    if(running){
+        // シーンの更新
+        applySceneChangeIfAny();
+    }
+    
 }
 
 /**
