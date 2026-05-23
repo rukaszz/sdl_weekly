@@ -26,7 +26,7 @@ private:
     // テキスト
     std::unique_ptr<TextTexture> clearText;
     std::unique_ptr<TextTexture> returnTitleText;
-    std::unique_ptr<TextTexture> NextStageText;
+    std::unique_ptr<TextTexture> nextStageText;
     
 public:
     // コンストラクタ

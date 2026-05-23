@@ -29,8 +29,8 @@ ClearScene::ClearScene(SceneControl& sc, GameContext& gc)
     clearText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.largeFont, SDL_Color{255, 200, 20, 255});
     clearText->setText("CLEAR!!");
     // 次のステージへ
-    NextStageText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{20, 20, 20, 255});
-    NextStageText->setText("Press ENTER to Next Stage");
+    nextStageText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{20, 20, 20, 255});
+    nextStageText->setText("Press ENTER to Next Stage");
     // タイトルへ戻る
     returnTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{20, 20, 20, 255});
     returnTitleText->setText("Press ESC to Title");
@@ -71,7 +71,7 @@ void ClearScene::update(double delta){
     }
     // ESCでタイトル画面へ
     if(is.justPressed[static_cast<int>(Action::Pause)]){
-        // 諦めてタイトルへ戻るなのでTitleScene
+        // タイトルへ戻るためにEscが押されたのでTitleScene
         ctx.events.requestScene(GameScene::Title);
     }
 }
@@ -97,10 +97,10 @@ void ClearScene::render(){
             GameConfig::WINDOW_HEIGHT/3 - clearText->getHeight()/2
         );
     }
-    NextStageText->draw(
+    nextStageText->draw(
         ctx.renderer,
-        GameConfig::WINDOW_WIDTH/2 - NextStageText->getWidth()/2,
-        GameConfig::WINDOW_HEIGHT/2 - NextStageText->getHeight()/2
+        GameConfig::WINDOW_WIDTH/2 - nextStageText->getWidth()/2,
+        GameConfig::WINDOW_HEIGHT/2 - nextStageText->getHeight()/2
     );
     returnTitleText->draw(
         ctx.renderer,
@@ -135,7 +135,7 @@ void ClearScene::onEnter(){
     // 背景読み込み
     background.setPreset(
         ctx.renderAssets.bgTextures, 
-        BackgroundId::lightBg
+        BackgroundId::LightBg
     );
     // BGM再生
     ctx.musicSystem.playIfChanged(MusicId::Clear);

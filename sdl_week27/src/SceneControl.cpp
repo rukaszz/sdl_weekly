@@ -158,7 +158,7 @@ void SceneControl::consumeEvents(const GameEventBuffer& geb){
     }
     // スコア加算イベントの結果を反映
     if(scoreDelta != 0){
-        setScore(getScore() + scoreDelta);
+        setScore(std::max(0, static_cast<int>(getScore() + scoreDelta)));
     }
     // 最終的に決定されたシーン遷移要求を反映
     if(hasSceneReq){

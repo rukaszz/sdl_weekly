@@ -71,7 +71,7 @@ private:
     static constexpr std::pair<int, int> getSizeByType(ItemType type){
         switch(type){
         case ItemType::Coin:
-            return {24, 24};
+            return {32, 32};
         case ItemType::Mushroom:
             return {32, 32};
         case ItemType::FireFlower:

@@ -59,10 +59,14 @@ void GameOverScene::update(double delta){
     const InputState& is = ctx.input.getState();
     // Enterでリトライ
     if(is.justPressed[static_cast<int>(Action::Enter)]){
-        // ctrl.requestScene(GameScene::Playing);
+        // プレイヤーの状態変化は操作で変わる
         if(ctrl.tryConsumeLife()){
+            // リトライ時はチビ状態からスタート
+            ctx.entityCtx.player.resetForNewGame();
             ctx.events.requestScene(GameScene::Playing);    
         } else {
+            // タイトルへ戻る際はプレイヤーの各種変数を初期化しておく
+            ctx.entityCtx.player.resetForNewGame();
             ctx.events.requestScene(GameScene::Title);
         }
     }
@@ -152,7 +156,7 @@ void GameOverScene::onEnter(){
     // 背景読み込み
     background.setPreset(
         ctx.renderAssets.bgTextures, 
-        BackgroundId::darkBg
+        BackgroundId::DarkBg
     );
     // このシーンに入った時点の残機で文字列を作る
     remainingLives = ctrl.getLives();
@@ -169,6 +173,7 @@ void GameOverScene::onEnter(){
  */
 void GameOverScene::onExit(){
     background.clear();
-    // Player死亡→リトライ時にPlayerFormなどをリセットする
-    ctx.entityCtx.player.resetForNewGame();
+    // ここで無条件にresetForNewGame()を呼んでも良いが，
+    // リトライ/タイトルに戻るの双方で同じ処理が呼ばれ，状態変更がonExit()で隠れてしまう
+    // ctx.entityCtx.player.resetForNewGame();
 }

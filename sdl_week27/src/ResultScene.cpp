@@ -29,7 +29,7 @@ ResultScene::ResultScene(SceneControl& sc, GameContext& gc)
     resultText->setText("Result");
     // Enterキーでタイトルへ
     returnTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{20, 20, 20, 255});
-    returnTitleText->setText("Press Enter to Title");
+    returnTitleText->setText("Press Enter / Esc to Title");
     praiseText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{20, 20, 20, 255}); // 淡い黄色
     praiseText->setText("Congratulations!");
     // 動的テキスト
@@ -56,9 +56,9 @@ void ResultScene::update(double delta){
     updateBlink(delta);
     // input取得
     const InputState& is = ctx.input.getState();
-    // Enterでタイトル画面へ(Titleへ進むのでEnter)
-    if(is.justPressed[static_cast<int>(Action::Enter)]){
-        // ctrl.requestScene(GameScene::Title);
+    // Enter/Escでタイトル画面へ
+    if(is.justPressed[static_cast<int>(Action::Enter)]
+    || is.justPressed[static_cast<int>(Action::Pause)]){
         ctx.events.requestScene(GameScene::Title);
     }
 }
@@ -117,7 +117,7 @@ void ResultScene::onEnter(){
     // 背景読み込み
     background.setPreset(
         ctx.renderAssets.bgTextures, 
-        BackgroundId::lightBg
+        BackgroundId::LightBg
     );
     // BGMを再生する
     ctx.musicSystem.playIfChanged(MusicId::Result);

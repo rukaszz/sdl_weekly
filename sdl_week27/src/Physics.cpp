@@ -13,9 +13,9 @@ void Physics::resolveHorizontalBlockCollision(HorizontalCollisionState& hcs, con
     double entityTop = hcs.y;
     double entityBottom = hcs.y + hcs.height;
     for(const auto& b : blocks){
-        // Standableのみ処理する
+        // Standableのみ処理する(DropThroughは水平方向にすり抜けられるようにするため含めない)
         if(b.type != BlockType::Standable 
-        && b.type != BlockType::DropThrough
+        // && b.type != BlockType::DropThrough
         && b.type != BlockType::Question
         && b.type != BlockType::UsedQuestion
         && b.type != BlockType::Breakable)

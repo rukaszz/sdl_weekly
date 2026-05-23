@@ -2,6 +2,8 @@
 #define BACKGROUNDDEFINITION_H
 
 #include <span>
+#include <stdexcept>
+
 #include "BackgroundId.hpp"
 
 /**
@@ -50,21 +52,21 @@ namespace BackgroundDefinition{
             {BgLayerTextureId::HellForest,      0.4}, 
         };
         // 単色背景
-        static constexpr BackgroundLayerDef lightBg[] = {
+        static constexpr BackgroundLayerDef LightBg[] = {
             {BgLayerTextureId::Sky,         0.0}, 
         };
-        static constexpr BackgroundLayerDef darkBg[] = {
+        static constexpr BackgroundLayerDef DarkBg[] = {
             {BgLayerTextureId::DarkSky,         0.0}, 
         };
         switch(id){
         case BackgroundId::Forest:      return forest;
         case BackgroundId::DarkForest:  return darkForest;
         case BackgroundId::HellForest:  return hellForest;
-        case BackgroundId::lightBg:     return lightBg;
-        case BackgroundId::darkBg:      return darkBg;
+        case BackgroundId::LightBg:     return LightBg;
+        case BackgroundId::DarkBg:      return DarkBg;
         }
-        
-        return{};
+        // return {};で背景なしでもよいが，バグに気づくようにエラーとする
+        throw std::runtime_error("Unknown BackgroundId");
     }
 }
 
