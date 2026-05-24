@@ -29,7 +29,7 @@ BossEnemy::BossEnemy(Texture& tex)
 }
 
 /**
- * @brief TurretEnemyの判断用関数
+ * @brief ボスの行動判断用関数
  * 弾を撃つなどの判断をする
  * 
  * @param delta 
@@ -137,6 +137,10 @@ void BossEnemy::takeDamage(int damage){
     // hpが0以下になったら敗北処理
     if(hp <= 0){
         hp = 0;
+        // 弾の発射停止
+        fireRequested = false;
+        // 移動も止める
+        hv = 0.0;
         startDying();
     }
 }

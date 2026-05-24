@@ -150,6 +150,15 @@ void BossBattleSystem::checkBattleResult(IGameEvents& events){
     }
     // ボス戦を終了させる
     state.phase = BossBattlePhase::Defeated;
+    // 演出
+    events.addScore(BossConfig::SCORE_AT_DEATH);
+    events.spawnParticle(
+        ParticleEffectId::EnemyBurst, 
+        boss.getEntityCenter_X(), 
+        boss.getEntityCenter_Y()
+    );
+    events.startCameraShake(0.45, 12.0);
+    // クリアシーンへ遷移
     events.requestScene(GameScene::Clear);
 }
 
@@ -184,14 +193,19 @@ void BossBattleSystem::resolveBossPlayerCollision(Player& player, IGameEvents& e
     // 接触の状態でそれぞれ処理する
     // ボスを踏みつけた
     if(result == PlayerEnemyCollisionResult::StompEnemy){
-        // ボスへダメージ
-        boss.takeDamage(BossConfig::STOMP_DAMAGE);
-        // プレイヤーはバウンド
-        player.setVerticalVelocity(-std::abs(PlayerConfig::JUMP_VELOCITY));
-        // 踏みつけ音
-        events.playSound(SoundId::Stomp);
-        // カメラシェイク
-        events.startCameraShake(0.15, 8.0);
+        if(boss.canTakeDamage()){
+            // ボスへダメージ
+            boss.takeDamage(BossConfig::STOMP_DAMAGE);
+            // プレイヤーはバウンド
+            player.setVerticalVelocity(-std::abs(PlayerConfig::JUMP_VELOCITY));
+            // 踏みつけ音
+            events.playSound(SoundId::Stomp);
+            // カメラシェイク
+            events.startCameraShake(0.15, 8.0);
+        } else {
+            // 無敵中は弾くだけ(SE/シェイクはしない)
+            player.setVerticalVelocity(-std::abs(PlayerConfig::JUMP_VELOCITY));
+        }
         return;
     }
     // プレイヤーがボスに接触(接触ダメージを受ける)

@@ -52,13 +52,13 @@ namespace ParticleConfig{
     // coin取得時
     static inline constexpr ParticleMetrics COIN_SPARK{
         100.0,  // speed 
-        0.35,   // life
+        0.65,   // life
         5,      // size
     };
     // 敵撃破時
     static inline constexpr ParticleMetrics ENEMY_BURST{
-        80.0,   // speed 
-        0.45,   // life
+        100.0,   // speed 
+        1.00,   // life
         6,      // size
     };
     // プレイヤー死亡時(少し大きく早い)

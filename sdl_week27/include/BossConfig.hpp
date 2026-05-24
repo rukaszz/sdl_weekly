@@ -9,7 +9,7 @@ namespace BossConfig{
     static inline constexpr double ANIM_INTERVAL = 0.1; // スプライトアニメーション切り替え秒数
     // 各種行動の設定
     static inline constexpr double MOVE_SPEED             = 100.0;    // 最高水平方向速度[px/s]
-    static inline constexpr double JUMP_VELOCITY          = 200.0;    // ジャンプ初速[px/s]
+    static inline constexpr double JUMP_VELOCITY          = 400.0;    // ジャンプ初速[px/s]
     static inline constexpr double JUMP_INTERVAL          = 2.5;      // ジャンプ間隔[s]
     static inline constexpr double CHASE_RANGE            = 500.0;    // 追跡範囲[px]
     static inline constexpr double FIRE_INTERVAL          = 1.5;      // ファイアボール発射間隔[s]
