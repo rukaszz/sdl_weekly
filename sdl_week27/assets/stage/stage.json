@@ -62,7 +62,7 @@
       ], 
       "boss": {"enabled": true, "trigger_X": 300.0,
                "cameraMin_X": 300.0, "cameraMax_X": 1000.0, 
-               "spawn_X": 800.0, "spawn_Y": 100.0, "hp": 10}, 
+               "spawn_X": 800.0, "spawn_Y": 100.0, "hp": 6}, 
       "enemies": [
         {"x": 100.0, "y": 100.0, "speed": 50.0,  "type": "Walker"}
       ], 

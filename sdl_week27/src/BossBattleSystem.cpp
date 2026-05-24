@@ -3,22 +3,31 @@
 #include <SDL2/SDL.h>
 #include <vector>
 #include <algorithm>
+#include <cmath>
 
-#include "MusicId.hpp"
-#include "UIConfig.hpp"
-
-#include "Player.hpp"
+// オブジェクトなど
 #include "BossEnemy.hpp"
+#include "Block.hpp"
 #include "Player.hpp"
 #include "Renderer.hpp"
 #include "MusicSystem.hpp"
 #include "IGameEvents.hpp"
-#include "Block.hpp"
-#include "WorldInfo.hpp"
+#include "GameEvent.hpp"
+
+// 定数・ユーティリティなど
+#include "BossConfig.hpp"
+#include "DamageResult.hpp"
 #include "StageDefinition.hpp"
-#include "Input.hpp"
-#include "DrawBounds.hpp"
+#include "PlayerConfig.hpp"
+#include "PlayerEnemyCollisionUtil.hpp"
+#include "MusicId.hpp"
+#include "UIConfig.hpp"
+
+// ゲーム全体
 #include "Camera.hpp"
+#include "DrawBounds.hpp"
+#include "Input.hpp"
+#include "WorldInfo.hpp"
 
 /**
  * @brief Construct a new Boss Battle System:: Boss Battle System object
@@ -131,15 +140,81 @@ void BossBattleSystem::updateBoss(double delta, const DrawBounds& bounds, const 
  * @param events 
  */
 void BossBattleSystem::checkBattleResult(IGameEvents& events){
+    // ボス戦が有効でなければ何もしない
     if(!state.isActive()){
         return;
     }
-    // ボスが死んだ際の処理
+    // ボスが死んだ際の処理なので死んでいないなら何もしない
     if(!boss.isDead()){
         return;
     }
+    // ボス戦を終了させる
     state.phase = BossBattlePhase::Defeated;
     events.requestScene(GameScene::Clear);
+}
+
+/**
+ * @brief プレイヤーとボスの接触判定を行う
+ * ※CollisionSystem::resolveEnemyCollision()も参考
+ * 
+ * @param player: プレイヤーの状態が変わる可能性があるので非const 
+ * @param events 
+ */
+void BossBattleSystem::resolveBossPlayerCollision(Player& player, IGameEvents& events){
+    // 状況の確認
+    if(!state.isActive()){
+        return;
+    }
+    if(!boss.isAlive()){
+        return;
+    }
+    // 各種状態を変数へ格納する
+    // プレイヤー
+    SDL_Rect playerRect   = player.getCollisionRect();      // 当たり判定用矩形
+    double playerPrevFeet = player.getPrevFeetCollision();  // 当たり判定用1フレーム前足元
+    double playerNewFeet  = player.getFeetCollision();      // 当たり判定用足元
+    double playerVv       = player.getVerticalVelocity();   // 垂直速度
+    // ボス
+    SDL_Rect bossRect = boss.getCollisionRect();            // 当たり判定用矩形
+
+    // 接触状態をチェック(PlayerEnemyCollisionResultをもらう)
+    auto result = PlayerEnemyCollision::resolvePlayerEnemyCollision(
+        playerRect, playerPrevFeet, playerNewFeet, playerVv, bossRect
+    );
+    // 接触の状態でそれぞれ処理する
+    // ボスを踏みつけた
+    if(result == PlayerEnemyCollisionResult::StompEnemy){
+        // ボスへダメージ
+        boss.takeDamage(BossConfig::STOMP_DAMAGE);
+        // プレイヤーはバウンド
+        player.setVerticalVelocity(-std::abs(PlayerConfig::JUMP_VELOCITY));
+        // 踏みつけ音
+        events.playSound(SoundId::Stomp);
+        // カメラシェイク
+        events.startCameraShake(0.15, 8.0);
+        return;
+    }
+    // プレイヤーがボスに接触(接触ダメージを受ける)
+    if(result == PlayerEnemyCollisionResult::PlayerHit){
+        // プレイヤーはダメージを受けられるか
+        DamageResult dr = player.tryTakeDamage();
+        // デカ状態でのダメージ
+        if(dr == DamageResult::Downgraded){
+            // ダメージ音
+            events.playSound(SoundId::Damage);
+            // カメラシェイク
+            events.startCameraShake(0.18, 10.0);
+        }
+        // チビ状態でのダメージ
+        if(dr == DamageResult::Dead){
+            // ダメージ音
+            events.playSound(SoundId::Damage);
+            // カメラシェイク
+            events.startCameraShake(0.25, 14.0);
+            // プレイヤー死亡イベント開始
+            events.requestPlayerDeath(player.getEntityCenter_X(), player.getEntityCenter_Y());
+        }
+    }
 }
 
 /**

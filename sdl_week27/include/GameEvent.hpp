@@ -56,6 +56,7 @@ enum class ParticleEffectId : std::uint8_t{
     CoinSpark, 
     EnemyBurst, 
     PlayerDeath, 
+    BlockDebri, 
 };
 
 /**

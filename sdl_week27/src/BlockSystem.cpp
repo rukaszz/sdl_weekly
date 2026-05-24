@@ -4,6 +4,7 @@
 #include <variant>
 
 #include "Block.hpp"
+#include "GameEvent.hpp"
 #include "GameEventBuffer.hpp"
 #include "Player.hpp"
 #include "SceneConfig.hpp"
@@ -75,6 +76,7 @@ void BlockSystem::process(GameEventBuffer& events){
                 if(player.getForm() != PlayerForm::Small){
                     b.type = BlockType::Empty;   // 破壊されるので消す的な状態へ
                     events.playSound(SoundId::BlockHit);
+                    events.spawnParticle(ParticleEffectId::BlockDebri, b.x+(b.w/2), b.y+(b.h/2));
                     events.addScore(SceneConfig::BREAKABLE_SCORE);
                 }
                 return;

@@ -20,6 +20,11 @@ struct InputState;
 struct DrawBounds;
 struct Camera;
 
+/**
+ * @brief ボス戦に関係する情報を管理するクラス
+ * Player-Bossの接触判定などはここが実施する
+ * 
+ */
 class BossBattleSystem{
 private: 
     // 初期化順は宣言順であることが言語で保証されているので，BossBattleState→BossAISystemの順で宣言
@@ -30,6 +35,7 @@ private:
     const std::vector<Block>& blocks;
 
 public:
+    // コンストラクタ/デストラクタ
     BossBattleSystem(
         BossEnemy& boss_,
         const Player& player_,
@@ -50,7 +56,8 @@ public:
     void updateBoss(double delta, const DrawBounds& bounds, const InputState& is);
     // ボス戦の結果判定
     void checkBattleResult(IGameEvents& events);
-
+    // Player vs Bossの接触判定(playerがダメージを受ける可能性もあるので非const)
+    void resolveBossPlayerCollision(Player& player, IGameEvents& events);
     // 描画
     void renderHpBar(Renderer& renderer, const Camera& camera) const;
 

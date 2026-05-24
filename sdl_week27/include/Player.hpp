@@ -12,10 +12,11 @@
 #include "Sprite.hpp"
 #include "GameEvent.hpp"
 
-// 定数
+// 定数など
 #include "PlayerConfig.hpp"
 #include "Direction.hpp"
 #include "DrawBounds.hpp"
+#include "DamageResult.hpp"
 
 class Texture;
 class Renderer;
@@ -31,17 +32,6 @@ struct PlayerTextureSet{
     Texture& small;
     Texture& super;
     Texture& fire;
-};
-
-/**
- * @brief ダメージの状態を管理する関数
- * tryTakeDamage()で使用するイメージ
- * 
- */
-enum class DamageResult{
-    None, 
-    Downgraded, 
-    Dead, 
 };
 
 class Player : public Character{

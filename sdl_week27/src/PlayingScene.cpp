@@ -180,7 +180,10 @@ void PlayingScene::update(double delta){
     // イベント発行用のIGameEventsを使う
     // Clear/Damageブロックの処理
     collision.resolveSpecialBlockCollision(ctx.events);
+    // 敵との接触
     collision.resolveEnemyCollision(ctx.events);
+    // ボス用の接触※isAliveのガードは処理内部で実施
+    bossBattleSystem.resolveBossPlayerCollision(ctx.entityCtx.player, ctx.events);
     // 弾の当たり判定は System に移す(detectCollisionから除外している)
     projectiles.resolveCollisions(
         ctx.entityCtx.player,
@@ -519,6 +522,9 @@ void PlayingScene::consumeParticleEvents(){
                 break;
             case ParticleEffectId::PlayerDeath:
                 particles.spawnPlayerDeath(spe.x, spe.y);
+                break;
+            case ParticleEffectId::BlockDebri:
+                particles.spawnBlockDebri(spe.x, spe.y);
                 break;
             }
         }

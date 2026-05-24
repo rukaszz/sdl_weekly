@@ -13,6 +13,7 @@ namespace ParticleConfig{
     static inline constexpr SDL_Color YELLOW = {255, 220, 50, 255};
     static inline constexpr SDL_Color ORANGE = {255, 120, 0, 255};
     static inline constexpr SDL_Color RED    = {230, 50, 50, 255};
+    static inline constexpr SDL_Color BROWN  = {134, 74, 43, 255};
 
     // 定数として1/sqrt(2)を定義
     // C++20以降
@@ -62,6 +63,12 @@ namespace ParticleConfig{
     };
     // プレイヤー死亡時(少し大きく早い)
     static inline constexpr ParticleMetrics PLAYER_DEATH{
+        120.0,  // speed 
+        0.7,    // life
+        7,      // size
+    };
+    // ブロック破壊時
+    static inline constexpr ParticleMetrics BLOCK_DEBRI{
         120.0,  // speed 
         0.7,    // life
         7,      // size

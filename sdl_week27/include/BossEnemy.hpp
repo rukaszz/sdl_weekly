@@ -4,15 +4,20 @@
 #include "Enemy.hpp"
 #include "EnemySensor.hpp"
 
+/**
+ * @brief ボス敵を管理するクラス
+ * 
+ */
 class BossEnemy : public Enemy{
 private:
-    // TODO：後でマジックナンバーは消す
     int hp = 0;
     int maxHp = 0;  // HPバーの比率計算用
     // ダメージを受けた際の一時的な無敵時間
     double invincibleTimer = 0.0;
     // ボス弾の発射クールダウン
     double bossFireCooldownTimer = 0.0;
+    // ジャンプのクールダウン
+    double bossJumpCooldownTimer = 0.0;
     // 発射要求
     bool fireRequested = false;
     // 攻撃方向

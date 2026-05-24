@@ -1,8 +1,9 @@
 #include "ProjectileSystem.hpp"
 
-#include <SDL2/SDL.h>
 #include <algorithm>
 #include <cmath>
+
+#include <SDL2/SDL.h>
 
 #include "FireBall.hpp"
 #include "EnemyBullet.hpp"
@@ -12,7 +13,9 @@
 
 #include "GameUtil.hpp"
 #include "WorldInfo.hpp"
+#include "GameEvent.hpp"
 #include "IGameEvents.hpp"
+#include "DamageResult.hpp"
 
 #include "EnemyConfig.hpp"
 #include "BossConfig.hpp"
@@ -262,7 +265,11 @@ void ProjectileSystem::resolveFireballEnemyCollision(std::vector<std::unique_ptr
             // FireBall-Enemyが接触したら
             e->startDying();
             f->deactivate();
-            // ctrl.setScore(ctrl.getScore() + EnemyConfig::SCORE_AT_FIREBALL);
+            events.spawnParticle(
+                ParticleEffectId::EnemyBurst, 
+                e->getEntityCenter_X(), 
+                e->getEntityCenter_Y()
+            );
             events.addScore(EnemyConfig::SCORE_AT_FIREBALL);
             break;  // ヒットしたら終了(ファイアボールは貫通しない)
         }

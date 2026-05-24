@@ -40,28 +40,42 @@ void BossEnemy::think(double delta, const EnemySensor& es){
     if(!isAlive()){
         return;
     }
-    // 動かない(砲台)
-    hv = 0.0;
-    // 発射待機の時間を減らす
+    // クールダウンの減衰
     bossFireCooldownTimer = std::max(0.0, bossFireCooldownTimer - delta);
-
-    // 条件群
-    // プレイヤーが視界内にいるときだけ撃つ
-    if(!es.playerInSight){
+    bossJumpCooldownTimer = std::max(0.0, bossJumpCooldownTimer - delta);
+    // 無敵時間中ずっと踏まれないように逃げる
+    if(invincibleTimer > 0.0){
+        // プレイヤー左→右(x増加方向)へ，プレイヤー右→左(x減少方向)へ
+        hv = es.playerOnLeft ? speed : -speed;
+        // ジャンプ可能ならジャンプをして逃げる
+        if(isOnGround()){
+            setVerticalVelocity(-BossConfig::JUMP_VELOCITY);
+        }
+        // 逃げているときは攻撃しない
         return;
     }
-    // 発射要求があるか
-    if(fireRequested){
+    // 追跡範囲外では動かない
+    if(std::abs(es.dxToPlayer) > BossConfig::CHASE_RANGE){
+        hv = 0.0;
         return;
     }
-    // クールタイムではないか
-    if(bossFireCooldownTimer > 0.0){
-        return;
+    // ここに到達=プレイヤー視界内
+    hv = es.playerOnLeft ? -speed : speed;
+    // 接地中 かつ クールダウン終了 でジャンプ
+    if(isOnGround() && bossJumpCooldownTimer <= 0.0){
+        // 垂直速度設定(SDLは上が原点なのでマイナス)
+        setVerticalVelocity(-BossConfig::JUMP_VELOCITY);
+        // ジャンプクールダウン設定
+        bossJumpCooldownTimer = BossConfig::JUMP_INTERVAL;
     }
-    // プレイヤーの左右の向きで発射方向を決める
-    fireDir = es.playerOnLeft ? Direction::Left : Direction::Right;
-    fireRequested = true;
-    bossFireCooldownTimer = BossConfig::FIRE_INTERVAL;
+    // プレイヤーが視界内 かつ クールダウン終了 で攻撃
+    if(es.playerInSight && !fireRequested && bossFireCooldownTimer <= 0.0){
+        // プレイヤーの左右の向きで発射方向を決める
+        fireDir = es.playerOnLeft ? Direction::Left : Direction::Right;
+        fireRequested = true;
+        bossFireCooldownTimer = BossConfig::FIRE_INTERVAL;
+    }
+    
 }
 
 /**
@@ -88,13 +102,18 @@ void BossEnemy::update(double delta, const InputState& is, DrawBounds b, const s
  * @param spawn_Y 
  */
 void BossEnemy::reset(int initHp, double spawn_X, double spawn_Y){
+    // HP設定
     hp = initHp;
     maxHp = initHp;
+    // 出現位置(stageDefinitionより)
     setPosition(spawn_X, spawn_Y);
+    // 各種変数初期化
     invincibleTimer = 0.0;
     bossFireCooldownTimer = 0.0;
+    bossJumpCooldownTimer = 0.0;
     fireRequested =false;
     fireDir = Direction::Left;
+    // stateやhvなど共通項目のリセット
     resetEnemyStateForSpawn();
 }
 

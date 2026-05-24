@@ -109,6 +109,38 @@ void ParticleSystem::spawnPlayerDeath(double x, double y){
 }
 
 /**
+ * @brief ブロック破壊時のパーティクル
+ * ※他より少し大きく早い
+ * 出現位置
+ * @param x 
+ * @param y 
+ */
+void ParticleSystem::spawnBlockDebri(double x, double y){
+    // パーティクルの数チェック
+    if(!canSpawn(ParticleConfig::DIRECTION_4.size())){
+        return;
+    }
+    // 敵撃破時のパーティクルの設定を取得
+    constexpr ParticleConfig::ParticleMetrics blockDebri = ParticleConfig::BLOCK_DEBRI;
+    // 敵撃破時のパーティクルの色を取得
+    constexpr SDL_Color particleColor = ParticleConfig::BROWN;
+    // パーティクルの広がる方向を取得→正規化済みの斜め8方向
+    // 広がるパーティクル(8方向)のそれぞれのデータを設定
+    for(const auto& dirs : ParticleConfig::DIRECTION_4){
+        particles.push_back(Particle{
+            x, 
+            y, 
+            dirs[0]*blockDebri.speed, 
+            dirs[1]*blockDebri.speed,
+            blockDebri.life,
+            blockDebri.life, 
+            blockDebri.size, 
+            particleColor
+        });
+    }
+}
+
+/**
  * @brief 更新関数
  * 
  * @param delta 

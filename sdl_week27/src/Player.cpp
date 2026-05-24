@@ -14,6 +14,7 @@
 
 #include "Direction.hpp"
 #include "DrawBounds.hpp"
+#include "DamageResult.hpp"
 #include "GameConfig.hpp"
 #include "PlayerConfig.hpp"
 #include "GameEvent.hpp"

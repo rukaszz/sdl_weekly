@@ -9,6 +9,7 @@
 #include "Block.hpp"
 #include "WorldInfo.hpp"
 #include "IGameEvents.hpp"
+#include "DamageResult.hpp"
 
 #include <SDL2/SDL.h>   // TODO：SDL_Rectは後で取り除く
 

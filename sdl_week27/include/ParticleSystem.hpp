@@ -24,6 +24,8 @@ public:
     void spawnEnemyBurst(double x, double y);
     // プレイヤー死亡時のパーティクル
     void spawnPlayerDeath(double x, double y);
+    // ブロック破壊時のパーティクル
+    void spawnBlockDebri(double x, double y);
     // 更新関数
     void update(double delta);
     // 描画
