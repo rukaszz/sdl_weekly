@@ -3427,19 +3427,6 @@ void BossBattleSystem::resolveBossPlayerCollision(Player& player, IGameEvents& e
 無敵中にボスを踏もうとするとプレイヤー側がダメージを受けるように設定し，連続踏みつけを抑制した．
 その場合，ボスHPが10ではクリアが難しくなりすぎると判断し，HPを6に減少させた．
 
-#### BossConfigの整理
-
-行動制御用定数はBossConfigの名前空間に集約している：
-
-| 定数 | 値 | 説明 |
-| --- | --- | --- |
-| MOVE_SPEED | 100.0 px/s | 水平移動速度 |
-| JUMP_VELOCITY | 200.0 px/s | ジャンプ初速 |
-| JUMP_INTERVAL | 2.5秒 | ジャンプ間隔 |
-| CHASE_RANGE | 500.0 px | 追跡開始距離 |
-| STOMP_DAMAGE | 1 | 踏みつけダメージ |
-| DAMAGE_INVINCIBLE_TIME | 1.5秒 | 被ダメ後の無敵時間（= 逃げ行動の持続時間） |
-
 ### week27のまとめ
 
 week27では演出・UI・AIのすべてのレイヤに手を入れ，ゲーム全体として一貫した見た目と手触りに整えた．
