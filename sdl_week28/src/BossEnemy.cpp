@@ -43,6 +43,8 @@ void BossEnemy::think(double delta, const EnemySensor& es){
     // クールダウンの減衰
     bossFireCooldownTimer = std::max(0.0, bossFireCooldownTimer - delta);
     bossJumpCooldownTimer = std::max(0.0, bossJumpCooldownTimer - delta);
+    // プレイヤーのいる方向を向く
+    dir = es.playerOnLeft ? Direction::Left : Direction::Right;
     // 無敵時間中ずっと踏まれないように逃げる
     if(invincibleTimer > 0.0){
         // プレイヤー左→右(x増加方向)へ，プレイヤー右→左(x減少方向)へ

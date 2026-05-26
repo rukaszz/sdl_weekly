@@ -4,7 +4,7 @@ include(FetchContent)
 
 FetchContent_Declare(
     googletest
-    URL https://github.com/google/googletest/archive/refs/tags/v1.15.0.zip
+    URL https://github.com/google/googletest/archive/refs/tags/v1.17.0.zip
 )
 
 # C Runtime Libraryのバージョンを統一させる(Windows用)

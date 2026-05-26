@@ -64,7 +64,7 @@
                "cameraMin_X": 450.0, "cameraMax_X": 1250.0, 
                "spawn_X": 800.0, "spawn_Y": 100.0, "hp": 6}, 
       "enemies": [
-        {"x": 100.0, "y": 100.0, "speed": 50.0,  "type": "Walker"}
+        {"x": 200.0, "y": 100.0, "speed": 50.0,  "type": "Walker"}
       ], 
       "items": [
         {"x": 400.0, "y": 300.0, "type": "Coin"}, 

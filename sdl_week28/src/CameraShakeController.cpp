@@ -26,7 +26,7 @@ void CameraShakeController::reset(){
  */
 void CameraShakeController::start(double newDuration, double newMagnitude){
     // 負の値は許容しない
-    if(newDuration <= 0.0 && newMagnitude <= 0.0){
+    if(newDuration <= 0.0 || newMagnitude <= 0.0){
         return;
     }
     // 現在の画面シェイク強度を取得

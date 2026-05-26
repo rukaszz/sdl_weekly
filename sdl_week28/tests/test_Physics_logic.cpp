@@ -260,3 +260,113 @@ TEST(PhysicsTests, IgnoreDamageAndClearBlocksForLanding) {
     EXPECT_DOUBLE_EQ(vcs.vv, 50.0);
     EXPECT_FALSE(vcs.onGround);
 }
+
+/**
+ * @brief Construct a new TEST object
+ * 
+ * ?ブロックへの下からのヒット時のインデックスと垂直方向の速度のテスト
+ */
+TEST(PhysicsTests, HitQuestionBlockFromBottomSetsHitIndexAndStopsVelocity){
+    // インデックステスト用に2つブロックを準備
+    std::vector<Block> blocks{
+        Block{100.0, 100.0, 50.0, 20.0, BlockType::Standable},
+        Block{40.0, 80.0, 50.0, 20.0, BlockType::Question},
+    };
+    // 縦方向の衝突判定
+    VerticalCollisionState vcs{};
+    vcs.prevTop = 105.0;
+    vcs.newTop = 95.0;      // 10px上
+    vcs.prevFeet = 145.0;
+    vcs.newFeet = 135.0;    // 10px上
+    vcs.x = 50.0;
+    vcs.width = 20.0;
+    vcs.vv = -100.0;        // 上方向への移動速度
+    vcs.onGround = false;   // 上昇しているのでfalse
+    vcs.ignoreDropThrough = false;
+
+    Physics::resolveBlockCollisionFromBottom(vcs, blocks);
+
+    EXPECT_DOUBLE_EQ(vcs.newTop, 100.0);    // Question の底辺座標 = 80 + 20 と一緒になる→ブロックにめり込まない
+    EXPECT_DOUBLE_EQ(vcs.vv, 0.0);          // ぶつかって速度が0になる
+    EXPECT_TRUE(vcs.hitCeilingBlock);       // 頭上のブロックにぶつかったのでTrueになる
+    EXPECT_EQ(vcs.hitBlockIndex, 1u);       // hitしたブロックは1番目なのでunsigned intの1に等しい
+}
+
+/**
+ * @brief Construct a new TEST object
+ * 
+ * ブロックに右からぶつかったときの補正テスト
+ */
+TEST(PhysicsTests, MovingRightIntoWallPushesEntityLeftAndStopsVelocity){
+    // 壁ブロック用意
+    std::vector<Block> blocks{
+        Block{100.0, 50.0, 20.0, 100.0, BlockType::Standable},
+    };
+    // 横方向への衝突判定
+    HorizontalCollisionState hcs{};
+    hcs.x = 90.0;
+    hcs.y = 70.0;
+    hcs.width = 20.0;   // 90 + 20 = 110 なのでブロックにめり込む
+    hcs.height = 30.0;
+    hcs.hv = 120.0;     // 右側への水平方向移動速度
+
+    Physics::resolveHorizontalBlockCollision(hcs, blocks);
+    
+    // エンティティの右座標110, blockLeft が100, 10 のx軸の重なりが解消される
+    // →エンティティの右座標が100になるので，x座標(左側)は80
+    EXPECT_DOUBLE_EQ(hcs.x, 80.0);
+    // 水平方向移動速度は0になる
+    EXPECT_DOUBLE_EQ(hcs.hv, 0.0);
+}
+
+/**
+ * @brief Construct a new TEST object
+ * 
+ * ブロックに左からぶつかったときの補正テスト
+ */
+TEST(PhysicsTests, MovingLeftIntoWallPushesEntityRightAndStopsVelocity){
+    // 右のときと同じブロックを用意
+    std::vector<Block> blocks{
+        Block{100.0, 50.0, 20.0, 100.0, BlockType::Standable},
+    };
+    // 横方向への衝突判定用
+    HorizontalCollisionState hcs{};
+    hcs.x = 110.0;      // 左側が110でめり込んでいる
+    hcs.y = 70.0;
+    hcs.width = 20.0;
+    hcs.height = 30.0; 
+    hcs.hv = -120.0;    // 左側への水平方向移動速度
+
+    Physics::resolveHorizontalBlockCollision(hcs, blocks);
+
+    // エンティティに左座標(x座標)が110, blockRight 120, なので10重なっている
+    // →補正されてエンティティの左座標(x座標)が120になる(ぴったりくっついてる)
+    EXPECT_DOUBLE_EQ(hcs.x, 120.0);
+    // 水平方向移動速度は0になる
+    EXPECT_DOUBLE_EQ(hcs.hv, 0.0);
+}
+
+/**
+ * @brief Construct a new TEST object
+ * 
+ * DropThroughブロックへ垂直方向にぶつかった
+ */
+TEST(PhysicsExtraTests, HorizontalCollisionIgnoresDropThroughBlocks){
+    // DrouThroughブロックを用意
+    std::vector<Block> blocks{
+        Block{100.0, 50.0, 20.0, 100.0, BlockType::DropThrough},
+    };
+    // 水平方向移動要素
+    HorizontalCollisionState hcs{};
+    hcs.x = 90.0;
+    hcs.y = 70.0;
+    hcs.width = 20.0;   // 90 + 20 = 110 なのでブロックにめり込む
+    hcs.height = 30.0;
+    hcs.hv = 120.0;     // 右側へ移動中
+
+    Physics::resolveHorizontalBlockCollision(hcs, blocks);
+
+    // 上記のhcs要素は何も補正されないので変化しない
+    EXPECT_DOUBLE_EQ(hcs.x, 90.0);
+    EXPECT_DOUBLE_EQ(hcs.hv, 120.0);
+}

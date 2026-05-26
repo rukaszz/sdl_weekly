@@ -68,7 +68,7 @@ namespace ParticleConfig{
         7,      // size
     };
     // ブロック破壊時
-    static inline constexpr ParticleMetrics BLOCK_DEBRI{
+    static inline constexpr ParticleMetrics BLOCK_DEBRIS{
         120.0,  // speed 
         0.7,    // life
         7,      // size

@@ -522,8 +522,8 @@ void PlayingScene::consumeParticleEvents(){
             case ParticleEffectId::PlayerDeath:
                 particles.spawnPlayerDeath(spe.x, spe.y);
                 break;
-            case ParticleEffectId::BlockDebri:
-                particles.spawnBlockDebri(spe.x, spe.y);
+            case ParticleEffectId::BlockDebris:
+                particles.spawnBlockDebris(spe.x, spe.y);
                 break;
             }
         }

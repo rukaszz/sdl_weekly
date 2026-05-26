@@ -3,7 +3,7 @@
 
 #include <array>
 #include <cstddef>
-#include <numbers>
+// #include <numbers> // C++20以降
 
 #include <SDL2/SDL.h>
 
@@ -68,7 +68,7 @@ namespace ParticleConfig{
         7,      // size
     };
     // ブロック破壊時
-    static inline constexpr ParticleMetrics BLOCK_DEBRI{
+    static inline constexpr ParticleMetrics BLOCK_DEBRIS{
         120.0,  // speed 
         0.7,    // life
         7,      // size
