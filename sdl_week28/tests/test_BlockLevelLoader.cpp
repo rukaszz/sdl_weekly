@@ -33,10 +33,16 @@ TEST(BlockLevelLoaderTests, NormalBlockLevelDataLoad){
     // 一時テキストファイル
     const std::string filename = "temp_test_normal_file.txt";
     // 正常なlevelデータ
-    std::string rsl = R"(S 0   750 200 50 # 床
-T 200  80 100 20 # 空中の足場(すり抜け)
-D 400 380 100 20 # 空中のダメージ床
-C 650 80 20 20   # クリアオブジェクト)";
+    std::string rsl = R"(S N 0   750 200 50 # 床
+T N 200  80 100 20 # 空中の足場(すり抜け)
+D N 400 380 100 20 # 空中のダメージ床
+C N 650 80 20 20   # クリアオブジェクト
+B N 750 80 20 20   # 破壊可能ブロック
+U N 850 80 20 20   # 使用済みブロック
+Q C 950 80 20 20   # ？ブロック(コイン入り)
+Q M 950 100 20 20   # ？ブロック(きのこ入り)
+Q F 950 120 20 20   # ？ブロック(ファイアフラワー入り)
+E N 1050 80 20 20   # 空のブロック)";
 
     // 一時ファイルへ書き込み
     writeTempFile(filename, rsl);
@@ -59,7 +65,8 @@ C 650 80 20 20   # クリアオブジェクト)";
             Field(&Block::y, 750), 
             Field(&Block::w, 200), 
             Field(&Block::h, 50), 
-            Field(&Block::type, BlockType::Standable)
+            Field(&Block::type, BlockType::Standable), 
+            Field(&Block::reward, BlockRewardType::None)
         ), 
         // DropThrough
         AllOf(
@@ -67,7 +74,8 @@ C 650 80 20 20   # クリアオブジェクト)";
             Field(&Block::y, 80), 
             Field(&Block::w, 100), 
             Field(&Block::h, 20), 
-            Field(&Block::type, BlockType::DropThrough)
+            Field(&Block::type, BlockType::DropThrough), 
+            Field(&Block::reward, BlockRewardType::None)
         ), 
         // Damage
         AllOf(
@@ -75,7 +83,8 @@ C 650 80 20 20   # クリアオブジェクト)";
             Field(&Block::y, 380), 
             Field(&Block::w, 100), 
             Field(&Block::h, 20), 
-            Field(&Block::type, BlockType::Damage)
+            Field(&Block::type, BlockType::Damage), 
+            Field(&Block::reward, BlockRewardType::None)
         ), 
         // Clear
         AllOf(
@@ -83,7 +92,60 @@ C 650 80 20 20   # クリアオブジェクト)";
             Field(&Block::y, 80), 
             Field(&Block::w, 20), 
             Field(&Block::h, 20), 
-            Field(&Block::type, BlockType::Clear)
+            Field(&Block::type, BlockType::Clear), 
+            Field(&Block::reward, BlockRewardType::None)
+        ), 
+        // Breakble
+        AllOf(
+            Field(&Block::x, 750), 
+            Field(&Block::y, 80), 
+            Field(&Block::w, 20), 
+            Field(&Block::h, 20), 
+            Field(&Block::type, BlockType::Breakable), 
+            Field(&Block::reward, BlockRewardType::None)
+        ), 
+        // UsedQuestion
+        AllOf(
+            Field(&Block::x, 850), 
+            Field(&Block::y, 80), 
+            Field(&Block::w, 20), 
+            Field(&Block::h, 20), 
+            Field(&Block::type, BlockType::UsedQuestion), 
+            Field(&Block::reward, BlockRewardType::None)
+        ), 
+        // Question
+        AllOf(
+            Field(&Block::x, 950), 
+            Field(&Block::y, 80), 
+            Field(&Block::w, 20), 
+            Field(&Block::h, 20), 
+            Field(&Block::type, BlockType::Question), 
+            Field(&Block::reward, BlockRewardType::Coin)
+        ), 
+        AllOf(
+            Field(&Block::x, 950), 
+            Field(&Block::y, 100), 
+            Field(&Block::w, 20), 
+            Field(&Block::h, 20), 
+            Field(&Block::type, BlockType::Question), 
+            Field(&Block::reward, BlockRewardType::Mushroom)
+        ), 
+        AllOf(
+            Field(&Block::x, 950), 
+            Field(&Block::y, 120), 
+            Field(&Block::w, 20), 
+            Field(&Block::h, 20), 
+            Field(&Block::type, BlockType::Question), 
+            Field(&Block::reward, BlockRewardType::FireFlower)
+        ), 
+        // Empty
+        AllOf(
+            Field(&Block::x, 1050), 
+            Field(&Block::y, 80), 
+            Field(&Block::w, 20), 
+            Field(&Block::h, 20), 
+            Field(&Block::type, BlockType::Empty), 
+            Field(&Block::reward, BlockRewardType::None)
         )
     ));
     // 一時ファイル削除
@@ -99,34 +161,38 @@ TEST(BlockLevelLoaderTests, AbnormalBlockLevelDataLoad){
     // 一時テキストファイル
     const std::string filename = "temp_test_abnormal_file.txt";
     // 正常なlevelデータ
-    std::string rsl = R"(# T 200  80 100 20 # コメント行
-S 0   750 200 50 # 床(正常なデータ)
+    std::string rsl = R"(# T N 200  80 100 20 # コメント行
+S N 0   750 200 50 # 床(正常なデータ)
 D 400 380 100 # カラム欠け
-C 650 80 20 ten   # 変な文字が入る
-X 500 100 10 10 # 未知のBlockTypeは虫)";
+C N 650 80 20 ten   # 変な文字が入る
+X N 500 100 10 10 # 未知のBlockTypeは無視)";
 
     // 一時ファイルへ書き込み
     writeTempFile(filename, rsl);
 
-    std::vector<Block> blocks;  // 空
+    // std::vector<Block> blocks;  // 空
+    
+    // std::runtime_errorを投げるので，それを期待値とする
+    EXPECT_THROW(BlockLevelLoader::loadFromFile(filename), std::runtime_error);
+    
     // データ読み込み
-    blocks = BlockLevelLoader::loadFromFile(filename);
+    // blocks = BlockLevelLoader::loadFromFile(filename);
     // 期待値vector
     // 変なデータはスキップされる
     // std::vector<Block> expect = {
     //     {0, 750, 200, 50, Standable}
     // }
-
-    EXPECT_THAT(blocks, ElementsAre(
-        // Standableのみ
-        AllOf(
-            Field(&Block::x, 0), 
-            Field(&Block::y, 750), 
-            Field(&Block::w, 200), 
-            Field(&Block::h, 50), 
-            Field(&Block::type, BlockType::Standable)
-        )
-    ));
+    // EXPECT_THAT(blocks, ElementsAre(
+    //     // Standableのみ
+    //     AllOf(
+    //         Field(&Block::x, 0), 
+    //         Field(&Block::y, 750), 
+    //         Field(&Block::w, 200), 
+    //         Field(&Block::h, 50), 
+    //         Field(&Block::type, BlockType::Standable), 
+    //         Field(&Block::reward, BlockRewardType::None)
+    //     )
+    // ));
     // 一時ファイル削除
     std::remove(filename.c_str());
 }
