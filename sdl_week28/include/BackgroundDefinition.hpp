@@ -34,19 +34,19 @@ namespace BackgroundDefinition{
      */
     inline std::span<const BackgroundLayerDef> getLayerDefs(BackgroundId id){
         // 森背景の構成
-        static constexpr BackgroundLayerDef forest[] = {
+        static constexpr BackgroundLayerDef Forest[] = {
             {BgLayerTextureId::Sky,         0.0}, 
             {BgLayerTextureId::Mountain,    0.2}, 
             {BgLayerTextureId::Forest,      0.4}, 
         };
         // 暗い森背景の構成
-        static constexpr BackgroundLayerDef darkForest[] = {
+        static constexpr BackgroundLayerDef DarkForest[] = {
             {BgLayerTextureId::DarkSky,         0.0}, 
             {BgLayerTextureId::DarkMountain,    0.2}, 
             {BgLayerTextureId::DarkForest,      0.4}, 
         };
         // 地獄森の背景の構成
-        static constexpr BackgroundLayerDef hellForest[] = {
+        static constexpr BackgroundLayerDef HellForest[] = {
             {BgLayerTextureId::HellSky,         0.0}, 
             {BgLayerTextureId::HellMountain,    0.2}, 
             {BgLayerTextureId::HellForest,      0.4}, 
@@ -59,9 +59,9 @@ namespace BackgroundDefinition{
             {BgLayerTextureId::DarkSky,         0.0}, 
         };
         switch(id){
-        case BackgroundId::Forest:      return forest;
-        case BackgroundId::DarkForest:  return darkForest;
-        case BackgroundId::HellForest:  return hellForest;
+        case BackgroundId::Forest:      return Forest;
+        case BackgroundId::DarkForest:  return DarkForest;
+        case BackgroundId::HellForest:  return HellForest;
         case BackgroundId::LightBg:     return LightBg;
         case BackgroundId::DarkBg:      return DarkBg;
         }

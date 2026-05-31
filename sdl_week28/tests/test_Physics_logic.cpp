@@ -8,7 +8,7 @@
  * 
  * ブロックがないパターン
  */
-TEST(PhysicsTests, FallWithoutBlocks_NoLanding){
+TEST(PhysicsTests, FallWithoutBlocksNoLanding){
     // Physicsへ渡すDTO
     VerticalCollisionState vcs{
         .prevFeet          = 90.0, 
@@ -137,7 +137,7 @@ TEST(PhysicsTests, DropThrough_ActsAsStandableWhenNotIgnored) {
  * 
  * すり抜け床をすり抜けるパターン
  */
-TEST(PhysicsTests, DropThrough_IgnoredWhenFlagSet_DropStarts) {
+TEST(PhysicsTests, DropThrough_IgnoredWhenFlagSetDropStarts) {
     // Physicsへ渡すDTO
     VerticalCollisionState vcs{
         .prevFeet          = 100.0,   // blockTop と一致 → 直前フレームでは床に立っていた
@@ -171,7 +171,7 @@ TEST(PhysicsTests, DropThrough_IgnoredWhenFlagSet_DropStarts) {
  * 
  * すり抜け床をすり抜けたあとにその床へ戻らないか
  */
-TEST(PhysicsTests, DropThrough_OncePassedTop_DoesNotRelandLater) {
+TEST(PhysicsTests, DropThrough_OncePassedTopDoesNotRelandLater) {
     // すり抜け床ブロック
     Block floor{
         .x    = 40.0,
@@ -264,6 +264,105 @@ TEST(PhysicsTests, IgnoreDamageAndClearBlocksForLanding) {
 /**
  * @brief Construct a new TEST object
  * 
+ * ブロックなしのテスト(FromBottom)
+ */
+TEST(PhysicsTests, JumpWithoutBlocksNoLanding){
+    // ブロックなし
+    std::vector<Block> blocks;  // 空
+    // 縦方向の衝突判定
+    VerticalCollisionState vcs{};
+    vcs.prevTop = 105.0;
+    vcs.newTop = 95.0;      // 10px上
+    vcs.prevFeet = 145.0;
+    vcs.newFeet = 135.0;    // 10px上
+    vcs.x = 50.0;
+    vcs.width = 20.0;
+    vcs.vv = -100.0;        // 上方向への移動速度
+    vcs.onGround = false;   // 上昇しているのでfalse
+    vcs.ignoreDropThrough = false;
+
+    Physics::resolveBlockCollisionFromBottom(vcs, blocks);
+
+    // ブロックが空→newTop/vv/onGroundはそのまま
+    EXPECT_DOUBLE_EQ(vcs.newTop, 95.0); 
+    EXPECT_DOUBLE_EQ(vcs.vv, -100.0);
+    EXPECT_FALSE(vcs.onGround);
+}
+
+/**
+ * @brief Construct a new TEST object
+ * 
+ * すり抜け床で立つパターン(FromBottom)
+ */
+TEST(PhysicsTests, JumpToDropThroughFromBottom) {
+    // すり抜け床ブロック
+    Block floor{
+        .x = 40.0,
+        .y = 100.0, // blockTop
+        .w = 100.0, 
+        .h = 20.0, 
+        .type = BlockType::DropThrough
+    };
+    // Physicsへ渡すDTO
+    // 縦方向の衝突判定
+    VerticalCollisionState vcs{};
+    vcs.prevTop = 100.0;
+    vcs.newTop = 70.0;      // 30px上
+    vcs.prevFeet = 130.0;
+    vcs.newFeet = 100.0;    // 30px上
+    vcs.x = 50.0;
+    vcs.width = 20.0;
+    vcs.vv = -100.0;        // 上方向への移動速度
+    vcs.onGround = false;   // 上昇しているのでfalse
+    vcs.ignoreDropThrough = false;
+    
+    std::vector<Block> blocks{floor};
+
+    Physics::resolveBlockCollisionFromBottom(vcs, blocks);
+
+    // すり抜け床へ下から通るとすり抜けるので，vcsは変化しない
+    EXPECT_DOUBLE_EQ(vcs.newFeet, 100.0);
+    EXPECT_DOUBLE_EQ(vcs.vv, -100.0);
+    EXPECT_FALSE(vcs.onGround);
+}
+
+/**
+ * @brief Construct a new TEST object
+ * 
+ * すり抜け床をすり抜けるパターン(FromBottomのvv>=0のパターンチェック)
+ */
+TEST(PhysicsTests, DropThrough_IgnoredWhenFlagSetDropStartsFromBottom) {
+    // Physicsへ渡すDTO
+    VerticalCollisionState vcs{
+        .prevFeet          = 100.0,   // blockTop と一致 → 直前フレームでは床に立っていた
+        .newFeet           = 105.0,   // ほんの少しだけ下に進んだ
+        .x                 = 50.0,
+        .width             = 20.0,
+        .vv                = 30.0,    // 下向き速度 > 0 （落下中）
+        .onGround          = true,    // 前フレームは接地中
+        .ignoreDropThrough = true     // このフレームだけ床を無視して落ちたい
+    };
+    // すり抜け床ブロック
+    Block floor{
+        .x    = 40.0,
+        .y    = 100.0,                // blockTop
+        .w    = 100.0,
+        .h    = 20.0,
+        .type = BlockType::DropThrough
+    };
+    std::vector<Block> blocks{floor};
+    // vv >= 0なので即return
+    Physics::resolveBlockCollisionFromBottom(vcs, blocks);
+
+    // vcsは変化しない
+    EXPECT_DOUBLE_EQ(vcs.newFeet, 105.0);   // clamp されない
+    EXPECT_DOUBLE_EQ(vcs.vv, 30.0);         // 速度も維持
+    EXPECT_TRUE(vcs.onGround);              // trueのまま
+}
+
+/**
+ * @brief Construct a new TEST object
+ * 
  * ?ブロックへの下からのヒット時のインデックスと垂直方向の速度のテスト
  */
 TEST(PhysicsTests, HitQuestionBlockFromBottomSetsHitIndexAndStopsVelocity){
@@ -349,12 +448,14 @@ TEST(PhysicsTests, MovingLeftIntoWallPushesEntityRightAndStopsVelocity){
 /**
  * @brief Construct a new TEST object
  * 
- * DropThroughブロックへ垂直方向にぶつかった
+ * ブロックへ垂平方向にぶつかってすり抜けるか
  */
-TEST(PhysicsExtraTests, HorizontalCollisionIgnoresDropThroughBlocks){
-    // DrouThroughブロックを用意
+TEST(PhysicsExtraTests, HorizontalCollisionIgnoresThroughBlocks){
+    // 水平方向はすり抜けるブロックを用意
     std::vector<Block> blocks{
         Block{100.0, 50.0, 20.0, 100.0, BlockType::DropThrough},
+        Block{100.0, 50.0, 20.0, 100.0, BlockType::Damage},
+        Block{100.0, 50.0, 20.0, 100.0, BlockType::Clear},
     };
     // 水平方向移動要素
     HorizontalCollisionState hcs{};
@@ -369,4 +470,120 @@ TEST(PhysicsExtraTests, HorizontalCollisionIgnoresDropThroughBlocks){
     // 上記のhcs要素は何も補正されないので変化しない
     EXPECT_DOUBLE_EQ(hcs.x, 90.0);
     EXPECT_DOUBLE_EQ(hcs.hv, 120.0);
+}
+
+/**
+ * @brief Construct a new TEST object
+ * 
+ * 立てる床が重なっているパターン
+ */
+TEST(PhysicsTests, LandOnOverlappingFloor){
+    // Physicsへ渡すDTO
+    VerticalCollisionState vcs{
+        .prevFeet          = 90.0, 
+        .newFeet           = 110.0, // 床(100.0)を超えている
+        .x                 = 50.0, 
+        .width             = 20.0, 
+        .vv                = 50.0, 
+        .onGround          = false, 
+        .ignoreDropThrough = false
+    };
+
+    // 乗る床(重なっていて上にある)
+    Block rideable{40.0, 100.0, 100.0, 20.0, BlockType::Standable};
+    // 乗らない床(重なっていて下にある)
+    Block nonRideable{50.0, 110.0, 100.0, 20.0, BlockType::Standable};
+    std::vector<Block> blocks{rideable, nonRideable};
+
+    Physics::resolveBlockCollisionFromTop(vcs, blocks);
+
+    // newFeetはblockTopへクランプされる
+    EXPECT_DOUBLE_EQ(vcs.newFeet, rideable.y);
+    // 着地するので速度とフラグが変わる
+    EXPECT_DOUBLE_EQ(vcs.vv, 0.0);
+    EXPECT_TRUE(vcs.onGround);
+}
+
+/**
+ * @brief Construct a new TEST object
+ * 
+ * 破壊可能ブロックに左からぶつかったときの補正テスト
+ */
+TEST(PhysicsTests, MovingLeftAndRightIntoBreakableBlockPushesRightAndStopsVelocity){
+    // 壊せるブロックを用意
+    std::vector<Block> blocks{
+        Block{100.0, 50.0, 20.0, 100.0, BlockType::Breakable},
+    };
+    // 左方向への衝突判定用
+    HorizontalCollisionState hcsLeft{};
+    hcsLeft.x = 115.0;      // ブロックの右辺120へエンティティの左側が115でめり込んでいる→120に補正されるはず
+    hcsLeft.y = 70.0;
+    hcsLeft.width = 20.0;
+    hcsLeft.height = 30.0; 
+    hcsLeft.hv = -120.0;    // 左側への水平方向移動速度
+
+    Physics::resolveHorizontalBlockCollision(hcsLeft, blocks);
+
+    // 右方向への衝突判定用
+    HorizontalCollisionState hcsRight{};
+    hcsRight.x = 85.0;
+    hcsRight.y = 70.0;
+    hcsRight.width = 20.0;  // ブロックの左辺100へ85+20=105で5めりこむ→エンティティのxが80に補正されるはず
+    hcsRight.height = 30.0; 
+    hcsRight.hv = 120.0;    // 右側への水平方向移動速度
+
+    Physics::resolveHorizontalBlockCollision(hcsRight, blocks);
+
+    // エンティティに左座標(x座標)が110, blockRight 120, なので10重なっている
+    // →補正されてエンティティの左座標(x座標)が120になる(ぴったりくっついてる)
+    // 左
+    EXPECT_DOUBLE_EQ(hcsLeft.x, 120.0);
+    // 水平方向移動速度は0になる
+    EXPECT_DOUBLE_EQ(hcsLeft.hv, 0.0);
+    // 右
+    EXPECT_DOUBLE_EQ(hcsRight.x, 80.0);
+    // 水平方向移動速度は0になる
+    EXPECT_DOUBLE_EQ(hcsRight.hv, 0.0);
+}
+
+/**
+ * @brief Construct a new TEST object
+ * 
+ * 使用済み？ブロックに水平方向にぶつかったときの補正テスト
+ */
+TEST(PhysicsTests, MovingLeftAndRightIntoUsedQuestionBlockPushesRightAndStopsVelocity){
+    // 壊せるブロックを用意
+    std::vector<Block> blocks{
+        Block{100.0, 50.0, 20.0, 100.0, BlockType::UsedQuestion},
+    };
+    // 左方向への衝突判定用
+    HorizontalCollisionState hcsLeft{};
+    hcsLeft.x = 115.0;      // ブロックの右辺120へエンティティの左側が115でめり込んでいる→120に補正されるはず
+    hcsLeft.y = 70.0;
+    hcsLeft.width = 20.0;
+    hcsLeft.height = 30.0; 
+    hcsLeft.hv = -120.0;    // 左側への水平方向移動速度
+
+    Physics::resolveHorizontalBlockCollision(hcsLeft, blocks);
+
+    // 右方向への衝突判定用
+    HorizontalCollisionState hcsRight{};
+    hcsRight.x = 85.0;
+    hcsRight.y = 70.0;
+    hcsRight.width = 20.0;  // ブロックの左辺100へ85+20=105で5めりこむ→エンティティのxが80に補正されるはず
+    hcsRight.height = 30.0; 
+    hcsRight.hv = 120.0;    // 右側への水平方向移動速度
+
+    Physics::resolveHorizontalBlockCollision(hcsRight, blocks);
+
+    // エンティティに左座標(x座標)が110, blockRight 120, なので10重なっている
+    // →補正されてエンティティの左座標(x座標)が120になる(ぴったりくっついてる)
+    // 左
+    EXPECT_DOUBLE_EQ(hcsLeft.x, 120.0);
+    // 水平方向移動速度は0になる
+    EXPECT_DOUBLE_EQ(hcsLeft.hv, 0.0);
+    // 右
+    EXPECT_DOUBLE_EQ(hcsRight.x, 80.0);
+    // 水平方向移動速度は0になる
+    EXPECT_DOUBLE_EQ(hcsRight.hv, 0.0);
 }

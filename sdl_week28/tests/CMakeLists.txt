@@ -19,6 +19,9 @@ set(GAME_SOURCES
     ${CMAKE_SOURCE_DIR}/src/Physics.cpp
     ${CMAKE_SOURCE_DIR}/src/BlockLevelLoader.cpp
     ${CMAKE_SOURCE_DIR}/src/PlayerEnemyCollisionUtil.cpp
+    ${CMAKE_SOURCE_DIR}/src/CameraShakeController.cpp
+    ${CMAKE_SOURCE_DIR}/src/PlayerDeathController.cpp
+    ${CMAKE_SOURCE_DIR}/src/StageDefinitionLoader.cpp # nlohmann_json が使える環境のみ
 )
 
 # テスト(cppファイルごとにテストスイートを作る)
@@ -28,6 +31,11 @@ add_executable(
     test_BlockLevelLoader.cpp
     test_GameUtil.cpp
     test_resolvePlayerEnemyCollision.cpp
+    test_BackgroundDefinition.cpp
+    test_CameraShakeController.cpp
+    test_GameEventBuffer.cpp
+    test_PlayerDeathController.cpp
+    test_StageDefinitionLoader.cpp
     ${GAME_SOURCES}
 )
 

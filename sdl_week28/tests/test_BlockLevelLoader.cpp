@@ -175,24 +175,81 @@ X N 500 100 10 10 # 未知のBlockTypeは無視)";
     // std::runtime_errorを投げるので，それを期待値とする
     EXPECT_THROW(BlockLevelLoader::loadFromFile(filename), std::runtime_error);
     
-    // データ読み込み
-    // blocks = BlockLevelLoader::loadFromFile(filename);
-    // 期待値vector
-    // 変なデータはスキップされる
-    // std::vector<Block> expect = {
-    //     {0, 750, 200, 50, Standable}
-    // }
-    // EXPECT_THAT(blocks, ElementsAre(
-    //     // Standableのみ
-    //     AllOf(
-    //         Field(&Block::x, 0), 
-    //         Field(&Block::y, 750), 
-    //         Field(&Block::w, 200), 
-    //         Field(&Block::h, 50), 
-    //         Field(&Block::type, BlockType::Standable), 
-    //         Field(&Block::reward, BlockRewardType::None)
-    //     )
-    // ));
+    // 一時ファイル削除
+    std::remove(filename.c_str());
+}
+
+/**
+ * @brief Construct a new TEST object
+ * 
+ * 空のレベルテキストデータ読み込み
+ */
+TEST(BlockLevelLoaderTests, EmptyBlockLevelDataLoad){
+    // 一時テキストファイル
+    const std::string filename = "temp_test_empty_file.txt";
+    // 正常なlevelデータ
+    std::string rsl = "";
+
+    // 一時ファイルへ書き込み
+    writeTempFile(filename, rsl);
+
+    // データ読み込み(空vectorを宣言せずにautoで検証)
+    auto blocks = BlockLevelLoader::loadFromFile(filename);
+    
+    EXPECT_TRUE(blocks.empty());
+
+    // 一時ファイル削除
+    std::remove(filename.c_str());
+}
+
+/**
+ * @brief Construct a new TEST object
+ * 
+ * コメントのみのレベルテキストデータ読み込み(正常のエッジケース)
+ */
+TEST(BlockLevelLoaderTests, CommentsOnlyBlockLevelDataLoad){
+    // 一時テキストファイル
+    const std::string filename = "temp_test_empty_file.txt";
+    // 正常なlevelデータ
+    std::string rsl = R"(
+# T N 200  80 100 20 # コメント行
+# S N 0   750 200 50 # 床(正常なデータ)
+)";
+
+    // 一時ファイルへ書き込み
+    writeTempFile(filename, rsl);
+
+    // データ読み込み(空vectorを宣言せずにautoで検証)
+    auto blocks = BlockLevelLoader::loadFromFile(filename);
+    
+    EXPECT_TRUE(blocks.empty());
+
+    // 一時ファイル削除
+    std::remove(filename.c_str());
+}
+
+/**
+ * @brief Construct a new TEST object
+ * 
+ * 存在していないファイルの読み込みテスト
+ */
+TEST(BlockLevelLoaderTests, BlockLevelDataDoesNotExists){
+    
+    // 一時テキストファイル
+    const std::string filename = "temp_test_does-not_exist_file.txt";
+    /*
+    // 正常なlevelデータ
+    std::string rsl = R"(
+# T N 200  80 100 20 # コメント行
+# S N 0   750 200 50 # 床(正常なデータ)
+)";
+
+    // 一時ファイルへ書き込み
+    writeTempFile(filename, rsl);
+    */
+    // データ読み込み(空vectorを宣言せずにautoで検証)    
+    EXPECT_THROW(BlockLevelLoader::loadFromFile(filename), std::runtime_error);
+
     // 一時ファイル削除
     std::remove(filename.c_str());
 }
