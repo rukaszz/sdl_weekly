@@ -1,0 +1,181 @@
+Running main() from /sdl-weekly/sdl_week29/build/_deps/googletest-src/googletest/src/gtest_main.cc
+[==========] Running 71 tests from 11 test suites.
+[----------] Global test environment set-up.
+[----------] 16 tests from PhysicsTests
+[ RUN      ] PhysicsTests.FallWithoutBlocksNoLanding
+[       OK ] PhysicsTests.FallWithoutBlocksNoLanding (0 ms)
+[ RUN      ] PhysicsTests.LandOnStandableBlock
+[       OK ] PhysicsTests.LandOnStandableBlock (0 ms)
+[ RUN      ] PhysicsTests.NoCollisionWhenNotOverlappingHorizontally
+[       OK ] PhysicsTests.NoCollisionWhenNotOverlappingHorizontally (0 ms)
+[ RUN      ] PhysicsTests.DropThrough_ActsAsStandableWhenNotIgnored
+[       OK ] PhysicsTests.DropThrough_ActsAsStandableWhenNotIgnored (0 ms)
+[ RUN      ] PhysicsTests.DropThrough_IgnoredWhenFlagSetDropStarts
+[       OK ] PhysicsTests.DropThrough_IgnoredWhenFlagSetDropStarts (0 ms)
+[ RUN      ] PhysicsTests.DropThrough_OncePassedTopDoesNotRelandLater
+[       OK ] PhysicsTests.DropThrough_OncePassedTopDoesNotRelandLater (0 ms)
+[ RUN      ] PhysicsTests.IgnoreDamageAndClearBlocksForLanding
+[       OK ] PhysicsTests.IgnoreDamageAndClearBlocksForLanding (0 ms)
+[ RUN      ] PhysicsTests.JumpWithoutBlocksNoLanding
+[       OK ] PhysicsTests.JumpWithoutBlocksNoLanding (0 ms)
+[ RUN      ] PhysicsTests.JumpToDropThroughFromBottom
+[       OK ] PhysicsTests.JumpToDropThroughFromBottom (0 ms)
+[ RUN      ] PhysicsTests.DropThrough_IgnoredWhenFlagSetDropStartsFromBottom
+[       OK ] PhysicsTests.DropThrough_IgnoredWhenFlagSetDropStartsFromBottom (0 ms)
+[ RUN      ] PhysicsTests.HitQuestionBlockFromBottomSetsHitIndexAndStopsVelocity
+[       OK ] PhysicsTests.HitQuestionBlockFromBottomSetsHitIndexAndStopsVelocity (0 ms)
+[ RUN      ] PhysicsTests.MovingRightIntoWallPushesEntityLeftAndStopsVelocity
+[       OK ] PhysicsTests.MovingRightIntoWallPushesEntityLeftAndStopsVelocity (0 ms)
+[ RUN      ] PhysicsTests.MovingLeftIntoWallPushesEntityRightAndStopsVelocity
+[       OK ] PhysicsTests.MovingLeftIntoWallPushesEntityRightAndStopsVelocity (0 ms)
+[ RUN      ] PhysicsTests.LandOnOverlappingFloor
+[       OK ] PhysicsTests.LandOnOverlappingFloor (0 ms)
+[ RUN      ] PhysicsTests.MovingLeftAndRightIntoBreakableBlockPushesRightAndStopsVelocity
+[       OK ] PhysicsTests.MovingLeftAndRightIntoBreakableBlockPushesRightAndStopsVelocity (0 ms)
+[ RUN      ] PhysicsTests.MovingLeftAndRightIntoUsedQuestionBlockPushesRightAndStopsVelocity
+[       OK ] PhysicsTests.MovingLeftAndRightIntoUsedQuestionBlockPushesRightAndStopsVelocity (0 ms)
+[----------] 16 tests from PhysicsTests (0 ms total)
+
+[----------] 1 test from PhysicsExtraTests
+[ RUN      ] PhysicsExtraTests.HorizontalCollisionIgnoresThroughBlocks
+[       OK ] PhysicsExtraTests.HorizontalCollisionIgnoresThroughBlocks (0 ms)
+[----------] 1 test from PhysicsExtraTests (0 ms total)
+
+[----------] 5 tests from BlockLevelLoaderTests
+[ RUN      ] BlockLevelLoaderTests.NormalBlockLevelDataLoad
+[       OK ] BlockLevelLoaderTests.NormalBlockLevelDataLoad (0 ms)
+[ RUN      ] BlockLevelLoaderTests.AbnormalBlockLevelDataLoad
+[       OK ] BlockLevelLoaderTests.AbnormalBlockLevelDataLoad (0 ms)
+[ RUN      ] BlockLevelLoaderTests.EmptyBlockLevelDataLoad
+[       OK ] BlockLevelLoaderTests.EmptyBlockLevelDataLoad (0 ms)
+[ RUN      ] BlockLevelLoaderTests.CommentsOnlyBlockLevelDataLoad
+[       OK ] BlockLevelLoaderTests.CommentsOnlyBlockLevelDataLoad (0 ms)
+[ RUN      ] BlockLevelLoaderTests.BlockLevelDataDoesNotExists
+[       OK ] BlockLevelLoaderTests.BlockLevelDataDoesNotExists (0 ms)
+[----------] 5 tests from BlockLevelLoaderTests (1 ms total)
+
+[----------] 21 tests from GameUtilTests
+[ RUN      ] GameUtilTests.GameUtil_TrimSpace
+[       OK ] GameUtilTests.GameUtil_TrimSpace (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_TrimBlankLine
+[       OK ] GameUtilTests.GameUtil_TrimBlankLine (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_TrimAlreadyTrimmed
+[       OK ] GameUtilTests.GameUtil_TrimAlreadyTrimmed (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_TrimEmpty
+[       OK ] GameUtilTests.GameUtil_TrimEmpty (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_TrimTabCharacters
+[       OK ] GameUtilTests.GameUtil_TrimTabCharacters (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_AABBClearlyIntersecting
+[       OK ] GameUtilTests.GameUtil_AABBClearlyIntersecting (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_AABBClearlyNotIntersecting
+[       OK ] GameUtilTests.GameUtil_AABBClearlyNotIntersecting (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_AABBTouchAtEdgeHorizontal
+[       OK ] GameUtilTests.GameUtil_AABBTouchAtEdgeHorizontal (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_AABBTouchAtEdgeVertical
+[       OK ] GameUtilTests.GameUtil_AABBTouchAtEdgeVertical (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_AABBTouchAtCorner
+[       OK ] GameUtilTests.GameUtil_AABBTouchAtCorner (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_BlockToRect_ConvertsCorrectly
+[       OK ] GameUtilTests.GameUtil_BlockToRect_ConvertsCorrectly (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_BlockToRect_TruncatesFloatingPoint
+[       OK ] GameUtilTests.GameUtil_BlockToRect_TruncatesFloatingPoint (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_rebuildBlockRects_EmptyBlocks
+[       OK ] GameUtilTests.GameUtil_rebuildBlockRects_EmptyBlocks (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_RebuildBlockRects_BuildsCorrectly
+[       OK ] GameUtilTests.GameUtil_RebuildBlockRects_BuildsCorrectly (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_RebuildBlockRects_ClearsPreviousContents
+[       OK ] GameUtilTests.GameUtil_RebuildBlockRects_ClearsPreviousContents (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_OutOfWorldBounds_InsideWorld
+[       OK ] GameUtilTests.GameUtil_OutOfWorldBounds_InsideWorld (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_OutOfWorldBounds_AboveWorld
+[       OK ] GameUtilTests.GameUtil_OutOfWorldBounds_AboveWorld (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_OutOfWorldBounds_BelowWorld
+[       OK ] GameUtilTests.GameUtil_OutOfWorldBounds_BelowWorld (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_OutOfWorldBounds_LeftOfWorld
+[       OK ] GameUtilTests.GameUtil_OutOfWorldBounds_LeftOfWorld (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_OutOfWorldBounds_RightOfWorld
+[       OK ] GameUtilTests.GameUtil_OutOfWorldBounds_RightOfWorld (0 ms)
+[ RUN      ] GameUtilTests.GameUtil_OutOfWorldBounds_WithinMargin
+[       OK ] GameUtilTests.GameUtil_OutOfWorldBounds_WithinMargin (0 ms)
+[----------] 21 tests from GameUtilTests (0 ms total)
+
+[----------] 8 tests from PlayerEnemyCollisionTests
+[ RUN      ] PlayerEnemyCollisionTests.StompEnemy_FromAbove
+[       OK ] PlayerEnemyCollisionTests.StompEnemy_FromAbove (0 ms)
+[ RUN      ] PlayerEnemyCollisionTests.PlayerHit_FromSide
+[       OK ] PlayerEnemyCollisionTests.PlayerHit_FromSide (0 ms)
+[ RUN      ] PlayerEnemyCollisionTests.None_WhenNotIntersecting
+[       OK ] PlayerEnemyCollisionTests.None_WhenNotIntersecting (0 ms)
+[ RUN      ] PlayerEnemyCollisionTests.StompEnemy_AtEdgeOfFailure
+[       OK ] PlayerEnemyCollisionTests.StompEnemy_AtEdgeOfFailure (0 ms)
+[ RUN      ] PlayerEnemyCollisionTests.StompEnemy_AtEdgeOfSuccess
+[       OK ] PlayerEnemyCollisionTests.StompEnemy_AtEdgeOfSuccess (0 ms)
+[ RUN      ] PlayerEnemyCollisionTests.None_WhenNotFalling
+[       OK ] PlayerEnemyCollisionTests.None_WhenNotFalling (0 ms)
+[ RUN      ] PlayerEnemyCollisionTests.None_StompConditionWithoutIntersection
+[       OK ] PlayerEnemyCollisionTests.None_StompConditionWithoutIntersection (0 ms)
+[ RUN      ] PlayerEnemyCollisionTests.PlayerHit_OnTheGround
+[       OK ] PlayerEnemyCollisionTests.PlayerHit_OnTheGround (0 ms)
+[----------] 8 tests from PlayerEnemyCollisionTests (0 ms total)
+
+[----------] 3 tests from BackgroundDefinitionTests
+[ RUN      ] BackgroundDefinitionTests.ForestWithThreeParallaxObjectBackToFront
+[       OK ] BackgroundDefinitionTests.ForestWithThreeParallaxObjectBackToFront (0 ms)
+[ RUN      ] BackgroundDefinitionTests.DarkForestWithThreeParallaxObjectBackToFront
+[       OK ] BackgroundDefinitionTests.DarkForestWithThreeParallaxObjectBackToFront (0 ms)
+[ RUN      ] BackgroundDefinitionTests.HellForestWithThreeParallaxObjectBackToFront
+[       OK ] BackgroundDefinitionTests.HellForestWithThreeParallaxObjectBackToFront (0 ms)
+[----------] 3 tests from BackgroundDefinitionTests (0 ms total)
+
+[----------] 2 tests from BackgroundDefinitionTest
+[ RUN      ] BackgroundDefinitionTest.SimpleBackgroundWithSingleLayer
+[       OK ] BackgroundDefinitionTest.SimpleBackgroundWithSingleLayer (0 ms)
+[ RUN      ] BackgroundDefinitionTest.UnknownBackgroundIdThrowCheck
+[       OK ] BackgroundDefinitionTest.UnknownBackgroundIdThrowCheck (0 ms)
+[----------] 2 tests from BackgroundDefinitionTest (0 ms total)
+
+[----------] 4 tests from CameraShakeControllerTests
+[ RUN      ] CameraShakeControllerTests.ResetClearAppliedOffset
+[       OK ] CameraShakeControllerTests.ResetClearAppliedOffset (0 ms)
+[ RUN      ] CameraShakeControllerTests.ShakingStopAfterCertainNumberOfUpdate
+[       OK ] CameraShakeControllerTests.ShakingStopAfterCertainNumberOfUpdate (0 ms)
+[ RUN      ] CameraShakeControllerTests.InvalidStartInputShouldNotCreateShake
+[       OK ] CameraShakeControllerTests.InvalidStartInputShouldNotCreateShake (0 ms)
+[ RUN      ] CameraShakeControllerTests.CameraDoesNotShakeUnstarted
+[       OK ] CameraShakeControllerTests.CameraDoesNotShakeUnstarted (0 ms)
+[----------] 4 tests from CameraShakeControllerTests (0 ms total)
+
+[----------] 4 tests from GameEventBufferTests
+[ RUN      ] GameEventBufferTests.EnqueueAllEventTypes
+[       OK ] GameEventBufferTests.EnqueueAllEventTypes (0 ms)
+[ RUN      ] GameEventBufferTests.ConsumeIfRemovesOnlyMatchingEventsAndPreservesOthersOrder
+[       OK ] GameEventBufferTests.ConsumeIfRemovesOnlyMatchingEventsAndPreservesOthersOrder (0 ms)
+[ RUN      ] GameEventBufferTests.ClearProcessRemoveAllEvents
+[       OK ] GameEventBufferTests.ClearProcessRemoveAllEvents (0 ms)
+[ RUN      ] GameEventBufferTests.ConsumeIfDoesNothingForEmptyQueue
+[       OK ] GameEventBufferTests.ConsumeIfDoesNothingForEmptyQueue (0 ms)
+[----------] 4 tests from GameEventBufferTests (0 ms total)
+
+[----------] 4 tests from PlayerDeathControllerTest
+[ RUN      ] PlayerDeathControllerTest.UpdateDoesNothingInactive
+[       OK ] PlayerDeathControllerTest.UpdateDoesNothingInactive (0 ms)
+[ RUN      ] PlayerDeathControllerTest.BlinkTogglesAfterInterval
+[       OK ] PlayerDeathControllerTest.BlinkTogglesAfterInterval (0 ms)
+[ RUN      ] PlayerDeathControllerTest.DeathDirectionAfterDuration
+[       OK ] PlayerDeathControllerTest.DeathDirectionAfterDuration (0 ms)
+[ RUN      ] PlayerDeathControllerTest.ResetReturnsToInitialState
+[       OK ] PlayerDeathControllerTest.ResetReturnsToInitialState (0 ms)
+[----------] 4 tests from PlayerDeathControllerTest (0 ms total)
+
+[----------] 3 tests from StageDefinitionLoaderTests
+[ RUN      ] StageDefinitionLoaderTests.LoadsBackgroundDecorationsBossEnemiesAndItems
+[       OK ] StageDefinitionLoaderTests.LoadsBackgroundDecorationsBossEnemiesAndItems (0 ms)
+[ RUN      ] StageDefinitionLoaderTests.LoadsUnknownBackgroundAndThrows
+[       OK ] StageDefinitionLoaderTests.LoadsUnknownBackgroundAndThrows (0 ms)
+[ RUN      ] StageDefinitionLoaderTests.LoadsNonexistsJsonFile
+[       OK ] StageDefinitionLoaderTests.LoadsNonexistsJsonFile (0 ms)
+[----------] 3 tests from StageDefinitionLoaderTests (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 71 tests from 11 test suites ran. (3 ms total)
+[  PASSED  ] 71 tests.
