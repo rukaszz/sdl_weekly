@@ -17,24 +17,26 @@ ChaserEnemy::ChaserEnemy(Texture& tex)
  * @param es 
  */
 void ChaserEnemy::think(double /*delta*/, const EnemySensor& es){
-    // プレイヤーが見えたときは壁を通り抜ける
+    // 前に進めるか
+    bool cannotMove = (!es.groundAhead || es.wallAhead);
+    // プレイヤーがいるとき かつ 壁がなければ追いかける
+    if(es.playerInSight && cannotMove){
+        hv = 0.0;
+        return;
+    }
+    // 接地していない場合はここで返す※空中での高速方向転換を防止
+    if(!isOnGround()){
+        return;
+    }
+
+    // プレイヤーがいないときは歩き回る
     if(!es.playerInSight){
-        // hv = 0.0;    // プレイヤーが見えていないなら何もしない
-        // プレイヤーがいないときは歩き回る
-        if(!es.groundAhead || es.wallAhead){
+        if(cannotMove){
             dir = (dir == Direction::Right ? Direction::Left : Direction::Right);
         }
         hv = (dir == Direction::Right ? speed : -speed);
         return;
     }
-
-    // 近づきすぎたら追いかけを止める(仮実装)
-    constexpr double MIN_CHASE_DISTANCE = 1.0;
-    if(es.distanceToPlayer < MIN_CHASE_DISTANCE){
-        hv = 0.0;
-        return;
-    }
-
     // プレイヤーのいる位置を見て追跡方向を決定する
     if(es.playerOnLeft){
         dir = Direction::Left;
