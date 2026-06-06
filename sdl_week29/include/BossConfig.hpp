@@ -24,6 +24,8 @@ namespace BossConfig{
     static inline constexpr double SIGHT_RANGE = 600.0;             // X軸
     // 攻撃発射を実施する高さ
     static inline constexpr double ATTACK_HEIGHT_TOLERANCE = 96.0;  // Y軸
+    // ボスが画面外へ消えた場合に，ゲームをクリア扱いにする処理で使用するマージン
+    static inline constexpr double ESCAPE_MARGIN = 200.0;           // スプライトサイズより少し大きめ
 }   // BossConfig
 
 #endif  // BOSSCONFIG_H

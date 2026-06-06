@@ -265,6 +265,9 @@ void ProjectileSystem::resolveFireballEnemyCollision(std::vector<std::unique_ptr
             // FireBall-Enemyが接触したら
             e->startDying();
             f->deactivate();
+            // ファイアボールヒット音
+            events.playSound(SoundId::FireballHit);
+            // パーティクル
             events.spawnParticle(
                 ParticleEffectId::EnemyBurst, 
                 e->getEntityCenter_X(), 
@@ -342,7 +345,7 @@ void ProjectileSystem::onStageLoaded(){
 }
 
 /**
- * @brief 
+ * @brief bo
  * 
  * @param boss 
  * @param events 
@@ -366,6 +369,7 @@ void ProjectileSystem::resolveFireballBossCollision(BossEnemy& boss, IGameEvents
         // ヒット：ファイアボール非活性化→ボスへダメージ
         f->deactivate();
         boss.takeDamage(BossConfig::FIREBALL_DAMAGE);
+        events.playSound(SoundId::FireballHit);
         // スコア加算(するなら)
         if(!boss.isAlive()){
             events.addScore(BossConfig::SCORE_AT_DEATH);

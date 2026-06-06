@@ -64,6 +64,12 @@
 - Source: maou_se_system46.wav
 - URL: [https://maou.audio/se_system46/](https://maou.audio/se_system46/)
 
+### Explosion 06
+
+- Asset Name: fireball_hit.wav
+- Source: maou_se_battle_explosion06.wav
+- URL: [https://maou.audio/se_battle_explosion06/](https://maou.audio/se_battle_explosion06/)
+
 ### System 25
 
 - Asset Name: pause_open.wav

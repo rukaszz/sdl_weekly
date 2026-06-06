@@ -87,6 +87,8 @@ PlayingScene::PlayingScene(SceneControl& sc, GameContext& gc)
     gameResumeText->setText("Press ESC to Resume");
     backToTitleText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 255, 255, 255});
     backToTitleText->setText("Press BackSpace to Title");
+    // 残機表示(動的にテキストを生成)
+    remainingLivesText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{50, 50, 50, 255});
     // デバッグ用文字列
     debugText = std::make_unique<TextTexture>(ctx.renderer, ctx.textRenderCtx.font, SDL_Color{255, 0, 255, 255});
 }
@@ -254,13 +256,15 @@ void PlayingScene::render(){
     particles.render(ctx.renderer, shaken);
     // デバッグ情報表示
     debugText->draw(ctx.renderer, 20, 80);
+    // 残機表示
+    remainingLivesText->draw(ctx.renderer, 20, 110);
     // テキスト描画
     ctx.textRenderCtx.fpsText.draw(ctx.renderer, 20, 20);
     // スコア更新
     ctx.textRenderCtx.scoreText.setText(
         "Score: " + std::to_string(static_cast<int>(ctrl.getScore()))
     );
-    ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);   
+    ctx.textRenderCtx.scoreText.draw(ctx.renderer, 20, 50);
     // ポーズ中も描画はするので，最後に薄暗いオーバーレイをする
     if(runState == RunState::Paused){
         renderPauseOverlay();
@@ -283,6 +287,8 @@ void PlayingScene::onEnter(){
     ctrl.loadStage(stageIndex, ctx);
     // ブロックのキャッシュ再構築
     GameUtil::rebuildBlockRects(ctx.entityCtx.blocks, ctx.entityCtx.blockRectCaches);
+    // 残機表示テキスト構成
+    remainingLivesText->setText("Lives: " + std::to_string(ctrl.getLives()));
     // 背景の読み込み
     loadBackground();
     // ステージが変わった通知を各システムへ送信する
@@ -293,7 +299,6 @@ void PlayingScene::onEnter(){
     particles.clear();
     deathEvent.reset();
     // ボス関係の変数初期化
-    // initBossBattle();
     const auto& def = ctrl.getCurrentStageDefinition();
     bossBattleSystem.init(def);
     // BGM再生

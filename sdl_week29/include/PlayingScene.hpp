@@ -80,6 +80,8 @@ private:
     std::unique_ptr<TextTexture> pauseTitleText;
     std::unique_ptr<TextTexture> gameResumeText;
     std::unique_ptr<TextTexture> backToTitleText;
+    // 残機表示
+    std::unique_ptr<TextTexture> remainingLivesText;
     // 画面シェイク
     CameraShakeController cameraShake;
     // パーティクル

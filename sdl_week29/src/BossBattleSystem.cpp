@@ -144,8 +144,18 @@ void BossBattleSystem::checkBattleResult(IGameEvents& events){
     if(!state.isActive()){
         return;
     }
-    // ボスが死んだ際の処理なので死んでいないなら何もしない
+    // ボスが死んでいない
     if(!boss.isDead()){
+        // ボスが画面外にでてしまった際に
+        // ゲームが進行不可能状態にならないようにする処置
+        const double bossCenter_X = boss.getEntityCenter_X();
+        // クランプを抜けてボスがエリア外に大きく出た場合はクリア扱い
+        if(bossCenter_X < state.cameraMin_X - BossConfig::ESCAPE_MARGIN
+        || bossCenter_X > state.cameraMax_X + BossConfig::ESCAPE_MARGIN){
+            // ボス戦状態を敗北にしてクリア
+            state.phase = BossBattlePhase::Defeated;
+            events.requestScene(GameScene::Clear);
+        }
         return;
     }
     // ボス戦を終了させる

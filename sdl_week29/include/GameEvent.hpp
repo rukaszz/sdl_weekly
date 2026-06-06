@@ -44,6 +44,7 @@ enum class SoundId : std::uint8_t{
     Fireball, 
     Damage, 
     Coin, 
+    FireballHit, 
     PauseOpen, 
     PauseClose, 
 };
