@@ -423,6 +423,13 @@ void PlayingScene::updateCamera(){
 
     // プレイヤーを画面中央付近へ維持する
     ctx.camera.x = playerCenter_X - (ctx.camera.width / 2.0);
+    // もしy軸への追従を入れるなら※week29まできちゃったのでやらない
+    // ※ジャンプ時にむやみにカメラが移動しないようにする補間も必要になる
+    /*
+    ctx.camera.y = playerCenter_Y - (ctx.camera.height / 2.0);
+    const double maxCamera_Y = std::max(0.0, ctx.worldInfo.WorldHeight - ctx.camera.height);
+    ctx.camera.y = std::clamp(ctx.camera.y, 0.0, maxCamera_Y);
+    */
 
     // カメラ追従の補正
     if(bossBattleSystem.isActive()){

@@ -14,15 +14,17 @@
                "cameraMin_X": 0.0, "cameraMax_X": 0.0, 
                "spawn_X": 0.0, "spawn_Y": 0.0, "hp": 0}, 
       "enemies": [
-        {"x": 500.0, "y": 200.0, "speed": 150.0, "type": "Jumper"}, 
-        {"x": 200.0, "y": 400.0, "speed": 100.0, "type": "Walker"},
-        {"x": 400.0, "y": 636.0, "speed": 50.0,  "type": "Chaser"}, 
-        {"x": 700.0, "y": 636.0, "speed": 50.0,  "type": "Turret"}
+        {"x": 200.0, "y": 600.0, "speed": 100.0, "type": "Walker"},
+        {"x": 1100.0, "y": 300.0, "speed": 50.0,  "type": "Chaser"}, 
+        {"x": 1950.0, "y": 550.0, "speed": 50.0, "type": "Walker"}
       ], 
       "items": [
         {"x": 400.0, "y": 300.0, "type": "Coin"}, 
         {"x": 260.0, "y": 180.0, "type": "Coin"},  
-        {"x": 600.0, "y": 300.0, "type": "Coin"}
+        {"x": 700.0, "y": 380.0, "type": "Coin"},  
+        {"x": 2200.0, "y": 250.0, "type": "Coin"},  
+        {"x": 2500.0, "y": 250.0, "type": "Coin"},  
+        {"x": 2500.0, "y": 600.0, "type": "Coin"}
       ]
     }, 
     {
@@ -39,22 +41,50 @@
                "cameraMin_X": 0.0, "cameraMax_X": 0.0, 
                "spawn_X": 0.0, "spawn_Y": 0.0, "hp": 0}, 
       "enemies": [
-        {"x": 100.0, "y": 100.0, "speed": 50.0,  "type": "Walker"}, 
-        {"x": 200.0, "y": 200.0, "speed": 80.0,  "type": "Walker"},
-        {"x": 300.0, "y": 300.0, "speed": 110.0, "type": "Walker"},
-        {"x": 400.0, "y": 400.0, "speed": 140.0, "type": "Walker"},
-        {"x": 500.0, "y": 500.0, "speed": 170.0, "type": "Walker"},
+        {"x": 600.0, "y": 400.0, "speed": 50.0,  "type": "Chaser"}, 
+        {"x": 100.0, "y": 250.0, "speed": 80.0,  "type": "Turret"},
+        {"x": 850.0, "y": 250.0, "speed": 110.0, "type": "Walker"},
+        {"x": 850.0, "y": 250.0, "speed": 60.0, "type": "Walker"},
+        {"x": 850.0, "y": 250.0, "speed": 140.0, "type": "Walker"},
         {"x": 600.0, "y": 600.0, "speed": 200.0, "type": "Walker"}
       ], 
       "items": [
-        {"x": 400.0, "y": 300.0, "type": "Coin"}, 
-        {"x": 260.0, "y": 180.0, "type": "Coin"},  
-        {"x": 600.0, "y": 300.0, "type": "Coin"}
+        {"x": 400.0, "y": 500.0, "type": "Coin"}, 
+        {"x": 1500.0, "y": 500.0, "type": "Coin"},  
+        {"x": 1500.0, "y": 500.0, "type": "Coin"},
+        {"x": 1800.0, "y": 500.0, "type": "Coin"},
+        {"x": 2100.0, "y": 500.0, "type": "Coin"}, 
+        {"x": 2400.0, "y": 500.0, "type": "Coin"}
       ]
     }, 
     {
       "name": "Stage 3", 
       "levelFile": "assets/level/level3.txt",
+      "playerStart": {"x": 100.0, "y": -10.0}, 
+      "background": "HellForest", 
+      "bgDecorations": [
+        {"world_X": 400, "screen_Y": 40, "parallaxFactor": 0.1, "type": "DarkSun"}
+      ], 
+      "boss": {"enabled": false, "trigger_X": 0.0, 
+               "cameraMin_X": 0.0, "cameraMax_X": 0.0, 
+               "spawn_X": 0.0, "spawn_Y": 0.0, "hp": 0}, 
+      "enemies": [
+        {"x": 200.0, "y": 100.0, "speed": 50.0,  "type": "Jumper"}, 
+        {"x": 920.0, "y": 400.0, "speed": 50.0,  "type": "Jumper"}, 
+        {"x": 1350.0, "y": 500.0, "speed": 50.0,  "type": "Jumper"}
+      ], 
+      "items": [
+        {"x": 300.0, "y": 50.0, "type": "Coin"}, 
+        {"x": 920.0, "y": 350.0, "type": "Coin"},  
+        {"x": 1300.0, "y": 350.0, "type": "Coin"}, 
+        {"x": 1350.0, "y": 350.0, "type": "Coin"},
+        {"x": 1400.0, "y": 350.0, "type": "Coin"},
+        {"x": 1900.0, "y": 500.0, "type": "Coin"} 
+      ]
+    },
+    {
+      "name": "Stage 4", 
+      "levelFile": "assets/level/level4.txt",
       "playerStart": {"x": 100.0, "y": 600.0}, 
       "background": "HellForest", 
       "bgDecorations": [
@@ -64,12 +94,12 @@
                "cameraMin_X": 450.0, "cameraMax_X": 1250.0, 
                "spawn_X": 800.0, "spawn_Y": 100.0, "hp": 6}, 
       "enemies": [
-        {"x": 200.0, "y": 100.0, "speed": 50.0,  "type": "Walker"}
+        {"x": 250.0, "y": 500.0, "speed": 10.0,  "type": "Chaser"}
       ], 
       "items": [
-        {"x": 400.0, "y": 300.0, "type": "Coin"}, 
-        {"x": 260.0, "y": 180.0, "type": "Coin"},  
-        {"x": 600.0, "y": 300.0, "type": "Coin"}
+        {"x": 100.0, "y": 600.0, "type": "Coin"}, 
+        {"x": 200.0, "y": 600.0, "type": "Coin"},  
+        {"x": 300.0, "y": 600.0, "type": "Coin"}
       ]
     }
   ]
