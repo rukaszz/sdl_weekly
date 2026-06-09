@@ -10,3 +10,4 @@ Makefile
 *_forZip/
 *.zip
 /feedback/
+/gif_anim/

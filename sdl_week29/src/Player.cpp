@@ -661,11 +661,11 @@ void Player::requestFormChange(PlayerForm pf){
  */
 std::string Player::debugMoveContext(){
     std::string mvCtx = "";
-    mvCtx = "hv: "      + std::to_string(hv)
-          + "vv: "      + std::to_string(vv)
+    mvCtx = "x: "      + std::to_string(x)
+          + "y: "      + std::to_string(y)
         //  + "onG: "     + std::to_string(onGround)
           + "inv: "     + std::to_string(invincibleTimer)
-          + "frm: "     + std::to_string(static_cast<int>(form));
+        //   + "frm: "     + std::to_string(static_cast<int>(form));
         //   + "cyt: "     + std::to_string(coyoteTimer)
         //   + "jbt: "     + std::to_string(jumpableBufferTimer)
         //   + "isJ: "     + std::to_string(isJumping)
